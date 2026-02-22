@@ -1,0 +1,171 @@
+// Mock data for CRM & Sales module
+
+export const CRM_LEADS = [
+    {
+        id: 'L001',
+        name: 'Amit Sharma',
+        phone: '9876543210',
+        email: 'amit.s@example.com',
+        gender: 'Male',
+        age: 28,
+        interest: ['Weight Loss', 'Yoga'],
+        source: 'Instagram',
+        budgetRange: '3000-5000',
+        preferredContact: 'WhatsApp',
+        assignedTo: 'T001', // Trainer ID
+        branchId: 'B001', // Branch ID
+        followUpDate: '2026-02-13',
+        followUpTime: '10:00 AM',
+        status: 'new',
+        statusLabel: 'New',
+        notes: 'Interested in early morning batches.',
+        createdAt: '2026-02-10'
+    },
+    {
+        id: 'L002',
+        name: 'Priya Verma',
+        phone: '9123456789',
+        email: 'priya.v@example.com',
+        gender: 'Female',
+        age: 24,
+        interest: ['Zumba', 'Strength Training'],
+        source: 'Walk-in',
+        budgetRange: '2000-4000',
+        preferredContact: 'Call',
+        assignedTo: 'T002',
+        branchId: 'B001',
+        followUpDate: '2026-02-13',
+        followUpTime: '02:30 PM',
+        status: 'contacted',
+        statusLabel: 'Contacted',
+        notes: 'Needs a personal trainer for Zumba.',
+        createdAt: '2026-02-11'
+    },
+    {
+        id: 'L003',
+        name: 'Rahul Khanna',
+        phone: '8888877777',
+        email: 'rahul.k@example.com',
+        gender: 'Male',
+        age: 32,
+        interest: ['CrossFit'],
+        source: 'Referral',
+        budgetRange: '5000+',
+        preferredContact: 'WhatsApp',
+        assignedTo: 'T001',
+        branchId: 'B002',
+        followUpDate: '2026-02-14',
+        followUpTime: '11:00 AM',
+        status: 'follow-up',
+        statusLabel: 'Follow-up Scheduled',
+        notes: 'Former athlete, looking for high intensity.',
+        createdAt: '2026-02-12'
+    },
+    {
+        id: 'L004',
+        name: 'Sonal Singh',
+        phone: '7777766666',
+        email: 'sonal.s@example.com',
+        gender: 'Female',
+        age: 29,
+        interest: ['Weight Loss'],
+        source: 'Walk-in',
+        budgetRange: '3000-5000',
+        preferredContact: 'Call',
+        assignedTo: 'T003',
+        branchId: 'B001',
+        followUpDate: '2026-02-13',
+        followUpTime: '05:00 PM',
+        status: 'new',
+        statusLabel: 'New',
+        notes: 'Inquired about couple membership.',
+        createdAt: '2026-02-12'
+    },
+    {
+        id: 'L005',
+        name: 'Vikram AD',
+        phone: '9999911111',
+        email: 'vikram@example.com',
+        gender: 'Male',
+        age: 35,
+        interest: ['Strength Training'],
+        source: 'Google',
+        budgetRange: '4000-6000',
+        preferredContact: 'WhatsApp',
+        assignedTo: 'T001',
+        branchId: 'B001',
+        followUpDate: '2026-02-12',
+        followUpTime: '06:00 PM',
+        status: 'converted',
+        statusLabel: 'Converted',
+        notes: 'Joined Gold package.',
+        createdAt: '2026-02-05'
+    },
+    {
+        id: 'L006',
+        name: 'Arjun Mehra',
+        phone: '9888812345',
+        email: 'arjun.m@example.com',
+        gender: 'Male',
+        age: 30,
+        interest: ['Cardio'],
+        source: 'Instagram',
+        budgetRange: '2000-3000',
+        preferredContact: 'Call',
+        assignedTo: 'T002',
+        branchId: 'B001',
+        followUpDate: '2026-02-10',
+        followUpTime: '11:00 AM',
+        status: 'not-interested',
+        statusLabel: 'Not Interested',
+        notes: 'Timing issues, might reconsider after 3 months.',
+        createdAt: '2026-02-01'
+    },
+    {
+        id: 'L007',
+        name: 'Megha Gupta',
+        phone: '9777765432',
+        email: 'megha.g@example.com',
+        gender: 'Female',
+        age: 27,
+        interest: ['Yoga', 'Zumba'],
+        source: 'Walk-in',
+        budgetRange: '4000-5000',
+        preferredContact: 'WhatsApp',
+        assignedTo: 'T003',
+        branchId: 'B001',
+        followUpDate: '2026-02-13',
+        followUpTime: '04:00 PM',
+        status: 'follow-up',
+        statusLabel: 'Follow-up Scheduled',
+        notes: 'Comparing with other gyms nearby.',
+        createdAt: '2026-02-10'
+    }
+];
+
+export const LEAD_STATUSES = [
+    { id: 'new', label: 'New', color: 'blue' },
+    { id: 'contacted', label: 'Contacted', color: 'amber' },
+    { id: 'follow-up', label: 'Follow-up Scheduled', color: 'purple' },
+    { id: 'converted', label: 'Converted', color: 'emerald' },
+    { id: 'not-interested', label: 'Not Interested', color: 'rose' }
+];
+
+export const LEAD_SOURCES = [
+    'Walk-in',
+    'Instagram',
+    'Facebook',
+    'Google',
+    'Referral',
+    'Other'
+];
+
+export const INTERESTS = [
+    'Weight Loss',
+    'Strength Training',
+    'Yoga',
+    'Zumba',
+    'CrossFit',
+    'Cardio',
+    'Bodybuilding'
+];

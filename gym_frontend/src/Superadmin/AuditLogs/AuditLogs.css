@@ -1,0 +1,251 @@
+/* Audit & Logs Module - Premium Styles */
+
+/* ============================================
+   CONTAINER & LAYOUT
+   ============================================ */
+
+.superadmindashboard-audit-container {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    background-image:
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+
+.superadmindashboard-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUpFade 0.4s ease-out forwards;
+}
+
+/* ============================================
+   FILTERS & INPUTS
+   ============================================ */
+
+.superadmindashboard-filter-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.superadmindashboard-input,
+.superadmindashboard-select {
+    padding: 0.75rem 1rem;
+    /* Increased from 0.5rem 1rem */
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    /* Increased radius */
+    font-size: 0.9rem;
+    color: #334155;
+    background-color: #fff;
+    transition: all 0.2s;
+    min-width: 150px;
+}
+
+.superadmindashboard-input:focus,
+.superadmindashboard-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.superadmindashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    /* Increased from 0.5rem 1rem */
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    /* Added border for alignment */
+    white-space: nowrap;
+}
+
+.superadmindashboard-btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.superadmindashboard-btn-primary:hover {
+    background-color: #2563eb;
+}
+
+/* ============================================
+   TABLES (RESPONSIVE)
+   ============================================ */
+
+.superadmindashboard-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.superadmindashboard-activitylogs-table,
+.superadmindashboard-hardwarelogs-table,
+.superadmindashboard-errorlogs-table {
+    width: 100%;
+    min-width: 800px;
+    /* Prevent crushing */
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.superadmindashboard-activitylogs-table th,
+.superadmindashboard-hardwarelogs-table th,
+.superadmindashboard-errorlogs-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #64748b;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.superadmindashboard-activitylogs-table td,
+.superadmindashboard-hardwarelogs-table td,
+.superadmindashboard-errorlogs-table td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.superadmindashboard-activitylogs-table tr:hover,
+.superadmindashboard-hardwarelogs-table tr:hover,
+.superadmindashboard-errorlogs-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ============================================
+   STATUS BADGES
+   ============================================ */
+
+.superadmindashboard-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-green {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge-yellow {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+.badge-red {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-blue {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-gray {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    display: inline-block;
+}
+
+.badge-green .badge-dot {
+    background-color: #16a34a;
+}
+
+.badge-yellow .badge-dot {
+    background-color: #ca8a04;
+}
+
+.badge-red .badge-dot {
+    background-color: #dc2626;
+}
+
+.badge-blue .badge-dot {
+    background-color: #2563eb;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 768px) {
+    .superadmindashboard-audit-container {
+        padding: 1rem;
+    }
+
+    .superadmindashboard-card {
+        padding: 1rem;
+    }
+
+    .superadmindashboard-filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .superadmindashboard-input,
+    .superadmindashboard-select {
+        width: 100%;
+    }
+}

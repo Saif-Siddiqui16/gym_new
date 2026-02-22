@@ -1,0 +1,10 @@
+export { default as OperationsLayout } from './OperationsLayout';
+export { default as StaffSchedule } from './pages/StaffSchedule';
+export { default as EquipmentMaintenance } from './pages/EquipmentMaintenance';
+export { default as LockerManagement } from './pages/LockerManagement';
+export { default as Inventory } from './pages/Inventory';
+export { default as Announcements } from './pages/Announcements';
+export { default as RewardsProgram } from './pages/RewardsProgram';
+export { default as FeedbackSystem } from './pages/FeedbackSystem';
+export { default as WhatsAppChat } from './pages/WhatsAppChat';
+export { default as Devices } from './pages/Devices';

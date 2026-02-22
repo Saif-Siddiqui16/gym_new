@@ -1,0 +1,246 @@
+/* General Settings Module - Final Polish */
+
+/* ============================================
+   CONTAINER & LAYOUT
+   ============================================ */
+
+.superadmindashboard-general-container,
+.superadmindashboard-invoice-container,
+.superadmindashboard-hardware-container {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUpFade 0.4s ease-out forwards;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+/* ============================================
+   CARD STYLES (CLEANER)
+   ============================================ */
+
+.superadmindashboard-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1.5rem;
+    overflow: hidden;
+    /* Contains any overflowing children */
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+.superadmindashboard-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.superadmindashboard-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.superadmindashboard-input,
+.superadmindashboard-textarea,
+.superadmindashboard-select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    color: #334155;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.superadmindashboard-input:focus,
+.superadmindashboard-textarea:focus,
+.superadmindashboard-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.superadmindashboard-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.superadmindashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.superadmindashboard-btn-primary {
+    background-color: #2563eb;
+    color: white;
+}
+
+.superadmindashboard-btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+.superadmindashboard-btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.superadmindashboard-btn-success:hover {
+    background-color: #059669;
+}
+
+/* ============================================
+   TABLES (RESPONSIVE WRAPPER)
+   ============================================ */
+
+.overflow-x-auto {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.superadmindashboard-hardware-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+}
+
+.superadmindashboard-hardware-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #64748b;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.superadmindashboard-hardware-table td {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.superadmindashboard-hardware-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.superadmindashboard-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-offline {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* ============================================
+   INVOICE PREVIEW
+   ============================================ */
+
+.superadmindashboard-invoice-template {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.invoice-preview-header {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 768px) {
+
+    .superadmindashboard-general-container,
+    .superadmindashboard-invoice-container,
+    .superadmindashboard-hardware-container {
+        padding: 1rem;
+    }
+
+    .superadmindashboard-card {
+        padding: 1rem;
+    }
+
+    .invoice-preview-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .invoice-preview-header .text-right {
+        text-align: left;
+    }
+}
