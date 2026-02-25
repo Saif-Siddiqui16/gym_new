@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Plus,
     Search,
@@ -18,28 +18,42 @@ import {
     ChevronDown,
     Building,
     ExternalLink,
-    AlertCircle
+    AlertCircle,
+    Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { EXPENSES, KPIS } from '../data/mockFinance';
+import { fetchExpenses, addExpense, deleteExpense } from '../../../api/finance/financeApi';
 
 const PettyCashPage = () => {
     const navigate = useNavigate();
 
-    // Auth Simulation
-    const loggedInUser = {
-        id: 'S-001',
-        name: 'Alex Staff',
-        role: 'STAFF', // Can be STAFF, MANAGER, BRANCH_ADMIN
+    // Auth Check
+    const userStr = localStorage.getItem('userData');
+    const loggedInUser = userStr ? JSON.parse(userStr) : {
+        name: 'Staff Operator',
+        role: 'STAFF',
         branchId: 'B001'
     };
 
-    const isAdminOrManager = loggedInUser.role === 'BRANCH_ADMIN' || loggedInUser.role === 'MANAGER';
+    const isAdminOrManager = ['BRANCH_ADMIN', 'MANAGER', 'SUPER_ADMIN'].includes(loggedInUser.role);
 
     // State
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [showForm, setShowForm] = useState(false);
+    const [expenses, setExpenses] = useState([]);
+
+    useEffect(() => {
+        const loadExpenses = async () => {
+            try {
+                const data = await fetchExpenses();
+                setExpenses(data);
+            } catch (err) {
+                console.error("Failed fetching expenses:", err);
+            }
+        };
+        loadExpenses();
+    }, []);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -56,31 +70,91 @@ const PettyCashPage = () => {
     const categories = ['Cleaning', 'Maintenance', 'Utilities', 'Supplies', 'Miscellaneous'];
     const methods = ['Cash', 'Card', 'Bank Transfer'];
 
-    // Filter Logic
-    const filteredExpenses = EXPENSES.filter(exp => {
-        const matchesBranch = exp.branchId === loggedInUser.branchId;
-        const matchesRole = isAdminOrManager || exp.createdBy === loggedInUser.id;
-        const matchesCategory = selectedCategory === 'All' || exp.category === selectedCategory;
-        const matchesSearch = exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            exp.vendor?.toLowerCase().includes(searchTerm.toLowerCase());
-
-        return matchesBranch && matchesRole && matchesCategory && matchesSearch;
+    // Enrichment mapping (parsing custom fields stored inside notes JSON)
+    const enrichedExpenses = expenses.map(exp => {
+        let extra = {};
+        if (exp.notes) {
+            try { extra = JSON.parse(exp.notes); }
+            catch { extra = { notes: exp.notes }; }
+        }
+        return {
+            ...exp,
+            vendor: extra.vendor || '',
+            paymentMethod: extra.paymentMethod || 'Cash',
+            invoiceNumber: extra.invoiceNumber || '',
+            actualNotes: extra.notes || '',
+            dateStr: exp.date ? new Date(exp.date).toISOString().split('T')[0] : 'N/A'
+        };
     });
 
-    const handleSubmit = (e) => {
+    // KPI Generation
+    let todayTotal = 0; let monthTotal = 0; let cashTotal = 0; let cardTotal = 0;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const currentMonth = new Date().getMonth();
+
+    enrichedExpenses.forEach(exp => {
+        const amt = Number(exp.amount) || 0;
+        if (exp.dateStr === todayStr) todayTotal += amt;
+        if (new Date(exp.date).getMonth() === currentMonth) monthTotal += amt;
+        if (exp.paymentMethod === 'Cash') cashTotal += amt;
+        else cardTotal += amt;
+    });
+
+    // Filter Logic
+    const filteredExpenses = enrichedExpenses.filter(exp => {
+        const matchesCategory = selectedCategory === 'All' || exp.category === selectedCategory;
+        const matchesSearch = String(exp.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(exp.vendor || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesCategory && matchesSearch;
+    });
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert('Expense logged successfully (Simulated)');
-        setShowForm(false);
-        setFormData({
-            title: '',
-            category: '',
-            amount: '',
-            paymentMethod: 'Cash',
-            vendor: '',
-            invoiceNumber: '',
-            notes: '',
-            date: new Date().toISOString().split('T')[0]
-        });
+
+        try {
+            await addExpense({
+                title: formData.title,
+                category: formData.category,
+                amount: formData.amount,
+                date: formData.date,
+                status: 'Paid',
+                notes: JSON.stringify({
+                    paymentMethod: formData.paymentMethod,
+                    vendor: formData.vendor,
+                    invoiceNumber: formData.invoiceNumber,
+                    notes: formData.notes
+                })
+            });
+
+            setShowForm(false);
+            setFormData({
+                title: '', category: '', amount: '', paymentMethod: 'Cash',
+                vendor: '', invoiceNumber: '', notes: '',
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            // Reload manually or force reload
+            const updated = await fetchExpenses();
+            setExpenses(updated);
+        } catch (err) {
+            console.error("Failed to add expense:", err);
+            alert("Failed to create expense. Check console for details.");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this expense? This action cannot be undone.")) return;
+
+        try {
+            await deleteExpense(id);
+            // Instantly remove from local UI state to update KPIs gracefully
+            const updated = expenses.filter(e => e.id !== id);
+            setExpenses(updated);
+        } catch (err) {
+            console.error("Failed to delete expense:", err);
+            alert("Failed to delete expense. You may not have permission.");
+        }
     };
 
     return (
@@ -106,7 +180,7 @@ const PettyCashPage = () => {
                                 <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-2">
                                     {isAdminOrManager ? 'Petty Cash / Expenses' : 'Log Expense'}
                                 </h1>
-                                <p className="text-slate-500 font-medium italic">Track operational spending and petty cash logs for {loggedInUser.branchId}.</p>
+                                <p className="text-slate-500 font-medium italic">Track operational spending and petty cash logs for {loggedInUser.branchName || loggedInUser.branchId || 'Gym'}.</p>
                             </div>
                         </div>
                     </div>
@@ -114,8 +188,8 @@ const PettyCashPage = () => {
                     <button
                         onClick={() => setShowForm(!showForm)}
                         className={`px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-3 ${showForm
-                                ? 'bg-white border-2 border-slate-100 text-slate-500 hover:border-slate-200'
-                                : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-95 shadow-slate-200'
+                            ? 'bg-white border-2 border-slate-100 text-slate-500 hover:border-slate-200'
+                            : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-95 shadow-slate-200'
                             }`}
                     >
                         {showForm ? 'Cancel Entry' : <><Plus size={18} /> New Expense</>}
@@ -132,7 +206,7 @@ const PettyCashPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today</p>
-                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{KPIS.expenses.today}</h4>
+                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{todayTotal.toLocaleString()}</h4>
                                 </div>
                             </div>
                         </div>
@@ -143,7 +217,7 @@ const PettyCashPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">This Month</p>
-                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{KPIS.expenses.monthly.toLocaleString()}</h4>
+                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{monthTotal.toLocaleString()}</h4>
                                 </div>
                             </div>
                         </div>
@@ -154,7 +228,7 @@ const PettyCashPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cash Used</p>
-                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{KPIS.expenses.cash.toLocaleString()}</h4>
+                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{cashTotal.toLocaleString()}</h4>
                                 </div>
                             </div>
                         </div>
@@ -165,7 +239,7 @@ const PettyCashPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digital/Card</p>
-                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{KPIS.expenses.card.toLocaleString()}</h4>
+                                    <h4 className="text-2xl font-black text-slate-800 tabular-nums">₹{cardTotal.toLocaleString()}</h4>
                                 </div>
                             </div>
                         </div>
@@ -316,15 +390,16 @@ const PettyCashPage = () => {
                                     <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Method</th>
                                     <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Logged By</th>
                                     <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Amount</th>
+                                    {isAdminOrManager && <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredExpenses.map(exp => (
-                                    <tr key={exp.id} className="group hover:bg-orange-50/20 transition-colors">
+                                    <tr key={exp.id || Math.random()} className="group hover:bg-orange-50/20 transition-colors">
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-slate-800 tabular-nums">{exp.date}</span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase">{exp.id}</span>
+                                                <span className="text-xs font-black text-slate-800 tabular-nums">{exp.dateStr}</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase">EXP-{exp.id}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
@@ -351,14 +426,25 @@ const PettyCashPage = () => {
                                                     <User size={14} />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-700 leading-none mb-0.5">{exp.createdBy}</span>
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase">{exp.role}</span>
+                                                    <span className="text-[10px] font-black text-slate-700 leading-none mb-0.5">{exp.addedBy || 'Staff'}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase">Operator</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
-                                            <span className="text-base font-black text-slate-900 tabular-nums">₹{exp.amount}</span>
+                                            <span className="text-base font-black text-slate-900 tabular-nums">₹{Number(exp.amount).toLocaleString()}</span>
                                         </td>
+                                        {isAdminOrManager && (
+                                            <td className="px-8 py-6 text-right">
+                                                <button
+                                                    onClick={() => handleDelete(exp.id)}
+                                                    className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                                                    title="Delete Expense"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>
@@ -367,15 +453,15 @@ const PettyCashPage = () => {
                         {/* Mobile Stacked View */}
                         <div className="md:hidden divide-y divide-slate-100">
                             {filteredExpenses.map(exp => (
-                                <div key={exp.id} className="p-6 space-y-4">
+                                <div key={exp.id || Math.random()} className="p-6 space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">{exp.date}</span>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">{exp.dateStr}</span>
                                             <h4 className="text-base font-black text-slate-900 leading-tight">{exp.title}</h4>
                                             <p className="text-xs font-medium text-slate-400">{exp.vendor || 'Local Vendor'}</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-xl font-black text-slate-900 tabular-nums block leading-none">₹{exp.amount}</span>
+                                            <span className="text-xl font-black text-slate-900 tabular-nums block leading-none">₹{Number(exp.amount).toLocaleString()}</span>
                                             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border mt-2 inline-block ${exp.paymentMethod === 'Cash' ? 'bg-orange-50 border-orange-100 text-orange-600' : 'bg-blue-50 border-blue-100 text-blue-600'
                                                 }`}>
                                                 {exp.paymentMethod}
@@ -387,11 +473,21 @@ const PettyCashPage = () => {
                                             <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
                                                 <User size={14} />
                                             </div>
-                                            <span className="text-[10px] font-black text-slate-500 uppercase">{exp.createdBy}</span>
+                                            <span className="text-[10px] font-black text-slate-500 uppercase">{exp.addedBy || 'Staff'}</span>
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-lg">
-                                            {exp.category}
-                                        </span>
+                                        <div className="flex gap-3 items-center">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-lg">
+                                                {exp.category}
+                                            </span>
+                                            {isAdminOrManager && (
+                                                <button
+                                                    onClick={() => handleDelete(exp.id)}
+                                                    className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-colors"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

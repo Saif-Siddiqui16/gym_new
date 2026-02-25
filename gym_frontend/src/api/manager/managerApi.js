@@ -156,13 +156,24 @@ export const deleteTask = async (id) => {
     return response.data;
 };
 
+export const getRenewalAlerts = async ({ type = 'expiring', search = '' } = {}) => {
+    const params = { type, search };
+    const response = await apiClient.get('/admin/members/renewal-alerts', { params });
+    return response.data;
+};
+
+export const renewMembership = async (data) => {
+    const response = await apiClient.post('/admin/members/renewal/renew', data);
+    return response.data;
+};
+
 // --- STAFF API ---
 export const getAllStaff = async () => {
     const response = await apiClient.get('/admin/staff');
     return response.data;
 };
 
-export const getPlans = async () => {
+export const getAllPlans = async () => {
     const response = await apiClient.get('/admin/plans');
     return response.data;
 };

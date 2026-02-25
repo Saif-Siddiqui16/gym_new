@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search,
@@ -13,45 +13,47 @@ import {
     ExternalLink,
     CheckCircle2
 } from 'lucide-react';
-import { MEMBERSHIPS } from '../data/mockMemberships';
+import { getRenewalAlerts } from '../../../api/manager/managerApi';
 import RenewalModal from '../components/RenewalModal';
+import toast from 'react-hot-toast';
 
 const RenewalAlertsPage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('expiring'); // 'expiring' or 'expired'
     const [searchTerm, setSearchTerm] = useState('');
+    const [members, setMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedMember, setSelectedMember] = useState(null);
     const [isRenewalModalOpen, setIsRenewalModalOpen] = useState(false);
 
-    // In a real app, this would come from AuthContext
-    const loggedInUser = {
-        branchId: 'B001',
-        role: 'BRANCH_ADMIN'
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const data = await getRenewalAlerts({ type: activeTab, search: searchTerm });
+                setMembers(data);
+            } catch (err) {
+                console.error("Failed to load renewal alerts:", err);
+                toast.error("Failed to load renewal alerts");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const today = new Date();
+        const debounce = setTimeout(fetchData, 300);
+        return () => clearTimeout(debounce);
+    }, [activeTab, searchTerm]);
 
     const getDaysDiff = (dateStr) => {
+        if (!dateStr || dateStr === 'N/A') return 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const date = new Date(dateStr);
         const diffTime = date - today;
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    // Filter logic
-    const filteredMembers = MEMBERSHIPS.filter(m => {
-        // 1. Branch Isolation
-        if (m.branchId && m.branchId !== loggedInUser.branchId) return false;
-
-        const days = getDaysDiff(m.endDate);
-        const nameMatches = m.memberName.toLowerCase().includes(searchTerm.toLowerCase());
-        const phoneMatches = m.phone.includes(searchTerm);
-
-        if (activeTab === 'expiring') {
-            return (days >= 0 && days <= 7 && m.status !== 'Expired') && (nameMatches || phoneMatches);
-        } else {
-            return (days < 0 && days >= -15) && (nameMatches || phoneMatches);
-        }
-    });
+    const filteredMembers = members;
 
     const handleRenewClick = (member) => {
         setSelectedMember(member);
@@ -154,8 +156,18 @@ const RenewalAlertsPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {filteredMembers.length > 0 ? filteredMembers.map(member => (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="4" className="py-20 text-center">
+                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-500">
+                                                <RefreshCw size={40} className="animate-spin" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-slate-300 uppercase tracking-widest">Loading data...</h3>
+                                        </td>
+                                    </tr>
+                                ) : filteredMembers.length > 0 ? filteredMembers.map(member => (
                                     <tr key={member.id} className="group hover:bg-slate-50/50 transition-colors">
+                                        {/* ... member row content ... */}
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-lg group-hover:bg-violet-500 group-hover:text-white transition-all duration-500">
@@ -228,8 +240,16 @@ const RenewalAlertsPage = () => {
 
                         {/* Mobile List View */}
                         <div className="lg:hidden divide-y divide-slate-100">
-                            {filteredMembers.length > 0 ? filteredMembers.map(member => (
+                            {loading ? (
+                                <div className="p-10 text-center">
+                                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-500">
+                                        <RefreshCw size={24} className="animate-spin" />
+                                    </div>
+                                    <p className="text-sm font-black text-slate-300 uppercase tracking-widest">Loading...</p>
+                                </div>
+                            ) : filteredMembers.length > 0 ? filteredMembers.map(member => (
                                 <div key={member.id} className="p-6 space-y-5">
+                                    {/* ... mobile record content ... */}
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg ${activeTab === 'expiring' ? 'bg-amber-500' : 'bg-rose-600'}`}>

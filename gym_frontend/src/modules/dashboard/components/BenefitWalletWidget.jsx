@@ -61,7 +61,7 @@ const BenefitWalletWidget = ({ walletData }) => {
                                             {benefit.name}
                                         </span>
                                         <span className="text-[9px] font-black tracking-tighter text-slate-400 uppercase">
-                                            <span className="text-slate-900">{remaining} / {benefit.total}</span> <span className="text-slate-400 ml-1">{benefit.label}</span>
+                                            <span className="text-slate-900">{remaining} / {benefit.total}</span> <span className="text-slate-400 ml-1">{benefit.total === 'Unlimited' ? '' : 'Total Quota'}</span>
                                         </span>
                                     </div>
 

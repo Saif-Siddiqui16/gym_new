@@ -140,7 +140,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 name: '',
                 limit: '5',
                 isUnlimited: false,
-                unit: 'Per Month',
+                unit: 'Lifetime',
                 gender: 'All',
                 room: ''
             }]

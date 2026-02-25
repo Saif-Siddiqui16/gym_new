@@ -8,3 +8,4 @@ export { default as Notifications } from './pages/Notifications';
 export { default as SecuritySettings } from './pages/SecuritySettings';
 export { default as AuditLogs } from './pages/AuditLogs';
 export { default as PaymentGateway } from './pages/PaymentGateway';
+export { default as AmenitySettings } from './pages/AmenitySettings';

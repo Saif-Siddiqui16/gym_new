@@ -11,8 +11,6 @@ const WalletList = ({ role = ROLES.SUPER_ADMIN }) => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // For frontend demonstration, assume Managers/BranchAdmins belong to 'Downtown Center'
-    const currentUserBranch = 'Downtown Center';
 
     // Initial Member Data
     const [wallets, setWallets] = useState([]);
@@ -29,8 +27,8 @@ const WalletList = ({ role = ROLES.SUPER_ADMIN }) => {
                 // Map data to walletData structure for drawer/list
                 const walletMap = data.reduce((acc, w) => {
                     acc[w.id] = { // Use id (memberId) to match record.id
-                        balance: w.balance,
-                        transactions: [],
+                        balance: Number(w.balance) || 0,
+                        transactions: w.transactions || [],
                         lastTransaction: w.lastTransaction
                     };
                     return acc;
@@ -66,10 +64,7 @@ const WalletList = ({ role = ROLES.SUPER_ADMIN }) => {
             member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             member.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
             member.branch.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesBranch = role === ROLES.SUPER_ADMIN || member.branch === currentUserBranch;
-
-        return matchesSearch && matchesBranch;
+        return matchesSearch;
     });
 
     // Step 7: Pagination Logic
@@ -132,8 +127,8 @@ const WalletList = ({ role = ROLES.SUPER_ADMIN }) => {
                                                 <div className="text-sm text-gray-500">{record.branch}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap" data-label="Current Balance">
-                                                <span className={`text-sm font-bold ${currentWallet.balance > 0 ? 'text-green-600' : currentWallet.balance < 0 ? 'text-red-100' : 'text-gray-900'}`}>
-                                                    {currentWallet.balance < 0 ? `-$${Math.abs(currentWallet.balance).toFixed(2)}` : `$${currentWallet.balance.toFixed(2)}`}
+                                                <span className={`text-sm font-bold ${Number(currentWallet.balance) > 0 ? 'text-green-600' : Number(currentWallet.balance) < 0 ? 'text-red-100' : 'text-gray-900'}`}>
+                                                    {Number(currentWallet.balance) < 0 ? `-$${Math.abs(Number(currentWallet.balance)).toFixed(2)}` : `$${Number(currentWallet.balance).toFixed(2)}`}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap" data-label="Last Transaction">
@@ -174,8 +169,8 @@ const WalletList = ({ role = ROLES.SUPER_ADMIN }) => {
                                 title={record.name}
                                 subtitle={record.id}
                                 badge={{
-                                    label: currentWallet.balance < 0 ? `-$${Math.abs(currentWallet.balance).toFixed(2)}` : `$${currentWallet.balance.toFixed(2)}`,
-                                    color: currentWallet.balance > 0 ? 'emerald' : currentWallet.balance < 0 ? 'red' : 'slate'
+                                    label: Number(currentWallet.balance) < 0 ? `-$${Math.abs(Number(currentWallet.balance)).toFixed(2)}` : `$${Number(currentWallet.balance).toFixed(2)}`,
+                                    color: Number(currentWallet.balance) > 0 ? 'emerald' : Number(currentWallet.balance) < 0 ? 'red' : 'slate'
                                 }}
                                 fields={[
                                     { label: 'Branch', value: record.branch, icon: MapPin },

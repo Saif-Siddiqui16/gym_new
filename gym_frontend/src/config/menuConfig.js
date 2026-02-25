@@ -178,6 +178,7 @@ export const menuConfig = {
                 { label: 'Member List', path: '/branchadmin/members/list', icon: Users },
                 { label: 'Bookings', path: '/branchadmin/bookings/calendar', icon: Calendar },
                 { label: 'Tasks', path: '/branchadmin/tasks/list', icon: ClipboardList },
+                { label: 'Assign Task', path: '/branchadmin/tasks/assign', icon: UserPlus },
                 { label: 'WhatsApp Chat', path: '/operations/whatsapp', icon: MessageSquare },
             ]
         },
@@ -227,6 +228,7 @@ export const menuConfig = {
                 { label: 'Webhooks', path: '/settings/webhooks', icon: Terminal },
                 { label: 'API Keys', path: '/settings/api-keys', icon: Key },
                 { label: 'Templates', path: '/settings/templates', icon: Layout },
+                { label: 'Amenities', path: '/settings/amenities', icon: Layers },
             ]
         },
         {
@@ -281,6 +283,8 @@ export const menuConfig = {
                 { label: 'Rewards Program', path: '/operations/rewards', icon: Activity },
                 { label: 'Feedback', path: '/operations/feedback', icon: Bell },
                 { label: 'Member List', path: '/manager/members/list', icon: Users },
+                { label: 'Tasks', path: '/manager/tasks/list', icon: ClipboardList },
+                { label: 'Assign Task', path: '/manager/tasks/assign', icon: UserPlus },
                 { label: 'Device Dashboard', path: '/operations/devices', icon: Smartphone },
             ]
         },
@@ -324,6 +328,7 @@ export const menuConfig = {
                 // { label: 'Branches', path: '/settings/branches', icon: GitBranch },
                 // { label: 'Roles & Permissions', path: '/settings/roles', icon: Shield },
                 { label: 'Security', path: '/settings/security', icon: Lock },
+                { label: 'Amenities', path: '/settings/amenities', icon: Layers },
             ]
         },
         {

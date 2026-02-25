@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
+import { updateMemberWallet } from '../api/superadmin/superAdminApi';
 
 const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }) => {
     // Current Wallet Data from Props mapping
@@ -9,6 +10,7 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
     const [transactionType, setTransactionType] = useState(null); // 'credit' | 'debit' | null
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (memberData) {
@@ -16,40 +18,57 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
         }
     }, [memberData]);
 
-    const handleTransactionSubmit = (e) => {
+    const handleTransactionSubmit = async (e) => {
         e.preventDefault();
         if (!amount || !description || isNaN(amount) || !memberData) return;
 
         const numAmount = parseFloat(amount);
         const type = transactionType === 'credit' ? 'Credit' : 'Debit';
-        const date = new Date().toISOString().split('T')[0];
 
-        // Create new transaction
-        const newTx = {
-            id: Date.now(),
-            date,
-            type,
-            amount: numAmount,
-            description
-        };
+        try {
+            setIsSubmitting(true);
 
-        // Update Centralized Wallet State (Mapping by ID)
-        const updatedBalance = type === 'Credit' ? currentWallet.balance + numAmount : currentWallet.balance - numAmount;
-        const updatedTransactions = [newTx, ...currentWallet.transactions];
+            // 1. Fire true backend update
+            const response = await updateMemberWallet(memberData.id, {
+                type,
+                amount: numAmount,
+                description
+            });
 
-        setWalletData(prev => ({
-            ...prev,
-            [memberData.id]: {
-                balance: updatedBalance,
-                transactions: updatedTransactions,
-                lastTransaction: date
-            }
-        }));
+            // 2. Safely read returned data
+            const newBalance = response.balance;
+            const newTx = response.transaction;
 
-        // Reset Form
-        setTransactionType(null);
-        setAmount('');
-        setDescription('');
+            // 3. Format date nicely for the UI
+            const dateStr = new Date(newTx.createdAt || new Date()).toISOString().split('T')[0];
+            const formattedTx = {
+                id: newTx.id,
+                date: dateStr,
+                type: newTx.type,
+                amount: parseFloat(newTx.amount),
+                description: newTx.description
+            };
+
+            // 4. Update parent mapping table efficiently
+            setWalletData(prev => ({
+                ...prev,
+                [memberData.id]: {
+                    balance: newBalance,
+                    transactions: [formattedTx, ...currentWallet.transactions],
+                    lastTransaction: dateStr
+                }
+            }));
+
+            // Reset Form on Success
+            setTransactionType(null);
+            setAmount('');
+            setDescription('');
+        } catch (error) {
+            console.error("Wallet transaction failed:", error);
+            alert("Transaction failed: " + error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -103,16 +122,20 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
                     <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100">
                         <p className="text-indigo-100 text-sm font-medium">Current Balance</p>
                         <h3 className="text-3xl font-bold mt-1">
-                            {currentWallet.balance < 0 ? `-$${Math.abs(currentWallet.balance).toFixed(2)}` : `$${currentWallet.balance.toFixed(2)}`}
+                            {Number(currentWallet.balance) < 0 ? `-$${Math.abs(Number(currentWallet.balance)).toFixed(2)}` : `$${Number(currentWallet.balance).toFixed(2)}`}
                         </h3>
                         <div className="grid grid-cols-2 gap-4 mt-6">
                             <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
                                 <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-wider">Total Credit</p>
-                                <p className="text-base font-bold text-white">$450.00</p>
+                                <p className="text-base font-bold text-white">
+                                    ${(currentWallet.transactions || []).filter(tx => tx.type === 'Credit').reduce((acc, tx) => acc + Number(tx.amount), 0).toFixed(2)}
+                                </p>
                             </div>
                             <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
                                 <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-wider">Total Debit</p>
-                                <p className="text-base font-bold text-white">$125.00</p>
+                                <p className="text-base font-bold text-white">
+                                    ${(currentWallet.transactions || []).filter(tx => tx.type === 'Debit').reduce((acc, tx) => acc + Number(tx.amount), 0).toFixed(2)}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -157,9 +180,11 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
                                         </button>
                                         <button
                                             type="submit"
-                                            className={`flex-1 py-2 text-sm font-bold text-white rounded-xl transition-all shadow-md ${transactionType === 'credit' ? 'bg-green-600 hover:bg-green-700 shadow-green-100' : 'bg-red-600 hover:bg-red-700 shadow-red-100'}`}
+                                            disabled={isSubmitting}
+                                            className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold text-white rounded-xl transition-all shadow-md ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                                                } ${transactionType === 'credit' ? 'bg-green-600 hover:bg-green-700 shadow-green-100' : 'bg-red-600 hover:bg-red-700 shadow-red-100'}`}
                                         >
-                                            Confirm
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm'}
                                         </button>
                                     </div>
                                 </form>
@@ -196,7 +221,7 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-right font-bold text-gray-900">
-                                                    {tx.type === 'Credit' ? '+' : '-'}${tx.amount.toFixed(2)}
+                                                    {tx.type === 'Credit' ? '+' : '-'}${Number(tx.amount).toFixed(2)}
                                                 </td>
                                             </tr>
                                         ))}

@@ -4,7 +4,7 @@ import { User, Mail, Phone, Calendar, CreditCard, Check, AlertCircle, ArrowRight
 import { membershipApi } from '../../../api/membershipApi';
 import toast from 'react-hot-toast';
 
-import { BENEFITS } from '../data/mockMemberships';
+import amenityApi from '../../../api/amenityApi';
 
 
 
@@ -15,6 +15,7 @@ const MembershipForm = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [plans, setPlans] = useState([]);
+    const [amenities, setAmenities] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -43,7 +44,11 @@ const MembershipForm = () => {
                 const plansData = await membershipApi.getPlans();
                 setPlans(plansData);
 
-                // 2. Fetch Member if in edit mode
+                // 2. Fetch Amenities
+                const amenitiesData = await amenityApi.getAll();
+                setAmenities(amenitiesData);
+
+                // 3. Fetch Member if in edit mode
                 if (isEditMode) {
                     const data = await membershipApi.getMemberById(id);
                     setFormData({
@@ -334,7 +339,7 @@ const MembershipForm = () => {
                                 <h3 className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Included Benefits</h3>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {BENEFITS.map((benefit) => (
+                                {amenities.map((benefit) => (
                                     <div key={benefit.id} className={`relative flex items-start p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg group ${formData.benefits.includes(benefit.id)
                                         ? 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-300 shadow-md'
                                         : 'bg-white border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/30'
@@ -355,16 +360,19 @@ const MembershipForm = () => {
                                                 }`}>
                                                 {benefit.name}
                                             </label>
+                                            {benefit.gender && benefit.gender !== 'UNISEX' && (
+                                                <span className={`block mt-1 w-max px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${benefit.gender === 'MALE' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+                                                    {benefit.gender} ONLY
+                                                </span>
+                                            )}
                                         </div>
-                                        {formData.benefits.includes(benefit.id) && (
-                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        )}
                                     </div>
                                 ))}
+                                {amenities.length === 0 && (
+                                    <div className="col-span-2 text-center py-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                        <p className="text-slate-500 text-sm">No amenities configured. Add them in settings.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

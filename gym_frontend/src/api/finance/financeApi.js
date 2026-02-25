@@ -44,3 +44,11 @@ export const fetchTransactions = async () => {
         throw error;
     }
 };
+export const deleteExpense = async (id) => {
+    try {
+        const response = await apiClient.delete(`/finance/expenses/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

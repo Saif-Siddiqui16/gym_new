@@ -3,7 +3,7 @@ import { X, Save, Check, Dumbbell, AlertTriangle } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
-import { BENEFITS } from '../data/mockMemberships';
+import amenityApi from '../../../api/amenityApi';
 
 const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState({
@@ -12,11 +12,22 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
         duration: '',
         durationType: 'Months',
         description: '',
-        benefits: [] // Array of { id: benefitId, limit: 'Unlimited' | number }
+        benefits: []
     });
+    const [amenities, setAmenities] = useState([]);
 
     useEffect(() => {
         if (isOpen) {
+            const fetchAmenities = async () => {
+                try {
+                    const data = await amenityApi.getAll();
+                    setAmenities(data);
+                } catch (error) {
+                    console.error('Failed to fetch amenities:', error);
+                }
+            };
+            fetchAmenities();
+
             if (initialData) {
                 setFormData(initialData);
             } else {
@@ -42,11 +53,9 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
             if (exists) {
                 return { ...prev, benefits: prev.benefits.filter(b => b.id !== benefitId) };
             } else {
-                // Default limit from benefit definition or 'Unlimited'
-                const benefitDef = BENEFITS.find(b => b.id === benefitId);
                 return {
                     ...prev,
-                    benefits: [...prev.benefits, { id: benefitId, limit: benefitDef?.limit || 'Unlimited' }]
+                    benefits: [...prev.benefits, { id: benefitId, limit: 'Unlimited' }]
                 };
             }
         });
@@ -205,7 +214,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     </div>
 
                     <div className="space-y-3">
-                        {BENEFITS.map(benefit => {
+                        {amenities.map(benefit => {
                             const isSelected = formData.benefits?.find(b => b.id === benefit.id);
                             return (
                                 <div
@@ -225,18 +234,23 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                                         </div>
 
                                         <div className="flex-1">
-                                            <div className="flex justify-between items-start">
+                                            <div className="flex flex-col justify-between items-start gap-1">
                                                 <div>
                                                     <h4 className="font-bold text-gray-900">{benefit.name}</h4>
-                                                    <p className="text-xs text-slate-500 mt-0.5">{benefit.description}</p>
+                                                    <p className="text-xs text-slate-500 mt-0.5">{benefit.description || 'Facility access'}</p>
                                                 </div>
+                                                {benefit.gender && benefit.gender !== 'UNISEX' && (
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${benefit.gender === 'MALE' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+                                                        {benefit.gender} ONLY
+                                                    </span>
+                                                )}
                                             </div>
 
                                             {isSelected && (
                                                 <div className="mt-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
                                                     <div className="flex-1">
                                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                                                            Usage Limit ({benefit.type === 'recurring' ? 'Per Month' : 'Total'})
+                                                            Usage Limit (Total)
                                                         </label>
                                                         <input
                                                             type="text"
@@ -253,6 +267,11 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                                 </div>
                             );
                         })}
+                        {amenities.length === 0 && (
+                            <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                                <p className="text-gray-500 text-sm">No amenities found. Please add them in Settings first.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </form>

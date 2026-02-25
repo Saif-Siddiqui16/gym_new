@@ -10,9 +10,11 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
-import { MEMBERSHIP_PLANS } from '../data/mockMemberships';
+import { getAllPlans, renewMembership } from '../../../api/manager/managerApi';
+import toast from 'react-hot-toast';
 
 const RenewalModal = ({ isOpen, onClose, member }) => {
+    const [plans, setPlans] = useState([]);
     const [selectedPlanId, setSelectedPlanId] = useState('');
     const [duration, setDuration] = useState(1);
     const [newExpiryDate, setNewExpiryDate] = useState('');
@@ -20,12 +22,23 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
     const [isSuccess, setIsSuccess] = useState(false);
 
     useEffect(() => {
-        if (member) {
-            const plan = MEMBERSHIP_PLANS.find(p => p.name === member.planName);
-            setSelectedPlanId(plan?.id || MEMBERSHIP_PLANS[0].id);
-            calculateNewExpiry(1); // Default 1 month
+        const fetchPlans = async () => {
+            try {
+                const data = await getAllPlans();
+                setPlans(data);
+                if (data.length > 0 && member) {
+                    const currentPlan = data.find(p => p.name === member.planName);
+                    setSelectedPlanId(currentPlan?.id || data[0].id);
+                }
+            } catch (err) {
+                console.error("Failed to load plans:", err);
+            }
+        };
+        if (isOpen) {
+            fetchPlans();
+            calculateNewExpiry(duration);
         }
-    }, [member]);
+    }, [isOpen, member]);
 
     const calculateNewExpiry = (mths) => {
         const today = new Date();
@@ -39,20 +52,30 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
         calculateNewExpiry(val);
     };
 
-    const handleRenewSubmit = () => {
+    const handleRenewSubmit = async () => {
+        if (!selectedPlanId) return toast.error("Please select a plan");
         setIsProcessing(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsProcessing(false);
+        try {
+            await renewMembership({
+                memberId: member.id,
+                planId: selectedPlanId,
+                duration: duration
+            });
             setIsSuccess(true);
+            toast.success("Membership renewed successfully!");
             setTimeout(() => {
                 setIsSuccess(false);
                 onClose();
             }, 2000);
-        }, 1500);
+        } catch (err) {
+            console.error("Renewal failed:", err);
+            toast.error(err.response?.data?.message || "Renewal failed");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
-    const selectedPlan = MEMBERSHIP_PLANS.find(p => p.id === selectedPlanId);
+    const selectedPlan = plans.find(p => p.id === selectedPlanId);
 
     const footer = (
         <div className="flex gap-3">
@@ -114,13 +137,13 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
                 <div className="space-y-4">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Select New Plan</label>
                     <div className="grid grid-cols-1 gap-3">
-                        {MEMBERSHIP_PLANS.map(plan => (
+                        {plans.map(plan => (
                             <button
                                 key={plan.id}
                                 onClick={() => setSelectedPlanId(plan.id)}
                                 className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${selectedPlanId === plan.id
-                                        ? 'border-violet-500 bg-violet-50/50 shadow-lg shadow-violet-100'
-                                        : 'border-slate-100 bg-white hover:border-violet-200'
+                                    ? 'border-violet-500 bg-violet-50/50 shadow-lg shadow-violet-100'
+                                    : 'border-slate-100 bg-white hover:border-violet-200'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">

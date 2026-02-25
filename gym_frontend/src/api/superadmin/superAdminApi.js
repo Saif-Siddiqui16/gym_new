@@ -431,6 +431,15 @@ const fetchMemberWallets = async () => {
     }
 };
 
+const updateMemberWallet = async (memberId, transactionData) => {
+    try {
+        const response = await api.post(`/superadmin/wallet/members/${memberId}/transaction`, transactionData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to update wallet';
+    }
+};
+
 const fetchTrainerRequests = async () => {
     try {
         const response = await api.get('/superadmin/requests/trainers');
@@ -563,6 +572,7 @@ export {
     deleteStaffMember as deleteStaff,
     fetchWalletStats,
     fetchMemberWallets,
+    updateMemberWallet,
     fetchTrainerRequests,
     fetchTrainerChangeRequests,
     updateTrainerRequest,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Filter, MoreVertical, Clock, AlertCircle, CheckCircle2, Trash2, Edit, ChevronLeft, ChevronRight, X, User, ChevronDown, Check } from 'lucide-react';
-import { getTasks, updateTaskStatus, deleteTask, updateTask } from '../../api/manager/managerApi';
+import { Search, Filter, MoreVertical, Clock, AlertCircle, CheckCircle2, Trash2, Edit, ChevronLeft, ChevronRight, X, User, ChevronDown, Check, Plus } from 'lucide-react';
+import { getTasks, updateTaskStatus, deleteTask, updateTask, getAllStaff } from '../../api/manager/managerApi';
 import '../../styles/GlobalDesign.css';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -27,10 +27,22 @@ const TaskList = () => {
         status: ''
     });
 
+    const [staffList, setStaffList] = useState([]);
+
 
     useEffect(() => {
         loadData();
+        fetchStaff();
     }, [searchTerm, priorityFilter, statusFilter, currentPage]);
+
+    const fetchStaff = async () => {
+        try {
+            const data = await getAllStaff();
+            setStaffList(data.map(s => ({ label: s.name, value: s.id })));
+        } catch (err) {
+            console.error("Failed to load staff:", err);
+        }
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -62,7 +74,7 @@ const TaskList = () => {
         setSelectedTask(task);
         setEditTaskData({
             title: task.title,
-            assignedTo: task.assignedTo,
+            assignedToId: task.assignedToId,
             priority: task.priority,
             dueDate: task.dueDate,
             status: task.status
@@ -101,16 +113,26 @@ const TaskList = () => {
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <CheckCircle2 size={28} />
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                                <CheckCircle2 size={28} />
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    Task List
+                                </h1>
+                                <p className="text-slate-600 text-sm mt-1">Manage and track staff tasks and responsibilities</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
-                                Task List
-                            </h1>
-                            <p className="text-slate-600 text-sm mt-1">Manage and track staff tasks and responsibilities</p>
-                        </div>
+
+                        <button
+                            onClick={() => window.location.href = window.location.pathname.includes('branchadmin') ? '/branchadmin/tasks/assign' : '/manager/tasks/assign'}
+                            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-violet-200 hover:shadow-violet-400/40 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+                        >
+                            <Plus size={18} />
+                            Assign New Task
+                        </button>
                     </div>
                 </div>
             </div>
@@ -289,7 +311,6 @@ const TaskList = () => {
                 )}
             </div>
 
-            {/* Edit Task Drawer */}
             <RightDrawer
                 isOpen={isEditDrawerOpen}
                 onClose={() => setIsEditDrawerOpen(false)}
@@ -297,77 +318,97 @@ const TaskList = () => {
                 subtitle={`Updating info for ${selectedTask?.title}`}
                 maxWidth="max-w-md"
                 footer={
-                    <div className="flex gap-3 w-full">
+                    <div className="flex gap-4 w-full">
                         <button
                             type="button"
                             onClick={() => setIsEditDrawerOpen(false)}
-                            className="flex-1 h-11 border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all"
+                            className="flex-1 h-12 border-2 border-slate-100 text-slate-600 rounded-2xl text-sm font-bold hover:bg-slate-50 hover:border-slate-200 transition-all duration-300"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             form="edit-task-form"
-                            className="flex-1 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-xl hover:shadow-violet-500/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="flex-1 h-12 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-200 hover:shadow-violet-400/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             Save Changes
                         </button>
                     </div>
                 }
             >
-                <form id="edit-task-form" onSubmit={handleEditSubmit} className="space-y-5 py-4">
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Task Title</label>
-                        <input
-                            required
-                            type="text"
-                            className="saas-input w-full h-11 px-4 rounded-xl border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-gray-50/50 focus:bg-white transition-all"
-                            value={editTaskData.title}
-                            onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned To</label>
+                <form id="edit-task-form" onSubmit={handleEditSubmit} className="space-y-6 px-6 py-8">
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Task Title</label>
                         <div className="relative">
-                            <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 required
                                 type="text"
-                                className="saas-input w-full pl-10 h-11 rounded-xl border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-gray-50/50 focus:bg-white transition-all"
-                                value={editTaskData.assignedTo}
-                                onChange={(e) => setEditTaskData({ ...editTaskData, assignedTo: e.target.value })}
+                                className="saas-input w-full h-12 px-5 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200"
+                                value={editTaskData.title}
+                                onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })}
+                                placeholder="Enter task title..."
                             />
                         </div>
                     </div>
+
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Assigned To</label>
+                        <CustomDropdown
+                            options={staffList}
+                            value={editTaskData.assignedToId}
+                            onChange={(val) => setEditTaskData({ ...editTaskData, assignedToId: val })}
+                            className="w-full"
+                            icon={User}
+                            placeholder="Select Staff Member"
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Priority</label>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Priority</label>
                             <CustomDropdown
                                 options={['Low', 'Medium', 'High']}
                                 value={editTaskData.priority}
                                 onChange={(val) => setEditTaskData({ ...editTaskData, priority: val })}
                                 className="w-full"
+                                placeholder="Priority"
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Due Date</label>
+                        <div className="space-y-2 group">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Due Date</label>
                             <input
                                 required
                                 type="date"
-                                className="saas-input w-full h-11 px-4 rounded-xl border-gray-200 focus:ring-2 focus:ring-indigo-500 text-sm bg-gray-50/50 focus:bg-white transition-all"
+                                className="saas-input w-full h-[52px] px-5 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200"
                                 value={editTaskData.dueDate}
                                 onChange={(e) => setEditTaskData({ ...editTaskData, dueDate: e.target.value })}
                             />
                         </div>
                     </div>
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</label>
+
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Status</label>
                         <CustomDropdown
                             options={['Pending', 'In Progress', 'Completed']}
                             value={editTaskData.status}
                             onChange={(val) => setEditTaskData({ ...editTaskData, status: val })}
                             className="w-full"
+                            placeholder="Status"
                         />
+                    </div>
+
+                    <div className="bg-violet-50/50 rounded-2xl p-4 border border-violet-100/50 mt-4">
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 bg-white rounded-xl shadow-sm">
+                                <AlertCircle size={16} className="text-violet-500" />
+                            </div>
+                            <div>
+                                <h4 className="text-[11px] font-bold text-violet-700 uppercase tracking-wider">Quick Info</h4>
+                                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                                    Assigned staff will see this task instantly in their personal task dashboard.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </RightDrawer>

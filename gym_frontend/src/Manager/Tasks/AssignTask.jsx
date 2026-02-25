@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, UserPlus, FileText, BarChart, Calendar, CheckCircle2, ChevronDown, Check } from 'lucide-react';
-import { createTask } from '../../api/manager/managerApi';
+import { createTask, getAllStaff } from '../../api/manager/managerApi';
 import '../../styles/GlobalDesign.css';
 
 // Custom Animated Select Component
-const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, placeholder }) => {
+const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, placeholder, isObjectOptions }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -20,9 +20,19 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleSelect = (optionValue) => {
-        onChange({ target: { name, value: optionValue } });
+    const handleSelect = (option) => {
+        const val = isObjectOptions ? option.id : option;
+        onChange({ target: { name, value: val } });
         setIsOpen(false);
+    };
+
+    const getDisplayValue = () => {
+        if (!value) return placeholder;
+        if (isObjectOptions) {
+            const found = options.find(o => o.id === value);
+            return found ? found.name : placeholder;
+        }
+        return value;
     };
 
     return (
@@ -36,7 +46,7 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
                 className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-indigo-300 hover:shadow-md ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500 bg-white' : ''}`}
             >
                 <span className={`text-sm ${value ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
-                    {value || placeholder}
+                    {getDisplayValue()}
                 </span>
                 <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} />
             </div>
@@ -44,16 +54,20 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
             {/* Animated Dropdown Menu */}
             <div className={`absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${isOpen ? 'opacity-100 scale-100 translate-y-0 max-h-60' : 'opacity-0 scale-95 -translate-y-2 max-h-0 pointer-events-none'}`}>
                 <div className="py-1 overflow-y-auto max-h-60">
-                    {options.map((option) => (
-                        <div
-                            key={option}
-                            onClick={() => handleSelect(option)}
-                            className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === option ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                        >
-                            {option}
-                            {value === option && <Check size={16} className="text-indigo-600" />}
-                        </div>
-                    ))}
+                    {options.map((option) => {
+                        const optVal = isObjectOptions ? option.id : option;
+                        const optLabel = isObjectOptions ? option.name : option;
+                        return (
+                            <div
+                                key={optVal}
+                                onClick={() => handleSelect(option)}
+                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
+                            >
+                                {optLabel}
+                                {value === optVal && <Check size={16} className="text-indigo-600" />}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -65,14 +79,25 @@ const AssignTask = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        assignTo: '',
+        assignedToId: '',
         priority: 'Medium',
         dueDate: ''
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [staffList, setStaffList] = useState([]);
 
-    const staffList = ['John Doe', 'Sarah Smith', 'Mike Wilson', 'Emily Brown'];
+    useEffect(() => {
+        const fetchStaff = async () => {
+            try {
+                const data = await getAllStaff();
+                setStaffList(data);
+            } catch (err) {
+                console.error("Failed to load staff:", err);
+            }
+        };
+        fetchStaff();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -83,18 +108,21 @@ const AssignTask = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await createTask(formData);
+            await createTask({
+                ...formData,
+                assignedToId: parseInt(formData.assignedToId)
+            });
             setSuccess(true);
             setFormData({
                 title: '',
                 description: '',
-                assignTo: '',
+                assignedToId: '',
                 priority: 'Medium',
                 dueDate: ''
             });
             setTimeout(() => {
                 setSuccess(false);
-                navigate('/manager/tasks/list');
+                navigate('/branchadmin/tasks/list');
             }, 1500);
         } catch (error) {
             console.error('Task Assignment Failed:', error);
@@ -154,11 +182,12 @@ const AssignTask = () => {
                                 <CustomSelect
                                     label="Assign To"
                                     icon={UserPlus}
-                                    name="assignTo"
-                                    value={formData.assignTo}
+                                    name="assignedToId"
+                                    value={formData.assignedToId}
                                     onChange={handleChange}
                                     options={staffList}
                                     placeholder="Select Staff"
+                                    isObjectOptions={true}
                                 />
 
                                 <CustomSelect
