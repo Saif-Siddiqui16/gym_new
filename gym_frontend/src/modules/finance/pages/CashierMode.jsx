@@ -19,23 +19,37 @@ import {
     Calculator
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { MEMBERSHIPS } from '../../membership/data/mockMemberships';
+import apiClient from '../../../api/apiClient';
+import { submitCashierPayment } from '../../../api/finance/financeApi';
 import ReceiptModal from '../components/ReceiptModal';
 
 const CashierMode = () => {
     const navigate = useNavigate();
 
-    // Auth Context Simulation
-    const loggedInUser = {
-        id: 'S-001',
-        branchId: 'B001',
+    // Fetch User from local storage
+    const userStr = localStorage.getItem('userData');
+    const loggedInUser = userStr ? JSON.parse(userStr) : {
+        name: 'Operator',
         role: 'STAFF',
-        name: 'Alex Staff'
+        branchId: 'Unknown'
     };
 
+    const [members, setMembers] = useState([]);
     const [selectedMember, setSelectedMember] = useState(null);
     const [memberSearch, setMemberSearch] = useState('');
     const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await apiClient.get('/admin/members');
+                setMembers(response.data);
+            } catch (err) {
+                console.error("Failed fetching members", err);
+            }
+        };
+        fetchMembers();
+    }, []);
 
     const [paymentDetails, setPaymentDetails] = useState({
         type: '',
@@ -66,9 +80,8 @@ const CashierMode = () => {
         { id: 'Bank Transfer', label: 'Bank Transfer', icon: Building }
     ];
 
-    const filteredMembers = MEMBERSHIPS.filter(m =>
-        (m.branchId === loggedInUser.branchId) &&
-        (m.memberName.toLowerCase().includes(memberSearch.toLowerCase()) || m.phone.includes(memberSearch))
+    const filteredMembers = members.filter(m =>
+        (m.name?.toLowerCase().includes(memberSearch.toLowerCase()) || m.phone?.includes(memberSearch))
     );
 
     const calculateFinal = () => {
@@ -77,7 +90,7 @@ const CashierMode = () => {
         return Math.max(0, base - disc);
     };
 
-    const handleReceivePayment = () => {
+    const handleReceivePayment = async () => {
         if (!selectedMember || !paymentDetails.type || !paymentDetails.amount) {
             alert('Please complete all required fields.');
             return;
@@ -89,40 +102,57 @@ const CashierMode = () => {
         }
 
         const finalAmount = calculateFinal();
-        const paymentRecord = {
-            id: `RCPT-${Math.floor(100000 + Math.random() * 900000)}`,
-            memberId: selectedMember.id,
-            memberName: selectedMember.memberName,
-            paymentType: paymentDetails.type,
-            amount: paymentDetails.amount,
-            discount: paymentDetails.discount,
-            finalAmount: finalAmount,
-            method: paymentDetails.method,
-            referenceNumber: paymentDetails.referenceNumber,
-            receivedBy: loggedInUser.name,
-            date: new Date().toLocaleDateString('en-IN'),
-            branchId: loggedInUser.branchId,
-            status: 'completed'
-        };
 
-        setProcessedPayment(paymentRecord);
-        setIsSuccess(true);
-
-        // Finalize state
-        setTimeout(() => {
-            setShowReceipt(true);
-            setIsSuccess(false);
-            // Reset form for next customer
-            setSelectedMember(null);
-            setPaymentDetails({
-                type: '',
-                amount: '',
-                discount: 0,
-                method: 'Cash',
-                referenceNumber: '',
-                notes: ''
+        try {
+            // Log to Backend Endpoint
+            const res = await submitCashierPayment({
+                memberId: selectedMember.id,
+                paymentType: paymentDetails.type,
+                amount: paymentDetails.amount,
+                discount: paymentDetails.discount,
+                method: paymentDetails.method,
+                referenceNumber: paymentDetails.referenceNumber,
+                notes: paymentDetails.notes
             });
-        }, 1500);
+
+            const paymentRecord = {
+                id: res.receipt.invoiceNumber,
+                memberId: selectedMember.memberId || selectedMember.id,
+                memberName: selectedMember.name,
+                paymentType: paymentDetails.type,
+                amount: paymentDetails.amount,
+                discount: paymentDetails.discount,
+                finalAmount: finalAmount,
+                method: paymentDetails.method,
+                referenceNumber: paymentDetails.referenceNumber,
+                receivedBy: loggedInUser.name,
+                date: new Date().toLocaleDateString('en-IN'),
+                branchId: loggedInUser.branchName || 'GYM',
+                status: 'completed'
+            };
+
+            setProcessedPayment(paymentRecord);
+            setIsSuccess(true);
+
+            // Finalize state
+            setTimeout(() => {
+                setShowReceipt(true);
+                setIsSuccess(false);
+                // Reset form for next customer
+                setSelectedMember(null);
+                setPaymentDetails({
+                    type: '',
+                    amount: '',
+                    discount: 0,
+                    method: 'Cash',
+                    referenceNumber: '',
+                    notes: ''
+                });
+            }, 1500);
+
+        } catch (error) {
+            alert('Payment failed to record. Check connection.');
+        }
     };
 
     return (
@@ -180,7 +210,7 @@ const CashierMode = () => {
                                             </div>
                                             {selectedMember ? (
                                                 <div className="text-left">
-                                                    <p className="text-sm font-black text-slate-800">{selectedMember.memberName}</p>
+                                                    <p className="text-sm font-black text-slate-800">{selectedMember.name}</p>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase">{selectedMember.phone} • {selectedMember.memberId}</p>
                                                 </div>
                                             ) : (
@@ -215,11 +245,11 @@ const CashierMode = () => {
                                                         }}
                                                         className="w-full px-6 py-4 flex items-center gap-4 hover:bg-emerald-50 transition-colors border-b border-slate-50 last:border-none text-left"
                                                     >
-                                                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-black text-slate-400 text-xs">
-                                                            {member.memberName.charAt(0)}
+                                                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-black text-slate-400 text-xs uppercase">
+                                                            {member.name ? member.name.charAt(0) : 'A'}
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm font-black text-slate-800 leading-none mb-1">{member.memberName}</p>
+                                                            <p className="text-sm font-black text-slate-800 leading-none mb-1">{member.name}</p>
                                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{member.phone} • {member.memberId}</p>
                                                         </div>
                                                     </button>
@@ -249,8 +279,8 @@ const CashierMode = () => {
                                                 key={type.id}
                                                 onClick={() => setPaymentDetails({ ...paymentDetails, type: type.id })}
                                                 className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 group ${paymentDetails.type === type.id
-                                                        ? 'border-emerald-500 bg-emerald-50/30'
-                                                        : 'border-slate-50 bg-slate-50 hover:border-slate-200'
+                                                    ? 'border-emerald-500 bg-emerald-50/30'
+                                                    : 'border-slate-50 bg-slate-50 hover:border-slate-200'
                                                     }`}
                                             >
                                                 <div className={`p-3 rounded-xl transition-all ${paymentDetails.type === type.id ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white text-slate-400'
@@ -302,8 +332,8 @@ const CashierMode = () => {
                                                     key={method.id}
                                                     onClick={() => setPaymentDetails({ ...paymentDetails, method: method.id })}
                                                     className={`px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-3 font-black text-[10px] uppercase tracking-widest ${paymentDetails.method === method.id
-                                                            ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg'
-                                                            : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
+                                                        ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg'
+                                                        : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
                                                         }`}
                                                 >
                                                     <method.icon size={16} />

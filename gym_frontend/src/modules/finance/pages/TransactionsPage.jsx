@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Search,
     Filter,
@@ -20,8 +20,8 @@ import {
     History
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { TRANSACTIONS } from '../data/mockFinance';
 import ReceiptModal from '../components/ReceiptModal';
+import { fetchTransactions } from '../../../api/finance/financeApi';
 
 const TransactionsPage = () => {
     const navigate = useNavigate();
@@ -31,11 +31,23 @@ const TransactionsPage = () => {
     const [showReceipt, setShowReceipt] = useState(false);
     const [activeTransaction, setActiveTransaction] = useState(null);
 
-    // Auth Simulation
-    const loggedInUser = {
-        branchId: 'B001',
-        role: 'BRANCH_ADMIN'
-    };
+    const [transactions, setTransactions] = useState([]);
+
+    // Auth Storage Check
+    const userStr = localStorage.getItem('userData');
+    const loggedInUser = userStr ? JSON.parse(userStr) : { name: 'Staff Operator' };
+
+    useEffect(() => {
+        const loadTransactions = async () => {
+            try {
+                const data = await fetchTransactions();
+                setTransactions(data);
+            } catch (err) {
+                console.error("Failed fetching transactions:", err);
+            }
+        };
+        loadTransactions();
+    }, []);
 
     const getMethodIcon = (method) => {
         switch (method) {
@@ -53,17 +65,43 @@ const TransactionsPage = () => {
         return 'bg-slate-50 text-slate-600 border-slate-100';
     };
 
-    const filteredTransactions = TRANSACTIONS.filter(t => {
-        const matchesBranch = t.branchId === loggedInUser.branchId;
-        const matchesType = selectedType === 'All' || t.type.includes(selectedType);
-        const matchesSearch = t.member.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            t.id.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesBranch && matchesType && matchesSearch;
+    const filteredTransactions = transactions.filter(t => {
+        const matchesType = selectedType === 'All' || (t.type && t.type.includes(selectedType));
+        const matchesSearch = (t.member && t.member.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (t.id && t.id.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchesType && matchesSearch;
     });
 
     const handleExport = () => {
-        alert("Preparing your branch transactions export... The CSV file will download shortly.");
-        // Logic for generating CSV would go here
+        if (filteredTransactions.length === 0) {
+            alert("No transactions available to export.");
+            return;
+        }
+
+        const headers = ['Transaction ID', 'Date', 'Member Name', 'Category', 'Method', 'Amount'];
+
+        const csvRows = filteredTransactions.map(t => [
+            t.id || '',
+            t.date || '',
+            `"${t.member || ''}"`, // Wrap in quotes to handle commas in names
+            t.type || '',
+            t.method || '',
+            t.amount || 0
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...csvRows.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Transactions_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleViewReceipt = (txn) => {
@@ -72,7 +110,7 @@ const TransactionsPage = () => {
             memberName: txn.member,
             paymentType: txn.type,
             finalAmount: txn.amount,
-            receivedBy: 'Staff Operator' // Mocking for receipt
+            receivedBy: loggedInUser.name || 'Staff Operator'
         });
         setShowReceipt(true);
     };

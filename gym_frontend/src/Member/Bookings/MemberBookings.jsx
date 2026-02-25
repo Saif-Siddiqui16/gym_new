@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, User, ChevronRight, Plus, Filter, Zap, Loader, X, AlertCircle } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
-import { fetchMemberBookings, cancelBooking, fetchMemberProfile } from '../../api/member/memberApi';
+import { fetchMemberBookings, cancelBooking, fetchMemberProfile, fetchAvailableClasses, createBooking } from '../../api/member/memberApi';
 import RightDrawer from '../../components/common/RightDrawer';
 
 const MemberBookings = () => {
@@ -14,7 +14,7 @@ const MemberBookings = () => {
     const [showQuickBookModal, setShowQuickBookModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [selectedClass, setSelectedClass] = useState(null);
-    const [selectedDate, setSelectedDate] = useState('Today, May 15');
+    const [selectedDate, setSelectedDate] = useState('Today');
     const [selectedTime, setSelectedTime] = useState('');
 
     // Wizard States
@@ -23,7 +23,7 @@ const MemberBookings = () => {
     const [newBookingData, setNewBookingData] = useState({
         type: '',
         name: '',
-        date: 'Today, May 15',
+        date: 'Today',
         time: '',
         location: '',
         trainer: ''
@@ -38,16 +38,41 @@ const MemberBookings = () => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const [memberProfile, setMemberProfile] = useState(null);
     const [creditsError, setCreditsError] = useState('');
+    const [availableClasses, setAvailableClasses] = useState([]);
 
     useEffect(() => {
         loadBookings();
         loadMemberProfile();
+        loadAvailableClasses();
     }, []);
+
+    const loadAvailableClasses = async () => {
+        try {
+            const data = await fetchAvailableClasses();
+            setAvailableClasses(data);
+        } catch (error) {
+            console.error("Failed to load classes:", error);
+        }
+    };
 
     const loadBookings = async () => {
         setLoading(true);
-        const data = await fetchMemberBookings();
-        setBookings(data);
+        try {
+            const data = await fetchMemberBookings();
+            const mappedBookings = data.map(b => ({
+                id: b.id,
+                name: b.class?.name || 'Session',
+                type: b.class?.requiredBenefit ? 'Facility' : 'Group Class',
+                date: new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                time: b.class?.schedule?.time || 'TBA',
+                location: b.class?.location || 'Main Floor',
+                trainer: b.class?.trainer?.name || 'Staff',
+                status: b.status
+            }));
+            setBookings(mappedBookings);
+        } catch (error) {
+            console.error("Failed to load bookings:", error);
+        }
         setLoading(false);
     };
 
@@ -66,7 +91,7 @@ const MemberBookings = () => {
         setNewBookingData({
             type: '',
             name: '',
-            date: 'Today, May 15',
+            date: 'Today',
             time: '',
             location: '',
             trainer: ''
@@ -124,31 +149,31 @@ const MemberBookings = () => {
         }
 
         // Credit validation for class bookings
-        if (memberProfile && memberProfile.benefitWallet.classCredits <= 0) {
+        if (memberProfile?.benefitWallet && memberProfile.benefitWallet.classCredits <= 0) {
             setCreditsError('Insufficient credits.');
             showToastMsg("Insufficient credits.", "error");
             return;
         }
 
-        // Decrement credits
-        if (memberProfile) {
-            memberProfile.benefitWallet.classCredits -= 1;
-        }
+        try {
+            const response = await createBooking({
+                classId: selectedClass.id,
+                date: new Date() // Or selected date if we allow in UI
+            });
 
-        const newBooking = {
-            id: Date.now(),
-            type: 'Group Class',
-            name: selectedClass.name,
-            date: selectedDate,
-            time: `${selectedTime} - ${calculateEndTime(selectedTime)}`,
-            location: 'Studio A',
-            trainer: 'TBA',
-            status: 'Confirmed'
-        };
-        setBookings([newBooking, ...bookings]);
-        setShowQuickBookModal(false);
-        setCreditsError('');
-        showToastMsg("Class booked successfully!");
+            if (response.success) {
+                // Update local credits and availability
+                loadBookings();
+                loadAvailableClasses();
+                loadMemberProfile();
+
+                setShowQuickBookModal(false);
+                setCreditsError('');
+                showToastMsg("Class booked successfully!");
+            }
+        } catch (error) {
+            showToastMsg(error || "Failed to book class", "error");
+        }
     };
 
     const handleRecoveryZoneTrigger = () => {
@@ -157,7 +182,7 @@ const MemberBookings = () => {
         setNewBookingData({
             type: 'Facility',
             name: '',
-            date: 'Today, May 15',
+            date: 'Next Session',
             time: '',
             location: 'Wellness Wing',
             trainer: 'Staff'
@@ -172,7 +197,7 @@ const MemberBookings = () => {
         }
 
         // Credit validation for facility bookings
-        if (newBookingData.type === 'Facility' && memberProfile) {
+        if (newBookingData.type === 'Facility' && memberProfile?.benefitWallet) {
             const facilityName = newBookingData.name.toLowerCase();
             if (facilityName.includes('sauna')) {
                 if (memberProfile.benefitWallet.saunaSessions <= 0) {
@@ -180,29 +205,41 @@ const MemberBookings = () => {
                     showToastMsg("No sauna credits available. Please upgrade or renew.", "error");
                     return;
                 }
-                // Decrement sauna credits
-                memberProfile.benefitWallet.saunaSessions -= 1;
             } else if (facilityName.includes('ice bath')) {
                 if (memberProfile.benefitWallet.iceBathCredits <= 0) {
                     setCreditsError('No ice bath credits available. Please upgrade or renew.');
                     showToastMsg("No ice bath credits available. Please upgrade or renew.", "error");
                     return;
                 }
-                // Decrement ice bath credits
-                memberProfile.benefitWallet.iceBathCredits -= 1;
             }
         }
 
-        const finalBooking = {
-            ...newBookingData,
-            id: Date.now(),
-            status: 'Confirmed',
-            time: `${newBookingData.time} - ${calculateEndTime(newBookingData.time)}`
-        };
-        setBookings([finalBooking, ...bookings]);
-        setShowCreateModal(false);
-        setCreditsError('');
-        showToastMsg("Booking created successfully!");
+        try {
+            // Find class ID from availableClasses based on name if Facility or other wizard path
+            const targetClass = availableClasses.find(c => c.name === newBookingData.name);
+            if (!targetClass) {
+                showToastMsg("Selected class not available.", "error");
+                return;
+            }
+
+            const response = await createBooking({
+                classId: targetClass.id,
+                date: new Date() // Simplification for now, using selectDate from data if implemented
+            });
+
+            if (response.success) {
+                // Update everything from backend
+                loadBookings();
+                loadAvailableClasses();
+                loadMemberProfile();
+
+                setShowCreateModal(false);
+                setCreditsError('');
+                showToastMsg("Booking created successfully!");
+            }
+        } catch (error) {
+            showToastMsg(error || "Failed to create booking", "error");
+        }
     };
 
     const handleViewDetails = (booking) => {
@@ -219,7 +256,7 @@ const MemberBookings = () => {
         return `${h.toString().padStart(2, '0')}:${min} ${period}`;
     };
 
-    const upcomingBookings = bookings.filter(b => ['Confirmed', 'Pending'].includes(b.status));
+    const upcomingBookings = bookings.filter(b => ['Upcoming', 'Confirmed', 'Pending'].includes(b.status));
     const completedBookings = bookings.filter(b => b.status === 'Completed');
     const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
 
@@ -240,7 +277,7 @@ const MemberBookings = () => {
                         </p>
                     </div>
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                        {memberProfile && (
+                        {memberProfile?.benefitWallet && (
                             <div className="px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                                 <div className="p-2 bg-violet-50 rounded-xl text-violet-600">
                                     <Zap size={20} className="fill-violet-600" />
@@ -316,24 +353,15 @@ const MemberBookings = () => {
                             <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                             <h3 className="text-xl font-black text-gray-900 mb-6 relative z-10">Explore Classes</h3>
                             <div className="space-y-4 relative z-10">
-                                <QuickClassItem
-                                    name="Morning HIIT"
-                                    sessions="5 spots left"
-                                    icon="H"
-                                    onClick={() => handleQuickBookTrigger({ name: 'Morning HIIT', sessions: '5 spots left', icon: 'H' })}
-                                />
-                                <QuickClassItem
-                                    name="Boxing Basics"
-                                    sessions="2 spots left"
-                                    icon="B"
-                                    onClick={() => handleQuickBookTrigger({ name: 'Boxing Basics', sessions: '2 spots left', icon: 'B' })}
-                                />
-                                <QuickClassItem
-                                    name="Late Night Yoga"
-                                    sessions="Full"
-                                    icon="Y"
-                                    onClick={() => handleQuickBookTrigger({ name: 'Late Night Yoga', sessions: 'Full', icon: 'Y' })}
-                                />
+                                {availableClasses.filter(c => !c.requiredBenefit).map(cls => (
+                                    <QuickClassItem
+                                        key={cls.id}
+                                        name={cls.name}
+                                        sessions={`${cls.maxCapacity - (cls._count?.bookings || 0)} spots left`}
+                                        icon={cls.name[0]}
+                                        onClick={() => handleQuickBookTrigger(cls)}
+                                    />
+                                ))}
                             </div>
                             <button
                                 onClick={() => setShowFullScheduleModal(true)}
@@ -352,7 +380,7 @@ const MemberBookings = () => {
                                 <p className="text-slate-400 text-sm font-medium mb-6 leading-relaxed">Boost your recovery with a professional Sauna or Ice Bath session.</p>
 
                                 {/* Credits Display */}
-                                {memberProfile && (
+                                {memberProfile?.benefitWallet && (
                                     <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
                                         <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Available Credits</p>
                                         <div className="grid grid-cols-2 gap-3">
@@ -428,6 +456,7 @@ const MemberBookings = () => {
                     setData={setNewBookingData}
                     onClose={() => setShowCreateModal(false)}
                     onConfirm={finalizeBooking}
+                    availableClasses={availableClasses}
                 />
             </RightDrawer>
 
@@ -495,6 +524,7 @@ const MemberBookings = () => {
                         setShowFullScheduleModal(false);
                         handleQuickBookTrigger(cls);
                     }}
+                    classes={availableClasses}
                 />
             </RightDrawer>
 
@@ -511,7 +541,7 @@ const MemberBookings = () => {
     );
 };
 
-const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm }) => {
+const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm, availableClasses }) => {
     const categories = [
         { id: 'Group Class', label: 'Group Class', icon: User, color: 'text-violet-600', bg: 'bg-violet-50' },
         { id: 'Personal Training', label: 'Personal Training', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -519,9 +549,9 @@ const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm 
     ];
 
     const services = {
-        'Group Class': ['Power Yoga', 'Morning HIIT', 'Zumba Dance', 'Boxing Basics', 'Pilates Core'],
-        'Personal Training': ['Strength & Conditioning', 'Fat Loss Blast', 'Muscle Building', 'Posture Correction'],
-        'Facility': ['Ice Bath Session', 'Sauna Session', 'Private Shower', 'Cryotherapy']
+        'Group Class': availableClasses.filter(c => !c.requiredBenefit).map(c => c.name),
+        'Personal Training': ['Strength & Conditioning', 'Fat Loss Blast', 'Muscle Building', 'Posture Correction'], // Mock PT for now
+        'Facility': availableClasses.filter(c => c.requiredBenefit).map(c => c.name)
     };
 
     const datesArr = ['Today, May 15', 'Tomorrow, May 16', 'Fri, May 17', 'Sat, May 18', 'Sun, May 19'];
@@ -676,7 +706,7 @@ const BookingModalContent = ({ title, subtitle, onClose, onConfirm, confirmLabel
             </div>
 
             <div className="pt-4 flex flex-col gap-4">
-                {memberProfile && memberProfile.benefitWallet.classCredits <= 0 && (
+                {memberProfile?.benefitWallet && memberProfile.benefitWallet.classCredits <= 0 && (
                     <div className="flex items-center gap-2 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100">
                         <AlertCircle size={16} />
                         <span className="text-xs font-black uppercase tracking-wider">Insufficient credits.</span>
@@ -691,8 +721,8 @@ const BookingModalContent = ({ title, subtitle, onClose, onConfirm, confirmLabel
                     </button>
                     <button
                         onClick={onConfirm}
-                        disabled={memberProfile && memberProfile.benefitWallet.classCredits <= 0}
-                        className={`flex-[2] py-5 rounded-2xl font-black text-sm shadow-xl transition-all uppercase tracking-widest ${memberProfile && memberProfile.benefitWallet.classCredits <= 0 ? 'bg-gray-100 text-gray-400 shadow-none' : 'bg-violet-600 text-white shadow-violet-100 hover:bg-violet-700'}`}
+                        disabled={memberProfile?.benefitWallet && memberProfile.benefitWallet.classCredits <= 0}
+                        className={`flex-[2] py-5 rounded-2xl font-black text-sm shadow-xl transition-all uppercase tracking-widest ${memberProfile?.benefitWallet && memberProfile.benefitWallet.classCredits <= 0 ? 'bg-gray-100 text-gray-400 shadow-none' : 'bg-violet-600 text-white shadow-violet-100 hover:bg-violet-700'}`}
                     >
                         {confirmLabel}
                     </button>
@@ -793,30 +823,47 @@ const ConfirmCancelContent = ({ onClose, onConfirm }) => (
     </div>
 );
 
-const FullScheduleContent = ({ onClose, onBook }) => {
-    const classes = [
-        { name: 'Power Yoga', time: '08:00 AM', trainer: 'Sarah J.', tags: ['Beginner', 'Relax'], spots: '8 left' },
-        { name: 'HIIT Blast', time: '09:00 AM', trainer: 'Mike R.', tags: ['Advanced', 'Cardio'], spots: 'Full' },
-        { name: 'Zumba Dance', time: '10:00 AM', trainer: 'Elena S.', tags: ['Fun', 'Dance'], spots: '12 left' },
-        { name: 'Boxing Basics', time: '05:00 PM', trainer: 'Coach Lee', tags: ['Technique', 'Strength'], spots: '2 left' },
-        { name: 'Pilates Core', time: '06:00 PM', trainer: 'Anna K.', tags: ['Stability'], spots: '5 left' },
-        { name: 'Late Night Yoga', time: '07:00 PM', trainer: 'Sarah J.', tags: ['Zen'], spots: 'Full' }
-    ];
+const FullScheduleContent = ({ onClose, onBook, classes }) => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const [activeDay, setActiveDay] = useState('Mon');
+
+    const mappedClasses = (classes || []).filter(c => !c.requiredBenefit).map(c => ({
+        id: c.id,
+        name: c.name,
+        time: c.schedule?.time || 'TBA',
+        trainer: c.trainer?.name || 'TBA',
+        spots: `${c.maxCapacity - (c._count?.bookings || 0)} spots left`,
+        days: c.schedule?.days || []
+    }));
+
+    const filteredClasses = mappedClasses.filter(c => c.days.includes(activeDay));
 
     return (
         <div className="p-8 space-y-6">
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                {days.map(day => (
+                    <button
+                        key={day}
+                        onClick={() => setActiveDay(day)}
+                        className={`px-5 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border-2 ${activeDay === day ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:border-violet-100'}`}
+                    >
+                        {day}
+                    </button>
+                ))}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {classes.map((cls, idx) => (
+                {filteredClasses.map((cls, idx) => (
                     <div key={idx} className="p-6 bg-gray-50 rounded-[32px] border-2 border-transparent hover:border-violet-100 hover:bg-white transition-all flex justify-between items-center group">
                         <div className="space-y-3">
                             <div className="flex gap-2">
-                                {cls.tags.map(tag => <span key={tag} className="text-[8px] font-black uppercase tracking-widest text-violet-500 bg-violet-100/50 px-2 py-0.5 rounded-full">{tag}</span>)}
+                                {/* Assuming tags are part of the mapped class or derived */}
+                                {/* {cls.tags.map(tag => <span key={tag} className="text-[8px] font-black uppercase tracking-widest text-violet-500 bg-violet-100/50 px-2 py-0.5 rounded-full">{tag}</span>)} */}
                             </div>
                             <div>
                                 <div className="flex justify-between items-center mb-1">
                                     <p className="font-black text-gray-900 text-lg leading-tight">{cls.name}</p>
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${cls.spots === 'Full' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
-                                        {cls.spots === 'Full' ? 'FULL' : `${cls.spots} SPOTS LEFT`}
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${cls.spots.startsWith('0') || cls.spots === 'Full' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                                        {cls.spots.startsWith('0') ? 'FULL' : cls.spots.toUpperCase()}
                                     </span>
                                 </div>
                                 <p className="text-xs text-gray-400 font-bold mt-1.5 flex items-center gap-2">

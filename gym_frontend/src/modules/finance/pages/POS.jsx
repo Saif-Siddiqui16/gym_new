@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, User, Store, Package, Users, Info, ChevronDown } from 'lucide-react';
-import { POS_PRODUCTS } from '../data/mockFinance';
-import { MEMBERSHIPS } from '../../membership/data/mockMemberships';
+import { getStoreProducts, checkoutStoreOrder } from '../../../api/storeApi';
+import { membershipApi } from '../../../api/membershipApi';
 
 const POS = () => {
-    const [products, setProducts] = useState(POS_PRODUCTS);
+    const [products, setProducts] = useState([]);
+    const [members, setMembers] = useState([]);
     const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
@@ -15,14 +16,30 @@ const POS = () => {
     const [memberSearch, setMemberSearch] = useState('');
     const [showMemberDropdown, setShowMemberDropdown] = useState(false);
 
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [productData, memberData] = await Promise.all([
+                    getStoreProducts(),
+                    membershipApi.getMembers()
+                ]);
+                setProducts(productData);
+                setMembers(memberData);
+            } catch (error) {
+                console.error("Failed to load POS data", error);
+            }
+        };
+        loadData();
+    }, []);
+
     const filteredProducts = products.filter(p =>
         (selectedCategory === 'All' || p.category === selectedCategory) &&
         p.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    const filteredMembers = MEMBERSHIPS.filter(m =>
-        m.memberName.toLowerCase().includes(memberSearch.toLowerCase()) ||
-        m.memberId.toLowerCase().includes(memberSearch.toLowerCase())
+    const filteredMembers = members.filter(m =>
+        m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+        (m.memberId && m.memberId.toLowerCase().includes(memberSearch.toLowerCase()))
     );
 
     const categories = ['All', ...new Set(products.map(p => p.category))];
@@ -61,29 +78,41 @@ const POS = () => {
         }).filter(item => item.qty > 0));
     };
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         if (customerType === 'member' && !selectedMember) {
             alert('Please select a member for this transaction.');
             return;
         }
 
-        // Reduct stock count instantly in UI
-        setProducts(prevProducts => prevProducts.map(p => {
-            const cartItem = cart.find(item => item.id === p.id);
-            if (cartItem) {
-                return { ...p, stock: p.stock - cartItem.qty };
-            }
-            return p;
-        }));
+        try {
+            const orderData = {
+                memberId: selectedMember ? selectedMember.id : null,
+                cartItems: cart.map(item => ({ id: item.id, quantity: item.qty })),
+                totalAmount: total,
+            };
 
-        const customerInfo = customerType === 'member'
-            ? `Member: ${selectedMember.memberName} (${selectedMember.memberId})`
-            : 'Guest Checkout';
+            await checkoutStoreOrder(orderData);
 
-        alert(`Processing Payment of ₹${Math.round(total * 1.18).toLocaleString()}.\n${customerInfo}\n\nInvoice generated and synced with Finance & Member history.`);
-        setCart([]);
-        setSelectedMember(null);
-        setMemberSearch('');
+            // Reduct stock count instantly in UI
+            setProducts(prevProducts => prevProducts.map(p => {
+                const cartItem = cart.find(item => item.id === p.id);
+                if (cartItem) {
+                    return { ...p, stock: p.stock - cartItem.qty };
+                }
+                return p;
+            }));
+
+            const customerInfo = customerType === 'member'
+                ? `Member: ${selectedMember.name} (${selectedMember.memberId})`
+                : 'Guest Checkout';
+
+            alert(`Processing Payment of ₹${Math.round(total * 1.18).toLocaleString()}.\n${customerInfo}\n\nInvoice generated and synced with Finance & Member history.`);
+            setCart([]);
+            setSelectedMember(null);
+            setMemberSearch('');
+        } catch (error) {
+            alert(`Failed to complete transaction: ${error}`);
+        }
     };
 
     const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -143,7 +172,11 @@ const POS = () => {
                         {filteredProducts.map(product => (
                             <div key={product.id} className="group bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col hover:scale-105 hover:-translate-y-1">
                                 <div className="aspect-square bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 rounded-lg sm:rounded-xl mb-2 sm:mb-3 relative overflow-hidden flex items-center justify-center">
-                                    <Package size={48} className="text-violet-400 opacity-50" />
+                                    {product.image ? (
+                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    ) : (
+                                        <Package size={48} className="text-violet-400 opacity-50" />
+                                    )}
                                     {product.stock === 0 ? (
                                         <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-rose-600 text-white px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tight shadow-lg animate-pulse">
                                             Out of Stock
@@ -191,7 +224,11 @@ const POS = () => {
                             cart.map(item => (
                                 <div key={item.id} className="group flex items-center gap-2 sm:gap-3 bg-white p-2.5 sm:p-3 rounded-lg sm:rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-violet-200 transition-all duration-300">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-lg sm:rounded-xl shrink-0 overflow-hidden flex items-center justify-center">
-                                        <Package size={16} className="sm:w-5 sm:h-5 text-violet-400" />
+                                        {item.image ? (
+                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Package size={16} className="sm:w-5 sm:h-5 text-violet-400" />
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="font-bold text-xs sm:text-sm text-slate-900 truncate group-hover:text-violet-600 transition-colors">{item.name}</div>
@@ -248,7 +285,7 @@ const POS = () => {
                                             <Users size={16} className={selectedMember ? 'text-violet-600' : 'text-slate-400'} />
                                             {selectedMember ? (
                                                 <div className="truncate">
-                                                    <div className="text-xs font-bold text-slate-900">{selectedMember.memberName}</div>
+                                                    <div className="text-xs font-bold text-slate-900">{selectedMember.name}</div>
                                                     <div className="text-[10px] text-slate-500">{selectedMember.memberId}</div>
                                                 </div>
                                             ) : (
@@ -285,7 +322,7 @@ const POS = () => {
                                                             }}
                                                             className="px-4 py-2 hover:bg-violet-50 cursor-pointer transition-colors border-b border-slate-50 last:border-none"
                                                         >
-                                                            <div className="text-xs font-bold text-slate-900">{member.memberName}</div>
+                                                            <div className="text-xs font-bold text-slate-900">{member.name}</div>
                                                             <div className="text-[10px] text-slate-500 font-medium">{member.memberId} • {member.phone}</div>
                                                         </div>
                                                     ))

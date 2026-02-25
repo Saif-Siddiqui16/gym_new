@@ -1,19 +1,92 @@
-import React, { useState } from 'react';
-import { Archive, Search, Filter, AlertTriangle, Box, RefreshCcw } from 'lucide-react';
-
-const dummyInventory = [
-    { id: 1, name: "Protein Powder", sku: "PR001", stock: 50, location: "Warehouse A", status: "In Stock" },
-    { id: 2, name: "Yoga Mat", sku: "YM002", stock: 30, location: "Main Store", status: "In Stock" },
-    { id: 3, name: "Dumbbells Set", sku: "DB003", stock: 10, location: "Warehouse B", status: "Low Stock" },
-    { id: 4, name: "Resistance Bands", sku: "RB004", stock: 0, location: "Out of Stock", status: "Out of Stock" },
-];
+import React, { useState, useEffect } from 'react';
+import { Archive, Search, Filter, AlertTriangle, Box, RefreshCcw, Plus, Edit2, Trash2 } from 'lucide-react';
+import { getStoreProducts, updateStoreProductStock, addStoreProduct, updateStoreProduct, deleteStoreProduct } from '../../api/storeApi';
+import toast from 'react-hot-toast';
+import ProductDrawer from './ProductDrawer';
 
 const StoreInventory = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [inventory, setInventory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+    const [drawerMode, setDrawerMode] = useState('add');
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
-    const filteredInventory = dummyInventory.filter(i =>
-        i.name.toLowerCase().includes(searchTerm.toLowerCase()) || i.sku.toLowerCase().includes(searchTerm)
-    );
+    const fetchInventory = async () => {
+        try {
+            setLoading(true);
+            const data = await getStoreProducts({ allStatus: 'true' });
+            setInventory(data);
+        } catch (error) {
+            toast.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchInventory();
+    }, []);
+
+    const handleUpdateStock = async (id, currentStock) => {
+        const newStockStr = prompt('Enter new stock count:', currentStock);
+        if (newStockStr !== null) {
+            const newStock = parseInt(newStockStr, 10);
+            if (!isNaN(newStock) && newStock >= 0) {
+                try {
+                    await updateStoreProductStock(id, newStock);
+                    toast.success('Stock updated successfully');
+                    fetchInventory();
+                } catch (error) {
+                    toast.error(error);
+                }
+            } else {
+                toast.error('Invalid stock count');
+            }
+        }
+    };
+
+    const handleDrawerSubmit = async (formData) => {
+        try {
+            if (drawerMode === 'add') {
+                await addStoreProduct(formData);
+                toast.success('Product added successfully!');
+            } else {
+                await updateStoreProduct(selectedProduct.id, formData);
+                toast.success('Product updated successfully!');
+            }
+            fetchInventory();
+            setIsAddDrawerOpen(false);
+        } catch (error) {
+            toast.error(error);
+        }
+    };
+
+    const handleEditProduct = (product) => {
+        setSelectedProduct(product);
+        setDrawerMode('edit');
+        setIsAddDrawerOpen(true);
+    };
+
+    const handleDeleteProduct = async (id) => {
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                await deleteStoreProduct(id);
+                toast.success('Product deleted successfully');
+                fetchInventory();
+            } catch (error) {
+                toast.error(error);
+            }
+        }
+    };
+
+    const filteredInventory = inventory.filter(i => {
+        const productSku = i.sku || `PRD-00${i.id}`;
+        return i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            productSku.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    const lowStockCount = inventory.filter(i => i.stock <= 10).length;
 
     return (
         <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen">
@@ -26,21 +99,28 @@ const StoreInventory = () => {
                     </h1>
                     <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1">Monitor stock levels and warehouse locations</p>
                 </div>
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl text-sm font-black shadow-xl shadow-violet-200 hover:scale-105 transition-all">
-                    <RefreshCcw size={18} /> Sync Inventory
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <button onClick={() => { setSelectedProduct(null); setDrawerMode('add'); setIsAddDrawerOpen(true); }} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-black shadow-xl shadow-slate-200 hover:scale-105 transition-all">
+                        <Plus size={18} /> Add New Product
+                    </button>
+                    <button onClick={fetchInventory} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl text-sm font-black shadow-xl shadow-violet-200 hover:scale-105 transition-all">
+                        <RefreshCcw size={18} className={loading ? "animate-spin" : ""} /> Sync Inventory
+                    </button>
+                </div>
             </div>
 
             {/* Low Stock Banner */}
-            <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-                    <AlertTriangle size={24} />
+            {lowStockCount > 0 && (
+                <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                        <AlertTriangle size={24} />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-black text-orange-950 uppercase tracking-tight">Low Stock Alert</h3>
+                        <p className="text-xs text-orange-700 font-medium">You have {lowStockCount} products with critical stock levels. We recommend restocking soon.</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 className="text-sm font-black text-orange-950 uppercase tracking-tight">Low Stock Alert</h3>
-                    <p className="text-xs text-orange-700 font-medium">You have 2 products with critical stock levels. We recommend restocking soon.</p>
-                </div>
-            </div>
+            )}
 
             {/* Search */}
             <div className="mb-6 relative">
@@ -59,8 +139,12 @@ const StoreInventory = () => {
                 {filteredInventory.map(item => (
                     <div key={item.id} className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 hover:shadow-2xl transition-all group">
                         <div className="flex justify-between items-start mb-6">
-                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-500 transition-colors">
-                                <Box size={28} />
+                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-500 transition-colors overflow-hidden">
+                                {item.image ? (
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <Box size={28} />
+                                )}
                             </div>
                             <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${item.status === 'In Stock' ? 'bg-emerald-50 text-emerald-600' : item.status === 'Low Stock' ? 'bg-orange-50 text-orange-600' : 'bg-red-50 text-red-600'}`}>
                                 {item.status}
@@ -69,7 +153,7 @@ const StoreInventory = () => {
 
                         <div className="mb-6">
                             <h3 className="text-lg font-black text-slate-900 mb-1">{item.name}</h3>
-                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">SKU: {item.sku}</p>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">SKU: {item.sku || `PRD-00${item.id}`}</p>
                         </div>
 
                         <div className="space-y-4">
@@ -78,17 +162,33 @@ const StoreInventory = () => {
                                 <span className={`text-sm font-black ${item.stock <= 10 ? 'text-orange-600' : 'text-slate-900'}`}>{item.stock} Units</span>
                             </div>
                             <div className="flex justify-between items-center py-3">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Warehouse Location</span>
-                                <span className="text-sm font-bold text-slate-700">{item.location}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</span>
+                                <span className="text-sm font-bold text-slate-700">{item.category}</span>
                             </div>
                         </div>
 
-                        <button className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs hover:bg-slate-800 transition-all">
-                            Update Stock Count
-                        </button>
+                        <div className="mt-6 flex gap-2">
+                            <button onClick={() => handleUpdateStock(item.id, item.stock)} className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-black text-xs hover:bg-slate-800 transition-all">
+                                Update Stock
+                            </button>
+                            <button onClick={() => handleEditProduct(item)} className="p-3 bg-violet-50 text-violet-600 rounded-xl hover:bg-violet-100 transition-all" title="Edit">
+                                <Edit2 size={16} />
+                            </button>
+                            <button onClick={() => handleDeleteProduct(item.id)} className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all" title="Delete">
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
+
+            <ProductDrawer
+                isOpen={isAddDrawerOpen}
+                onClose={() => setIsAddDrawerOpen(false)}
+                mode={drawerMode}
+                product={selectedProduct}
+                onSubmit={handleDrawerSubmit}
+            />
         </div>
     );
 };

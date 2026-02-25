@@ -37,3 +37,22 @@ export const fetchFinancialStats = async () => {
         throw error.response?.data?.message || 'Failed to fetch financial stats';
     }
 };
+
+export const fetchLiveAccess = async () => {
+    try {
+        const response = await api.get('/branch-admin/dashboard/live-access');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch live access data';
+    }
+};
+
+export const fetchRenewalAlerts = async () => {
+    try {
+        const response = await api.get('/branch-admin/dashboard/renewal-alerts');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch renewal alerts';
+    }
+};
+

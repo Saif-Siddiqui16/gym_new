@@ -4,7 +4,7 @@ import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
 import SectionHeader from '../components/SectionHeader';
 import { DASHBOARD_DATA } from '../data/mockDashboardData';
-import { CheckCircle, Clock, AlertTriangle, LayoutDashboard, UserCheck, Calendar, Activity, ChevronRight } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle, LayoutDashboard, UserCheck, Calendar, Activity, ChevronRight, Users } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import TodayFollowUps from '../../crm/pages/TodayFollowUps';
 import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget';
@@ -16,9 +16,26 @@ import OpenEquipmentIssues from '../../operations/components/widgets/OpenEquipme
 import { MAINTENANCE_TICKETS } from '../../operations/data/maintenanceData';
 import apiClient from '../../../api/apiClient';
 
+const INITIAL_STAFF_DATA = {
+    stats: [
+        { id: 1, title: 'Check-ins Today', value: '0', icon: CheckCircle, color: 'primary' },
+        { id: 2, title: 'Pending Payments', value: '0', icon: IndianRupee, color: 'warning' },
+        { id: 3, title: 'New Enquiries', value: '0', icon: Users, color: 'success' },
+    ],
+    checkins: [],
+    activeUpdates: 0,
+    todayShift: '...',
+    assignedTasks: 0,
+    highPriorityTasks: 0,
+    upcomingClasses: 0,
+    collectionToday: 0,
+    pendingActions: []
+};
+
 const StaffDashboard = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState(DASHBOARD_DATA.STAFF);
+    const [data, setData] = useState(INITIAL_STAFF_DATA);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -28,24 +45,46 @@ const StaffDashboard = () => {
                 setData(prev => ({
                     ...prev,
                     stats: [
-                        { ...prev.stats[0], value: apiData.checkinsToday.toString() },
-                        { ...prev.stats[1], value: apiData.pendingPayments.toString() },
-                        { ...prev.stats[2], value: apiData.newEnquiries.toString() }
+                        { ...prev.stats[0], value: apiData.checkinsToday?.toString() || '0' },
+                        { ...prev.stats[1], value: apiData.pendingPayments?.toString() || '0' },
+                        { ...prev.stats[2], value: apiData.newEnquiries?.toString() || '0' }
                     ],
+                    activeUpdates: apiData.activeUpdates,
+                    todayShift: apiData.todayShift,
+                    assignedTasks: apiData.assignedTasks,
+                    highPriorityTasks: apiData.highPriorityTasks,
+                    upcomingClasses: apiData.upcomingClasses,
+                    collectionToday: apiData.collectionToday,
+                    equipmentAlerts: apiData.equipmentAlerts,
+                    pendingActions: apiData.pendingActions,
+                    renewalAlerts: apiData.renewalAlerts,
                     checkins: apiData.checkins || prev.checkins
                 }));
             } catch (error) {
                 console.error('Failed to fetch staff dashboard:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchDashboardData();
     }, []);
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Veriving Operational Protocols...</p>
+                </div>
+            </div>
+        );
+    }
+
     const enhancedStats = [
         {
             id: 1,
             label: 'Active Updates',
-            value: '24',
+            value: data.activeUpdates !== undefined ? data.activeUpdates.toString() : '24',
             trend: '+12%',
             trendUp: true,
             icon: Activity,
@@ -55,7 +94,7 @@ const StaffDashboard = () => {
         {
             id: 2,
             label: 'Today\'s Shift',
-            value: '09:00 - 17:00',
+            value: data.todayShift || '09:00 - 17:00',
             subtext: 'Next: Tomorrow 09:00',
             icon: Clock,
             color: 'emerald',
@@ -64,8 +103,8 @@ const StaffDashboard = () => {
         {
             id: 3,
             label: 'Assigned Tasks',
-            value: '5',
-            subtext: '2 High Priority',
+            value: data.assignedTasks !== undefined ? data.assignedTasks.toString() : '5',
+            subtext: `${data.highPriorityTasks !== undefined ? data.highPriorityTasks : '2'} High Priority`,
             icon: CheckCircle,
             color: 'amber',
             gradient: 'from-amber-400 to-orange-500'
@@ -73,7 +112,7 @@ const StaffDashboard = () => {
         {
             id: 4,
             label: 'Upcoming Classes',
-            value: '3',
+            value: data.upcomingClasses !== undefined ? data.upcomingClasses.toString() : '3',
             subtext: 'Next in 45m',
             icon: Calendar,
             color: 'blue',
@@ -147,7 +186,7 @@ const StaffDashboard = () => {
             </div>
 
             {/* LIVE ACCESS CONTROL MONITOR */}
-            <LiveAccessControl userRole="STAFF" />
+            <LiveAccessControl userRole="STAFF" checkinsData={data.checkins} />
 
             {/* Secondary Content Grid - Refactored to balanced 2-column layout */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8 auto-rows-min">
@@ -170,7 +209,7 @@ const StaffDashboard = () => {
                 </div>
 
                 {/* Equipment Alerts */}
-                <OpenEquipmentIssues tickets={MAINTENANCE_TICKETS} />
+                <OpenEquipmentIssues tickets={data.equipmentAlerts || []} />
 
                 {/* My Collection Today Widget */}
                 <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden group h-fit">
@@ -186,7 +225,7 @@ const StaffDashboard = () => {
                         </div>
                         <div className="mb-4 sm:mb-8">
                             <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-60 mb-2">Total Received Today</p>
-                            <h4 className="text-4xl sm:text-5xl font-black italic tracking-tighter">₹8,450</h4>
+                            <h4 className="text-4xl sm:text-5xl font-black italic tracking-tighter">₹{data.collectionToday !== undefined ? data.collectionToday.toLocaleString() : '8,450'}</h4>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button
@@ -209,7 +248,7 @@ const StaffDashboard = () => {
 
                 {/* Right Side Column: Renewal Alerts & Pending Actions inside the grid */}
                 <div className="space-y-8">
-                    <RenewalAlertsWidget />
+                    <RenewalAlertsWidget alertsData={data.renewalAlerts} />
 
                     <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
                         <div className="p-6 border-b border-slate-100 bg-slate-50/30">
@@ -219,31 +258,24 @@ const StaffDashboard = () => {
                         </div>
 
                         <div className="p-6 space-y-4">
-                            <div className="group flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-amber-300 hover:shadow-md transition-all duration-300 cursor-pointer">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-red-50 text-red-500 rounded-xl">
-                                        <Clock size={20} strokeWidth={2.5} />
+                            {data.pendingActions && data.pendingActions.map((action, idx) => (
+                                <div key={idx} className={`group flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 cursor-pointer ${action.type === 'Payment' ? 'hover:border-amber-300 hover:shadow-md' : 'hover:border-blue-300 hover:shadow-md'}`}>
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-3 rounded-xl ${action.type === 'Payment' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
+                                            {action.type === 'Payment' ? <Clock size={20} strokeWidth={2.5} /> : <UserCheck size={20} strokeWidth={2.5} />}
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-slate-800 text-sm">{action.title}</div>
+                                            <div className="text-xs font-medium text-slate-500">{action.subtitle}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div className="font-bold text-slate-800 text-sm">Payment Due</div>
-                                        <div className="text-xs font-medium text-slate-500">Mike Ross ($50)</div>
-                                    </div>
+                                    <ChevronRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-all" />
                                 </div>
-                                <ChevronRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-all" />
-                            </div>
+                            ))}
 
-                            <div className="group flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all duration-300 cursor-pointer">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-blue-50 text-blue-500 rounded-xl">
-                                        <UserCheck size={20} strokeWidth={2.5} />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-800 text-sm">New Enquiry</div>
-                                        <div className="text-xs font-medium text-slate-500">Walk-in (John)</div>
-                                    </div>
-                                </div>
-                                <ChevronRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-all" />
-                            </div>
+                            {(!data.pendingActions || data.pendingActions.length === 0) && (
+                                <div className="text-center py-4 text-slate-400 text-sm italic font-medium">No pending actions for now!</div>
+                            )}
 
                             <button
                                 onClick={() => navigate('/staff/tasks/my-tasks')}

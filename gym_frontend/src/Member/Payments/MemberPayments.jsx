@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Download, FileText, CheckCircle2, AlertCircle, Calendar, Receipt, ExternalLink, X, Plus, Clock, Wallet, CheckCircle, TrendingUp, IndianRupee, RefreshCw, ThumbsUp } from 'lucide-react';
+import { CreditCard, Download, FileText, CheckCircle2, AlertCircle, Calendar, Receipt, ExternalLink, X, Plus, Clock, Wallet, CheckCircle, TrendingUp, IndianRupee, RefreshCw, ThumbsUp, Trash2 } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
 import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
@@ -7,7 +7,9 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import StatsCard from '../../modules/dashboard/components/StatsCard';
 
-import { getInvoices, payInvoice } from '../../api/member/memberApi';
+import { getInvoices, payInvoice, getSavedCards, addSavedCard, deleteSavedCard } from '../../api/member/memberApi';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const MemberPayments = () => {
     const [showAddMethodModal, setShowAddMethodModal] = useState(false);
@@ -20,28 +22,120 @@ const MemberPayments = () => {
     const [loading, setLoading] = useState(true);
 
     const [invoices, setInvoices] = useState([]);
+    const [savedCards, setSavedCards] = useState([]);
+    const [newCard, setNewCard] = useState({ name: '', number: '', expiry: '', cvv: '' });
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+
+    const loadData = async () => {
+        try {
+            const [invoicesData, cardsData] = await Promise.all([
+                getInvoices(),
+                getSavedCards()
+            ]);
+            setInvoices(invoicesData);
+            setSavedCards(cardsData || []);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadInvoices = async () => {
-            try {
-                const data = await getInvoices();
-                setInvoices(data);
-            } catch (error) {
-                console.error('Error fetching invoices:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadInvoices();
+        loadData();
     }, []);
 
+    const handleDownloadInvoice = (invId) => {
+        setDownloadingInvoice(invId);
+        try {
+            const inv = invoices.find(i => i.id === invId);
+            if (!inv) return;
 
-    const handleDownloadInvoice = (invoiceId) => {
-        setDownloadingInvoice(invoiceId);
-        setTimeout(() => {
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.text(`Invoice #${inv.id}`, 14, 22);
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+            doc.text(`Status: ${inv.status}`, 14, 35);
+
+            autoTable(doc, {
+                startY: 45,
+                head: [['Description', 'Amount', 'Due Date']],
+                body: [[`Membership Services`, `INR ${inv.amount.toLocaleString()}`, inv.dueDate]],
+                theme: 'striped',
+                headStyles: { fillColor: [139, 92, 246] }
+            });
+
+            doc.save(`${inv.id}_Statement.pdf`);
+        } catch (err) {
+            console.error("PDF generation failed", err);
+        } finally {
             setDownloadingInvoice(null);
-            console.log(`Downloaded invoice: ${invoiceId}`);
-        }, 1500);
+        }
+    };
+
+    const handleDownloadYearly = () => {
+        try {
+            const doc = new jsPDF();
+            doc.setFontSize(20);
+            doc.text("Complete Yearly Statement", 14, 22);
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+            doc.text(`Fiscal Year: ${selectedYear}`, 14, 35);
+
+            const filteredInvoices = invoices.filter(t => new Date(t.date).getFullYear().toString() === selectedYear);
+
+            const tableData = filteredInvoices.map(t => [
+                t.id, t.date, t.status, `INR ${t.amount.toLocaleString()}`
+            ]);
+
+            autoTable(doc, {
+                startY: 45,
+                head: [['Invoice ID', 'Date', 'Status', 'Amount']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [139, 92, 246] }
+            });
+
+            doc.save(`Complete_Statement_${new Date().getFullYear()}.pdf`);
+            setShowStatementModal(false);
+        } catch (err) {
+            console.error("PDF generation failed", err);
+        }
+    };
+
+    const handleAddCard = async () => {
+        try {
+            if (newCard.number.length < 4) {
+                alert("Valid card required");
+                return;
+            }
+            const cardData = {
+                name: newCard.name || 'New Payment Card',
+                number: newCard.number.slice(-4),
+                expiry: newCard.expiry || 'MM/YY',
+                brand: 'Custom'
+            };
+            const added = await addSavedCard(cardData);
+            setSavedCards([...savedCards, added.card]);
+            setShowAddMethodModal(false);
+            setNewCard({ name: '', number: '', expiry: '', cvv: '' });
+            alert('Card Added!');
+        } catch (e) {
+            console.error("Failed", e);
+            alert('Adding card failed');
+        }
+    };
+
+    const handleDeleteCard = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this payment method?")) return;
+        try {
+            await deleteSavedCard(id);
+            setSavedCards(savedCards.filter(c => c.id !== id));
+        } catch (error) {
+            console.error('Failed to delete card:', error);
+            alert('Failed to delete card');
+        }
     };
 
     const handlePayNow = (invoice) => {
@@ -52,7 +146,7 @@ const MemberPayments = () => {
     const processPayment = async () => {
         setPaymentProcessing(true);
         try {
-            await payInvoice(selectedInvoice.id);
+            await payInvoice(selectedInvoice.dbId);
             setPaymentSuccess(true);
             // Update invoice status in local state
             setInvoices(prev => prev.map(inv =>
@@ -70,10 +164,13 @@ const MemberPayments = () => {
         }
     };
 
+    const totalPaid = invoices.filter(i => i.status === 'Paid').reduce((sum, i) => sum + i.amount, 0);
+    const totalOut = invoices.filter(i => i.status !== 'Paid').reduce((sum, i) => sum + i.amount, 0);
+
     const stats = [
-        { id: 1, title: 'Outstanding Balance', value: '₹2,499.00', icon: AlertCircle, color: 'danger' },
-        { id: 2, title: 'Total Paid', value: '₹4,998.00', icon: CheckCircle, color: 'success' },
-        { id: 3, title: 'Total Invoices', value: '4', icon: FileText, color: 'primary' },
+        { id: 1, title: 'Outstanding Balance', value: `₹${totalOut.toLocaleString()}`, icon: AlertCircle, color: totalOut > 0 ? 'danger' : 'success' },
+        { id: 2, title: 'Total Paid', value: `₹${totalPaid.toLocaleString()}`, icon: CheckCircle, color: 'success' },
+        { id: 3, title: 'Total Invoices', value: invoices.length.toString(), icon: FileText, color: 'primary' },
     ];
 
     return (
@@ -109,8 +206,8 @@ const MemberPayments = () => {
                                     <CheckCircle size={20} />
                                 </div>
                                 <div>
-                                    <div className="text-lg font-black text-slate-900 leading-tight">Paid & Current</div>
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Next bill: June 10</div>
+                                    <div className="text-lg font-black text-slate-900 leading-tight">{totalOut > 0 ? 'Action Required' : 'Paid & Current'}</div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{totalOut > 0 ? 'Pay Outstanding Balance' : 'All clear'}</div>
                                 </div>
                             </div>
                         </Card>
@@ -118,15 +215,26 @@ const MemberPayments = () => {
                         <Card className="rounded-[32px]">
                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Payment Methods</h4>
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                                            <CreditCard size={14} className="text-violet-600" />
+                                {savedCards.length > 0 ? savedCards.map((card, i) => (
+                                    <div key={card.id || i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                                                <CreditCard size={14} className="text-violet-600" />
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-700">•••• {card.number}</span>
                                         </div>
-                                        <span className="text-sm font-bold text-slate-700">•••• 4242</span>
+                                        <div className="flex items-center gap-3">
+                                            {i === 0 && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                                            <button onClick={() => handleDeleteCard(card.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                </div>
+                                )) : (
+                                    <div className="text-xs font-bold text-slate-400 flex items-center justify-center p-4">
+                                        No linked cards yet
+                                    </div>
+                                )}
                                 <Button
                                     variant="outline"
                                     onClick={() => setShowAddMethodModal(true)}
@@ -266,9 +374,8 @@ const MemberPayments = () => {
                                         <div className="flex items-center justify-between pt-6 border-t border-white/10 mt-6">
                                             <div className="flex items-center gap-2">
                                                 <CreditCard size={16} className="text-slate-400" />
-                                                <span className="text-sm font-bold opacity-80">Visa •••• 4242</span>
+                                                <span className="text-sm font-bold opacity-80">{savedCards.length > 0 ? `Card •••• ${savedCards[0].number}` : 'No Linked Cards'}</span>
                                             </div>
-                                            <button className="text-[10px] font-black text-violet-400 uppercase tracking-widest hover:text-violet-300">Change</button>
                                         </div>
                                     </div>
 
@@ -335,16 +442,27 @@ const MemberPayments = () => {
                     <div className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Card Number</label>
-                            <input className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50 tracking-widest" placeholder="0000 0000 0000 0000" />
+                            <input
+                                value={newCard.number}
+                                onChange={e => setNewCard({ ...newCard, number: e.target.value })}
+                                maxLength={16}
+                                className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50 tracking-widest" placeholder="0000 0000 0000 0000" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Expiry</label>
-                                <input className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50" placeholder="MM/YY" />
+                                <input
+                                    value={newCard.expiry}
+                                    onChange={e => setNewCard({ ...newCard, expiry: e.target.value })}
+                                    className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50" placeholder="MM/YY" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">CVV</label>
-                                <input className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50" placeholder="•••" type="password" />
+                                <input
+                                    value={newCard.cvv}
+                                    onChange={e => setNewCard({ ...newCard, cvv: e.target.value })}
+                                    maxLength={4}
+                                    className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-slate-900 transition-all bg-slate-50" placeholder="•••" type="password" />
                             </div>
                         </div>
                     </div>
@@ -352,7 +470,7 @@ const MemberPayments = () => {
                         <Button variant="outline" onClick={() => setShowAddMethodModal(false)} className="flex-1 py-5 rounded-[24px]">
                             Cancel
                         </Button>
-                        <Button onClick={() => setShowAddMethodModal(false)} className="flex-[2] py-5 rounded-[24px]">
+                        <Button onClick={handleAddCard} className="flex-[2] py-5 rounded-[24px]">
                             Add Securely
                         </Button>
                     </div>
@@ -374,10 +492,15 @@ const MemberPayments = () => {
                         </div>
                         <div className="space-y-3">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Fiscal Year</label>
-                            <select className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-black text-slate-900 transition-all bg-slate-50 appearance-none">
-                                <option>2024</option>
-                                <option>2023</option>
-                                <option>2022</option>
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                                className="w-full h-14 px-5 rounded-[20px] border-2 border-slate-100 focus:border-violet-500 outline-none font-black text-slate-900 transition-all bg-slate-50 appearance-none">
+                                <option value="2026">2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
                             </select>
                         </div>
                     </div>
@@ -385,7 +508,7 @@ const MemberPayments = () => {
                         <Button variant="outline" onClick={() => setShowStatementModal(false)} className="flex-1 py-5 rounded-[24px]">
                             Close
                         </Button>
-                        <Button onClick={() => setShowStatementModal(false)} className="flex-[2] py-5 rounded-[24px]" icon={Download}>
+                        <Button onClick={handleDownloadYearly} className="flex-[2] py-5 rounded-[24px]" icon={Download}>
                             Generate PDF
                         </Button>
                     </div>
@@ -395,7 +518,7 @@ const MemberPayments = () => {
     );
 };
 
-const PaymentRow = ({ id, date, amount, status, onDownload, onPay, downloading }) => (
+const PaymentRow = ({ id, dbId, date, amount, status, onDownload, onPay, downloading }) => (
     <tr className="hover:bg-slate-50/50 transition-all group">
         <td className="px-8 py-5">
             <div className="flex items-center gap-3">
@@ -425,7 +548,7 @@ const PaymentRow = ({ id, date, amount, status, onDownload, onPay, downloading }
             <div className="flex justify-end gap-2">
                 {status !== 'Paid' && (
                     <Button
-                        onClick={() => onPay({ id, date, amount, status })}
+                        onClick={() => onPay({ id, dbId, date, amount, status })}
                         className="h-10 px-4 py-0 rounded-xl bg-violet-600 hover:bg-violet-700 shadow-md shadow-violet-100"
                     >
                         Pay Now

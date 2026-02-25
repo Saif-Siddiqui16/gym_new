@@ -12,6 +12,18 @@ const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (!newBooking.memberId) {
+            alert('Please select a member');
+            return;
+        }
+        if (!newBooking.classId) {
+            alert('Please select a class');
+            return;
+        }
+        if (!newBooking.date) {
+            alert('Please select a date');
+            return;
+        }
         onCreate(newBooking);
         onClose();
     };

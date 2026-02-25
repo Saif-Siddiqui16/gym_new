@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Users, UserCheck, Download, Filter, Search, MoreVertical, ChevronLeft, ChevronRight, Eye, Trash2, X, Clock, MapPin, Smartphone, ChevronDown, Check } from 'lucide-react';
-import { getCheckIns, getAttendanceStats, deleteCheckIn } from '../../api/manager/managerApi';
+import { Calendar, Users, UserCheck, Download, Filter, Search, MoreVertical, ChevronLeft, ChevronRight, Eye, Trash2, X, Clock, MapPin, Smartphone, ChevronDown, Check, Loader2 } from 'lucide-react';
+import apiClient from '../../api/apiClient';
 import { exportCSV } from '../../api/manager/managerExport';
 import RightDrawer from '../../components/common/RightDrawer';
 import '../../styles/GlobalDesign.css';
@@ -52,7 +52,15 @@ const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) =
 };
 
 const DailyAttendanceReport = () => {
-    const [selectedDate, setSelectedDate] = useState('2024-03-15');
+    const getToday = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getToday());
     const [typeFilter, setTypeFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [attendance, setAttendance] = useState([]);
@@ -70,32 +78,63 @@ const DailyAttendanceReport = () => {
     }, [selectedDate, typeFilter, searchTerm, currentPage]);
 
     const loadData = async () => {
-        setLoading(true);
-        const filters = {
-            search: searchTerm,
-            type: typeFilter === 'All' ? '' : typeFilter,
-            date: selectedDate
-        };
+        try {
+            setLoading(true);
+            const params = {
+                search: searchTerm,
+                type: typeFilter,
+                date: selectedDate,
+                page: currentPage,
+                limit: itemsPerPage
+            };
 
-        const [attendanceData, statsData] = await Promise.all([
-            getCheckIns({ filters, page: currentPage, limit: itemsPerPage }),
-            getAttendanceStats()
-        ]);
+            const response = await apiClient.get('/branch-admin/reports/attendance', { params });
 
-        setAttendance(attendanceData?.data || []);
-        setTotalItems(attendanceData?.total || 0);
-        if (statsData) setAttendanceStats(statsData);
-        setLoading(false);
+            setAttendance(response.data.data || []);
+            setTotalItems(response.data.total || 0);
+            if (response.data.stats) {
+                setAttendanceStats(response.data.stats);
+            }
+        } catch (error) {
+            console.error('Attendance Load Error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleExport = () => {
-        exportCSV(attendance, 'DailyAttendanceReport');
+        if (attendance.length === 0) {
+            alert("No data to export");
+            return;
+        }
+        const headers = ["Name", "Type", "Check-In", "Check-Out", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...attendance.map(row => [
+                `"${row.name}"`,
+                `"${row.type}"`,
+                `"${row.checkIn}"`,
+                `"${row.checkOut}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `attendance_report_${selectedDate}.csv`;
+        link.click();
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to remove this attendance record?')) {
-            await deleteCheckIn(id);
-            loadData();
+            try {
+                await apiClient.delete(`/admin/attendance/${id}`);
+                loadData();
+            } catch (error) {
+                console.error('Delete Error:', error);
+            }
         }
     };
 

@@ -1,27 +1,85 @@
-import React, { useState } from 'react';
-import { Users, Download, Filter, Search, Calendar, UserPlus, UserMinus, UserCheck, PieChart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, Download, Filter, Search, Calendar, UserPlus, UserMinus, UserCheck, PieChart, Loader2 } from 'lucide-react';
 import '../../../styles/GlobalDesign.css';
+import apiClient from '../../../api/apiClient';
 
 const MembershipReport = () => {
-    const [selectedDate, setSelectedDate] = useState('2024-03-01');
+    const getToday = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getToday());
     const [searchTerm, setSearchTerm] = useState('');
 
-    const stats = [
-        { label: 'Active Members', value: '1,284', icon: UserCheck, bg: 'bg-emerald-50', color: 'text-emerald-600' },
-        { label: 'New Joins (MTD)', value: '45', icon: UserPlus, bg: 'bg-blue-50', color: 'text-blue-600' },
-        { label: 'Expired (MTD)', value: '12', icon: UserMinus, bg: 'bg-rose-50', color: 'text-rose-600' },
-    ];
+    const [stats, setStats] = useState([
+        { label: 'Active Members', value: '0', icon: UserCheck, bg: 'bg-emerald-50', color: 'text-emerald-600' },
+        { label: 'New Joins (MTD)', value: '0', icon: UserPlus, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'Expired (MTD)', value: '0', icon: UserMinus, bg: 'bg-rose-50', color: 'text-rose-600' },
+    ]);
 
-    const membershipData = [
-        { id: 1, name: 'Vikram Singh', plan: 'Annual Premium', startDate: '2024-03-10', endDate: '2025-03-09', status: 'Active' },
-        { id: 2, name: 'Sanya Malhotra', plan: 'Monthly Standard', startDate: '2024-03-12', endDate: '2024-04-11', status: 'Active' },
-        { id: 3, name: 'Rohan Mehra', plan: '3-Month Basic', startDate: '2023-12-15', endDate: '2024-03-14', status: 'Expired' },
-        { id: 4, name: 'Nisha Sharma', plan: 'Annual Premium', startDate: '2024-03-15', endDate: '2025-03-14', status: 'Active' },
-    ];
+    const [membershipData, setMembershipData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchReport = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/branch-admin/reports/membership', {
+                params: { date: selectedDate }
+            });
+
+            const iconMap = {
+                UserCheck: UserCheck,
+                UserPlus: UserPlus,
+                UserMinus: UserMinus
+            };
+
+            setStats(response.data.stats.map(s => ({
+                ...s,
+                icon: iconMap[s.icon] || UserCheck
+            })));
+            setMembershipData(response.data.membershipData);
+        } catch (error) {
+            console.error('Failed to fetch membership report:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReport();
+    }, [selectedDate]);
 
     const handleExport = () => {
-        alert("Preparing your membership data export... The file will download shortly.");
-        // Logic for generating CSV would go here
+        if (membershipData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["Member Name", "Plan Type", "Membership Start", "Expiry Date", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...membershipData.map(row => [
+                `"${row.name}"`,
+                `"${row.plan}"`,
+                `"${row.startDate}"`,
+                `"${row.endDate}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `membership_report_${selectedDate}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -79,10 +137,22 @@ const MembershipReport = () => {
                                     onChange={(e) => setSelectedDate(e.target.value)}
                                 />
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-xs font-bold">
+                            <button
+                                onClick={() => {
+                                    const plans = membershipData.reduce((acc, member) => {
+                                        acc[member.plan] = (acc[member.plan] || 0) + 1;
+                                        return acc;
+                                    }, {});
+                                    const breakdown = Object.entries(plans)
+                                        .map(([plan, count]) => `${plan}: ${count}`)
+                                        .join('\n');
+                                    alert(`Plan Distribution:\n\n${breakdown || 'No data available'}`);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors"
+                            >
                                 <PieChart size={14} />
                                 Plan Distribution
-                            </div>
+                            </button>
                         </div>
                         <div className="relative w-full md:w-72">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -109,27 +179,46 @@ const MembershipReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {membershipData.map((row) => (
-                                <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
-                                                {row.name.charAt(0)}
-                                            </div>
-                                            <span className="text-sm font-bold text-slate-900">{row.name}</span>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                                            <p className="text-slate-500 font-medium">Loading membership data...</p>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.plan}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-500">{row.startDate}</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-700">{row.endDate}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                                            }`}>
-                                            {row.status}
-                                        </span>
+                                </tr>
+                            ) : membershipData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-slate-400 font-medium italic">
+                                        No members found for the selected period
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                membershipData
+                                    .filter(row => row.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
+                                                        {row.name.charAt(0)}
+                                                    </div>
+                                                    <span className="text-sm font-bold text-slate-900">{row.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.plan}</td>
+                                            <td className="px-6 py-4 text-sm text-slate-500">{row.startDate}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{row.endDate}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                                    }`}>
+                                                    {row.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                            )}
                         </tbody>
                     </table>
                 </div>

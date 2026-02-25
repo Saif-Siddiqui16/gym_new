@@ -397,6 +397,15 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                     {activeTab === 'measurements' && (
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
                             <div className="lg:col-span-2 space-y-8">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Core Metrics</h3>
+                                    <button
+                                        onClick={() => navigate(`/progress?memberId=${member.id}`)}
+                                        className="px-4 py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-violet-700 transition-all shadow-lg shadow-violet-200"
+                                    >
+                                        <Plus size={14} /> Manage Progress
+                                    </button>
+                                </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                     {(() => {
                                         const logs = progressData?.logs || [];

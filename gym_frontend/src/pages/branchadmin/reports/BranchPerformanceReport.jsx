@@ -1,27 +1,86 @@
-import React, { useState } from 'react';
-import { Activity, Download, Filter, Search, Calendar, BarChart3, TrendingUp, Zap, Target, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, Download, Filter, Search, Calendar, BarChart3, TrendingUp, Zap, Target, ArrowUpRight, ArrowDownRight, Loader2 } from 'lucide-react';
 import '../../../styles/GlobalDesign.css';
+import apiClient from '../../../api/apiClient';
 
 const BranchPerformanceReport = () => {
-    const [selectedDate, setSelectedDate] = useState('2024-03-01');
+    const getToday = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getToday());
     const [searchTerm, setSearchTerm] = useState('');
 
-    const stats = [
-        { label: 'Revenue vs Expense', value: '+32.5%', icon: TrendingUp, bg: 'bg-indigo-50', color: 'text-indigo-600', trend: 'up' },
-        { label: 'Lead Conv. Rate', value: '24.8%', icon: Target, bg: 'bg-purple-50', color: 'text-purple-600', trend: 'up' },
-        { label: 'Member Retention', value: '92.1%', icon: Activity, bg: 'bg-emerald-50', color: 'text-emerald-600', trend: 'down' },
-    ];
+    const [stats, setStats] = useState([
+        { label: 'Revenue vs Expense', value: '0%', icon: TrendingUp, bg: 'bg-indigo-50', color: 'text-indigo-600', trend: 'up' },
+        { label: 'Lead Conv. Rate', value: '0%', icon: Target, bg: 'bg-purple-50', color: 'text-purple-600', trend: 'up' },
+        { label: 'Member Retention', value: '0%', icon: Activity, bg: 'bg-emerald-50', color: 'text-emerald-600', trend: 'up' },
+    ]);
 
-    const performanceData = [
-        { id: 1, month: 'March 2024', revenue: '₹4,52,000', expense: '₹1,24,500', profit: '₹3,27,500', margin: '72.4%', status: 'Excellent' },
-        { id: 2, month: 'February 2024', revenue: '₹4,10,000', expense: '₹1,18,000', profit: '₹2,92,000', margin: '71.2%', status: 'Good' },
-        { id: 3, month: 'January 2024', revenue: '₹3,85,000', expense: '₹1,42,000', profit: '₹2,43,000', margin: '63.1%', status: 'Average' },
-        { id: 4, month: 'December 2023', revenue: '₹4,25,000', expense: '₹1,15,000', profit: '₹3,10,000', margin: '72.9%', status: 'Excellent' },
-    ];
+    const [performanceData, setPerformanceData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchReport = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/branch-admin/reports/performance', {
+                params: { date: selectedDate }
+            });
+
+            const iconMap = {
+                TrendingUp: TrendingUp,
+                Target: Target,
+                Activity: Activity
+            };
+
+            setStats(response.data.stats.map(s => ({
+                ...s,
+                icon: iconMap[s.icon] || Activity
+            })));
+            setPerformanceData(response.data.performanceData);
+        } catch (error) {
+            console.error('Failed to fetch performance report:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReport();
+    }, [selectedDate]);
 
     const handleExport = () => {
-        alert("Preparing your branch performance analysis export... The report will be ready to download shortly.");
-        // Logic for generating CSV would go here
+        if (performanceData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["Month", "Revenue", "Expense", "Profit", "Margin", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...performanceData.map(row => [
+                `"${row.month}"`,
+                `"${row.revenue}"`,
+                `"${row.expense}"`,
+                `"${row.profit}"`,
+                `"${row.margin}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `performance_report_${selectedDate}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -116,22 +175,41 @@ const BranchPerformanceReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {performanceData.map((row) => (
-                                <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-900">{row.month}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-emerald-600">{row.revenue}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-rose-600">{row.expense}</td>
-                                    <td className="px-6 py-4 text-sm font-black text-slate-900">{row.profit}</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-indigo-600">{row.margin}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Excellent' ? 'bg-indigo-100 text-indigo-700' :
-                                            row.status === 'Good' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                            }`}>
-                                            {row.status}
-                                        </span>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <p className="text-slate-500 font-medium">Analyzing performance metrics...</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : performanceData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-400 font-medium italic">
+                                        No performance data found for the selected period
+                                    </td>
+                                </tr>
+                            ) : (
+                                performanceData
+                                    .filter(row => row.month.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-slate-900">{row.month}</td>
+                                            <td className="px-6 py-4 text-sm font-medium text-emerald-600">{row.revenue}</td>
+                                            <td className="px-6 py-4 text-sm font-medium text-rose-600">{row.expense}</td>
+                                            <td className="px-6 py-4 text-sm font-black text-slate-900">{row.profit}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-indigo-600">{row.margin}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Excellent' ? 'bg-indigo-100 text-indigo-700' :
+                                                    row.status === 'Good' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                    {row.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                            )}
                         </tbody>
                     </table>
                 </div>

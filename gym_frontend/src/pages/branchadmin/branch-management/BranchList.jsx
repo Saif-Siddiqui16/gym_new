@@ -134,7 +134,8 @@ const BranchList = () => {
             loadBranches();
         } catch (error) {
             console.error('Failed to save branch:', error);
-            toast.error(error.response?.data?.message || 'Failed to create branch');
+            const errMsg = error.response?.data?.message || error.message || 'Failed to create branch';
+            toast.error(errMsg);
         }
     };
 
@@ -329,7 +330,7 @@ const BranchList = () => {
                     </div>
                 )}
             >
-                <div className="space-y-6">
+                <div className="flex flex-col gap-6 p-6">
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Branch Name</label>
                         <input name="branchName" value={formData.branchName} onChange={handleInputChange} type="text" className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm focus:border-violet-500 transition-all font-medium" placeholder="E.g. Southside Studio" />
@@ -384,7 +385,7 @@ const BranchList = () => {
                 )}
             >
                 {selectedBranch && (
-                    <div className="space-y-8">
+                    <div className="flex flex-col gap-8 p-6">
                         <div className="bg-violet-50 rounded-2xl p-6 border border-violet-100 flex flex-col items-center text-center">
                             <div className="w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center text-violet-600 mb-4">
                                 <Building size={32} />
@@ -446,7 +447,7 @@ const BranchList = () => {
                 )}
             >
                 {selectedBranch && (
-                    <div className="space-y-6">
+                    <div className="flex flex-col gap-6 p-6">
                         <div className="space-y-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Branch Name</label>
                             <input
@@ -516,7 +517,7 @@ const BranchList = () => {
                     </div>
                 )}
             >
-                <div className="space-y-8">
+                <div className="flex flex-col gap-8 p-6">
                     {/* Filter & Search */}
                     <div className="flex gap-3">
                         <div className="relative flex-1 group">

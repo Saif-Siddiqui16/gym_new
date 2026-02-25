@@ -272,9 +272,9 @@ const HardwareSettings = () => {
                     </div>
                 }
             >
-                <form id="device-form" onSubmit={handleSaveDevice} className="space-y-5 py-4">
+                <form id="device-form" onSubmit={handleSaveDevice} className="flex flex-col gap-6 p-6">
                     {/* Device Name */}
-                    <div>
+                    <div className="flex flex-col">
                         <label className="block text-sm font-bold text-slate-700 mb-2">Device Name *</label>
                         <input
                             type="text"
@@ -287,7 +287,7 @@ const HardwareSettings = () => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Device Type */}
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-2">Device Type</label>

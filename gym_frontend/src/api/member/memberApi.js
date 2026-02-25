@@ -154,6 +154,15 @@ export const addSavedCard = async (cardData) => {
     }
 };
 
+export const deleteSavedCard = async (id) => {
+    try {
+        const response = await apiClient.delete(`/member/cards/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to delete card';
+    }
+};
+
 export const getMembershipDetails = async () => {
     try {
         const response = await apiClient.get('/member/membership-details');
@@ -181,11 +190,55 @@ export const addServiceRequest = async (requestData) => {
     }
 };
 
+export const fetchAvailableClasses = async () => {
+    try {
+        const response = await apiClient.get('/member/classes');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch classes';
+    }
+};
+
 export const getMemberQrProfile = async () => {
     try {
         const response = await apiClient.get('/member/profile');
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to fetch member exact profile';
+    }
+};
+export const fetchMemberWorkoutPlans = async () => {
+    try {
+        const response = await apiClient.get('/member/workout-plans');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch workout plans';
+    }
+};
+
+export const fetchMemberDietPlans = async () => {
+    try {
+        const response = await apiClient.get('/member/diet-plans');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch diet plans';
+    }
+};
+
+export const getRewardCatalog = async () => {
+    try {
+        const response = await apiClient.get('/member/rewards/catalog');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch reward catalog';
+    }
+};
+
+export const redeemReward = async (catalogId) => {
+    try {
+        const response = await apiClient.post('/member/rewards/redeem', { catalogId });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to redeem reward';
     }
 };

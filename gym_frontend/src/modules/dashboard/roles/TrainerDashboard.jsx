@@ -30,9 +30,44 @@ import {
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/apiClient';
 
+const INITIAL_TRAINER_DATA = {
+    stats: [
+        { id: 1, title: 'Total Members', value: '0', icon: Users, color: 'primary' },
+        { id: 2, title: 'Sessions Today', value: '0', icon: Calendar, color: 'success' },
+        { id: 3, title: 'Pending Plans', value: '0', icon: Activity, color: 'warning' },
+    ],
+    todaySessions: {
+        summary: { total: 0, upcoming: 0, completed: 0 },
+        list: []
+    },
+    myClients: [],
+    pendingTasks: [],
+    earnings: {
+        totalEarnings: 0,
+        commission: 0,
+        salary: 0,
+        target: 0,
+        pendingPayouts: 0
+    },
+    myAttendance: {
+        presentDays: 0,
+        lateDays: 0,
+        absentDays: 0,
+        attendanceRate: 0
+    }
+};
+
 const TrainerDashboard = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState(DASHBOARD_DATA.TRAINER);
+    const [data, setData] = useState(INITIAL_TRAINER_DATA);
+    const [loading, setLoading] = useState(true);
+
+    const [selectedSession, setSelectedSession] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isEarningsDrawerOpen, setIsEarningsDrawerOpen] = useState(false);
+    const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
+    const [selectedAtRiskMember, setSelectedAtRiskMember] = useState(null);
+    const [isAtRiskDrawerOpen, setIsAtRiskDrawerOpen] = useState(false);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -45,22 +80,37 @@ const TrainerDashboard = () => {
                         { ...prev.stats[0], value: apiData.totalMembers.toString() },
                         { ...prev.stats[1], value: apiData.sessionsToday.toString() },
                         { ...prev.stats[2], value: apiData.pendingPlans.toString() }
-                    ]
+                    ],
+                    todaySessions: apiData.todaySessions,
+                    myClients: apiData.myClients,
+                    pendingTasks: apiData.pendingTasks || [],
+                    myAttendance: {
+                        ...prev.myAttendance,
+                        ...apiData.myAttendance
+                    },
+                    earnings: apiData.earnings || prev.earnings
                 }));
             } catch (error) {
                 console.error('Failed to fetch trainer dashboard:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchDashboardData();
     }, []);
-    const [selectedSession, setSelectedSession] = useState(null);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [isEarningsDrawerOpen, setIsEarningsDrawerOpen] = useState(false);
-    const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
-    const [selectedAtRiskMember, setSelectedAtRiskMember] = useState(null);
-    const [isAtRiskDrawerOpen, setIsAtRiskDrawerOpen] = useState(false);
 
     const atRiskClients = data.myClients?.filter(c => c.daysSinceLastVisit >= 10) || [];
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Loading Trainer Session Environment...</p>
+                </div>
+            </div>
+        );
+    }
 
     const handleSessionClick = (session) => {
         setSelectedSession(session);
@@ -446,136 +496,102 @@ const TrainerDashboard = () => {
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-                {/* Column 1: Today's Schedule */}
-                <div className="space-y-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-md font-bold text-gray-800 flex items-center gap-2">
-                                <Clock size={18} className="text-indigo-600" />
-                                Today's Schedule
+                {/* Column 1: Performance & Alerts */}
+                <div className="space-y-6">
+                    {/* My Attendance */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between px-1">
+                            <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                <Clock size={16} className="text-emerald-500" />
+                                My Attendance
                             </h2>
-                            <p className="text-[10px] text-gray-500 font-medium ml-6">Your sessions for today</p>
+                            <button onClick={() => setIsAttendanceDrawerOpen(true)} className="text-[10px] font-black text-indigo-600 hover:underline">
+                                Details
+                            </button>
                         </div>
+                        <Card className="p-4 border border-gray-200 shadow-sm">
+                            <div className="grid grid-cols-3 divide-x divide-gray-100 text-center mb-4">
+                                <div><p className="text-lg font-black">{data.myAttendance.presentDays}</p><p className="text-[9px] text-gray-400 uppercase font-bold">Present</p></div>
+                                <div><p className="text-lg font-black text-amber-600">{data.myAttendance.lateDays}</p><p className="text-[9px] text-gray-400 uppercase font-bold">Late</p></div>
+                                <div><p className="text-lg font-black text-red-500">{data.myAttendance.absentDays}</p><p className="text-[9px] text-gray-400 uppercase font-bold">Absent</p></div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="flex justify-between text-[10px] font-bold">
+                                    <span className="text-gray-500 uppercase">Rate</span>
+                                    <span className="text-emerald-600">{data.myAttendance.attendanceRate}%</span>
+                                </div>
+                                <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-emerald-500" style={{ width: `${data.myAttendance.attendanceRate}%` }} />
+                                </div>
+                            </div>
+                        </Card>
                     </div>
 
-                    <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-all flex flex-col p-0 overflow-hidden">
-                        {/* Summary Row */}
-                        <div className="grid grid-cols-3 divide-x divide-gray-100 bg-gray-50/50 border-b border-gray-100">
-                            <div className="p-3 text-center">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Total</p>
-                                <p className="text-lg font-bold text-gray-800">{data.todaySessions.summary.total}</p>
-                            </div>
-                            <div className="p-3 text-center">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Upcoming</p>
-                                <p className="text-lg font-bold text-amber-600">{data.todaySessions.summary.upcoming}</p>
-                            </div>
-                            <div className="p-3 text-center">
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Done</p>
-                                <p className="text-lg font-bold text-emerald-600">{data.todaySessions.summary.completed}</p>
-                            </div>
-                        </div>
-
-                        {/* Timeline List */}
-                        <div className="divide-y divide-gray-100 max-h-[450px] overflow-y-auto scrollbar-thin">
-                            {data.todaySessions.list.length === 0 ? (
-                                <div className="p-12 text-center">
-                                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <Calendar size={24} className="text-gray-300" />
-                                    </div>
-                                    <p className="text-gray-500 font-bold text-sm">🎉 No sessions today</p>
-                                    <p className="text-[10px] text-gray-400">Time to catch up on planning!</p>
-                                </div>
-                            ) : (
-                                data.todaySessions.list.map((session) => (
-                                    <div
-                                        key={session.id}
-                                        onClick={() => handleSessionClick(session)}
-                                        className="group p-4 flex items-center gap-4 hover:bg-indigo-50/30 cursor-pointer transition-all relative"
-                                    >
-                                        <div className={`absolute left-0 top-2 bottom-2 w-1 rounded-r-full ${session.status === 'Completed' ? 'bg-emerald-500' :
-                                            session.status === 'Upcoming' ? 'bg-amber-500' : 'bg-red-500'
-                                            }`} />
-
-                                        <div className="w-16 flex-shrink-0">
-                                            <p className="text-xs font-bold text-gray-900">{session.time}</p>
+                    {/* Client Alerts */}
+                    <div className="space-y-4">
+                        <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 px-1">
+                            <AlertCircle size={16} className="text-red-500" />
+                            Client Alerts
+                        </h2>
+                        <Card className="p-0 border border-red-50 shadow-sm overflow-hidden">
+                            <div className="divide-y divide-gray-100">
+                                {atRiskClients.slice(0, 4).map(member => (
+                                    <div key={member.id} onClick={() => handleAtRiskClick(member)} className="p-4 hover:bg-red-50/30 cursor-pointer transition-all flex justify-between items-center">
+                                        <div className="min-w-0">
+                                            <h4 className="font-bold text-gray-800 text-xs truncate">{member.name}</h4>
+                                            <p className="text-[10px] text-red-500 font-bold">{member.daysSinceLastVisit} Days Inactive</p>
                                         </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${session.type === 'PT' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                                                    }`}>
-                                                    {session.type} {session.type === 'PT' ? 'Session' : 'Class'}
-                                                </span>
-                                                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${session.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                                    session.status === 'Upcoming' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                                        'bg-red-50 text-red-700 border-red-100'
-                                                    }`}>
-                                                    {session.status}
-                                                </span>
-                                            </div>
-                                            <h4 className="font-bold text-gray-800 text-sm truncate flex items-center gap-1.5">
-                                                {session.type === 'PT' ? <User size={12} className="text-gray-400" /> : <Dumbbell size={12} className="text-gray-400" />}
-                                                {session.name}
-                                            </h4>
-                                            {session.location && (
-                                                <p className="text-[10px] text-gray-500 font-medium">📍 {session.location}</p>
-                                            )}
-                                        </div>
-
-                                        <ChevronRight size={14} className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
+                                        <ChevronRight size={12} className="text-red-300" />
                                     </div>
-                                ))
-                            )}
-                        </div>
-                    </Card>
+                                ))}
+                            </div>
+                        </Card>
+                    </div>
                 </div>
 
-                {/* Drawers */}
-                <SessionDetailsDrawer />
-                <EarningsSnapshotDrawer />
-                <AttendanceDetailsDrawer />
-                <ClientAlertDetailDrawer />
-
-                {/* Column 2: Clients & Tasks */}
-                <div className="space-y-5">
-                    {/* Client Alerts Widget */}
-                    <div className="space-y-5">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                                <AlertCircle size={16} className="text-red-500" />
-                                Client Alerts
-                            </h2>
-                            <p className="text-[10px] text-gray-400 font-medium tracking-tight">Members needing follow-up</p>
-                        </div>
-
-                        <Card className="p-0 border border-gray-200 shadow-md hover:shadow-lg transition-all overflow-hidden">
-                            <div className="p-4 bg-red-50/50 border-b border-red-100 flex items-center justify-between">
-                                <p className="text-xs font-bold text-red-800 uppercase tracking-tighter">At-Risk Members</p>
-                                <span className="text-lg font-black text-red-600">{atRiskClients.length}</span>
+                {/* Column 2 (CENTER): Daily Core & Earnings */}
+                <div className="space-y-8">
+                    {/* Today's Schedule */}
+                    <div className="space-y-4">
+                        <h2 className="text-md font-bold text-gray-900 flex items-center gap-3 px-1">
+                            <Calendar size={20} className="text-indigo-600" />
+                            Today's Schedule
+                        </h2>
+                        <Card className="border-2 border-indigo-100 shadow-xl p-0 overflow-hidden bg-white">
+                            <div className="grid grid-cols-3 divide-x divide-indigo-50 bg-indigo-50/50 border-b border-indigo-100">
+                                <div className="p-4 text-center">
+                                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Total</p>
+                                    <p className="text-2xl font-black text-gray-900">{data.todaySessions.summary.total}</p>
+                                </div>
+                                <div className="p-4 text-center">
+                                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Next</p>
+                                    <p className="text-2xl font-black text-amber-600">{data.todaySessions.summary.upcoming}</p>
+                                </div>
+                                <div className="p-4 text-center">
+                                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Done</p>
+                                    <p className="text-2xl font-black text-emerald-600">{data.todaySessions.summary.completed}</p>
+                                </div>
                             </div>
-
-                            <div className="divide-y divide-gray-100">
-                                {atRiskClients.length === 0 ? (
-                                    <div className="p-8 text-center text-gray-500">
-                                        <p className="text-sm font-bold">🎉 All assigned members are active.</p>
-                                    </div>
+                            <div className="divide-y divide-gray-100 max-h-[350px] overflow-y-auto">
+                                {data.todaySessions.list.length === 0 ? (
+                                    <div className="p-10 text-center text-gray-400 font-bold text-sm">No sessions scheduled</div>
                                 ) : (
-                                    atRiskClients.slice(0, 5).map(member => (
-                                        <div
-                                            key={member.id}
-                                            onClick={() => handleAtRiskClick(member)}
-                                            className="group flex items-center justify-between p-4 hover:bg-red-50/30 cursor-pointer transition-all active:bg-red-50/50 border-l-4 border-transparent hover:border-red-500"
-                                        >
-                                            <div className="min-w-0">
-                                                <h4 className="font-bold text-gray-800 text-xs truncate">{member.name}</h4>
-                                                <p className="text-[10px] text-gray-400 font-medium">Last Visit: {member.lastVisit}</p>
+                                    data.todaySessions.list.map((session) => (
+                                        <div key={session.id} onClick={() => handleSessionClick(session)} className="p-5 hover:bg-indigo-50/50 cursor-pointer transition-all flex items-center justify-between border-l-4 border-transparent hover:border-indigo-500">
+                                            <div className="flex items-center gap-4">
+                                                <span className="text-sm font-black text-gray-900">{session.time}</span>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-gray-800 text-sm truncate">{session.name}</h4>
+                                                    <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 rounded text-gray-500 font-bold uppercase">{session.type}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-black border border-red-100 shadow-sm uppercase">At Risk</span>
-                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-red-600 transition-colors" />
-                                            </div>
+                                            <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase ${session.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                                                session.status === 'Upcoming' ? 'bg-amber-100 text-amber-700 active-pulse' : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                {session.status}
+                                            </span>
                                         </div>
                                     ))
                                 )}
@@ -583,41 +599,88 @@ const TrainerDashboard = () => {
                         </Card>
                     </div>
 
+                    {/* Earnings Snapshot (THE CENTRAL PIECE) */}
+                    {data.isCommissionBased && (
+                        <div className="space-y-4">
+                            <h2 className="text-md font-bold text-gray-900 flex items-center gap-3 px-1">
+                                <TrendingUp size={20} className="text-emerald-500" />
+                                Current Earnings
+                            </h2>
+                            <Card className="p-8 border-2 border-emerald-100 shadow-2xl relative overflow-hidden flex flex-col items-center text-center bg-gradient-to-br from-white via-emerald-50/20 to-indigo-50/20">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Briefcase size={80} />
+                                </div>
+                                <div className="relative mb-6">
+                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Projected Payout</p>
+                                    <h3 className="text-5xl font-black text-gray-900 tracking-tighter">
+                                        ₹{data.earnings.totalEarnings.toLocaleString()}
+                                    </h3>
+                                </div>
+                                <div className="w-full grid grid-cols-2 gap-4 mb-6">
+                                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-emerald-100 shadow-sm">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Commission</p>
+                                        <p className="text-lg font-bold text-emerald-600">₹{data.earnings.commission.toLocaleString()}</p>
+                                    </div>
+                                    <div className="p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-indigo-100 shadow-sm">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Base Salary</p>
+                                        <p className="text-lg font-bold text-indigo-600">₹{data.earnings.salary.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsEarningsDrawerOpen(true)}
+                                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 hover:-translate-y-1"
+                                >
+                                    Detailed Breakdown <ArrowRight size={16} />
+                                </button>
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* Pending Actions */}
+                    <div className="space-y-4">
+                        <h2 className="text-sm font-bold text-gray-800 flex items-center gap-3 px-1">
+                            <AlertCircle size={18} className="text-amber-500" />
+                            Pending Actions
+                        </h2>
+                        <Card className="border border-gray-100 shadow-lg p-0 overflow-hidden">
+                            <div className="divide-y divide-gray-50">
+                                {data.pendingTasks.map((task) => (
+                                    <div key={task.id} onClick={() => navigate(task.route)} className="p-5 hover:bg-slate-50 cursor-pointer flex justify-between items-center group transition-all">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2 h-2 rounded-full bg-amber-400" />
+                                            <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900">{task.title}</span>
+                                        </div>
+                                        <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black">{task.count}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+
+                {/* Column 3: Clients & Announcements */}
+                <div className="space-y-6">
                     {/* My Clients */}
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between px-1">
                             <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                                 <Users size={16} className="text-blue-600" />
                                 My Clients
                             </h2>
-                            <button
-                                onClick={() => navigate('/trainer/members/assigned')}
-                                className="text-[10px] font-black text-indigo-600 hover:underline"
-                            >
+                            <button onClick={() => navigate('/trainer/members/assigned')} className="text-[10px] font-black text-indigo-600 hover:underline">
                                 View All
                             </button>
                         </div>
-
-                        <Card className="p-4 sm:p-5 border border-gray-200 shadow-md hover:shadow-lg transition-all">
-                            <div className="space-y-4">
-                                {data.myClients.slice(0, 4).map(client => (
-                                    <div key={client.id}>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-2 min-w-0">
-                                                <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-[10px]">
-                                                    {client.name.charAt(0)}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-gray-800 text-xs truncate">{client.name}</h4>
-                                                </div>
-                                            </div>
-                                            <span className="text-[10px] font-bold text-gray-500">{client.progress}%</span>
+                        <Card className="p-5 border border-gray-100 shadow-sm">
+                            <div className="space-y-5">
+                                {data.myClients.slice(0, 5).map(client => (
+                                    <div key={client.id} className="group">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">{client.name}</span>
+                                            <span className="text-[10px] font-black text-gray-400">{client.progress}%</span>
                                         </div>
-                                        <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-blue-500 transition-all duration-1000"
-                                                style={{ width: `${client.progress}%` }}
-                                            ></div>
+                                        <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
+                                            <div className="h-full bg-blue-500 transition-all duration-1000 group-hover:bg-indigo-500" style={{ width: `${client.progress}%` }} />
                                         </div>
                                     </div>
                                 ))}
@@ -625,198 +688,25 @@ const TrainerDashboard = () => {
                         </Card>
                     </div>
 
-                    {/* Pending Actions */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                                    <AlertCircle size={16} className="text-amber-500" />
-                                    Pending Actions
-                                </h2>
-                                <p className="text-[10px] text-gray-400 font-medium ml-6">Tasks requiring your attention</p>
-                            </div>
-                        </div>
-
-                        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-all p-0 overflow-hidden">
-                            <div className="divide-y divide-gray-100">
-                                {data.pendingTasks.length === 0 ? (
-                                    <div className="p-8 text-center bg-gray-50/30">
-                                        <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2 text-emerald-500">
-                                            <CheckCircle size={20} />
-                                        </div>
-                                        <p className="text-gray-600 font-bold text-xs">All clear!</p>
-                                        <p className="text-[10px] text-gray-400">No pending actions for today.</p>
-                                    </div>
-                                ) : (
-                                    data.pendingTasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            onClick={() => navigate(task.route)}
-                                            className="group flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer transition-all active:bg-gray-100"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
-                                                <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">{task.title}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-black border border-indigo-100 min-w-[20px] text-center shadow-sm group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all">
-                                                    {task.count}
-                                                </span>
-                                                <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* Column 3: Performance & Earnings */}
-                <div className="space-y-5">
-                    {/* My Attendance */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                            <div>
-                                <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                                    <Clock size={16} className="text-emerald-500" />
-                                    My Attendance
-                                </h2>
-                                <p className="text-[10px] text-gray-400 font-medium ml-6">This month overview</p>
-                            </div>
-                            <button
-                                onClick={() => setIsAttendanceDrawerOpen(true)}
-                                className="text-[10px] font-black text-indigo-600 hover:underline"
-                            >
-                                View Details
-                            </button>
-                        </div>
-
-                        <Card className="p-4 sm:p-5 border border-gray-200 shadow-md hover:shadow-lg transition-all">
-                            <div className="space-y-5">
-                                <div className="grid grid-cols-3 divide-x divide-gray-100">
-                                    <div className="text-center px-1">
-                                        <p className="text-lg font-black text-gray-900">{data.myAttendance.presentDays}</p>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Present</p>
-                                    </div>
-                                    <div className="text-center px-1">
-                                        <p className="text-lg font-black text-amber-600">{data.myAttendance.lateDays}</p>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Late</p>
-                                    </div>
-                                    <div className="text-center px-1">
-                                        <p className="text-lg font-black text-red-500">{data.myAttendance.absentDays}</p>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Absent</p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between items-center text-[10px] font-bold">
-                                        <span className="text-gray-500 uppercase tracking-tight">Attendance Rate</span>
-                                        <span className="text-emerald-600">{data.myAttendance.attendanceRate}%</span>
-                                    </div>
-                                    <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
-                                            style={{ width: `${data.myAttendance.attendanceRate}%` }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="pt-2 border-t border-gray-50">
-                                    <div className="flex justify-between items-center">
-                                        {data.myAttendance.weeklySummary.map((day, idx) => (
-                                            <div key={idx} className="flex flex-col items-center gap-1">
-                                                <div className={`w-2 h-2 rounded-full ${day.status === 'Present' ? 'bg-emerald-500' :
-                                                    day.status === 'Late' ? 'bg-amber-400' : 'bg-red-400'
-                                                    }`} />
-                                                <span className="text-[8px] font-bold text-gray-400">{day.day}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Earnings Snapshot */}
-                    {data.isCommissionBased && (
-                        <div>
-                            <div className="flex items-center justify-between mb-3 px-1">
-                                <div>
-                                    <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                                        <Briefcase size={16} className="text-indigo-500" />
-                                        Earnings Snapshot
-                                    </h2>
-                                    <p className="text-[10px] text-gray-400 font-medium ml-6">This month performance</p>
-                                </div>
-                            </div>
-
-                            <Card className="p-4 sm:p-5 border border-gray-200 shadow-md hover:shadow-lg transition-all relative overflow-hidden flex flex-col items-center text-center">
-                                <div className="mb-4">
-                                    <h3 className="text-3xl font-black text-indigo-600 tracking-tighter">
-                                        ₹{data.earnings.totalEarnings.toLocaleString()}
-                                    </h3>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">This Month's Earnings</p>
-                                </div>
-
-                                <div className="w-full grid grid-cols-2 divide-x divide-gray-100 mb-5 border-y border-gray-50 py-3">
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase">Commission</p>
-                                        <p className="text-xs font-bold text-gray-700">₹{data.earnings.commission.toLocaleString()}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase">Salary</p>
-                                        <p className="text-xs font-bold text-gray-700">₹{data.earnings.salary.toLocaleString()}</p>
-                                    </div>
-                                </div>
-
-                                <div className="w-full space-y-2 mb-5 px-1">
-                                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-tighter text-gray-400">
-                                        <span>Target Progress</span>
-                                        <span className="text-indigo-600">{Math.round((data.earnings.totalEarnings / data.earnings.target) * 100)}%</span>
-                                    </div>
-                                    <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-indigo-500 rounded-full"
-                                            style={{ width: `${Math.min((data.earnings.totalEarnings / data.earnings.target) * 100, 100)}%` }}
-                                        />
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => setIsEarningsDrawerOpen(true)}
-                                    className="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100 transition-all flex items-center gap-2 group w-full justify-center"
-                                >
-                                    View Details
-                                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </Card>
-                        </div>
-                    )}
-
                     {/* Announcements */}
-                    <div className="pt-2">
-                        <div className="flex items-center justify-between mb-3 px-1">
-                            <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                                <Megaphone size={16} className="text-indigo-500" />
-                                Announcements
-                            </h2>
-                            <button
-                                onClick={() => navigate('/trainer/announcements')}
-                                className="text-[10px] font-black text-indigo-600 hover:underline"
-                            >
-                                View All
-                            </button>
-                        </div>
+                    <div className="space-y-4 pt-4">
+                        <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 px-1">
+                            <Megaphone size={16} className="text-indigo-500" />
+                            Announcements
+                        </h2>
                         <div className="space-y-3">
-                            <div className="p-3 bg-white border border-gray-100 rounded-xl hover:border-indigo-100 transition-all cursor-pointer">
-                                <h4 className="text-[11px] font-bold text-gray-900 mb-1">New Policy: Client Cancellations</h4>
-                                <p className="text-[10px] text-gray-500 line-clamp-1">Please inform clients about the new 4-hour rule...</p>
+                            <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-all cursor-pointer">
+                                <h4 className="text-xs font-bold text-indigo-900 mb-1">New Policy: Client Cancellations</h4>
+                                <p className="text-[10px] text-indigo-600 font-medium">Please review the updated 4-hour rule in settings...</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <SessionDetailsDrawer />
+            <EarningsSnapshotDrawer />
+            <AttendanceDetailsDrawer />
+            <ClientAlertDetailDrawer />
         </div>
     );
 };

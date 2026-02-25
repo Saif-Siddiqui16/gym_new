@@ -16,17 +16,37 @@ import {
     MessageSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { DASHBOARD_DATA } from '../data/mockDashboardData';
+import { fetchLiveAccess } from '../../../api/branchAdmin/branchAdminApi';
 
 const LiveAccessControl = ({ userRole = 'STAFF' }) => {
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
-    const [checkins, setCheckins] = useState(DASHBOARD_DATA.STAFF.checkins);
+    const [checkins, setCheckins] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedMember, setSelectedMember] = useState(null);
     const [showOverrideModal, setShowOverrideModal] = useState(false);
     const [overrideReason, setOverrideReason] = useState('');
 
-    // Auto-refresh simulation
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            const data = await fetchLiveAccess();
+            setCheckins(data || []);
+        } catch (err) {
+            console.error('LiveAccessControl fetch error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+        // Auto-refresh every 60 seconds
+        const refreshTimer = setInterval(loadData, 60000);
+        return () => clearInterval(refreshTimer);
+    }, []);
+
+    // Clock tick every 10 seconds
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString());

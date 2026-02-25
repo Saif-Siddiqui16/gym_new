@@ -1,70 +1,9 @@
-import React, { useState } from 'react';
-import { Sparkles, Search, TrendingUp, ChevronRight, ShoppingBag, Star, Trash2, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Search, TrendingUp, ChevronRight, ShoppingBag, Star, Trash2, CheckCircle, RefreshCw } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import ProductCard from './ProductCard';
-
-const MOCK_PRODUCTS = [
-    {
-        id: 1,
-        name: "Whey Protein Isolate",
-        category: "Supplements",
-        price: 4999,
-        originalPrice: 5999,
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1579722820308-d74e571900a9?q=80&w=800&auto=format&fit=crop",
-        description: "Premium quality whey protein isolate for rapid muscle recovery and growth. Low carb, low fat, and gluten-free."
-    },
-    {
-        id: 2,
-        name: "Pre-Workout Explosion",
-        category: "Supplements",
-        price: 1999,
-        originalPrice: 2499,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1593095191850-2a73300320b3?q=80&w=800&auto=format&fit=crop",
-        description: "Intense energy, focus, and pump. Formulated with beta-alanine, caffeine, and L-citrulline for maximum performance."
-    },
-    {
-        id: 3,
-        name: "Performance Tech Tee",
-        category: "Apparel",
-        price: 1299,
-        originalPrice: 1599,
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1581655353564-df123a1ec12b?q=80&w=800&auto=format&fit=crop",
-        description: "Moisture-wicking, breathable performance fabric. Ergonomic seams for unrestricted movement during your toughest workouts."
-    },
-    {
-        id: 4,
-        name: "Adjustable 24kg Dumbbells",
-        category: "Equipment",
-        price: 14999,
-        originalPrice: 19999,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?q=80&w=800&auto=format&fit=crop",
-        description: "Replace 15 sets of weights with one set of adjustable dumbbells. Perfect for home gym setups with limited space."
-    },
-    {
-        id: 5,
-        name: "Professional Jump Rope",
-        category: "Equipment",
-        price: 799,
-        originalPrice: 999,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1544033527-b192daee1f5b?q=80&w=800&auto=format&fit=crop",
-        description: "High-speed ball bearing jump rope for cardio and agility training. tangle-free wire and adjustable length."
-    },
-    {
-        id: 6,
-        name: "BCAA Recovery Amino",
-        category: "Supplements",
-        price: 1499,
-        originalPrice: 1799,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop",
-        description: "Branched-chain amino acids to support muscle recovery and reduce muscle soreness after intense training sessions."
-    }
-];
+import { getStoreProducts, getStoreOrders, checkoutStoreOrder } from '../../api/storeApi';
+import toast from 'react-hot-toast';
 
 const StorePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -74,11 +13,35 @@ const StorePage = () => {
     const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
     const [activeStoreTab, setActiveStoreTab] = useState('shop'); // shop, orders
-    const [orders, setOrders] = useState([
-        { id: 'GYM-882192', items: 3, total: 6497, date: '2025-02-10', status: 'Delivered' },
-        { id: 'GYM-875421', items: 1, total: 1299, date: '2025-01-28', status: 'Delivered' }
-    ]);
-    const [checkoutStep, setCheckoutStep] = useState('cart'); // cart, checkout, success
+    const [products, setProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
+    const [checkoutStep, setCheckoutStep] = useState('cart'); // cart, checkout, processing, success
+
+    useEffect(() => {
+        fetchProducts();
+        fetchOrders();
+    }, [selectedCategory, searchTerm]);
+
+    const fetchProducts = async () => {
+        try {
+            const data = await getStoreProducts({
+                category: selectedCategory,
+                search: searchTerm
+            });
+            setProducts(data);
+        } catch (error) {
+            console.error("Failed to fetch products:", error);
+        }
+    };
+
+    const fetchOrders = async () => {
+        try {
+            const data = await getStoreOrders();
+            setOrders(data);
+        } catch (error) {
+            console.error("Failed to fetch orders:", error);
+        }
+    };
 
     const categories = ['All', 'Supplements', 'Apparel', 'Equipment', 'Accesories'];
 
@@ -115,28 +78,21 @@ const StorePage = () => {
         setCheckoutStep('checkout');
     };
 
-    const completePurchase = () => {
-        setCheckoutStep('success');
-        const newOrder = {
-            id: `GYM-${Math.floor(100000 + Math.random() * 900000)}`,
-            items: cartItemCount,
-            total: cartTotal,
-            date: new Date().toISOString().split('T')[0],
-            status: 'Processing'
-        };
-        setTimeout(() => {
-            setOrders(prev => [newOrder, ...prev]);
+    const completePurchase = async () => {
+        setCheckoutStep('processing');
+        try {
+            await checkoutStoreOrder({
+                cartItems: cart.map(c => ({ id: c.id, quantity: c.quantity })),
+                totalAmount: cartTotal
+            });
+            setCheckoutStep('success');
+            fetchOrders();
             setCart([]);
-            setCheckoutStep('cart');
-            setIsCartDrawerOpen(false);
-        }, 3000);
+        } catch (error) {
+            toast.error(error);
+            setCheckoutStep('checkout');
+        }
     };
-
-    const filteredProducts = MOCK_PRODUCTS.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
-        return matchesSearch && matchesCategory;
-    });
 
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -256,7 +212,7 @@ const StorePage = () => {
 
                     {/* Product Grid */}
                     <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {filteredProducts.map(product => (
+                        {products.map(product => (
                             <ProductCard
                                 key={product.id}
                                 product={product}
@@ -267,7 +223,7 @@ const StorePage = () => {
                     </div>
 
                     {/* Empty State */}
-                    {filteredProducts.length === 0 && (
+                    {products.length === 0 && (
                         <div className="text-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 mt-10">
                             <div className="w-24 h-24 bg-violet-50 rounded-full flex items-center justify-center mx-auto mb-8 text-violet-200">
                                 <Search size={48} />
@@ -455,8 +411,10 @@ const StorePage = () => {
 
                             <button
                                 onClick={completePurchase}
+                                disabled={checkoutStep === 'processing'}
                                 className="w-full py-6 bg-violet-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-violet-500/40 hover:bg-violet-700 transition-all hover:scale-[1.02]"
                             >
+                                {checkoutStep === 'processing' ? <RefreshCw className="animate-spin inline mr-2" /> : ''}
                                 Confirm & Pay
                             </button>
                         </div>

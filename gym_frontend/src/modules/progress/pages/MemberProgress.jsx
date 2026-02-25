@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import {
-    Activity,
+    Activity as ActivityIcon,
     TrendingUp,
     TrendingDown,
     Calendar,
@@ -19,7 +20,8 @@ import {
     Flame,
     Zap,
     Shield,
-    BarChart3
+    BarChart3,
+    AlertCircle
 } from 'lucide-react';
 import { getProgress, logProgress } from '../../../api/progressApi';
 import MeasurementDrawer from '../components/MeasurementDrawer';
@@ -54,7 +56,10 @@ const GoalProgressBar = ({ current, start, target, color }) => {
 
 const MemberProgress = () => {
     const navigate = useNavigate();
+    const { role } = useAuth();
     const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const memberId = queryParams.get('memberId');
     const isLogModalOpen = location.pathname.includes('/log');
 
     const [activeTab, setActiveTab] = useState('overview');
@@ -76,7 +81,7 @@ const MemberProgress = () => {
     const loadProgress = async () => {
         try {
             setLoading(true);
-            const data = await getProgress();
+            const data = await getProgress(memberId);
 
             if (data && data.targets) {
                 setTargets({
@@ -133,15 +138,38 @@ const MemberProgress = () => {
                     arms: formData.arms,
                     legs: formData.legs
                 },
+                memberId: memberId,
                 date: new Date()
             };
             await logProgress(payload);
-            navigate('/progress');
+            const redirectUrl = memberId ? `/progress?memberId=${memberId}` : '/progress';
+            navigate(redirectUrl);
             loadProgress();
         } catch (error) {
             console.error("Failed to save progress:", error);
         }
     };
+
+    if (role !== 'MEMBER' && !memberId) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 text-center">
+                <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4">
+                    <AlertCircle size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">No Member Selected</h3>
+                <p className="text-gray-500 mt-2 max-w-xs">Please select a member from your list to view or log their progress.</p>
+                <button
+                    onClick={() => {
+                        if (role === 'TRAINER') navigate('/trainer/members/assigned');
+                        else navigate('/dashboard');
+                    }}
+                    className="mt-6 px-6 py-2.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 transition-all shadow-lg shadow-violet-200"
+                >
+                    Go Back
+                </button>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -191,7 +219,7 @@ const MemberProgress = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div>
                                 <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-3">
-                                    <Activity className="text-violet-600" size={32} />
+                                    <ActivityIcon className="text-violet-600" size={32} />
                                     Transformation Lab
                                 </h1>
                                 <p className="text-slate-600 text-sm md:text-base font-medium max-w-2xl">
@@ -199,7 +227,7 @@ const MemberProgress = () => {
                                 </p>
                             </div>
                             <button
-                                onClick={() => navigate('/progress/log')}
+                                onClick={() => navigate(memberId ? `/progress/log?memberId=${memberId}` : '/progress/log')}
                                 className="group relative px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-violet-500/50 hover:shadow-xl"
                             >
                                 <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -301,7 +329,7 @@ const MemberProgress = () => {
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-200 rounded-2xl flex items-center justify-center">
-                                        <Activity size={24} strokeWidth={2.5} />
+                                        <ActivityIcon size={24} strokeWidth={2.5} />
                                     </div>
                                     <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Anatomical Metrics</h2>
                                 </div>
@@ -616,7 +644,7 @@ const MemberProgress = () => {
             {isLogModalOpen && (
                 <MeasurementDrawer
                     isOpen={true}
-                    onClose={() => navigate('/progress')}
+                    onClose={() => navigate(memberId ? `/progress?memberId=${memberId}` : '/progress')}
                     onSave={handleSaveProgress}
                 />
             )}

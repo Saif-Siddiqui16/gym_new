@@ -7,10 +7,9 @@ import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
 
 const ROLE_PERMISSIONS = {
-    'Branch Admin': ['Full Access', 'Finance', 'HR', 'Settings', 'Branch Ops'],
+    'Admin': ['Full Access', 'Finance', 'HR', 'Settings', 'Branch Ops'],
     'Manager': ['Branch Ops', 'Finance', 'HR', 'Team Management'],
     'Trainer': ['Workouts', 'Sessions', 'Progress', 'Member Management'],
-    'Sales Professional': ['Leads', 'Conversions', 'Sales Tracking'],
     'Staff': ['General Ops', 'Check-ins', 'Basic Member Support'],
 };
 
@@ -104,7 +103,9 @@ const StaffManagement = ({ role, branchId }) => {
         const matchesSearch = (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (s.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (s.role || '').toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = filterRole === 'All Roles' || s.role === filterRole;
+        const normalizedDBRole = (s.role || '').toUpperCase().replace(/_/g, ' ');
+        const normalizedFilterRole = filterRole.toUpperCase();
+        const matchesRole = filterRole === 'All Roles' || normalizedDBRole === normalizedFilterRole;
         const matchesStatus = filterStatus === 'All' || s.status === filterStatus;
         return matchesSearch && matchesRole && matchesStatus;
     });
@@ -158,6 +159,13 @@ const StaffManagement = ({ role, branchId }) => {
                         </h1>
                         <p className="text-slate-500 mt-2 font-medium">Manage branch employees, roles, and system access.</p>
                     </div>
+                    <button
+                        onClick={handleCreate}
+                        className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:bg-slate-800 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all shadow-xl"
+                    >
+                        <Plus size={20} strokeWidth={3} />
+                        Add New Staff
+                    </button>
                 </div>
             </div>
 
@@ -260,7 +268,7 @@ const StaffManagement = ({ role, branchId }) => {
                                                 <div>
                                                     <p className="font-bold text-slate-800 flex items-center gap-2">
                                                         {staff.name}
-                                                        {staff.role === 'Branch Manager' && <span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 text-[8px] font-black uppercase rounded tracking-widest">Lead</span>}
+                                                        {staff.role === 'Manager' && <span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 text-[8px] font-black uppercase rounded tracking-widest">Lead</span>}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                                         Joined: {staff.joinedDate} • Reports to: <span className="text-slate-600 font-extrabold">{staff.reportingManager || 'Owner'}</span>

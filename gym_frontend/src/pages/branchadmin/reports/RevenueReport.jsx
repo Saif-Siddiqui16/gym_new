@@ -1,28 +1,80 @@
-import React, { useState } from 'react';
-import { DollarSign, Download, Filter, Search, Calendar, ChevronDown, Check, TrendingUp, CreditCard, Banknote, Wallet } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { DollarSign, Download, Filter, Search, Calendar, ChevronDown, Check, TrendingUp, CreditCard, Banknote, Wallet, Loader2 } from 'lucide-react';
 import '../../../styles/GlobalDesign.css';
+import apiClient from '../../../api/apiClient';
 
 const RevenueReport = () => {
-    const [selectedDate, setSelectedDate] = useState('2024-03-01');
+    const getToday = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getToday());
     const [selectedBranch, setSelectedBranch] = useState('Main Branch');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const stats = [
-        { label: 'Total Revenue', value: '₹4,52,000', icon: DollarSign, bg: 'bg-indigo-50', color: 'text-indigo-600' },
+    const [stats, setStats] = useState([
+        { label: 'Total Revenue', value: '₹0', icon: DollarSign, bg: 'bg-indigo-50', color: 'text-indigo-600' },
         { label: 'Monthly Target', value: '₹5,00,000', icon: TrendingUp, bg: 'bg-emerald-50', color: 'text-emerald-600' },
-        { label: 'Pending Payments', value: '₹28,400', icon: Banknote, bg: 'bg-amber-50', color: 'text-amber-600' },
-    ];
+        { label: 'Pending Payments', value: '₹0', icon: Banknote, bg: 'bg-amber-50', color: 'text-amber-600' },
+    ]);
 
-    const revenueData = [
-        { id: 1, date: '2024-03-15', member: 'Rahul Sharma', service: 'Annual Membership', amount: '₹12,000', mode: 'UPI', status: 'Paid' },
-        { id: 2, date: '2024-03-15', member: 'Priya Patel', service: 'Personal Training', amount: '₹8,500', mode: 'Card', status: 'Paid' },
-        { id: 3, date: '2024-03-14', member: 'Amit Verma', service: 'Monthly Plan', amount: '₹2,500', mode: 'Cash', status: 'Paid' },
-        { id: 4, date: '2024-03-14', member: 'Anjali Gupta', service: 'Annual Membership', amount: '₹12,000', mode: 'UPI', status: 'Partial' },
-    ];
+    const [revenueData, setRevenueData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchReport = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/branch-admin/reports/revenue', {
+                params: { date: selectedDate }
+            });
+            setStats(response.data.stats.map(s => ({
+                ...s,
+                icon: s.icon === 'DollarSign' ? DollarSign : (s.icon === 'TrendingUp' ? TrendingUp : Banknote)
+            })));
+            setRevenueData(response.data.revenueData);
+        } catch (error) {
+            console.error('Failed to fetch revenue report:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReport();
+    }, [selectedDate]);
 
     const handleExport = () => {
-        alert("Preparing your CSV export... The download will begin once the data is processed.");
-        // Logic for generating CSV would go here
+        if (revenueData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["Date", "Member", "Service", "Amount", "Mode", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...revenueData.map(row => [
+                `"${row.date}"`,
+                `"${row.member}"`,
+                `"${row.service}"`,
+                `"${row.amount}"`,
+                `"${row.mode}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `revenue_report_${selectedDate}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -115,26 +167,45 @@ const RevenueReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {revenueData.map((row) => (
-                                <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.date}</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-900">{row.member}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">{row.service}</td>
-                                    <td className="px-6 py-4 text-sm font-black text-indigo-600">{row.amount}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                                            {row.mode === 'UPI' ? <Check size={14} className="text-blue-500" /> : <CreditCard size={14} />}
-                                            {row.mode}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                            }`}>
-                                            {row.status}
-                                        </span>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <p className="text-slate-500 font-medium">Loading revenue data...</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : revenueData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-slate-400 font-medium italic">
+                                        No transactions found for the selected period
+                                    </td>
+                                </tr>
+                            ) : (
+                                revenueData
+                                    .filter(row => row.member.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.date}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-slate-900">{row.member}</td>
+                                            <td className="px-6 py-4 text-sm text-slate-600">{row.service}</td>
+                                            <td className="px-6 py-4 text-sm font-black text-indigo-600">{row.amount}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                                                    {(row.mode === 'UPI' || row.mode === 'GPay' || row.mode === 'PhonePe') ? <Check size={14} className="text-blue-500" /> : <CreditCard size={14} />}
+                                                    {row.mode}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : (row.status === 'Partial' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700')
+                                                    }`}>
+                                                    {row.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                            )}
                         </tbody>
                     </table>
                 </div>

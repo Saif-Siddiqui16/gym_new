@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { X, Box, Tag, DollarSign, Package, CheckCircle, XCircle } from 'lucide-react';
+import { X, Box, Tag, DollarSign, Package, CheckCircle, XCircle, ImagePlus } from 'lucide-react';
 
-const ProductDrawer = ({ isOpen, onClose, product, mode = 'add' }) => {
+const ProductDrawer = ({ isOpen, onClose, product, mode = 'add', onSubmit }) => {
     const [formData, setFormData] = useState({
         name: '',
         sku: '',
         category: 'Supplements',
         price: '',
         stock: '',
-        status: 'Active'
+        status: 'Active',
+        image: ''
     });
 
     useEffect(() => {
         if (product && mode === 'edit') {
-            setFormData(product);
+            setFormData({
+                ...product,
+                sku: product.sku || `PRD-00${product.id}`
+            });
         } else {
             setFormData({
                 name: '',
@@ -21,15 +25,29 @@ const ProductDrawer = ({ isOpen, onClose, product, mode = 'add' }) => {
                 category: 'Supplements',
                 price: '',
                 stock: '',
-                status: 'Active'
+                status: 'Active',
+                image: ''
             });
         }
     }, [product, mode, isOpen]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(`Product ${mode === 'add' ? 'Added' : 'Updated'}`, formData);
+        if (onSubmit) {
+            await onSubmit(formData);
+        }
         onClose();
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData({ ...formData, image: reader.result });
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     if (!isOpen) return null;
@@ -64,6 +82,23 @@ const ProductDrawer = ({ isOpen, onClose, product, mode = 'add' }) => {
 
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="flex-1 p-6 space-y-6">
+                                {/* Image Upload */}
+                                <div className="space-y-1.5 flex flex-col items-center">
+                                    <label className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-violet-500 hover:bg-violet-50 transition-all duration-300 relative overflow-hidden group">
+                                        {formData.image ? (
+                                            <img src={formData.image} alt="Product" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <>
+                                                <ImagePlus className="text-slate-400 group-hover:text-violet-500 transition-colors mb-1" size={24} />
+                                                <span className="text-[10px] font-bold text-slate-500 group-hover:text-violet-600 transition-colors">Add Photo</span>
+                                            </>
+                                        )}
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
+                                        </div>
+                                        <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                    </label>
+                                </div>
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Name</label>
                                     <input

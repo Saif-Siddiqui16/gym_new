@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Tag, ClipboardList, Download, Filter, Search, MoreVertical, Clock, ChevronLeft, ChevronRight, Eye, Trash2, X, User, MapPin, Activity, ChevronDown, Check } from 'lucide-react';
-import { getBookings, getBookingStats, deleteBooking, updateBookingStatus } from '../../api/manager/managerApi';
-import { exportCSV, exportPDF } from '../../api/manager/managerExport';
+import { Calendar, Tag, ClipboardList, Download, Filter, Search, Clock, ChevronLeft, ChevronRight, Eye, Trash2, User, MapPin, Activity, ChevronDown, Check, FileText } from 'lucide-react';
+import apiClient from '../../api/apiClient';
 import RightDrawer from '../../components/common/RightDrawer';
 import '../../styles/GlobalDesign.css';
 
@@ -70,32 +69,75 @@ const BookingReport = () => {
     }, [dateRange, statusFilter, searchTerm, currentPage]);
 
     const loadData = async () => {
-        setLoading(true);
-        const filters = {
-            search: searchTerm,
-            status: statusFilter === 'All' ? '' : statusFilter,
-            dateRange: dateRange === 'All' ? '' : dateRange
-        };
-
-        const [bookingData, statsData] = await Promise.all([
-            getBookings({ filters, page: currentPage, limit: itemsPerPage }),
-            getBookingStats()
-        ]);
-
-        setBookings(bookingData?.data || []);
-        setTotalItems(bookingData?.total || 0);
-        if (statsData) setBookingStats(statsData);
-        setLoading(false);
+        try {
+            setLoading(true);
+            const params = {
+                search: searchTerm,
+                status: statusFilter,
+                dateRange: dateRange,
+                page: currentPage,
+                limit: itemsPerPage
+            };
+            const response = await apiClient.get('/branch-admin/reports/bookings', { params });
+            setBookings(response.data.data || []);
+            setTotalItems(response.data.total || 0);
+            if (response.data.stats) {
+                setBookingStats(response.data.stats);
+            }
+        } catch (error) {
+            console.error('Booking Load Error:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleExportCSV = () => {
-        exportCSV(bookings, 'BookingReport');
+        if (bookings.length === 0) { alert("No data to export"); return; }
+        const headers = ["Booking ID", "Member", "Class/Type", "Trainer", "Date", "Time", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...bookings.map(row => [
+                `"${row.id}"`,
+                `"${row.memberName}"`,
+                `"${row.classType}"`,
+                `"${row.trainerName}"`,
+                `"${row.date}"`,
+                `"${row.time}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `booking_report_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleExportPDF = () => {
+        if (bookings.length === 0) { alert("No data to export"); return; }
+        const rows = bookings.map(b =>
+            `<tr><td>${b.id}</td><td>${b.memberName}</td><td>${b.classType}</td><td>${b.trainerName}</td><td>${b.date} ${b.time}</td><td>${b.status}</td></tr>`
+        ).join('');
+        const html = `<html><head><title>Booking Report</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#6d28d9;color:white}tr:nth-child(even){background:#f9f5ff}</style></head><body><h2>Booking Report</h2><p>Generated: ${new Date().toLocaleString()}</p><table><thead><tr><th>ID</th><th>Member</th><th>Class</th><th>Trainer</th><th>Date/Time</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
+        w.print();
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to cancel and remove this booking?')) {
-            await deleteBooking(id);
-            loadData();
+            try {
+                await apiClient.delete(`/admin/bookings/${id}`);
+                loadData();
+            } catch (error) {
+                console.error('Delete Error:', error);
+                alert('Failed to delete booking. Please try again.');
+            }
         }
     };
 
@@ -104,8 +146,10 @@ const BookingReport = () => {
         setIsViewModalOpen(true);
     };
 
-    const handleExportPDF = () => {
-        exportPDF(bookings, 'BookingReport');
+    const getStatusStyle = (status) => {
+        if (status === 'Completed') return 'bg-green-50 text-green-700 border-green-100';
+        if (status === 'Cancelled') return 'bg-red-50 text-red-700 border-red-100';
+        return 'bg-yellow-50 text-yellow-700 border-yellow-100';
     };
 
     const stats = [
@@ -143,7 +187,7 @@ const BookingReport = () => {
                                 onClick={handleExportPDF}
                                 className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2.5 text-sm font-semibold"
                             >
-                                <Download size={16} className="text-gray-500" /> Export PDF
+                                <FileText size={16} className="text-gray-500" /> Export PDF
                             </button>
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
@@ -165,7 +209,9 @@ const BookingReport = () => {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.label}</p>
-                            <p className="text-3xl font-black text-gray-900 leading-none">{stat.value}</p>
+                            <p className="text-3xl font-black text-gray-900 leading-none">
+                                {loading ? <span className="text-lg text-gray-300">...</span> : stat.value}
+                            </p>
                         </div>
                     </div>
                 ))}
@@ -180,7 +226,7 @@ const BookingReport = () => {
                             <div className="flex flex-wrap gap-4 w-full md:w-auto">
                                 <div className="w-full md:w-48">
                                     <CustomDropdown
-                                        options={['All', 'Today', 'Yesterday', 'This Week', 'This Month']}
+                                        options={['All', 'Today', 'This Week', 'This Month']}
                                         value={dateRange}
                                         onChange={(val) => { setDateRange(val); setCurrentPage(1); }}
                                         placeholder="All Time"
@@ -201,11 +247,10 @@ const BookingReport = () => {
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-violet-500 group-hover:scale-110 transition-all duration-300" size={18} />
                                 <input
                                     type="text"
-                                    placeholder="Search by ID or member..."
+                                    placeholder="Search by member or class..."
                                     className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 text-sm bg-white hover:border-slate-300 hover:shadow-sm transition-all"
                                     value={searchTerm}
                                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                                    style={{ height: '44px' }} // Explicit height to match dropdowns
                                 />
                             </div>
                         </div>
@@ -216,13 +261,13 @@ const BookingReport = () => {
                     <table className="saas-table saas-table-responsive">
                         <thead className="bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
                             <tr>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Booking ID</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Member</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Booking Type</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Trainer</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Time Slot</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider hover:text-purple-700 transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider text-right hover:text-purple-700 transition-colors duration-300 cursor-pointer">Actions</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Booking ID</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Member</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Booking Type</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Trainer</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Date / Time</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -239,35 +284,34 @@ const BookingReport = () => {
                                 bookings.map((row) => (
                                     <tr key={row.id} className="hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/30 transition-colors duration-200 group">
                                         <td className="px-6 py-4" data-label="Booking ID">
-                                            <span className="text-xs font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md">{row.id || `BK-${row.id}`}</span>
+                                            <span className="text-xs font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md">#{row.id}</span>
                                         </td>
                                         <td className="px-6 py-4" data-label="Member">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                                                    {(row.member || row.memberName || 'U').charAt(0)}
+                                                    {(row.memberName || 'U').charAt(0).toUpperCase()}
                                                 </div>
-                                                <p className="text-sm font-bold text-gray-800">{row.member || row.memberName}</p>
+                                                <p className="text-sm font-bold text-gray-800">{row.memberName || 'Unknown'}</p>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4" data-label="Booking Type">
-                                            <span className="text-sm font-medium text-gray-700">{row.type || (row.classType || 'Personal Training')}</span>
+                                            <span className="text-sm font-medium text-gray-700">{row.classType || 'N/A'}</span>
                                         </td>
                                         <td className="px-6 py-4" data-label="Trainer">
-                                            <span className="text-sm text-gray-600 font-medium">{row.trainer || row.trainerName}</span>
+                                            <span className="text-sm text-gray-600 font-medium">{row.trainerName || 'Unassigned'}</span>
                                         </td>
-                                        <td className="px-6 py-4" data-label="Time Slot">
-                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded inline-block">
-                                                <Clock size={12} className="text-gray-400" />
-                                                {row.slot || row.time}
+                                        <td className="px-6 py-4" data-label="Date / Time">
+                                            <div className="text-sm text-gray-700">
+                                                <div className="font-semibold">{row.date || '-'}</div>
+                                                <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                                                    <Clock size={11} />
+                                                    {row.time || '-'}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4" data-label="Status">
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transform transition-transform hover:scale-105 inline-block ${row.status === 'checked-in' || row.status === 'Completed'
-                                                ? 'bg-green-50 text-green-700 border-green-100'
-                                                : row.status === 'Cancelled' ? 'bg-red-50 text-red-700 border-red-100'
-                                                    : 'bg-yellow-50 text-yellow-700 border-yellow-100'
-                                                }`}>
-                                                {row.status}
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transform transition-transform hover:scale-105 inline-block ${getStatusStyle(row.status)}`}>
+                                                {row.status || 'Pending'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right" data-label="Actions">
@@ -346,11 +390,11 @@ const BookingReport = () => {
                     <div className="space-y-6">
                         <div className="flex flex-col items-center py-6 bg-slate-50 rounded-2xl border border-slate-100">
                             <div className="h-20 w-20 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-2xl mb-3 shadow-lg ring-4 ring-indigo-50 ring-offset-4">
-                                {(selectedBooking.member || selectedBooking.memberName || 'U').charAt(0)}
+                                {(selectedBooking.memberName || 'U').charAt(0).toUpperCase()}
                             </div>
-                            <h4 className="text-xl font-bold text-gray-900">{selectedBooking.member || selectedBooking.memberName}</h4>
+                            <h4 className="text-xl font-bold text-gray-900">{selectedBooking.memberName || 'Unknown Member'}</h4>
                             <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
-                                {selectedBooking.type || selectedBooking.classType}
+                                {selectedBooking.classType || 'Booking'}
                             </span>
                         </div>
 
@@ -359,25 +403,27 @@ const BookingReport = () => {
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                     <User size={12} /> Trainer
                                 </p>
-                                <p className="text-sm font-bold text-gray-900 truncate">{selectedBooking.trainer || selectedBooking.trainerName}</p>
+                                <p className="text-sm font-bold text-gray-900 truncate">{selectedBooking.trainerName || 'Unassigned'}</p>
                             </div>
                             <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                     <Clock size={12} /> Time Slot
                                 </p>
-                                <p className="text-lg font-black text-slate-800">{selectedBooking.slot || selectedBooking.time}</p>
+                                <p className="text-lg font-black text-slate-800">{selectedBooking.time || '-'}</p>
                             </div>
                             <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                     <Activity size={12} /> Status
                                 </p>
-                                <p className="text-sm font-bold text-gray-900">{selectedBooking.status}</p>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-full border ${getStatusStyle(selectedBooking.status)}`}>
+                                    {selectedBooking.status || 'Pending'}
+                                </span>
                             </div>
                             <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                    <MapPin size={12} /> Branch
+                                    <MapPin size={12} /> Booking ID
                                 </p>
-                                <p className="text-sm font-bold text-gray-900">Main Facility</p>
+                                <p className="text-sm font-bold text-indigo-600">#{selectedBooking.id}</p>
                             </div>
                         </div>
 
@@ -385,7 +431,7 @@ const BookingReport = () => {
                             <div className="p-1 bg-white rounded-lg h-fit border border-indigo-200">
                                 <Calendar size={14} className="text-indigo-600" />
                             </div>
-                            <p>This booking was scheduled for <span className="font-bold">{selectedBooking.date || 'today'}</span>.</p>
+                            <p>Scheduled for <span className="font-bold">{selectedBooking.date || 'N/A'}</span> at <span className="font-bold">{selectedBooking.time || 'N/A'}</span>.</p>
                         </div>
 
                         <button

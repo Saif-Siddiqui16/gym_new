@@ -28,6 +28,7 @@ import CreateWorkoutDrawer from '../components/CreateWorkoutDrawer';
 import AssignWorkoutDrawer from '../components/AssignWorkoutDrawer';
 import '../../../styles/GlobalDesign.css';
 import { getWorkoutPlans, createWorkoutPlan, updateWorkoutPlan, toggleWorkoutPlanStatus } from '../../../api/trainer/trainerApi';
+import { fetchMemberWorkoutPlans } from '../../../api/member/memberApi';
 import { toast } from 'react-hot-toast';
 
 const WorkoutPlans = ({ role }) => {
@@ -58,9 +59,9 @@ const WorkoutPlans = ({ role }) => {
     const loadPlans = async () => {
         try {
             setLoading(true);
-            const data = await getWorkoutPlans();
+            const data = isTrainer ? await getWorkoutPlans() : await fetchMemberWorkoutPlans();
             setPlans(data);
-            if (!isTrainer && data.length > 0) {
+            if (data.length > 0) {
                 setActivePlan(data[0]);
             }
         } catch (error) {
@@ -211,11 +212,11 @@ const WorkoutPlans = ({ role }) => {
                                                 </h3>
                                                 <div className="flex items-center gap-3">
                                                     <span className={`text-xs font-bold ${activePlan?.id === plan.id ? 'text-violet-100' : 'text-slate-500'}`}>
-                                                        {plan.difficulty}
+                                                        {plan.level || plan.difficulty || 'Advanced'}
                                                     </span>
                                                     <div className={`w-1 h-1 rounded-full ${activePlan?.id === plan.id ? 'bg-violet-300' : 'bg-slate-300'}`}></div>
                                                     <span className={`text-xs font-bold ${activePlan?.id === plan.id ? 'text-violet-100' : 'text-slate-500'}`}>
-                                                        {plan.duration}
+                                                        {plan.duration || '12 Weeks'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -239,7 +240,9 @@ const WorkoutPlans = ({ role }) => {
                                         </div>
                                         <div className="text-right">
                                             <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Current Week</div>
-                                            <div className="text-xl md:text-2xl font-black text-slate-900">Week {MEMBER_WORKOUT_STATUS.currentWeek}</div>
+                                            <div className="text-xl md:text-2xl font-black text-slate-900">
+                                                Week {activePlan ? Math.ceil((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7)) || 1 : 1}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -247,10 +250,15 @@ const WorkoutPlans = ({ role }) => {
                                         <div>
                                             <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-3">
                                                 <span className="text-slate-600">Protocol Progress</span>
-                                                <span className="text-violet-600">65%</span>
+                                                <span className="text-violet-600">
+                                                    {activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 12)) * 100)) : 0}%
+                                                </span>
                                             </div>
                                             <div className="h-3 bg-slate-100 rounded-full overflow-hidden p-[2px] border border-slate-200">
-                                                <div className="h-full bg-gradient-to-r from-violet-500 to-purple-500 w-[65%] rounded-full relative overflow-hidden shadow-sm">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full relative overflow-hidden shadow-sm transition-all duration-1000"
+                                                    style={{ width: `${activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 12)) * 100)) : 0}%` }}
+                                                >
                                                     <div className="absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite]" />
                                                 </div>
                                             </div>
@@ -309,8 +317,8 @@ const WorkoutPlans = ({ role }) => {
                         {/* Workout Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                             {[
-                                { label: 'Total Volume', value: '12,500 kg', icon: Activity, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
-                                { label: 'Est. Duration', value: activePlan?.avgDuration || '60 min', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+                                { label: 'Total Volume', value: activePlan?.volume || 'N/A', icon: Activity, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+                                { label: 'Est. Duration', value: activePlan?.timePerSession || activePlan?.avgDuration || '60 min', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
                                 { label: 'Intensity', value: activePlan?.intensity || 'High', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' }
                             ].map((stat, i) => (
                                 <div key={i} className={`bg-white p-6 rounded-[24px] shadow-sm border ${stat.border} flex items-center gap-5 hover:shadow-lg transition-all hover:-translate-y-1`}>
@@ -333,8 +341,8 @@ const WorkoutPlans = ({ role }) => {
                                         <Calendar size={24} strokeWidth={2.5} />
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-black text-slate-900 tracking-tight">Today's Protocol</h2>
-                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">Focus: Strength & Power</p>
+                                        <h2 className="text-lg font-black text-slate-900 tracking-tight">{activePlan ? `Day ${daysOfWeek.indexOf(activeDay) + 1}: ${activePlan.name}` : "Today's Protocol"}</h2>
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">Focus: {activePlan?.goal || 'Strength & Power'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
@@ -361,7 +369,9 @@ const WorkoutPlans = ({ role }) => {
                                                     </div>
                                                     <div>
                                                         <h4 className="text-base font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">{exercise.name}</h4>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">Target Muscle</span>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                            {exercise.notes ? (exercise.notes.length > 20 ? exercise.notes.substring(0, 20) + '...' : exercise.notes) : 'Standard Movement'}
+                                                        </span>
                                                     </div>
                                                 </div>
 

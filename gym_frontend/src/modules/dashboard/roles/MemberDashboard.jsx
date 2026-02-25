@@ -4,7 +4,7 @@ import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
 import BenefitWalletWidget from '../components/BenefitWalletWidget';
 import { DASHBOARD_DATA } from '../data/mockDashboardData';
-import { Trophy, ArrowRight, Calendar, Clock, Zap, Target, ShoppingBag, Sparkles, ChevronRight, Activity } from 'lucide-react';
+import { Trophy, ArrowRight, Calendar, Clock, Zap, Target, ShoppingBag, Sparkles, ChevronRight, Activity, CheckCircle, TrendingUp } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 
 const CircularProgress = ({ progress, size = 60, strokeWidth = 6 }) => {
@@ -43,8 +43,27 @@ const CircularProgress = ({ progress, size = 60, strokeWidth = 6 }) => {
     );
 };
 
+const INITIAL_MEMBER_DATA = {
+    stats: [
+        { id: 1, title: 'My Plan', value: '...', icon: CheckCircle, color: 'primary' },
+        { id: 2, title: 'Next Class', value: '...', icon: Calendar, color: 'success' },
+        { id: 3, title: 'Attendance', value: '0%', icon: TrendingUp, color: 'success' },
+    ],
+    planSummary: {
+        workoutsCompleted: 0,
+        totalWorkouts: 0,
+        nextGoal: '...',
+        membershipStatus: '...',
+        expiryDate: '...',
+        daysRemaining: 0
+    },
+    announcements: [],
+    benefitWallet: { benefits: [] }
+};
+
 const MemberDashboard = () => {
-    const [data, setData] = useState(DASHBOARD_DATA.MEMBER);
+    const [data, setData] = useState(INITIAL_MEMBER_DATA);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -57,14 +76,30 @@ const MemberDashboard = () => {
                         { ...prev.stats[0], value: apiData.planName },
                         { ...prev.stats[1], value: apiData.nextClass },
                         { ...prev.stats[2], value: apiData.attendanceRate }
-                    ]
+                    ],
+                    planSummary: apiData.planSummary,
+                    announcements: apiData.announcements,
+                    benefitWallet: apiData.benefitWallet
                 }));
             } catch (error) {
                 console.error('Failed to fetch member dashboard:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchDashboardData();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Retrieving Your Performance Data...</p>
+                </div>
+            </div>
+        );
+    }
 
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -126,7 +161,7 @@ const MemberDashboard = () => {
                 <Card className="p-6 border border-slate-100 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-slate-50/50 to-white h-[220px] flex flex-col justify-between overflow-hidden group">
                     <div>
                         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                            <h3 className="text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] text-fuchsia-600">Quick Info / Earnings</h3>
+                            <h3 className="text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] text-fuchsia-600">Membership Status</h3>
                             <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${data.planSummary.membershipStatus === 'Active' ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700' : 'bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700'}`}>
                                 {data.planSummary.membershipStatus}
                             </span>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { FileText, Search, Filter, Eye, Download, Calendar, User, CreditCard, CheckCircle, AlertCircle, Clock, X, Receipt } from 'lucide-react';
-import { INVOICES } from '../data/mockFinance';
+import { fetchInvoices } from '../../../api/finance/financeApi';
 import RightDrawer from '../../../components/common/RightDrawer';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../../../styles/GlobalDesign.css';
 
 const Invoices = () => {
@@ -9,10 +11,26 @@ const Invoices = () => {
     const [filterStatus, setFilterStatus] = useState('');
     const [selectedInvoice, setSelectedInvoice] = useState(null);
     const [showDetailDrawer, setShowDetailDrawer] = useState(false);
+    const [invoices, setInvoices] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredInvoices = INVOICES.filter(invoice => {
-        const matchesSearch = invoice.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    React.useEffect(() => {
+        const loadInvoices = async () => {
+            try {
+                const data = await fetchInvoices();
+                setInvoices(data);
+            } catch (error) {
+                console.error("Error loading invoices:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadInvoices();
+    }, []);
+
+    const filteredInvoices = invoices.filter(invoice => {
+        const matchesSearch = invoice.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            invoice.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === '' || invoice.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
@@ -220,7 +238,12 @@ const Invoices = () => {
                         ))}
                     </div>
 
-                    {filteredInvoices.length === 0 && (
+                    {loading ? (
+                        <div className="p-16 text-center">
+                            <div className="w-12 h-12 mx-auto mb-4 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin"></div>
+                            <p className="text-slate-600 font-bold">Loading invoices...</p>
+                        </div>
+                    ) : filteredInvoices.length === 0 && (
                         <div className="p-16 text-center">
                             <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
                                 <FileText size={40} className="text-violet-600" />
@@ -248,6 +271,223 @@ const Invoices = () => {
 };
 
 const InvoiceDetailContent = ({ invoice, onClose }) => {
+    const handleDownloadPDF = () => {
+        try {
+            const doc = new jsPDF();
+
+            // Extract gym name from local storage
+            const userStr = localStorage.getItem('userData');
+            let gymName = 'Gym CRM';
+            if (userStr) {
+                const userObj = JSON.parse(userStr);
+                gymName = userObj?.branchName || userObj?.tenant?.name || 'GYM INVOICE';
+            }
+
+            // Define Standard Colors
+            const primaryColor = [109, 40, 217]; // violet-700
+            const darkGray = [30, 41, 59]; // slate-800
+            const lightGray = [100, 116, 139]; // slate-500
+
+            // Header - Gym Name
+            doc.setFontSize(28);
+            doc.setTextColor(...primaryColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text(gymName.toUpperCase(), 14, 25);
+
+            // Header - Invoice Label
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('TAX INVOICE', 196, 25, null, null, 'right');
+
+            // Header Line
+            doc.setDrawColor(226, 232, 240); // slate-200
+            doc.setLineWidth(0.5);
+            doc.line(14, 32, 196, 32);
+
+            // Invoice Grid Info (Left side: Meta, Right side: Status)
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.text('Invoice Number:', 14, 42);
+            doc.setFontSize(11);
+            doc.setTextColor(...darkGray);
+            doc.setFont('helvetica', 'bold');
+            doc.text(invoice.invoiceNumber, 14, 48);
+
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Date of Issue:', 90, 42);
+            doc.setFontSize(11);
+            doc.setTextColor(...darkGray);
+            doc.setFont('helvetica', 'bold');
+            doc.text(new Date(invoice.issueDate).toLocaleDateString(), 90, 48);
+
+            // Status indicator
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Status:', 196, 42, null, null, 'right');
+
+            // Status color logic
+            let statusColor = [100, 116, 139];
+            if (invoice.status === 'Paid') statusColor = [5, 150, 105]; // emerald-600
+            if (invoice.status === 'Overdue') statusColor = [220, 38, 38]; // red-600
+            if (invoice.status === 'Partial') statusColor = [217, 119, 6]; // amber-600
+
+            doc.setFontSize(14);
+            doc.setTextColor(...statusColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text(invoice.status.toUpperCase(), 196, 49, null, null, 'right');
+
+            // Bill To Section
+            doc.setFillColor(248, 250, 252); // slate-50
+            doc.roundedRect(14, 55, 182, 30, 3, 3, 'F');
+
+            doc.setFontSize(9);
+            doc.setTextColor(...lightGray);
+            doc.text('BILL TO', 22, 65);
+
+            doc.setFontSize(14);
+            doc.setTextColor(...darkGray);
+            doc.text(invoice.memberName, 22, 74);
+
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Member', 22, 80);
+
+            // Prepare Services Table
+            const tableBody = invoice.services.map(s => [
+                s.name,
+                s.quantity.toString(),
+                `Rs. ${s.rate.toLocaleString()}`,
+                `Rs. ${s.amount.toLocaleString()}`
+            ]);
+
+            autoTable(doc, {
+                startY: 95,
+                head: [['DESCRIPTION', 'QTY', 'RATE', 'AMOUNT']],
+                body: tableBody,
+                theme: 'plain',
+                headStyles: {
+                    fillColor: [248, 250, 252], // slate-50
+                    textColor: [100, 116, 139],
+                    fontStyle: 'bold',
+                    fontSize: 9,
+                    cellPadding: { top: 6, bottom: 6, left: 8, right: 8 }
+                },
+                bodyStyles: {
+                    textColor: [30, 41, 59],
+                    fontSize: 10,
+                    cellPadding: { top: 6, bottom: 6, left: 8, right: 8 }
+                },
+                alternateRowStyles: {
+                    fillColor: [255, 255, 255]
+                },
+                columnStyles: {
+                    0: { cellWidth: 80 },
+                    1: { halign: 'center' },
+                    2: { halign: 'right' },
+                    3: { halign: 'right', fontStyle: 'bold' }
+                },
+                margin: { left: 14, right: 14 }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 15;
+
+            // Summary Totals Calculation Section
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(120, finalY, 76, 45, 3, 3, 'F');
+
+            doc.setFontSize(10);
+            doc.setTextColor(...lightGray);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Total Amount:', 125, finalY + 10);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...darkGray);
+            doc.text(`Rs. ${invoice.totalAmount.toLocaleString()}`, 190, finalY + 10, null, null, 'right');
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...lightGray);
+            doc.text('Paid Amount:', 125, finalY + 20);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(5, 150, 105); // emerald-600
+            doc.text(`Rs. ${invoice.paidAmount.toLocaleString()}`, 190, finalY + 20, null, null, 'right');
+
+            // Fine Line
+            doc.setDrawColor(226, 232, 240);
+            doc.line(125, finalY + 26, 190, finalY + 26);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...darkGray);
+            doc.text('Balance Due:', 125, finalY + 36);
+
+            let balanceColor = invoice.balanceDue > 0 ? [220, 38, 38] : [30, 41, 59];
+            doc.setFontSize(14);
+            doc.setTextColor(...balanceColor);
+            doc.text(`Rs. ${invoice.balanceDue.toLocaleString()}`, 190, finalY + 36, null, null, 'right');
+
+            // Payment History if any
+            if (invoice.paymentHistory && invoice.paymentHistory.length > 0) {
+                finalY += 60;
+                doc.setFontSize(9);
+                doc.setTextColor(...lightGray);
+                doc.setFont('helvetica', 'bold');
+                doc.text('PAYMENT HISTORY', 14, finalY);
+
+                const historyBody = invoice.paymentHistory.map(p => [
+                    new Date(p.date).toLocaleDateString(),
+                    p.method,
+                    p.transactionId,
+                    `Rs. ${p.amount.toLocaleString()}`
+                ]);
+
+                autoTable(doc, {
+                    startY: finalY + 5,
+                    head: [['DATE', 'METHOD', 'TXN ID', 'AMOUNT']],
+                    body: historyBody,
+                    theme: 'plain',
+                    headStyles: {
+                        textColor: [100, 116, 139],
+                        fontStyle: 'bold',
+                        fontSize: 8,
+                        cellPadding: { top: 4, bottom: 4, left: 8, right: 8 }
+                    },
+                    bodyStyles: {
+                        textColor: [100, 116, 139],
+                        fontSize: 9,
+                        cellPadding: { top: 4, bottom: 4, left: 8, right: 8 }
+                    },
+                    columnStyles: {
+                        3: { halign: 'right', fontStyle: 'bold', textColor: [5, 150, 105] }
+                    },
+                    margin: { left: 14, right: 14 }
+                });
+            }
+
+            // Footer (on all pages)
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(148, 163, 184); // slate-400
+                doc.text('Generated professionally by Gym CRM', 105, 285, null, null, 'center');
+            }
+
+            // Save PDF
+            doc.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+
+        } catch (err) {
+            console.error("Failed generating PDF: ", err);
+        }
+    };
+
     return (
         <div className="p-5 md:p-8 space-y-6 md:space-y-8">
             {/* Header */}
@@ -348,7 +588,10 @@ const InvoiceDetailContent = ({ invoice, onClose }) => {
                 >
                     Close
                 </button>
-                <button className="flex-[2] px-6 py-3.5 md:py-4 bg-violet-600 text-white rounded-2xl font-black text-[10px] md:text-xs shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
+                <button
+                    onClick={handleDownloadPDF}
+                    className="flex-[2] px-6 py-3.5 md:py-4 bg-violet-600 text-white rounded-2xl font-black text-[10px] md:text-xs shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+                >
                     <Download size={18} />
                     Download PDF
                 </button>

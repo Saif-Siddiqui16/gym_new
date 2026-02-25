@@ -1,27 +1,85 @@
-import React, { useState } from 'react';
-import { Receipt, Download, Filter, Search, Calendar, CreditCard, ShoppingBag, Zap, PieChart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Receipt, Download, Filter, Search, Calendar, CreditCard, ShoppingBag, Zap, PieChart, Loader2 } from 'lucide-react';
 import '../../../styles/GlobalDesign.css';
+import apiClient from '../../../api/apiClient';
 
 const ExpenseReport = () => {
-    const [selectedDate, setSelectedDate] = useState('2024-03-01');
+    const getToday = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [selectedDate, setSelectedDate] = useState(getToday());
     const [searchTerm, setSearchTerm] = useState('');
 
-    const stats = [
-        { label: 'Total Expenses', value: '₹1,24,500', icon: CreditCard, bg: 'bg-rose-50', color: 'text-rose-600' },
-        { label: 'Operational Costs', value: '₹82,000', icon: Zap, bg: 'bg-blue-50', color: 'text-blue-600' },
-        { label: 'Supplies/Inventory', value: '₹42,500', icon: ShoppingBag, bg: 'bg-amber-50', color: 'text-amber-600' },
-    ];
+    const [stats, setStats] = useState([
+        { label: 'Total Expenses', value: '₹0', icon: CreditCard, bg: 'bg-rose-50', color: 'text-rose-600' },
+        { label: 'Operational Costs', value: '₹0', icon: Zap, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'Supplies/Inventory', value: '₹0', icon: ShoppingBag, bg: 'bg-amber-50', color: 'text-amber-600' },
+    ]);
 
-    const expenseData = [
-        { id: 1, date: '2024-03-05', category: 'Utilities', description: 'Electricity Bill - Feb', amount: '₹15,400', status: 'Paid' },
-        { id: 2, date: '2024-03-08', category: 'Maintenance', description: 'AC Servicing (8 units)', amount: '₹12,000', status: 'Paid' },
-        { id: 3, date: '2024-03-12', category: 'Inventory', description: 'Protein Supplements Stock', amount: '₹22,500', status: 'Pending' },
-        { id: 4, date: '2024-03-15', category: 'Marketing', description: 'Social Media Ads', amount: '₹8,000', status: 'Paid' },
-    ];
+    const [expenseData, setExpenseData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchReport = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/branch-admin/reports/expenses', {
+                params: { date: selectedDate }
+            });
+
+            const iconMap = {
+                CreditCard: CreditCard,
+                Zap: Zap,
+                ShoppingBag: ShoppingBag
+            };
+
+            setStats(response.data.stats.map(s => ({
+                ...s,
+                icon: iconMap[s.icon] || CreditCard
+            })));
+            setExpenseData(response.data.expenseData);
+        } catch (error) {
+            console.error('Failed to fetch expense report:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReport();
+    }, [selectedDate]);
 
     const handleExport = () => {
-        alert("Preparing your expense report export... The CSV file will be ready for download shortly.");
-        // Logic for generating CSV would go here
+        if (expenseData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["Date", "Category", "Description", "Amount", "Status"];
+        const csvContent = [
+            headers.join(","),
+            ...expenseData.map(row => [
+                `"${row.date}"`,
+                `"${row.category}"`,
+                `"${row.description.replace(/"/g, '""')}"`,
+                `"${row.amount}"`,
+                `"${row.status}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `expense_report_${selectedDate}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -79,10 +137,22 @@ const ExpenseReport = () => {
                                     onChange={(e) => setSelectedDate(e.target.value)}
                                 />
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-pink-50 border border-pink-100 rounded-xl text-pink-700 text-xs font-bold">
+                            <button
+                                onClick={() => {
+                                    const categories = expenseData.reduce((acc, exp) => {
+                                        acc[exp.category] = (acc[exp.category] || 0) + 1;
+                                        return acc;
+                                    }, {});
+                                    const breakdown = Object.entries(categories)
+                                        .map(([cat, count]) => `${cat}: ${count}`)
+                                        .join('\n');
+                                    alert(`Category Distribution:\n\n${breakdown || 'No data available'}`);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-pink-50 border border-pink-100 rounded-xl text-pink-700 text-xs font-bold hover:bg-pink-100 transition-colors"
+                            >
                                 <PieChart size={14} />
                                 Category Distribution
-                            </div>
+                            </button>
                         </div>
                         <div className="relative w-full md:w-72">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -109,20 +179,39 @@ const ExpenseReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {expenseData.map((row) => (
-                                <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.date}</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-rose-600">{row.category}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">{row.description}</td>
-                                    <td className="px-6 py-4 text-sm font-black text-slate-900">{row.amount}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                            }`}>
-                                            {row.status}
-                                        </span>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
+                                            <p className="text-slate-500 font-medium">Loading expense data...</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : expenseData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-slate-400 font-medium italic">
+                                        No expenses found for the selected period
+                                    </td>
+                                </tr>
+                            ) : (
+                                expenseData
+                                    .filter(row => row.description.toLowerCase().includes(searchTerm.toLowerCase()) || row.category.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.date}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-rose-600">{row.category}</td>
+                                            <td className="px-6 py-4 text-sm text-slate-600">{row.description}</td>
+                                            <td className="px-6 py-4 text-sm font-black text-slate-900">{row.amount}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                    {row.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                            )}
                         </tbody>
                     </table>
                 </div>

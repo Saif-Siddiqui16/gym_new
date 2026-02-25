@@ -3,9 +3,9 @@ import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
 import SectionHeader from '../components/SectionHeader';
-import { Building, Users, Activity, DollarSign, MapPin, ArrowRight, AlertTriangle, Server, CheckCircle2, TrendingUp, Clock } from 'lucide-react';
+import { Building, Users, Activity, IndianRupee, MapPin, ArrowRight, AlertTriangle, Server, CheckCircle2, TrendingUp, Clock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
-import { getDashboardStats, getRecentGyms, getSystemAlerts } from '../../../api/superadmin/superadminApi';
+import { getDashboardStats, getRecentGyms, getSystemAlerts } from '../../../api/superadmin/superAdminApi';
 
 const SuperAdminDashboard = () => {
     const [stats, setStats] = useState([]);
@@ -18,7 +18,7 @@ const SuperAdminDashboard = () => {
         'Total Gyms': Building,
         'Total Members': Users,
         'Active Plans': Activity,
-        'Monthly Revenue': DollarSign,
+        'Monthly Revenue': IndianRupee,
     };
 
     const fetchDashboardData = async () => {
@@ -55,8 +55,8 @@ const SuperAdminDashboard = () => {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-gray-500 font-medium animate-pulse">Loading system data...</p>
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Authorizing System Access...</p>
                 </div>
             </div>
         );

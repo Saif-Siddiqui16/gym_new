@@ -1,21 +1,8 @@
-import axios from 'axios';
-import BaseUrl from '../BaseUrl/BaseUrl';
-
-// Get token from localStorage
-const getAuthHeaders = () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return {};
-    const user = JSON.parse(userStr);
-    return {
-        headers: {
-            Authorization: `Bearer ${user.token}`
-        }
-    };
-};
+import apiClient from '../apiClient';
 
 export const fetchExpenses = async () => {
     try {
-        const response = await axios.get(`${BaseUrl}/finance/expenses`, getAuthHeaders());
+        const response = await apiClient.get('/finance/expenses');
         return response.data;
     } catch (error) {
         throw error;
@@ -24,7 +11,34 @@ export const fetchExpenses = async () => {
 
 export const addExpense = async (expenseData) => {
     try {
-        const response = await axios.post(`${BaseUrl}/finance/expenses`, expenseData, getAuthHeaders());
+        const response = await apiClient.post('/finance/expenses', expenseData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const fetchInvoices = async () => {
+    try {
+        const response = await apiClient.get('/finance/invoices');
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const submitCashierPayment = async (paymentData) => {
+    try {
+        const response = await apiClient.post('/finance/cashier', paymentData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const fetchTransactions = async () => {
+    try {
+        const response = await apiClient.get('/finance/transactions');
         return response.data;
     } catch (error) {
         throw error;

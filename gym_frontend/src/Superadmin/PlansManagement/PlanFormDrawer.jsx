@@ -140,7 +140,9 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 name: '',
                 limit: '5',
                 isUnlimited: false,
-                unit: 'Per Month'
+                unit: 'Per Month',
+                gender: 'All',
+                room: ''
             }]
         }));
     };
@@ -430,15 +432,43 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                 </button>
 
                                 <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Benefit Name</label>
-                                        <input
-                                            type="text"
-                                            value={benefit.name}
-                                            onChange={(e) => updateBenefit(benefit.id, 'name', e.target.value)}
-                                            placeholder="e.g., Sauna Sessions"
-                                            className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
-                                        />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Benefit Name</label>
+                                            <input
+                                                type="text"
+                                                value={benefit.name}
+                                                onChange={(e) => updateBenefit(benefit.id, 'name', e.target.value)}
+                                                placeholder="e.g., Sauna Sessions"
+                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Room / Facility</label>
+                                            <input
+                                                type="text"
+                                                value={benefit.room || ''}
+                                                onChange={(e) => updateBenefit(benefit.id, 'room', e.target.value)}
+                                                placeholder="e.g., Room A, Sauna 1"
+                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender Separation</label>
+                                            <select
+                                                value={benefit.gender || 'All'}
+                                                onChange={(e) => updateBenefit(benefit.id, 'gender', e.target.value)}
+                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all cursor-pointer"
+                                            >
+                                                <option value="All">All Genders</option>
+                                                <option value="Male">Male Only</option>
+                                                <option value="Female">Female Only</option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <PlanLimitField
@@ -452,7 +482,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                         options={[
                                             { value: 'Per Month', label: 'Per Month' },
                                             { value: 'Per Year', label: 'Per Year' },
-                                            { value: 'Lifetime', label: 'Lifetime' }
+                                            { value: 'Lifetime', label: 'Entire Duration' }
                                         ]}
                                     />
                                 </div>

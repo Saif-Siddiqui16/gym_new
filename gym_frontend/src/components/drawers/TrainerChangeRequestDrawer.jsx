@@ -90,7 +90,7 @@ const TrainerChangeRequestDrawer = ({
                 </div>
             }
         >
-            <form id="trainer-change-form" onSubmit={handleSubmit} className="space-y-6 py-2">
+            <form id="trainer-change-form" onSubmit={handleSubmit} className="space-y-6 px-6 py-6 mt-2">
                 {/* Info Card */}
                 <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
                     <div className="flex items-center gap-3">

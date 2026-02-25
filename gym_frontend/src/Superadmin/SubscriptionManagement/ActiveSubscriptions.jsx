@@ -27,16 +27,16 @@ const ActiveSubscriptions = () => {
         setLoading(true);
         const data = await fetchSubscriptions();
         // Map API data to component fields and filter for active ones
-        const activeSubs = data.filter(s => s.status.toLowerCase() === 'active').map(s => ({
-            id: s.id,
-            planName: s.plan,
-            subscriberName: s.subscriber,
-            gymName: s.gym,
+        const activeSubs = Array.isArray(data) ? data.filter(s => s.status?.toLowerCase() === 'active').map(s => ({
+            id: s.id || '',
+            planName: s.plan || 'N/A',
+            subscriberName: s.subscriber || 'N/A',
+            gymName: s.gym || 'N/A',
             startDate: s.startDate,
             endDate: s.endDate,
-            status: s.status.toLowerCase(),
-            paymentStatus: s.paymentStatus.toLowerCase()
-        }));
+            status: s.status?.toLowerCase() || '',
+            paymentStatus: s.paymentStatus?.toLowerCase() || ''
+        })) : [];
         setSubscriptionsData(activeSubs);
         setLoading(false);
     };
@@ -44,10 +44,10 @@ const ActiveSubscriptions = () => {
     // Filter subscriptions based on search and payment status
     const filteredSubscriptions = subscriptionsData.filter(subscription => {
         const matchesSearch =
-            subscription.planName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subscription.subscriberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subscription.gymName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subscription.id.toLowerCase().includes(searchTerm.toLowerCase());
+            (subscription.planName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (subscription.subscriberName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (subscription.gymName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (subscription.id?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
         const matchesStatus = statusFilter === 'all' ||
             (statusFilter === 'unpaid' ? (subscription.paymentStatus !== 'paid' && subscription.paymentStatus !== 'pending') : subscription.paymentStatus === statusFilter);

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, User, Plus, X, MapPin, Filter, Settings2 } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { getBookingsByDateRange, createBooking, getMembers, getClasses } from '../../api/manager/managerApi';
+import toast from 'react-hot-toast';
 import RightDrawer from '../../components/common/RightDrawer';
 import BookingSettingsDrawer from './BookingSettingsDrawer';
 import AddBookingDrawer from './AddBookingDrawer';
 import '../../styles/GlobalDesign.css';
 
 const BookingCalendar = () => {
-    const [currentDate, setCurrentDate] = useState(new Date(2024, 2, 1)); // March 2024 (matching mock data dates)
+    const [currentDate, setCurrentDate] = useState(new Date());
     const [filterType, setFilterType] = useState('All');
     const [bookings, setBookings] = useState({});
     const [loading, setLoading] = useState(true);
@@ -92,9 +93,15 @@ const BookingCalendar = () => {
     };
 
     const handleCreateBooking = async (newBooking) => {
-        await createBooking(newBooking);
-        setIsAddDrawerOpen(false);
-        loadBookings();
+        try {
+            await createBooking(newBooking);
+            toast.success('Booking created successfully');
+            setIsAddDrawerOpen(false);
+            loadBookings();
+        } catch (error) {
+            console.error(error);
+            toast.error(error.message || 'Failed to create booking');
+        }
     };
 
     const handlePrev = () => {
@@ -166,13 +173,18 @@ const BookingCalendar = () => {
 
     const getDayContent = (dayObj) => {
         if (!dayObj) return null;
-        const day = dayObj.day;
-        const dateStr = dayObj.date.toISOString().split('T')[0];
+
+        const year = dayObj.date.getFullYear();
+        const month = String(dayObj.date.getMonth() + 1).padStart(2, '0');
+        const dayNum = String(dayObj.date.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${dayNum}`;
 
         // Find bookings for this specific date
         const dayBookings = [];
         Object.values(bookings).forEach(dayList => {
             dayList.forEach(b => {
+                // b.date is from backend e.g. "2026-02-25T00:00:00.000Z"
+                // Extracting just the YYYY-MM-DD part matches correctly
                 if (b.date.split('T')[0] === dateStr) {
                     dayBookings.push(b);
                 }

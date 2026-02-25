@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, XCircle, User, Building, Edit2, Mail, Phone } from 'lucide-react';
+import { Search, Plus, Filter, ChevronLeft, ChevronRight, Eye, CheckCircle, XCircle, User, Building, Edit2, Mail, Phone, Trash2 } from 'lucide-react';
 import MobileCard from '../components/common/MobileCard';
 import RightDrawer from '../components/common/RightDrawer';
-import { fetchTrainerRequests, updateTrainerRequest, addStaff } from '../api/superadmin/superAdminApi';
+import { fetchTrainerRequests, updateTrainerRequest, addStaff, editStaff, deleteStaffMember } from '../api/superadmin/superAdminApi';
+import { createStaffAPI, fetchTrainerRequestsAPI, updateTrainerRequestAPI, updateStaffAPI, deleteStaffAPI } from '../api/admin/adminApi';
 
 const TrainerRequests = ({ role }) => {
     // State
@@ -22,17 +23,23 @@ const TrainerRequests = ({ role }) => {
         email: '',
         phone: '',
         branch: '',
+        role: '',
+        baseSalary: '',
+        commission: '',
         status: 'Pending',
-        password: 'defaultPassword123' // Temporary default for new trainers
+        documents: null
     });
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     // Fetch Data
+
     const loadTrainers = async () => {
         try {
             setLoading(true);
-            const data = await fetchTrainerRequests();
+            const data = role === 'SUPER_ADMIN' ? await fetchTrainerRequests() : await fetchTrainerRequestsAPI();
             setTrainers(data);
         } catch (error) {
+
             console.error("Failed to load trainer requests:", error);
         } finally {
             setLoading(false);
@@ -49,7 +56,11 @@ const TrainerRequests = ({ role }) => {
     // Action Handlers
     const handleApprove = async (id) => {
         try {
-            await updateTrainerRequest(id, 'Approved');
+            if (role === 'SUPER_ADMIN') {
+                await updateTrainerRequest(id, 'Approved');
+            } else {
+                await updateTrainerRequestAPI(id, 'Approved');
+            }
             loadTrainers();
         } catch (error) {
             console.error("Failed to approve trainer:", error);
@@ -58,9 +69,14 @@ const TrainerRequests = ({ role }) => {
 
     const handleReject = async (id) => {
         try {
-            await updateTrainerRequest(id, 'Rejected');
+            if (role === 'SUPER_ADMIN') {
+                await updateTrainerRequest(id, 'Rejected');
+            } else {
+                await updateTrainerRequestAPI(id, 'Rejected');
+            }
             loadTrainers();
         } catch (error) {
+
             console.error("Failed to reject trainer:", error);
         }
     };
@@ -73,23 +89,88 @@ const TrainerRequests = ({ role }) => {
         }
 
         try {
+            const payload = {
+                ...newTrainer,
+                role: 'TRAINER', // Force the backend role type to TRAINER
+                trainerConfig: {
+                    specialization: newTrainer.role, // Mapping frontend specialization back to backend config
+                    commissionType: 'percentage',
+                    commissionValue: newTrainer.commission
+                }
+            };
+
             if (selectedTrainerId) {
-                // Edit Mode - API for update trainer details not in scope yet, assuming only status update for requests
-                console.warn("Edit details not fully implemented yet");
-                // For now just update local state or add updateTrainerDetails API if needed
+                // Edit Mode
+                if (role === 'SUPER_ADMIN') {
+                    await editStaff(selectedTrainerId, payload);
+                } else {
+                    await updateStaffAPI(selectedTrainerId, payload);
+                }
+                loadTrainers();
             } else {
                 // Add Mode
-                await addStaff({ ...newTrainer, role: 'TRAINER' });
+                if (role === 'SUPER_ADMIN') {
+                    await addStaff(payload);
+                } else {
+                    await createStaffAPI(payload);
+                }
                 loadTrainers();
             }
             closeAddDrawer();
+
         } catch (error) {
             console.error("Failed to save trainer:", error);
             alert("Failed to save trainer: " + (error.response?.data?.message || error.message));
         }
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploadingImage(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "gym_preset"); // Use unsigned preset 'gym_preset' from Cloudinary
+            formData.append("cloud_name", "dw48hcxi5");
+
+            const response = await fetch("https://api.cloudinary.com/v1_1/dw48hcxi5/image/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (data.secure_url) {
+                setNewTrainer(prev => ({ ...prev, documents: data.secure_url }));
+            } else {
+                alert("Upload failed: " + data.error?.message);
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Error uploading file.");
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this trainer application?")) return;
+        try {
+            if (role === 'SUPER_ADMIN') {
+                await deleteStaffMember(id);
+            } else {
+                await deleteStaffAPI(id);
+            }
+            loadTrainers();
+        } catch (error) {
+            console.error("Failed to delete trainer:", error);
+            alert("Failed to delete: " + (error.response?.data?.message || error.message));
+        }
+    };
+
     const openDrawer = (trainer) => {
+
         setSelectedTrainerId(trainer.id);
         setIsDrawerOpen(true);
     };
@@ -107,11 +188,14 @@ const TrainerRequests = ({ role }) => {
                 email: trainer.email,
                 phone: trainer.phone,
                 branch: trainer.branch,
+                role: trainer.role || '',
+                baseSalary: trainer.baseSalary || '',
+                commission: trainer.commission || '',
                 status: trainer.status
             });
         } else {
             setSelectedTrainerId(null);
-            setNewTrainer({ name: '', email: '', phone: '', branch: '', status: 'Pending' });
+            setNewTrainer({ name: '', email: '', phone: '', branch: '', role: '', baseSalary: '', commission: '', status: 'Pending' });
         }
         setIsAddDrawerOpen(true);
     };
@@ -120,7 +204,7 @@ const TrainerRequests = ({ role }) => {
         setIsAddDrawerOpen(false);
         setTimeout(() => {
             setSelectedTrainerId(null);
-            setNewTrainer({ name: '', email: '', phone: '', branch: '', status: 'Pending' });
+            setNewTrainer({ name: '', email: '', phone: '', branch: '', role: '', baseSalary: '', commission: '', status: 'Pending' });
         }, 300);
     };
 
@@ -269,6 +353,13 @@ const TrainerRequests = ({ role }) => {
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
+                                                <button
+                                                    onClick={() => handleDelete(req.id)}
+                                                    title="Delete"
+                                                    className="p-1.5 text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -320,6 +411,12 @@ const TrainerRequests = ({ role }) => {
                                     icon: Edit2,
                                     variant: 'secondary',
                                     onClick: () => openAddDrawer(req)
+                                },
+                                {
+                                    label: 'Delete',
+                                    icon: Trash2,
+                                    variant: 'danger',
+                                    onClick: () => handleDelete(req.id)
                                 },
                                 ...(req.status === 'Pending' ? [
                                     {
@@ -457,7 +554,7 @@ const TrainerRequests = ({ role }) => {
                 onClose={closeAddDrawer}
                 title={selectedTrainerId ? 'Edit Trainer' : 'Add New Trainer'}
             >
-                <form onSubmit={handleSaveTrainer} className="space-y-6">
+                <form onSubmit={handleSaveTrainer} className="flex flex-col gap-6 p-6 pt-4">
                     <div>
                         <h3 className="text-sm font-black text-indigo-600 uppercase tracking-widest mb-1">
                             {selectedTrainerId ? 'Edit Configuration' : 'New Registration'}
@@ -465,40 +562,88 @@ const TrainerRequests = ({ role }) => {
                         <p className="text-xs text-gray-400 font-medium">Please provide accurate trainer information</p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Trainer Name *</label>
-                        <input
-                            required
-                            type="text"
-                            className="saas-input w-full"
-                            placeholder="Enter full name"
-                            value={newTrainer.name}
-                            onChange={(e) => setNewTrainer({ ...newTrainer, name: e.target.value })}
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Trainer Name *</label>
+                            <input
+                                required
+                                type="text"
+                                className="saas-input w-full"
+                                placeholder="Enter full name"
+                                value={newTrainer.name || ''}
+                                onChange={(e) => setNewTrainer({ ...newTrainer, name: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Specialization / Role *</label>
+                            <input
+                                required
+                                type="text"
+                                className="saas-input w-full"
+                                placeholder="e.g. Senior PT, Yoga Expert"
+                                value={newTrainer.role || ''}
+                                onChange={(e) => setNewTrainer({ ...newTrainer, role: e.target.value })}
+                            />
+                        </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address *</label>
-                        <input
-                            required
-                            type="email"
-                            className="saas-input w-full"
-                            placeholder="example@gym.com"
-                            value={newTrainer.email}
-                            onChange={(e) => setNewTrainer({ ...newTrainer, email: e.target.value })}
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address *</label>
+                            <input
+                                required
+                                type="email"
+                                className="saas-input w-full"
+                                placeholder="example@gym.com"
+                                value={newTrainer.email || ''}
+                                onChange={(e) => setNewTrainer({ ...newTrainer, email: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number *</label>
+                            <input
+                                required
+                                type="tel"
+                                className="saas-input w-full"
+                                placeholder="+1 234-567-8900"
+                                value={newTrainer.phone || ''}
+                                onChange={(e) => setNewTrainer({ ...newTrainer, phone: e.target.value })}
+                            />
+                        </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number *</label>
-                        <input
-                            required
-                            type="tel"
-                            className="saas-input w-full"
-                            placeholder="+1 234-567-8900"
-                            value={newTrainer.phone}
-                            onChange={(e) => setNewTrainer({ ...newTrainer, phone: e.target.value })}
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Base Salary *</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-gray-400">₹</span>
+                                <input
+                                    required
+                                    type="number"
+                                    className="saas-input w-full pl-8"
+                                    placeholder="25000"
+                                    value={newTrainer.baseSalary || ''}
+                                    onChange={(e) => setNewTrainer({ ...newTrainer, baseSalary: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Commission % (PT Sharing) *</label>
+                            <div className="relative">
+                                <span className="absolute right-10 top-1/2 -translate-y-1/2 font-bold text-gray-400">%</span>
+                                <input
+                                    required
+                                    type="number"
+                                    className="saas-input w-full pr-12"
+                                    placeholder="20"
+                                    value={newTrainer.commission || ''}
+                                    onChange={(e) => setNewTrainer({ ...newTrainer, commission: e.target.value })}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -506,7 +651,7 @@ const TrainerRequests = ({ role }) => {
                         <select
                             required
                             className="saas-input w-full bg-white cursor-pointer"
-                            value={newTrainer.branch}
+                            value={newTrainer.branch || ''}
                             onChange={(e) => setNewTrainer({ ...newTrainer, branch: e.target.value })}
                         >
                             <option value="">Select Branch</option>
@@ -516,6 +661,29 @@ const TrainerRequests = ({ role }) => {
                             <option value="North Point">North Point</option>
                             <option value="South Bay">South Bay</option>
                         </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload Government ID / Documents *</label>
+                        <div className="flex items-center justify-center w-full">
+                            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <Plus className="w-8 h-8 mb-3 text-gray-400" />
+                                    {uploadingImage ? (
+                                        <p className="mb-2 text-sm text-gray-500 font-semibold">Uploading...</p>
+                                    ) : newTrainer.documents ? (
+                                        <p className="mb-2 text-sm text-green-600 font-semibold">Document Uploaded Successfully</p>
+                                    ) : (
+                                        <>
+                                            <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                            <p className="text-xs text-gray-400">PDF, PNG, JPG (MAX. 5MB)</p>
+                                        </>
+                                    )}
+                                </div>
+                                <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,.pdf" disabled={uploadingImage} />
+
+                            </label>
+                        </div>
                     </div>
 
                     {selectedTrainerId && (

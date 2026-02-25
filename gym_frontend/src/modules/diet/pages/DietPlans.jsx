@@ -25,6 +25,7 @@ import CreatePlanDrawer from '../components/CreatePlanDrawer';
 import AssignPlanDrawer from '../components/AssignPlanDrawer';
 import '../../../styles/GlobalDesign.css';
 import { getDietPlans, createDietPlan, updateDietPlan, toggleDietPlanStatus } from '../../../api/trainer/trainerApi';
+import { fetchMemberDietPlans } from '../../../api/member/memberApi';
 import { toast } from 'react-hot-toast';
 
 const DietPlans = ({ role }) => {
@@ -54,9 +55,9 @@ const DietPlans = ({ role }) => {
     const loadPlans = async () => {
         try {
             setLoading(true);
-            const data = await getDietPlans();
+            const data = isTrainer ? await getDietPlans() : await fetchMemberDietPlans();
             setPlans(data);
-            if (!isTrainer && data.length > 0) {
+            if (data.length > 0) {
                 setActivePlan(data[0]);
             }
         } catch (error) {
@@ -294,10 +295,15 @@ const DietPlans = ({ role }) => {
                                 <div className="pt-4 space-y-2">
                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest px-1">
                                         <span className="text-gray-400">Consistency Focus</span>
-                                        <span className="text-indigo-600">{MEMBER_DIET_STATUS.todayCompletion}%</span>
+                                        <span className="text-indigo-600">
+                                            {activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 4)) * 100)) : 0}%
+                                        </span>
                                     </div>
                                     <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${MEMBER_DIET_STATUS.todayCompletion}%` }} />
+                                        <div
+                                            className="h-full bg-indigo-600 rounded-full transition-all duration-1000"
+                                            style={{ width: `${activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 4)) * 100)) : 0}%` }}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -391,7 +397,7 @@ const DietPlans = ({ role }) => {
                         <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">
                             {isTrainer
                                 ? 'Precise nutritional scheduling & macro management'
-                                : `Active Protocol: ${activePlan?.name}`}
+                                : `Active Protocol: ${activePlan?.name || 'No Active Plan'}`}
                         </p>
                     </div>
                     {isTrainer && (

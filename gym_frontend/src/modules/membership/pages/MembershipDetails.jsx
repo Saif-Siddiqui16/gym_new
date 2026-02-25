@@ -27,10 +27,11 @@ const MembershipDetails = () => {
                 const mappedData = {
                     ...data,
                     memberName: data.name,
-                    planName: data.plan || 'Standard Plan',
-                    startDate: data.joinDate ? new Date(data.joinDate).toLocaleDateString() : 'N/A',
-                    endDate: data.expiryDate ? new Date(data.expiryDate).toLocaleDateString() : 'N/A',
-                    durationMonths: 12, // Still placeholder until plan logic is complete
+                    planName: data.plan?.name || 'No Plan Active',
+                    joinDate: data.joinDate ? new Date(data.joinDate).toLocaleDateString('en-GB') : 'N/A',
+                    startDate: data.joinDate ? new Date(data.joinDate).toLocaleDateString('en-GB') : 'N/A',
+                    endDate: data.expiryDate ? new Date(data.expiryDate).toLocaleDateString('en-GB') : 'N/A',
+                    durationText: data.plan ? `${data.plan.duration} ${data.plan.durationType || 'Months'}` : 'N/A',
                     benefits: data.benefits || [],
                     hasFaceId: !!data.avatar
                 };
@@ -266,7 +267,7 @@ const MembershipDetails = () => {
                             <div className="text-center">
                                 <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-black shadow-lg">
                                     <Calendar size={14} className="sm:w-4 sm:h-4" />
-                                    Duration: {membership.durationMonths} Months
+                                    Duration: {membership.durationText}
                                 </div>
                             </div>
                         </div>

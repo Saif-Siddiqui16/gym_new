@@ -510,7 +510,7 @@ const MemberList = () => {
                     </div>
                 }
             >
-                <form id="add-member-form" onSubmit={handleAddMemberSubmit} className="space-y-4 py-4">
+                <form id="add-member-form" onSubmit={handleAddMemberSubmit} className="flex flex-col gap-8 px-6 py-4 mt-4">
                     <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Full Name</label>
                         <input
@@ -574,7 +574,7 @@ const MemberList = () => {
                 }
             >
                 {selectedMember && (
-                    <div className="space-y-6 py-4">
+                    <div className="space-y-6 px-6 py-6 mt-2">
                         <div className="flex items-center gap-4">
                             <div className="h-16 w-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-black shadow-inner">
                                 {(selectedMember?.name || '?').charAt(0)}
@@ -653,7 +653,7 @@ const MemberList = () => {
                     </div>
                 }
             >
-                <form id="edit-member-form" onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                <form id="edit-member-form" onSubmit={handleEditSubmit} className="flex flex-col gap-8 px-6 py-4 mt-4">
                     <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Full Name</label>
                         <input

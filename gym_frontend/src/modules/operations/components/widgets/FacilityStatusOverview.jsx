@@ -2,14 +2,14 @@ import React from 'react';
 import { Package, CheckCircle2, Wrench, AlertTriangle, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const FacilityStatusOverview = ({ equipment = [] }) => {
+const FacilityStatusOverview = ({ equipment = [], equipmentStats }) => {
     const navigate = useNavigate();
 
-    // Calculate real counts from equipment data
-    const totalAssets = equipment.length;
-    const operationalCount = equipment.filter(e => e.status === 'Operational').length;
-    const maintenanceCount = equipment.filter(e => e.status === 'Under Maintenance').length;
-    const outOfOrderCount = equipment.filter(e => e.status === 'Out of Order').length;
+    // Calculate real counts from equipment data or backend payload
+    const totalAssets = equipmentStats ? equipmentStats.totalAssets : equipment.length;
+    const operationalCount = equipmentStats ? equipmentStats.operational : equipment.filter(e => e.status === 'Operational').length;
+    const maintenanceCount = equipmentStats ? equipmentStats.outOfOrder : equipment.filter(e => e.status === 'Under Maintenance').length;
+    const outOfOrderCount = equipmentStats ? equipmentStats.outOfOrder : equipment.filter(e => e.status === 'Out of Order').length;
 
     const stats = [
         { label: 'Total Assets', count: totalAssets, icon: Package, color: 'slate', border: 'border-slate-200' },

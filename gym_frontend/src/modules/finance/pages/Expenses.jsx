@@ -357,15 +357,29 @@ const Expenses = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Expense Date</label>
-                        <input
-                            required
-                            type="date"
-                            value={newExpense.date}
-                            onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
-                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Expense Date</label>
+                            <input
+                                required
+                                type="date"
+                                value={newExpense.date}
+                                onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Status</label>
+                            <select
+                                required
+                                value={newExpense.status}
+                                onChange={(e) => setNewExpense({ ...newExpense, status: e.target.value })}
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
+                            >
+                                <option value="Pending">Pending</option>
+                                <option value="Paid">Paid</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="space-y-2">

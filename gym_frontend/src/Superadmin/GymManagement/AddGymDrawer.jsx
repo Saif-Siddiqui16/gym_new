@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles } from 'lucide-react';
-import { addGym } from '../../api/superadmin/superAdminApi';
+import { Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles, CreditCard } from 'lucide-react';
+import { addGym, fetchPlans } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
 
 const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
+    const [plans, setPlans] = useState([]);
     const [formData, setFormData] = useState({
         gymName: '',
         branchName: '',
@@ -14,9 +15,22 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
         phone: '',
         address: '',
         status: 'Active',
+        planId: '',
     });
 
     const statusOptions = ['Active', 'Suspended'];
+
+    useEffect(() => {
+        const loadPlans = async () => {
+            try {
+                const data = await fetchPlans();
+                setPlans(data.map(p => ({ value: p.id, label: `${p.name} (${p.period} - ₹${p.price})` })));
+            } catch (error) {
+                console.error('Error fetching plans:', error);
+            }
+        };
+        if (isOpen) loadPlans();
+    }, [isOpen]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,8 +41,18 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
         setFormData((prev) => ({ ...prev, status }));
     };
 
+    const handlePlanChange = (planId) => {
+        setFormData((prev) => ({ ...prev, planId }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.planId) {
+            alert('Please select a SaaS Plan');
+            return;
+        }
+
         setLoading(true);
         try {
             await addGym({
@@ -47,10 +71,11 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 phone: '',
                 address: '',
                 status: 'Active',
+                planId: '',
             });
         } catch (error) {
             console.error('Error adding gym:', error);
-            alert('Failed to add gym');
+            alert(typeof error === 'string' ? error : 'Failed to add gym');
         } finally {
             setLoading(false);
         }
@@ -99,14 +124,14 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 </div>
             }
         >
-            <form id="add-gym-form" onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+            <form id="add-gym-form" onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 px-6 py-6 font-inter">
                 {/* Gym Information Section */}
                 <div className="space-y-4 sm:space-y-6">
                     <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0">
                             <Building2 size={16} className="sm:w-5 sm:h-5 text-violet-600" strokeWidth={2.5} />
                         </div>
-                        <h2 className="text-base sm:text-lg font-black text-slate-900">Gym Information</h2>
+                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Gym Information</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -152,7 +177,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center flex-shrink-0">
                             <User size={16} className="sm:w-5 sm:h-5 text-emerald-600" strokeWidth={2.5} />
                         </div>
-                        <h2 className="text-base sm:text-lg font-black text-slate-900">Owner & Contact Details</h2>
+                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Owner & Contact Details</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -215,7 +240,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center flex-shrink-0">
                             <Home size={16} className="sm:w-5 sm:h-5 text-indigo-600" strokeWidth={2.5} />
                         </div>
-                        <h2 className="text-base sm:text-lg font-black text-slate-900">Location & Status</h2>
+                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">Location & Status</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -237,7 +262,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                         </div>
 
                         {/* Status Dropdown */}
-                        <div className="md:col-span-2 space-y-2">
+                        <div className="space-y-2">
                             <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                                 <CheckCircle2 size={14} className="sm:w-4 sm:h-4 text-green-500" />
                                 Gym Status
@@ -247,6 +272,21 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.status}
                                 onChange={handleStatusChange}
                                 placeholder="Select Status"
+                                className="w-full"
+                            />
+                        </div>
+
+                        {/* SaaS Plan Dropdown */}
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                                <CreditCard size={14} className="sm:w-4 sm:h-4 text-violet-500" />
+                                SaaS Plan
+                            </label>
+                            <CustomDropdown
+                                options={plans}
+                                value={formData.planId}
+                                onChange={handlePlanChange}
+                                placeholder="Select SaaS Plan"
                                 className="w-full"
                             />
                         </div>

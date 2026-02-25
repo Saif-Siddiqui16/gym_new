@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, Calendar, Clock, CreditCard, ArrowLeft, AlertCircle, Shield, Ban } from 'lucide-react';
-// import { updateDetail } from '../../api/superadmin/superAdminApi'; // Mock API
+import { Save, Calendar, Clock, CreditCard, ArrowLeft, AlertCircle, Shield, Ban, Dumbbell, Gift } from 'lucide-react';
+import { fetchBookingSettings, updateBookingSettings } from '../../api/superadmin/superAdminApi';
 
 const BookingSettings = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
     const [settings, setSettings] = useState({
         globalBookingEnabled: true,
         creditsPerBooking: 1,
         maxBookingsPerDay: 2,
         maxBookingsPerWeek: 10,
-        cancellationWindow: 4, // hours
-        advanceBookingDays: 7,
+
+        // Classes specific
+        classCancellationWindow: 4, // hours
+        classAdvanceBookingDays: 7,
+
+        // Premium Benefits specific
+        benefitCancellationWindow: 24, // hours
+        benefitAdvanceBookingDays: 14,
+
         penaltyEnabled: true,
         penaltyCredits: 1
     });
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const data = await fetchBookingSettings();
+                setSettings(prev => ({ ...prev, ...data }));
+            } catch (error) {
+                console.error("Failed to load booking settings:", error);
+            } finally {
+                setFetching(false);
+            }
+        };
+        loadSettings();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -27,11 +49,15 @@ const BookingSettings = () => {
 
     const handleSave = async () => {
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            await updateBookingSettings(settings);
             alert('Booking rules updated successfully!');
-        }, 1000);
+        } catch (error) {
+            console.error("Failed to save booking settings:", error);
+            alert("Failed to save: " + error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -59,7 +85,7 @@ const BookingSettings = () => {
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                                 Booking Rules
                             </h1>
-                            <p className="text-slate-600 text-sm mt-1">Configure global booking limits, cancellation policies, and consumption logic</p>
+                            <p className="text-slate-600 text-sm mt-1">Configure specific windows for classes and premium benefits</p>
                         </div>
                     </div>
                 </div>
@@ -68,78 +94,47 @@ const BookingSettings = () => {
             <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
                 <div className="p-8 sm:p-10 space-y-10">
 
-                    {/* Booking Limits */}
+                    {/* Class Rules */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                                <Shield size={20} />
+                                <Dumbbell size={20} />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800">Consumption Limits</h3>
+                            <h3 className="text-lg font-bold text-slate-800">Group Class Rules</h3>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Credits per Booking</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <CreditCard size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="creditsPerBooking"
-                                        value={settings.creditsPerBooking}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
-                                    />
-                                    <p className="text-xs text-slate-400 mt-2">Deducted from member wallet per session.</p>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Max Bookings / Daily</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <Calendar size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="maxBookingsPerDay"
-                                        value={settings.maxBookingsPerDay}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Max Bookings / Weekly</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <Calendar size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="maxBookingsPerWeek"
-                                        value={settings.maxBookingsPerWeek}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Advance Booking Window (Days)</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">Cancellation Window (Classes)</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                                         <Clock size={18} />
                                     </div>
                                     <input
                                         type="number"
-                                        name="advanceBookingDays"
-                                        value={settings.advanceBookingDays}
+                                        name="classCancellationWindow"
+                                        value={settings.classCancellationWindow}
                                         onChange={handleChange}
                                         className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
                                     />
+                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Hours Before</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">Advance Booking Window (Classes)</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <Calendar size={18} />
+                                    </div>
+                                    <input
+                                        type="number"
+                                        name="classAdvanceBookingDays"
+                                        value={settings.classAdvanceBookingDays}
+                                        onChange={handleChange}
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
+                                    />
+                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Days Out</span>
                                 </div>
                             </div>
                         </div>
@@ -147,34 +142,64 @@ const BookingSettings = () => {
 
                     <div className="border-t border-slate-100 my-8"></div>
 
-                    {/* Cancellation Policy */}
+                    {/* Benefit Rules */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
-                                <Ban size={20} />
+                                <Gift size={20} />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800">Cancellation Policy</h3>
+                            <h3 className="text-lg font-bold text-slate-800">Premium Benefit Rules (Sauna, PT, etc.)</h3>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-rose-50/50 p-6 rounded-2xl border border-rose-100">
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Cancellation Window</label>
-                                <div className="relative group mb-2">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">Cancellation Window (Benefits)</label>
+                                <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-rose-400">
                                         <Clock size={18} />
                                     </div>
                                     <input
                                         type="number"
-                                        name="cancellationWindow"
-                                        value={settings.cancellationWindow}
+                                        name="benefitCancellationWindow"
+                                        value={settings.benefitCancellationWindow}
                                         onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-rose-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 hover:border-rose-300 transition-all font-semibold"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-rose-100 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 hover:border-rose-200 transition-all font-semibold"
                                     />
-                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-rose-400 uppercase tracking-wider">Hours Before</span>
+                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-rose-400">Hours Before</span>
                                 </div>
-                                <p className="text-xs text-rose-600 font-medium">Members cannot cancel if session starts within this window.</p>
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-3">Advance Booking Window (Benefits)</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-rose-400">
+                                        <Calendar size={18} />
+                                    </div>
+                                    <input
+                                        type="number"
+                                        name="benefitAdvanceBookingDays"
+                                        value={settings.benefitAdvanceBookingDays}
+                                        onChange={handleChange}
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-rose-100 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 hover:border-rose-200 transition-all font-semibold"
+                                    />
+                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-rose-400">Days Out</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 my-8"></div>
+
+                    {/* Consumption & Penalties */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-slate-50 rounded-lg text-slate-600">
+                                <Shield size={20} />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-800">Consumption & Penalties</h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between">
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-sm font-bold text-slate-700">Late Cancellation Penalty</span>

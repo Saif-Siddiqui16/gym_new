@@ -28,13 +28,15 @@ import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import { fetchDashboardStats, fetchRecentActivities, fetchTrainerAvailability, fetchFinancialStats } from '../../../api/branchAdmin/branchAdminApi';
 
 const BranchManagerDashboard = () => {
-    const [stats, setStats] = useState(DASHBOARD_DATA.BRANCH_MANAGER.stats);
-    const [recentActivities, setRecentActivities] = useState(DASHBOARD_DATA.BRANCH_MANAGER.memberActivity); // Using mock as fallback/initial
-    const [trainers, setTrainers] = useState(DASHBOARD_DATA.BRANCH_MANAGER.trainerAvailability);
+    const [stats, setStats] = useState([]);
+    const [recentActivities, setRecentActivities] = useState([]);
+    const [trainers, setTrainers] = useState([]);
     const [financials, setFinancials] = useState({
         collection: { cash: 0, upi: 0, card: 0 },
         expenses: { today: 0 }
     });
+    const [equipment, setEquipment] = useState([]);
+    const [risks, setRisks] = useState({ defaulters: 0, expiringSoon: 0, manualOverrides: 0 });
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
@@ -54,13 +56,15 @@ const BranchManagerDashboard = () => {
                     ...stat,
                     icon: stat.icon === 'Users' ? Users :
                         stat.icon === 'CheckCircle' ? CheckCircle :
-                            stat.icon === 'DollarSign' ? DollarSign : Users
+                            stat.icon === 'DollarSign' ? IndianRupee : Users
                 }));
 
                 setStats(mappedStats);
                 setRecentActivities(activitiesData);
                 setTrainers(trainersData);
                 setFinancials(financialsData);
+                if (statsData.equipment) setEquipment(statsData.equipment);
+                if (statsData.risks) setRisks(statsData.risks);
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
                 // Fallback to mock data on error is handled by initial state
@@ -71,6 +75,17 @@ const BranchManagerDashboard = () => {
 
         loadDashboardData();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Synchronizing Branch Data...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-6">
@@ -149,7 +164,7 @@ const BranchManagerDashboard = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Defaulter Check-ins</p>
-                            <h4 className="text-2xl font-black text-slate-800">2 <span className="text-xs text-rose-500 font-bold ml-1">STOPPED</span></h4>
+                            <h4 className="text-2xl font-black text-slate-800">{risks.defaulters} <span className="text-xs text-rose-500 font-bold ml-1">STOPPED</span></h4>
                         </div>
                     </div>
 
@@ -160,7 +175,7 @@ const BranchManagerDashboard = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiring Soon</p>
-                            <h4 className="text-2xl font-black text-slate-800">5 <span className="text-xs text-amber-500 font-bold ml-1">NOTIFIED</span></h4>
+                            <h4 className="text-2xl font-black text-slate-800">{risks.expiringSoon} <span className="text-xs text-amber-500 font-bold ml-1">NOTIFIED</span></h4>
                         </div>
                     </div>
 
@@ -171,7 +186,7 @@ const BranchManagerDashboard = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Manual Overrides</p>
-                            <h4 className="text-2xl font-black text-slate-800">1 <span className="text-xs text-slate-500 font-bold ml-1">AUDITED</span></h4>
+                            <h4 className="text-2xl font-black text-slate-800">{risks.manualOverrides} <span className="text-xs text-slate-500 font-bold ml-1">AUDITED</span></h4>
                         </div>
                     </div>
                 </div>
@@ -182,7 +197,7 @@ const BranchManagerDashboard = () => {
             {/* Secondary Operations Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
                 {/* Facility Status */}
-                <FacilityStatusOverview equipment={EQUIPMENT_INVENTORY} />
+                <FacilityStatusOverview equipment={equipment} />
 
                 {/* Trainer Status */}
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-4 md:p-6 hover:shadow-2xl transition-all duration-300">
@@ -277,7 +292,7 @@ const BranchManagerDashboard = () => {
 
                     <div className="bg-slate-900 rounded-[24px] md:rounded-[32px] p-4 md:p-6 shadow-xl flex items-center gap-4 md:gap-5 group hover:scale-[1.02] transition-all text-white border-2 border-slate-800">
                         <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <DollarSign size={28} />
+                            <IndianRupee size={28} />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Net Revenue Today</p>

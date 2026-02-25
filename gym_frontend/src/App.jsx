@@ -149,6 +149,7 @@ import PettyCashPage from './modules/finance/pages/PettyCashPage';
 // Module: Facility Management
 import EquipmentListPage from './modules/operations/pages/EquipmentListPage';
 import MaintenanceRequestsPage from './modules/operations/pages/MaintenanceRequestsPage';
+import ServiceHistoryPage from './modules/operations/pages/ServiceHistoryPage';
 
 // Module: HR
 import Payroll from './modules/hr/pages/Payroll';
@@ -164,6 +165,11 @@ import BranchPerformanceReport from './pages/branchadmin/reports/BranchPerforman
 
 // Module: Branch Admin Branch Management
 import BranchList from './pages/branchadmin/branch-management/BranchList';
+
+// Module: Settings Expansion
+import WebhookSettings from './modules/settings/pages/WebhookSettings';
+import ApiKeySettings from './modules/settings/pages/ApiKeySettings';
+import MessageTemplates from './modules/settings/pages/MessageTemplates';
 
 import { ROLES } from './config/roles';
 import './styles/GlobalDesign.css';
@@ -250,6 +256,9 @@ export default function App() {
             <Route path="payment-gateway" element={<PaymentGateway />} />
             <Route path="security" element={<SecuritySettings role={currentRole} />} />
             <Route path="logs" element={<AuditLogs />} />
+            <Route path="webhooks" element={<WebhookSettings />} />
+            <Route path="api-keys" element={<ApiKeySettings />} />
+            <Route path="templates" element={<MessageTemplates />} />
           </Route>
         )}
 
@@ -272,7 +281,7 @@ export default function App() {
           <>
             <Route path="/facility/equipment" element={<EquipmentListPage />} />
             <Route path="/facility/maintenance" element={<MaintenanceRequestsPage />} />
-            <Route path="/facility/history" element={<EquipmentListPage />} /> {/* Reusing list for history placeholder */}
+            <Route path="/facility/history" element={<ServiceHistoryPage />} />
           </>
         )}
 
@@ -346,6 +355,7 @@ export default function App() {
         {/* MODULE: BRANCH ADMIN */}
         {currentRole === ROLES.BRANCH_ADMIN && (
           <>
+            <Route path="/branchadmin/store/inventory" element={<StoreInventory />} />
             <Route path="/branchadmin/members/list" element={<MemberList />} />
             <Route path="/branchadmin/bookings/calendar" element={<BookingCalendar />} />
             <Route path="/branchadmin/tasks/list" element={<TaskList />} />
@@ -357,8 +367,10 @@ export default function App() {
             <Route path="/branchadmin/reports/expenses" element={<ExpenseReport />} />
             <Route path="/branchadmin/reports/performance" element={<BranchPerformanceReport />} />
             <Route path="/branchadmin/branch-management/branches" element={<BranchList />} />
+            <Route path="/branchadmin/trainer-requests" element={<TrainerRequests role={currentRole} />} />
 
             {/* Reused Settings Routes */}
+
             <Route element={<SettingsLayout role={currentRole} />}>
               <Route path="/branchadmin/settings/general" element={<GeneralSettings />} />
               <Route path="/branchadmin/settings/hardware" element={<HardwareSettings />} />

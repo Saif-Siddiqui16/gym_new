@@ -15,7 +15,9 @@ const MyProfile = () => {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        password: '',
+        confirmPassword: ''
     });
 
     useEffect(() => {
@@ -45,9 +47,19 @@ const MyProfile = () => {
         setIsSaving(true);
         setMessage({ type: '', text: '' });
 
+        if (formData.password && formData.password !== formData.confirmPassword) {
+            setMessage({ type: 'error', text: 'Passwords do not match!' });
+            setIsSaving(false);
+            return;
+        }
+
         try {
             const updated = await updateMemberProfile(formData);
             setProfile(updated);
+
+            // clear password fields
+            setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
+
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
         } catch (error) {
             setMessage({ type: 'error', text: 'Failed to update profile.' });
@@ -434,9 +446,31 @@ const MyProfile = () => {
                                             <Lock size={20} /> Password Management
                                         </h4>
                                         <p className="text-red-800/70 text-sm font-medium">It's recommended to update your password every 90 days for maximum security.</p>
-                                        <button className="mt-6 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-red-200">
-                                            Change Password
-                                        </button>
+                                        <form onSubmit={handleSave} className="space-y-4">
+                                            <div>
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleInputChange}
+                                                    placeholder="New Password"
+                                                    className="w-full mt-4 px-4 py-3 bg-white border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-400 focus:outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type="password"
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Confirm New Password"
+                                                    className="w-full px-4 py-3 bg-white border border-red-200 rounded-xl text-sm focus:ring-2 focus:ring-red-400 focus:outline-none transition-all"
+                                                />
+                                            </div>
+                                            <button type="submit" disabled={isSaving || !formData.password} className="mt-4 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-red-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                                {isSaving ? 'Updating...' : 'Change Password'}
+                                            </button>
+                                        </form>
                                     </div>
 
                                     <div className="space-y-4">
@@ -447,8 +481,8 @@ const MyProfile = () => {
                                                     <p className="text-sm font-bold text-slate-900 group-hover:text-violet-700 transition-colors">Two-Factor Authentication</p>
                                                     <p className="text-xs text-slate-500 mt-1 font-medium">Add an extra layer of security to your account.</p>
                                                 </div>
-                                                <div className="relative w-12 h-6 bg-emerald-500 rounded-full shadow-inner transition-all group-hover:bg-emerald-400">
-                                                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                                                <div className="relative w-12 h-6 bg-slate-300 rounded-full shadow-inner transition-all hover:bg-slate-400">
+                                                    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all text-emerald-500"></div>
                                                 </div>
                                             </div>
                                         </div>

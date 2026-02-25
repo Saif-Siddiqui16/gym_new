@@ -43,7 +43,9 @@ import {
     Search,
     DollarSign,
     AlertCircle,
-    History
+    History,
+    Key,
+    Layout
 } from 'lucide-react';
 
 export const menuConfig = {
@@ -133,19 +135,31 @@ export const menuConfig = {
     [ROLES.BRANCH_ADMIN]: [
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         {
-            label: 'Branch Management',
-            icon: Building,
+            label: 'Admin & HR',
+            icon: Shield,
             children: [
-                { label: 'Branch List', path: '/branchadmin/branch-management/branches', icon: ClipboardList },
+                { label: 'Branch Management', path: '/branchadmin/branch-management/branches', icon: Building },
+                { label: 'Staff Management', path: '/hr/staff/management', icon: Users },
+                { label: 'Add Staff', path: '/hr/staff/create', icon: UserPlus },
+                { label: 'Trainer Requests', path: '/branchadmin/trainer-requests', icon: UserCheck },
+                { label: 'Payroll & Salaries', path: '/hr/payroll', icon: Banknote },
             ]
         },
         {
-            label: 'CRM & Sales',
+            label: 'Sales & CRM',
             icon: Search,
             children: [
                 { label: 'Walk-in Inquiry', path: '/crm/inquiry', icon: UserPlus },
                 { label: 'Leads Pipeline', path: '/crm/pipeline', icon: GitBranch },
                 { label: 'Today Follow-ups', path: '/crm/followups', icon: Clock },
+            ]
+        },
+        {
+            label: 'E-Commerce',
+            icon: ShoppingCart,
+            children: [
+                { label: 'POS Store', path: '/finance/pos', icon: ShoppingCart },
+                { label: 'Inventory', path: '/branchadmin/store/inventory', icon: Box },
             ]
         },
         {
@@ -177,28 +191,15 @@ export const menuConfig = {
             ]
         },
         {
-            label: 'Financials',
+            label: 'Finance',
             icon: Banknote,
             children: [
-                { label: 'POS Store', path: '/finance/pos', icon: ShoppingCart },
-                { label: 'Benefit Wallets', path: '/superadmin/wallet', icon: Wallet },
                 { label: 'Invoices', path: '/finance/invoices', icon: FileText },
                 { label: 'Expenses', path: '/finance/expenses', icon: Receipt },
                 { label: 'Cashier Mode', path: '/finance/cashier', icon: Receipt },
                 { label: 'Branch Transactions', path: '/finance/transactions', icon: History },
-                { label: 'Petty Cash / Expenses', path: '/finance/petty-cash', icon: Banknote },
-            ]
-        },
-        {
-            label: 'HR & Staff',
-            icon: Users,
-            children: [
-                { label: 'Staff List', path: '/hr/staff/management', icon: Users },
-                { label: 'Add Staff', path: '/hr/staff/create', icon: UserPlus },
-                { label: 'Leave Requests', path: '/hr/leave-requests', icon: Calendar },
-                { label: 'Trainer Requests', path: '/superadmin/trainer-requests', icon: UserCheck },
-                { label: 'Payroll Creation', path: '/superadmin/payroll/create', icon: Banknote },
-                { label: 'Payroll', path: '/hr/payroll', icon: Banknote },
+                { label: 'Petty Cash', path: '/finance/petty-cash', icon: Banknote },
+                { label: 'Benefit Wallets', path: '/superadmin/wallet', icon: Wallet },
             ]
         },
         {
@@ -214,7 +215,6 @@ export const menuConfig = {
                 { label: 'Booking Report', path: '/branchadmin/reports/booking', icon: Calendar },
             ]
         },
-
         {
             label: 'Settings',
             icon: Settings,
@@ -224,6 +224,9 @@ export const menuConfig = {
                 { label: 'Communication', path: '/branchadmin/settings/communication', icon: Megaphone },
                 { label: 'Payments', path: '/branchadmin/settings/payments', icon: CreditCard },
                 { label: 'Tax & Invoices', path: '/branchadmin/settings/invoice', icon: FileText },
+                { label: 'Webhooks', path: '/settings/webhooks', icon: Terminal },
+                { label: 'API Keys', path: '/settings/api-keys', icon: Key },
+                { label: 'Templates', path: '/settings/templates', icon: Layout },
             ]
         },
         {

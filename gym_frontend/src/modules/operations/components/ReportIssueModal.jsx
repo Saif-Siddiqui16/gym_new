@@ -16,7 +16,7 @@ const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6 p-6 pt-4">
             <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
                 <AlertCircle className="text-red-500 mt-1" size={20} />
                 <div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp } from 'lucide-react';
+import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
@@ -11,9 +11,30 @@ import FacilityStatusOverview from '../../operations/components/widgets/Facility
 import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import apiClient from '../../../api/apiClient';
 
+const INITIAL_MANAGER_DATA = {
+    stats: [
+        { id: 1, title: 'Active Members', value: '0', icon: Users, trend: '...', color: 'primary' },
+        { id: 2, title: 'Classes Today', value: '0', icon: Calendar, trend: '...', color: 'success' },
+        { id: 3, title: 'Payments Due', value: '0', icon: AlertCircle, trend: '...', color: 'warning' },
+    ],
+    attendance: [],
+    financials: {
+        collectionToday: 0,
+        pendingDuesAmount: 0,
+        localExpenses: 0
+    },
+    equipmentStats: {
+        totalAssets: 0,
+        operational: 0,
+        outOfOrder: 0
+    },
+    tasksAndNotices: []
+};
+
 const ManagerDashboard = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState(DASHBOARD_DATA.MANAGER);
+    const [data, setData] = useState(INITIAL_MANAGER_DATA);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -23,18 +44,38 @@ const ManagerDashboard = () => {
                 setData(prev => ({
                     ...prev,
                     stats: [
-                        { ...prev.stats[0], value: apiData.activeMembers.toString() },
-                        { ...prev.stats[1], value: apiData.classesToday.toString() },
-                        { ...prev.stats[2], value: apiData.paymentsDue.toString() }
+                        { ...prev.stats[0], value: apiData.activeMembers?.toString() || '0' },
+                        { ...prev.stats[1], value: apiData.classesToday?.toString() || '0' },
+                        { ...prev.stats[2], value: apiData.paymentsDue?.toString() || '0' }
                     ],
-                    attendance: apiData.attendance || prev.attendance
+                    attendance: apiData.attendance || prev.attendance,
+                    financials: {
+                        collectionToday: apiData.collectionToday || 0,
+                        pendingDuesAmount: apiData.pendingDuesAmount || 0,
+                        localExpenses: apiData.localExpenses || 0
+                    },
+                    equipmentStats: apiData.equipmentStats || { totalAssets: 0, operational: 0, outOfOrder: 0 },
+                    tasksAndNotices: apiData.tasksAndNotices || []
                 }));
             } catch (error) {
                 console.error('Failed to fetch manager dashboard:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchDashboardData();
     }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Accessing Manager Intelligence...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fade-in">
@@ -65,7 +106,7 @@ const ManagerDashboard = () => {
                             <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Today's Collection</p>
                             <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
                                 <span className="text-emerald-500 font-bold">₹</span>
-                                {KPIS.collection.today.toLocaleString()}
+                                {data.financials?.collectionToday.toLocaleString()}
                             </h4>
                             <div className="mt-2 flex items-center gap-2">
                                 <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-md flex items-center gap-1">
@@ -83,11 +124,11 @@ const ManagerDashboard = () => {
                             <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Pending Dues</p>
                             <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
                                 <span className="text-amber-500 font-bold">₹</span>
-                                {KPIS.dues.total.toLocaleString()}
+                                {data.financials?.pendingDuesAmount.toLocaleString()}
                             </h4>
                             <div className="mt-2 flex items-center gap-2">
                                 <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] font-black rounded-md">
-                                    {KPIS.dues.count} Members
+                                    {data.stats.find(s => s.title === 'Payments Due')?.value} Invoices
                                 </span>
                                 <button onClick={() => navigate('/finance/invoices')} className="text-[9px] font-black text-violet-600 underline">Send Reminders</button>
                             </div>
@@ -101,7 +142,7 @@ const ManagerDashboard = () => {
                             <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Local Expenses</p>
                             <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
                                 <span className="text-blue-500 font-bold">₹</span>
-                                {KPIS.expenses.today.toLocaleString()}
+                                {data.financials?.localExpenses.toLocaleString()}
                             </h4>
                             <div className="mt-2 flex items-center gap-2">
                                 <button
@@ -122,7 +163,7 @@ const ManagerDashboard = () => {
 
             {/* Facility Status Section */}
             <div className="mt-8">
-                <FacilityStatusOverview equipment={EQUIPMENT_INVENTORY} />
+                <FacilityStatusOverview equipmentStats={data.equipmentStats} />
             </div>
 
             {/* Today's Classes & Tasks Section */}
@@ -150,7 +191,7 @@ const ManagerDashboard = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={() => navigate('/manager/classes/schedule')}
+                                onClick={() => navigate('/classes')}
                                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-violet-500/50 hover:shadow-xl hover:shadow-violet-500/60 hover:scale-105 transition-all flex items-center gap-1.5 sm:gap-2 flex-shrink-0"
                             >
                                 View Schedule <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
@@ -212,6 +253,12 @@ const ManagerDashboard = () => {
                                     </div>
                                 );
                             })}
+
+                            {data.attendance.length === 0 && (
+                                <div className="p-4 text-center text-slate-500 font-semibold text-sm">
+                                    No classes scheduled today.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -239,70 +286,58 @@ const ManagerDashboard = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] sm:text-xs font-black shadow-lg shadow-red-500/50">
-                                    2 Pending
+                                    {data.tasksAndNotices.length} Pending
                                 </span>
                             </div>
                         </div>
 
                         <div className="space-y-3 sm:space-y-4">
-                            {/* Equipment Service Notice */}
-                            <div className="group/task relative p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-red-50 via-red-50/50 to-white border-l-4 border-red-500 hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                                {/* Animated Gradient Background */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-red-100/50 to-transparent opacity-0 group-hover/task:opacity-100 transition-opacity duration-300"></div>
+                            {data.tasksAndNotices.map((task) => {
+                                const isUrgent = task.type === 'urgent';
+                                const colorTheme = isUrgent
+                                    ? { bg: 'red', icon: AlertTriangle, txt: 'red', border: 'red-500' }
+                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'blue-500' };
 
-                                <div className="relative z-10 flex items-start gap-3 sm:gap-4">
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center text-white shadow-xl transition-all duration-300 group-hover/task:scale-110 group-hover/task:rotate-12">
-                                        <AlertTriangle size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-start justify-between mb-1.5 sm:mb-2">
-                                            <h4 className="font-black text-red-900 text-sm sm:text-base">Equipment Service Due</h4>
-                                            <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black shadow-lg">
-                                                Urgent
-                                            </span>
-                                        </div>
-                                        <p className="text-xs sm:text-sm text-red-800 font-semibold mb-2 sm:mb-3">Treadmill #4 needs maintenance by Friday.</p>
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/80 backdrop-blur-sm rounded-md sm:rounded-lg border border-red-200">
-                                                <Clock size={12} className="text-red-500 sm:w-[13px] sm:h-[13px]" />
-                                                <span className="text-[10px] sm:text-xs text-red-700 font-bold">Due: Friday</span>
+                                const IconComponent = colorTheme.icon;
+
+                                return (
+                                    <div key={task.id} className={`group/task relative p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-${colorTheme.bg}-50 via-${colorTheme.bg}-50/50 to-white border-l-4 border-${colorTheme.border} hover:shadow-2xl transition-all duration-300 overflow-hidden`}>
+                                        <div className={`absolute inset-0 bg-gradient-to-r from-${colorTheme.bg}-100/50 to-transparent opacity-0 group-hover/task:opacity-100 transition-opacity duration-300`}></div>
+
+                                        <div className="relative z-10 flex items-start gap-3 sm:gap-4">
+                                            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-${colorTheme.bg}-500 via-${colorTheme.bg}-600 to-${colorTheme.bg}-700 flex items-center justify-center text-white shadow-xl transition-all duration-300 group-hover/task:scale-110 group-hover/task:rotate-12`}>
+                                                <IconComponent size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-start justify-between mb-1.5 sm:mb-2">
+                                                    <h4 className={`font-black text-${colorTheme.txt}-900 text-sm sm:text-base`}>{task.title}</h4>
+                                                    <span className={`px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-${colorTheme.bg}-500 to-${colorTheme.bg}-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black shadow-lg uppercase`}>
+                                                        {isUrgent ? 'Urgent' : 'Notice'}
+                                                    </span>
+                                                </div>
+                                                <p className={`text-xs sm:text-sm text-${colorTheme.txt}-800 font-semibold mb-2 sm:mb-3`}>{task.description}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/80 backdrop-blur-sm rounded-md sm:rounded-lg border border-${colorTheme.bg}-200`}>
+                                                        <Clock size={12} className={`text-${colorTheme.txt}-500 sm:w-[13px] sm:h-[13px]`} />
+                                                        <span className={`text-[10px] sm:text-xs text-${colorTheme.txt}-700 font-bold`}>{task.dueDate}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                );
+                            })}
 
-                            {/* Staff Meeting Notice */}
-                            <div className="group/task relative p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-50 via-blue-50/50 to-white border-l-4 border-blue-500 hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                                {/* Animated Gradient Background */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 to-transparent opacity-0 group-hover/task:opacity-100 transition-opacity duration-300"></div>
-
-                                <div className="relative z-10 flex items-start gap-3 sm:gap-4">
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 flex items-center justify-center text-white shadow-xl transition-all duration-300 group-hover/task:scale-110 group-hover/task:rotate-12">
-                                        <Users size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-start justify-between mb-1.5 sm:mb-2">
-                                            <h4 className="font-black text-blue-900 text-sm sm:text-base">Staff Meeting</h4>
-                                            <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black shadow-lg">
-                                                Today
-                                            </span>
-                                        </div>
-                                        <p className="text-xs sm:text-sm text-blue-800 font-semibold mb-2 sm:mb-3">Monthly review meeting at 3 PM today.</p>
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/80 backdrop-blur-sm rounded-md sm:rounded-lg border border-blue-200">
-                                                <Clock size={12} className="text-blue-500 sm:w-[13px] sm:h-[13px]" />
-                                                <span className="text-[10px] sm:text-xs text-blue-700 font-bold">3:00 PM</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                            {data.tasksAndNotices.length === 0 && (
+                                <div className="p-4 text-center text-slate-500 font-semibold text-sm">
+                                    No pending tasks or notices.
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100">
                             <button
-                                onClick={() => navigate('/manager/tasks')}
+                                onClick={() => navigate('/facility/maintenance')}
                                 className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
                             >
                                 View All Tasks <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />

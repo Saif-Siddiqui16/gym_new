@@ -43,8 +43,11 @@ const LeadsPipeline = () => {
         let message = '';
 
         if (type === 'contact') {
-            newStatus = 'Contacted'; // Match schema enum (case sensitive?) Schema has "New", "Contacted", "Qualified", "Converted", "Lost"
+            newStatus = 'Contacted';
             message = 'Lead marked as contacted.';
+        } else if (type === 'qualify') {
+            newStatus = 'Qualified';
+            message = 'Lead marked as qualified.';
         } else if (type === 'convert') {
             newStatus = 'Converted';
             message = 'Lead converted to member successfully!';
@@ -161,7 +164,7 @@ const LeadsPipeline = () => {
                                             <div className="w-6 h-6 rounded-full border-2 border-white bg-violet-100 flex items-center justify-center text-[10px] font-bold text-violet-600">AV</div>
                                         </div>
                                         <div className="flex gap-2">
-                                            {lead.status !== 'not-interested' && (
+                                            {lead.status !== 'Lost' && (
                                                 <button
                                                     onClick={() => handleAction(lead.id, 'lost')}
                                                     className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all"
@@ -170,19 +173,29 @@ const LeadsPipeline = () => {
                                                     <XCircle size={14} />
                                                 </button>
                                             )}
-                                            {lead.status !== 'contacted' && lead.status !== 'converted' && lead.status !== 'not-interested' && (
+                                            {lead.status === 'New' && (
                                                 <button
                                                     onClick={() => handleAction(lead.id, 'contact')}
-                                                    className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-all"
+                                                    className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all"
                                                     title="Mark Contacted"
                                                 >
                                                     <Check size={14} />
                                                 </button>
                                             )}
-                                            {lead.status !== 'converted' && lead.status !== 'not-interested' && (
+                                            {lead.status === 'Contacted' && (
+                                                <button
+                                                    onClick={() => handleAction(lead.id, 'qualify')}
+                                                    className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-purple-50 hover:text-purple-600 transition-all"
+                                                    title="Mark Qualified"
+                                                >
+                                                    <Check size={14} />
+                                                </button>
+                                            )}
+                                            {lead.status !== 'Converted' && lead.status !== 'Lost' && (
                                                 <button
                                                     onClick={() => handleAction(lead.id, 'convert')}
                                                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 shadow-sm shadow-violet-100 hover:shadow-violet-200 hover:-translate-y-0.5 transition-all"
+                                                    title="Convert to Member"
                                                 >
                                                     <ArrowRight size={12} />
                                                     Convert

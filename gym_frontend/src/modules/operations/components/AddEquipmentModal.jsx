@@ -25,7 +25,7 @@ const AddEquipmentModal = ({ onClose, onAdd }) => {
     const labelClasses = "text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-1";
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5 p-1">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 pt-4">
             <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                     <label className={labelClasses}><Tag size={12} /> Equipment Name</label>

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Clock, ChevronRight, Phone, MessageCircle } from 'lucide-react';
-import { MEMBERSHIPS } from '../data/mockMemberships';
+import { fetchRenewalAlerts } from '../../../api/branchAdmin/branchAdminApi';
 
-const RenewalAlertsWidget = () => {
+const RenewalAlertsWidget = ({ alertsData }) => {
     const navigate = useNavigate();
+    const [data, setData] = useState({ expiringSoon: [], recentlyExpired: [] });
+    const [loading, setLoading] = useState(!alertsData);
     const today = new Date();
 
     const getDaysDiff = (dateStr) => {
@@ -13,18 +15,35 @@ const RenewalAlertsWidget = () => {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    // Logic: 
-    // Expiring Soon: 0 <= days <= 7
-    // Recently Expired: -15 <= days < 0
-    const expiringSoon = MEMBERSHIPS.filter(m => {
-        const days = getDaysDiff(m.endDate);
-        return days >= 0 && days <= 7 && m.status !== 'Expired';
-    }).slice(0, 5);
+    useEffect(() => {
+        if (alertsData) {
+            setData({
+                expiringSoon: alertsData.expiringSoon || [],
+                recentlyExpired: alertsData.recentlyExpired || []
+            });
+            setLoading(false);
+            return;
+        }
 
-    const recentlyExpired = MEMBERSHIPS.filter(m => {
-        const days = getDaysDiff(m.endDate);
-        return days < 0 && days >= -15;
-    }).slice(0, 5);
+        const loadAlerts = async () => {
+            try {
+                setLoading(true);
+                const response = await fetchRenewalAlerts();
+                setData({
+                    expiringSoon: response.expiringSoon || [],
+                    recentlyExpired: response.recentlyExpired || []
+                });
+            } catch (err) {
+                console.error("Failed to load renewal alerts", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAlerts();
+    }, [alertsData]);
+
+    const { expiringSoon, recentlyExpired } = data;
 
     return (
         <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-500">

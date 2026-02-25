@@ -61,7 +61,7 @@ const RightDrawer = ({
                     </div>
 
                     {/* Body */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto scrollbar-thin">
                         {children}
                     </div>
 

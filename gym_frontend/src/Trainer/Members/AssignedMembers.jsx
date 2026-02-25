@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, ShieldAlert, Clock, ClipboardList } from 'lucide-react';
+import { Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, ShieldAlert, Clock, ClipboardList, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAssignedMembers, flagMember } from '../../api/trainer/trainerApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
@@ -191,6 +191,7 @@ const AssignedMembers = () => {
                                                     }
                                                 >
                                                     <button onClick={() => { setSelectedMember(member); setIsProfileModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Eye size={14} /> Profile</button>
+                                                    <button onClick={() => navigate(`/progress?memberId=${member.id}`)} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><TrendingUp size={14} /> Progress</button>
                                                     <button onClick={() => { setSelectedMember(member); setIsChatModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><MessageSquare size={14} /> Chat</button>
                                                     <button onClick={() => { setSelectedMember(member); setIsAttendanceModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Calendar size={14} /> Attendance</button>
                                                     <div className="h-px bg-slate-100 my-1 mx-2" />
@@ -237,6 +238,15 @@ const AssignedMembers = () => {
                                                 </button>
                                             }
                                         >
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/progress?memberId=${member.id}`);
+                                                }}
+                                                className="w-full px-4 py-3 text-left text-xs font-black text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
+                                            >
+                                                <TrendingUp size={16} className="text-violet-500" /> Member Progress
+                                            </button>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();

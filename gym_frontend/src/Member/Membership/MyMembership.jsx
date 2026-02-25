@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CreditCard, CheckCircle2, Star, ShieldCheck, Zap, ArrowRight, Loader, PauseCircle, Play, Clock, History, User, CalendarDays } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
 import { upgradePlan, cancelMembership, getMembershipDetails, getServiceRequests, addServiceRequest } from '../../api/member/memberApi';
@@ -129,9 +129,9 @@ const MyMembership = () => {
                             </div>
                             <div className="text-right space-y-1">
                                 <p className="text-[10px] font-bold text-violet-200 uppercase tracking-widest">Next Billing</p>
-                                <p className="text-2xl font-black text-white">Oct 10, 2024</p>
+                                <p className="text-2xl font-black text-white">{membershipDetails.expiryDate || 'N/A'}</p>
                                 <p className="text-white/80 font-bold text-sm">
-                                    {currentPlan === 'Gold Plan' ? '₹4,999 / month' : '₹2,499 / month'}
+                                    ₹{membershipDetails.price?.toLocaleString()} / month
                                 </p>
                             </div>
                         </div>
@@ -139,7 +139,7 @@ const MyMembership = () => {
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
                             <BenefitItem icon={CheckCircle2} label="24/7 Gym Access" dark />
                             <BenefitItem icon={CheckCircle2} label="Locker Facility" dark />
-                            <BenefitItem icon={CheckCircle2} label={currentPlan === 'Gold Plan' ? "Unlimited Classes" : "2 Group Classes"} dark />
+                            <BenefitItem icon={CheckCircle2} label={currentPlan.includes('Gold') ? "Unlimited Classes" : "Standard Classes"} dark />
                         </div>
 
                         <div className="mt-12 flex flex-wrap gap-4">

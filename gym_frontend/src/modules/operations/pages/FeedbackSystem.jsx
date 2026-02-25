@@ -14,6 +14,8 @@ const FeedbackSystem = ({ role = 'ADMIN' }) => {
     const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [replyingTo, setReplyingTo] = useState(null);
+    const [replyText, setReplyText] = useState('');
 
     const [REVIEWS, setReviews] = useState([]);
 
@@ -32,11 +34,24 @@ const FeedbackSystem = ({ role = 'ADMIN' }) => {
                 rating: f.rating,
                 date: f.date,
                 text: f.comment,
-                source: 'App'
+                source: 'App',
+                status: f.status
             }));
             setReviews(formatted);
         } catch (error) {
             toast.error('Failed to load feedback');
+        }
+    };
+
+    const handleResolve = async (id) => {
+        try {
+            await feedbackApi.updateFeedbackStatus(id, 'Resolved');
+            toast.success('Feedback marked as resolved');
+            loadFeedback();
+            setReplyingTo(null);
+            setReplyText('');
+        } catch (error) {
+            toast.error('Failed to resolve feedback');
         }
     };
 
@@ -298,26 +313,62 @@ const FeedbackSystem = ({ role = 'ADMIN' }) => {
                                             {[...Array(review.rating)].map((_, i) => <Star key={i} size={18} fill="currentColor" strokeWidth={0} />)}
                                             {[...Array(5 - review.rating)].map((_, i) => <Star key={i} size={18} className="text-slate-200" fill="currentColor" strokeWidth={0} />)}
                                         </div>
-                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border ${review.source === 'Google' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
-                                            {review.source === 'Google' && <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" className="w-3 h-3" />}
-                                            {review.source}
-                                        </span>
+                                        <div className="flex gap-2">
+                                            {review.status === 'Resolved' && (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-600 border-emerald-100">
+                                                    Resolved
+                                                </span>
+                                            )}
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border ${review.source === 'Google' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                                                {review.source === 'Google' && <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" className="w-3 h-3" />}
+                                                {review.source}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <p className="text-slate-600 font-medium leading-relaxed mb-4 italic">
                                         "{review.text}"
                                     </p>
 
-                                    <div className="flex gap-4 pt-4 border-t border-slate-50">
-                                        <button className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-violet-600 transition-colors group/btn">
-                                            <MessageSquare size={14} className="group-hover/btn:scale-110 transition-transform" />
-                                            Reply
-                                        </button>
-                                        <button className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-emerald-600 transition-colors group/btn">
-                                            <ThumbsUp size={14} className="group-hover/btn:scale-110 transition-transform" />
-                                            Helpful
-                                        </button>
-                                    </div>
+                                    {replyingTo === review.id ? (
+                                        <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <textarea
+                                                rows="3"
+                                                value={replyText}
+                                                onChange={(e) => setReplyText(e.target.value)}
+                                                placeholder="Type your reply here to resolve this feedback..."
+                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all resize-none"
+                                                autoFocus
+                                            />
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleResolve(review.id)}
+                                                    className="px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-lg hover:bg-violet-700 transition-all shadow-sm flex items-center gap-2"
+                                                >
+                                                    <MessageSquare size={14} /> Send & Resolve
+                                                </button>
+                                                <button
+                                                    onClick={() => { setReplyingTo(null); setReplyText(''); }}
+                                                    className="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-all"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex gap-4 pt-4 border-t border-slate-50">
+                                            {review.status !== 'Resolved' && (
+                                                <button onClick={() => setReplyingTo(review.id)} className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-violet-600 transition-colors group/btn">
+                                                    <MessageSquare size={14} className="group-hover/btn:scale-110 transition-transform" />
+                                                    Reply & Resolve
+                                                </button>
+                                            )}
+                                            <button className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-emerald-600 transition-colors group/btn">
+                                                <ThumbsUp size={14} className="group-hover/btn:scale-110 transition-transform" />
+                                                Helpful
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

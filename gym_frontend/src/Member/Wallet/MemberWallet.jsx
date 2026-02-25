@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet, History, CreditCard, Plus, ArrowUpRight, ArrowDownLeft, Star, X, Loader, FileText, Download, AlertCircle, Calendar, Receipt } from 'lucide-react';
+import { Wallet, History, CreditCard, Plus, ArrowUpRight, ArrowDownLeft, Star, X, Loader, FileText, Download, AlertCircle, Calendar, Receipt, Trash2 } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
-import { fetchWalletTransactions, addWalletCredit, getWalletBalance, getSavedCards, addSavedCard } from '../../api/member/memberApi';
+import { fetchWalletTransactions, addWalletCredit, getWalletBalance, getSavedCards, addSavedCard, deleteSavedCard, getRewardCatalog, redeemReward } from '../../api/member/memberApi';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
 import Button from '../../components/ui/Button';
@@ -18,11 +20,15 @@ const MemberWallet = () => {
     const [amount, setAmount] = useState('');
     const [loading, setLoading] = useState(false);
     const [walletBalance, setWalletBalance] = useState(0);
+    const [addedThisMonth, setAddedThisMonth] = useState(0);
+    const [loyaltyPts, setLoyaltyPts] = useState(0);
+    const [classCredits, setClassCredits] = useState(0);
     const [activeTab, setActiveTab] = useState('transactions');
 
     const [invoices, setInvoices] = useState([]);
 
     // New Card State
+    const [rewardCatalog, setRewardCatalog] = useState([]);
     const [savedCards, setSavedCards] = useState([]);
     const [showAddCardForm, setShowAddCardForm] = useState(false);
     const [newCard, setNewCard] = useState({ name: '', number: '', expiry: '' });
@@ -44,9 +50,15 @@ const MemberWallet = () => {
         try {
             const balanceResponse = await getWalletBalance();
             setWalletBalance(balanceResponse?.balance || 0);
+            setAddedThisMonth(balanceResponse?.addedThisMonth || 0);
+            setLoyaltyPts(balanceResponse?.loyaltyPts || 0);
+            setClassCredits(balanceResponse?.credits || 0);
 
             const cardsResponse = await getSavedCards();
             setSavedCards(cardsResponse || []);
+
+            const catalogResponse = await getRewardCatalog();
+            setRewardCatalog(catalogResponse || []);
         } catch (error) {
             console.error('Failed to load wallet details:', error);
         }
@@ -58,7 +70,7 @@ const MemberWallet = () => {
         try {
             const addedAmount = parseFloat(amount);
             await addWalletCredit(addedAmount);
-            setWalletBalance(prev => prev + addedAmount);
+            await loadWalletDetails();
             await loadTransactions();
             setIsAddOpen(false);
             setAmount('');
@@ -73,10 +85,42 @@ const MemberWallet = () => {
 
     const handleDownloadStatement = async () => {
         setIsDownloading(true);
-        // Simulate PDF generation/fetching
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsDownloading(false);
-        alert('Statement PDF downloaded successfully!');
+        try {
+            const doc = new jsPDF();
+
+            // Header Content
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text("Benefit Wallet Statement", 14, 22);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+            doc.text(`Available Balance: INR ${walletBalance}`, 14, 35);
+
+            const tableData = transactions.map(t => [
+                t.date,
+                t.title,
+                t.type === 'income' ? 'Credit' : 'Debit',
+                (t.type === 'income' ? '+' : '-') + ' INR ' + t.amount.toLocaleString()
+            ]);
+
+            autoTable(doc, {
+                startY: 45,
+                head: [['Date', 'Description', 'Type', 'Amount']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [139, 92, 246] }, // Violet-600
+                styles: { fontSize: 9, cellPadding: 3 }
+            });
+
+            doc.save(`Wallet_Statement_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate statement.');
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleSaveCard = async (e) => {
@@ -101,6 +145,38 @@ const MemberWallet = () => {
         } catch (error) {
             console.error('Failed to save card:', error);
             alert('Failed to save card');
+        }
+    };
+
+    const handleDeleteCard = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this card?")) return;
+        try {
+            await deleteSavedCard(id);
+            setSavedCards(savedCards.filter(c => c.id !== id));
+        } catch (error) {
+            console.error('Failed to delete card:', error);
+            alert('Failed to delete card');
+        }
+    };
+
+    const handleRedeem = async (catalogId, pointsCost, itemName) => {
+        if (loyaltyPts < pointsCost) {
+            alert('Insufficient loyalty points to redeem this item.');
+            return;
+        }
+        if (!window.confirm(`Redeem ${itemName} for ${pointsCost} points?`)) return;
+
+        setLoading(true);
+        try {
+            const data = await redeemReward(catalogId);
+            setLoyaltyPts(data.remainingPoints);
+            await loadTransactions();
+            alert('Reward redeemed successfully!');
+        } catch (error) {
+            console.error('Failed to redeem reward:', error);
+            alert(typeof error === 'string' ? error : 'Failed to redeem reward');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -146,17 +222,17 @@ const MemberWallet = () => {
                                         <span className="text-2xl text-indigo-400 font-bold">₹</span> {walletBalance.toLocaleString()}
                                     </h2>
                                     <p className="text-slate-400 text-xs font-bold mt-2 flex items-center gap-1">
-                                        <Plus size={14} className="text-green-400" /> ₹240 added this month
+                                        <Plus size={14} className="text-green-400" /> ₹{addedThisMonth.toLocaleString()} added this month
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4 pt-4">
                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
                                         <p className="text-[10px] uppercase font-bold text-slate-500">Loyalty Pts</p>
-                                        <p className="text-lg font-black text-indigo-300">450</p>
+                                        <p className="text-lg font-black text-indigo-300">{loyaltyPts}</p>
                                     </div>
                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
                                         <p className="text-[10px] uppercase font-bold text-slate-500">Credits</p>
-                                        <p className="text-lg font-black text-indigo-300">12</p>
+                                        <p className="text-lg font-black text-indigo-300">{classCredits}</p>
                                     </div>
                                 </div>
                             </div>
@@ -311,12 +387,12 @@ const MemberWallet = () => {
                                 <p className="text-xs font-bold text-slate-400">Monthly Summary</p>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs text-slate-500 font-bold">Total Credits</span>
-                                        <span className="text-lg font-black text-green-400">+₹4,500</span>
+                                        <span className="text-xs text-slate-500 font-bold">Total Added</span>
+                                        <span className="text-lg font-black text-green-400">+₹{addedThisMonth.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm font-bold">
-                                        <span className="text-xs text-slate-500 font-bold">Total Spent</span>
-                                        <span className="text-lg font-black text-red-400">-₹2,100</span>
+                                        <span className="text-xs text-slate-500 font-bold">Available</span>
+                                        <span className="text-lg font-black text-indigo-400">₹{walletBalance.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -458,11 +534,16 @@ const MemberWallet = () => {
                                                 <p className="text-[11px] font-bold text-gray-400">•••• •••• {card.number}</p>
                                             </div>
                                         </div>
-                                        {index === 0 && (
-                                            <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-200">
-                                                <Star size={12} className="text-white fill-white" />
-                                            </div>
-                                        )}
+                                        <div className="flex items-center gap-3">
+                                            {index === 0 && (
+                                                <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                                                    <Star size={12} className="text-white fill-white" />
+                                                </div>
+                                            )}
+                                            <button onClick={() => handleDeleteCard(card.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -557,30 +638,25 @@ const MemberWallet = () => {
                     <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">Total Available</p>
                         <h2 className="text-4xl font-black flex items-center gap-2">
-                            450 <Star className="fill-white" size={24} />
+                            {loyaltyPts} <Star className="fill-white" size={24} />
                         </h2>
                     </div>
 
                     <div className="p-8 space-y-6 flex-1 overflow-y-auto">
-                        <RewardCard
-                            points="200"
-                            title="Free Guest Pass"
-                            description="Bring a friend for a single workout session."
-                            onRedeem={() => alert("Guest Pass redeemed!")}
-                        />
-                        <RewardCard
-                            points="350"
-                            title="Protein Shake"
-                            description="Get one whey protein shake at the juice bar."
-                            onRedeem={() => alert("Protein Shake voucher redeemed!")}
-                        />
-                        <RewardCard
-                            points="500"
-                            title="10% Membership Discount"
-                            description="Apply 10% off on your next monthly bill."
-                            disabled={true}
-                            onRedeem={() => { }}
-                        />
+                        {rewardCatalog.length === 0 ? (
+                            <p className="text-center text-xs font-bold text-gray-400">Loading rewards store...</p>
+                        ) : (
+                            rewardCatalog.map((item) => (
+                                <RewardCard
+                                    key={item.id}
+                                    points={item.points}
+                                    title={item.name}
+                                    description={item.description}
+                                    disabled={loyaltyPts < item.points || loading}
+                                    onRedeem={() => handleRedeem(item.id, item.points, item.name)}
+                                />
+                            ))
+                        )}
                     </div>
 
                     <div className="p-8 bg-gray-50 border-t border-gray-100 italic text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest">
