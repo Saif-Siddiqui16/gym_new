@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, ShieldAlert, Clock, ClipboardList, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getAssignedMembers, flagMember } from '../../api/trainer/trainerApi';
+import { getAssignedMembers, flagMember, getMemberMessages, sendMemberMessage } from '../../api/trainer/trainerApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
 import ActionDropdown from '../../components/common/ActionDropdown';
@@ -23,6 +23,8 @@ const AssignedMembers = () => {
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [chatMessage, setChatMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
     // activeDropdown removed
 
     // New Action States
@@ -48,6 +50,31 @@ const AssignedMembers = () => {
         setMembers(result?.data || []);
         setTotalItems(result?.total || 0);
         setLoading(false);
+    };
+
+    const handleOpenChat = async (member) => {
+        setSelectedMember(member);
+        setIsChatModalOpen(true);
+        setIsMessagesLoading(true);
+        try {
+            const data = await getMemberMessages(member.id);
+            setMessages(data || []);
+        } catch (error) {
+            console.error('Failed to load messages', error);
+        } finally {
+            setIsMessagesLoading(false);
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!chatMessage.trim() || !selectedMember) return;
+        try {
+            const newMessage = await sendMemberMessage(selectedMember.id, chatMessage);
+            setMessages(prev => [...prev, newMessage]);
+            setChatMessage('');
+        } catch (error) {
+            console.error('Failed to send message', error);
+        }
     };
 
     const handleSearch = (e) => {
@@ -148,13 +175,19 @@ const AssignedMembers = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                                                    <ClipboardList size={14} />
+                                            <div className="flex flex-col gap-1.5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                                                        <ClipboardList size={14} />
+                                                    </div>
+                                                    <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate max-w-[150px]">
+                                                        {member.plan || 'No Active Plan'}
+                                                    </span>
                                                 </div>
-                                                <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate max-w-[150px]">
-                                                    {member.plan || 'No Active Plan'}
-                                                </span>
+                                                <div className="flex items-center gap-1 mt-0.5">
+                                                    {member.activeDietPlan && <span className="text-[9px] font-black uppercase tracking-widest bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded border border-violet-100 truncate max-w-[80px]">Diet: {member.activeDietPlan.name}</span>}
+                                                    {member.activeWorkoutPlan && <span className="text-[9px] font-black uppercase tracking-widest bg-fuchsia-50 text-fuchsia-600 px-1.5 py-0.5 rounded border border-fuchsia-100 truncate max-w-[80px]">W.O: {member.activeWorkoutPlan.name}</span>}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -189,7 +222,7 @@ const AssignedMembers = () => {
                                                 >
                                                     <button onClick={() => { setSelectedMember(member); setIsProfileModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Eye size={14} /> Profile</button>
                                                     <button onClick={() => navigate(`/progress?memberId=${member.id}`)} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><TrendingUp size={14} /> Progress</button>
-                                                    <button onClick={() => { setSelectedMember(member); setIsChatModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><MessageSquare size={14} /> Chat</button>
+                                                    <button onClick={() => handleOpenChat(member)} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><MessageSquare size={14} /> Chat</button>
                                                     <button onClick={() => { setSelectedMember(member); setIsAttendanceModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Calendar size={14} /> Attendance</button>
                                                     <div className="h-px bg-slate-100 my-1 mx-2" />
                                                     <button onClick={() => { setSelectedMember(member); setIsFlagModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-rose-600 hover:bg-rose-50 flex items-center gap-2 uppercase tracking-widest"><ShieldAlert size={14} /> Flag</button>
@@ -286,9 +319,16 @@ const AssignedMembers = () => {
                                                 <p className="text-[10px] text-emerald-500 font-black bg-emerald-50 px-1.5 py-0.5 rounded-md">↑ 2%</p>
                                             </div>
                                         </div>
-                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Active Plan</p>
-                                            <p className="text-sm font-black text-slate-700 truncate">{member.plan}</p>
+                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500 overflow-hidden">
+                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Protocols</p>
+                                            <div className="flex flex-col gap-1">
+                                                {member.activeDietPlan || member.activeWorkoutPlan ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        {member.activeDietPlan && <span className="text-[9px] font-black uppercase tracking-widest bg-violet-50 text-violet-600 px-1.5 py-0.5 rounded border border-violet-100 truncate max-w-[120px]">Diet: {member.activeDietPlan.name}</span>}
+                                                        {member.activeWorkoutPlan && <span className="text-[9px] font-black uppercase tracking-widest bg-fuchsia-50 text-fuchsia-600 px-1.5 py-0.5 rounded border border-fuchsia-100 truncate max-w-[120px]">W.O: {member.activeWorkoutPlan.name}</span>}
+                                                    </div>
+                                                ) : <span className="text-sm font-black text-slate-400 truncate">None Assigned</span>}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -306,10 +346,7 @@ const AssignedMembers = () => {
                                 <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col gap-3 rounded-b-3xl">
                                     <div className="flex gap-3">
                                         <button
-                                            onClick={() => {
-                                                setSelectedMember(member);
-                                                setIsChatModalOpen(true);
-                                            }}
+                                            onClick={() => handleOpenChat(member)}
                                             className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-white hover:border-indigo-100 hover:text-indigo-600 hover:shadow-xl hover:shadow-indigo-50 transition-all active:scale-95"
                                         >
                                             <MessageSquare size={16} />
@@ -347,45 +384,48 @@ const AssignedMembers = () => {
                     <h3 className="text-xl font-bold text-gray-800">No members found</h3>
                     <p className="text-gray-500 mt-2">Try adjusting your filters or search term.</p>
                 </div>
-            )}
+            )
+            }
 
             {/* Pagination */}
-            {!loading && totalItems > 0 && (
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500">
-                            Showing <span className="font-bold text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="font-bold text-gray-900">{totalItems}</span> members
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-                        <div className="flex gap-1">
-                            {Array.from({ length: Math.ceil(totalItems / itemsPerPage) }, (_, i) => i + 1).map(page => (
-                                <button
-                                    key={page}
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    {page}
-                                </button>
-                            ))}
+            {
+                !loading && totalItems > 0 && (
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm text-gray-500">
+                                Showing <span className="font-bold text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="font-bold text-gray-900">{totalItems}</span> members
+                            </span>
                         </div>
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
-                            disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
-                            className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: Math.ceil(totalItems / itemsPerPage) }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
+                                disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
+                                className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Premium Chat Modal */}
             <RightDrawer
@@ -402,11 +442,12 @@ const AssignedMembers = () => {
                             className="flex-1 px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                             value={chatMessage}
                             onChange={(e) => setChatMessage(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && setChatMessage('')}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                         />
                         <button
-                            onClick={() => setChatMessage('')}
-                            className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 active:scale-90 transition-all shadow-lg shadow-blue-200"
+                            onClick={handleSendMessage}
+                            disabled={!chatMessage.trim()}
+                            className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:active:scale-100 active:scale-90 transition-all shadow-lg shadow-blue-200"
                         >
                             <Send size={18} />
                         </button>
@@ -415,23 +456,29 @@ const AssignedMembers = () => {
             >
                 {selectedMember && (
                     <div className="flex flex-col h-full">
-                        {/* Chat Body (Simulated) */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-gray-50/30">
-                            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm max-w-[85%] self-start">
-                                <p className="text-sm text-gray-700">Hello! I noticed you missed your session yesterday. Is everything okay with your training?</p>
-                                <span className="text-[10px] font-bold text-gray-400 mt-2 block">10:30 AM</span>
-                            </div>
-
-                            <div className="bg-blue-600 p-4 rounded-2xl rounded-tr-none text-white shadow-lg shadow-blue-200 max-w-[85%] self-endml-auto">
-                                <p className="text-sm font-medium">Just checking in to keep you on track!</p>
-                                <span className="text-[10px] font-bold text-blue-100 mt-2 block">10:31 AM</span>
-                            </div>
-
-                            <div className="mt-auto flex justify-center pt-4">
-                                <div className="px-3 py-1 bg-gray-200/50 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    Today
+                            {isMessagesLoading ? (
+                                <div className="flex justify-center py-10">
+                                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                                 </div>
-                            </div>
+                            ) : messages.length > 0 ? (
+                                messages.map((msgAction, idx) => {
+                                    const isTrainer = msgAction.senderType === 'TRAINER';
+                                    return (
+                                        <div key={idx} className={`${isTrainer ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-200 self-end ml-auto' : 'bg-white text-gray-700 rounded-tl-none border-gray-100 self-start'} p-4 rounded-2xl shadow-sm max-w-[85%]`}>
+                                            <p className={`text-sm ${isTrainer ? 'font-medium' : ''}`}>{msgAction.content}</p>
+                                            <span className={`text-[10px] font-bold mt-2 block ${isTrainer ? 'text-blue-100' : 'text-gray-400'}`}>
+                                                {new Date(msgAction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="text-center py-10">
+                                    <MessageSquare size={32} className="mx-auto text-gray-300 mb-3" />
+                                    <p className="text-sm font-medium text-gray-500">No messages yet. Start the conversation!</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -542,7 +589,7 @@ const AssignedMembers = () => {
                 memberName={selectedMember?.name}
                 memberId={selectedMember?.id}
             />
-        </div>
+        </div >
     );
 };
 

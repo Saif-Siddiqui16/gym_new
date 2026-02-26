@@ -18,8 +18,11 @@ const MyProfile = () => {
         email: '',
         phone: '',
         address: '',
-        avatar: ''
+        avatar: '',
+        config: {}
     });
+
+    const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
 
     useEffect(() => {
         loadProfile();
@@ -35,7 +38,8 @@ const MyProfile = () => {
                 email: data.email,
                 phone: data.phone,
                 address: data.address || '',
-                avatar: data.avatar || ''
+                avatar: data.avatar || '',
+                config: data.config || {}
             });
         } catch (error) {
             console.error("Load Profile Error:", error);
@@ -47,6 +51,17 @@ const MyProfile = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const toggleSecuritySwitch = async (key) => {
+        const newConfig = { ...formData.config, [key]: !formData.config[key] };
+        setFormData(prev => ({ ...prev, config: newConfig }));
+        try {
+            await updateTrainerProfile({ ...formData, config: newConfig });
+            setMessage({ type: 'success', text: `${key.charAt(0).toUpperCase() + key.slice(1).replace(/[A-Z]/g, ' $&')} updated successfully.` });
+        } catch (error) {
+            setMessage({ type: 'error', text: 'Failed to update security setting.' });
+        }
     };
 
     const handleAvatarChange = (e) => {
@@ -78,10 +93,18 @@ const MyProfile = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
+        setMessage({ type: '', text: '' });
+
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("Passwords don't match!");
+            setMessage({ type: 'error', text: "New passwords do not match!" });
             return;
         }
+
+        if (passwordData.newPassword.length < 6) {
+            setMessage({ type: 'error', text: "Password must be at least 6 characters." });
+            return;
+        }
+
         setIsSaving(true);
         try {
             await changeTrainerPassword({
@@ -90,9 +113,9 @@ const MyProfile = () => {
             });
             setShowPasswordModal(false);
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-            alert("Password updated successfully!");
+            setMessage({ type: 'success', text: 'Password encrypted and updated successfully.' });
         } catch (error) {
-            alert(error || "Failed to update password");
+            setMessage({ type: 'error', text: error || "Failed to update password. Please check your current key." });
         } finally {
             setIsSaving(false);
         }
@@ -128,7 +151,6 @@ const MyProfile = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-8">
             <div className="max-w-6xl mx-auto space-y-8">
-
                 {/* Profile Header Card */}
                 <div className="relative bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden animate-in fade-in duration-700">
                     <div className="h-40 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 relative overflow-hidden">
@@ -214,19 +236,15 @@ const MyProfile = () => {
                                     <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-emerald-200/50' : 'bg-red-200/50'}`}>
                                         {message.type === 'success' ? <CheckCircle2 size={20} /> : <Shield size={20} />}
                                     </div>
-                                    {message.text}
+                                    <div className="flex-1">{message.text}</div>
+                                    <button onClick={() => setMessage({ type: '', text: '' })} className="text-current opacity-40 hover:opacity-100">
+                                        <X size={16} />
+                                    </button>
                                 </div>
                             )}
 
                             {activeTab === 'personal' && (
                                 <form onSubmit={handleSave} className="space-y-10 relative">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">Professional Dossier</h3>
-                                            <p className="text-slate-500 font-bold mt-2">Update your public identity and contact gateways</p>
-                                        </div>
-                                    </div>
-
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {[
                                             { label: 'Display Name', name: 'name', type: 'text', icon: User, placeholder: 'Test Trainer' },
@@ -294,37 +312,81 @@ const MyProfile = () => {
                                         <div className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/30 transition-all duration-300 group/secure">
                                             <div className="flex items-center justify-between mb-6">
                                                 <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl group-hover/secure:scale-110 transition-transform"><Shield size={24} /></div>
-                                                <div className="relative w-14 h-8 bg-emerald-500 rounded-full shadow-inner p-1 cursor-pointer">
-                                                    <div className="absolute right-1 w-6 h-6 bg-white rounded-full shadow-sm"></div>
+                                                <div
+                                                    onClick={() => toggleSecuritySwitch('biometricBridge')}
+                                                    className={`relative w-14 h-8 rounded-full shadow-inner p-1 cursor-pointer transition-colors duration-300 ${formData.config.biometricBridge ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                                                >
+                                                    <div className={`w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.config.biometricBridge ? 'translate-x-6' : 'translate-x-0'}`}></div>
                                                 </div>
                                             </div>
                                             <h5 className="text-lg font-black text-slate-900 mb-2">Biometric Bridge</h5>
-                                            <p className="text-slate-400 text-sm font-bold">Enabled via local security subsystem (FaceID/Fingerprint)</p>
+                                            <p className="text-slate-400 text-sm font-bold">Enable local security subsystem (FaceID/Fingerprint)</p>
                                         </div>
 
                                         <div className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/30 transition-all duration-300 group/secure">
                                             <div className="flex items-center justify-between mb-6">
                                                 <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl group-hover/secure:scale-110 transition-transform"><Bell size={24} /></div>
-                                                <div className="relative w-14 h-8 bg-slate-200 rounded-full shadow-inner p-1 cursor-pointer">
-                                                    <div className="absolute left-1 w-6 h-6 bg-white rounded-full shadow-sm"></div>
+                                                <div
+                                                    onClick={() => toggleSecuritySwitch('loginAlerts')}
+                                                    className={`relative w-14 h-8 rounded-full shadow-inner p-1 cursor-pointer transition-colors duration-300 ${formData.config.loginAlerts ? 'bg-blue-500' : 'bg-slate-200'}`}
+                                                >
+                                                    <div className={`w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.config.loginAlerts ? 'translate-x-6' : 'translate-x-0'}`}></div>
                                                 </div>
                                             </div>
                                             <h5 className="text-lg font-black text-slate-900 mb-2">Login Alerts</h5>
-                                            <p className="text-slate-400 text-sm font-bold">Receive instant signals for new session initiations</p>
+                                            <p className="text-slate-400 text-sm font-bold">Receive signals for new session initiations</p>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'notifications' && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in-95 duration-500">
-                                    <div className="w-32 h-32 bg-violet-50 rounded-[2.5rem] flex items-center justify-center text-violet-600 mb-8 shadow-inner ring-4 ring-white relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-violet-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                                        <Bell size={64} className="group-hover:rotate-12 transition-transform duration-500" />
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 mb-8">
+                                        <h4 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
+                                            <div className="p-2 bg-violet-600 text-white rounded-xl"><Bell size={20} /></div> Signal Preferences
+                                        </h4>
+                                        <p className="text-slate-500 font-bold">Configure how you receive system-wide intelligence and member updates.</p>
                                     </div>
-                                    <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Signal Matrix</h3>
-                                    <p className="text-slate-400 max-w-sm font-bold text-lg leading-relaxed">Customize your cognitive load by filtering system-wide notifications and alerts.</p>
-                                    <button className="mt-10 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-slate-800 transition-all">Establish Protocols</button>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {[
+                                            { id: 'memberAlerts', label: 'Member Assignments', desc: 'Alerts when new members are assigned to your roster', icon: User, color: 'emerald' },
+                                            { id: 'messageAlerts', label: 'Direct Messages', desc: 'Secure signals for new member communications', icon: Mail, color: 'blue' },
+                                            { id: 'classReminders', label: 'Class Protocols', desc: 'Reminders for your upcoming scheduled classes', icon: Calendar, color: 'amber' },
+                                            { id: 'earningsPulse', label: 'Earnings Pulse', desc: 'Instant updates on commission and payout processing', icon: Activity, color: 'violet' }
+                                        ].map((notif) => (
+                                            <div key={notif.id} className="group/notif bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-violet-200 hover:bg-violet-50/20 transition-all duration-300">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`p-3 bg-${notif.color}-100 text-${notif.color}-600 rounded-2xl group-hover/notif:scale-110 transition-transform`}>
+                                                            <notif.icon size={22} />
+                                                        </div>
+                                                        <div>
+                                                            <h5 className="font-black text-slate-900 text-sm">{notif.label}</h5>
+                                                            <p className="text-slate-400 text-[10px] font-bold mt-0.5">{notif.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        onClick={() => toggleSecuritySwitch(notif.id)}
+                                                        className={`relative w-12 h-7 rounded-full transition-colors duration-300 cursor-pointer p-1 ${formData.config[notif.id] ? 'bg-violet-600' : 'bg-slate-200'}`}
+                                                    >
+                                                        <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.config[notif.id] ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="pt-10 flex border-t border-slate-50">
+                                        <div className="flex items-start gap-4 p-6 bg-slate-900 rounded-[2rem] text-white/90">
+                                            <div className="p-3 bg-white/10 rounded-2xl text-violet-400"><Info size={24} /></div>
+                                            <div>
+                                                <h6 className="font-black text-sm text-white">System Signal Protocols</h6>
+                                                <p className="text-xs font-bold leading-relaxed mt-1 opacity-60">Critical system updates and security alerts are enabled by default and cannot be silenced to ensure operational integrity.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -349,11 +411,18 @@ const MyProfile = () => {
                             </button>
                         </div>
 
+                        {/* Modal Specific Feedback */}
+                        {message.type && message.text && (
+                            <div className={`mb-6 p-4 rounded-xl text-xs font-bold border-2 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
+                                {message.text}
+                            </div>
+                        )}
+
                         <form onSubmit={handlePasswordChange} className="space-y-6">
                             {[
-                                { label: 'Current Key', name: 'currentPassword', type: 'password', icon: Lock },
-                                { label: 'New Primary Key', name: 'newPassword', type: 'password', icon: Shield },
-                                { label: 'Validate New Key', name: 'confirmPassword', type: 'password', icon: CheckCircle2 }
+                                { label: 'Current Key', name: 'currentPassword', type: 'current', icon: Lock },
+                                { label: 'New Primary Key', name: 'newPassword', type: 'new', icon: Shield },
+                                { label: 'Validate New Key', name: 'confirmPassword', type: 'confirm', icon: CheckCircle2 }
                             ].map((f) => (
                                 <div key={f.name} className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{f.label}</label>
@@ -362,12 +431,19 @@ const MyProfile = () => {
                                             <f.icon size={20} />
                                         </div>
                                         <input
-                                            type={f.type}
+                                            type={showPasswords[f.type] ? 'text' : 'password'}
                                             value={passwordData[f.name]}
                                             onChange={(e) => setPasswordData({ ...passwordData, [f.name]: e.target.value })}
-                                            className="w-full pl-14 pr-6 py-4.5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:bg-white focus:outline-none focus:border-violet-500 transition-all"
+                                            className="w-full pl-14 pr-12 py-4.5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:bg-white focus:outline-none focus:border-violet-500 transition-all"
                                             required
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPasswords(prev => ({ ...prev, [f.type]: !prev[f.type] }))}
+                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-violet-600"
+                                        >
+                                            {showPasswords[f.type] ? <Activity size={18} /> : <div className="w-4 h-4 rounded-full border-2 border-slate-300"></div>}
+                                        </button>
                                     </div>
                                 </div>
                             ))}

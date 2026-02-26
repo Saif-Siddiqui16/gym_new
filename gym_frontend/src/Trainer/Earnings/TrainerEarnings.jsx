@@ -18,9 +18,6 @@ import StatsCard from '../../modules/dashboard/components/StatsCard';
 import DashboardGrid from '../../modules/dashboard/components/DashboardGrid';
 import MobileCard from '../../components/common/MobileCard';
 
-// Simulated Logged-In User ID (In a real app, this comes from context/auth)
-const CURRENT_TRAINER_ID = 'T-101';
-
 const TrainerEarnings = () => {
     const [expandedMonth, setExpandedMonth] = useState(null);
     const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
@@ -55,8 +52,33 @@ const TrainerEarnings = () => {
     };
 
     const handleDownloadReport = () => {
-        alert("Downloading your earnings report... Your statement will be ready shortly.");
-        // Logic for generating PDF/CSV would go here
+        if (!earningsData || !earningsData.history || earningsData.history.length === 0) {
+            alert("No earnings history available to download.");
+            return;
+        }
+
+        const headers = ["Month", "Year", "Base Salary", "Commission", "Bonus", "Total", "Status"];
+        const rows = earningsData.history.map(h => [
+            h.month,
+            h.year,
+            h.baseSalary,
+            h.commission,
+            h.bonus,
+            h.total,
+            h.status
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Trainer_Earnings_Report_${new Date().getFullYear()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const getStatusStyle = (status) => {
@@ -119,7 +141,7 @@ const TrainerEarnings = () => {
                     value={`${earningsData.summary.commissionRate}%`}
                     icon={TrendingUp}
                     color="success" // Emerald
-                    trend="+2%"
+                    trend={earningsData.summary.commissionTrend}
                 />
                 <StatsCard
                     title={`Commission (${earningsData.summary.currentMonthName})`}

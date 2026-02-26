@@ -32,10 +32,6 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
     const [progressData, setProgressData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Functional Action States
-    const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-    const [chatMessage, setChatMessage] = useState('');
-
     const memberId = propMemberId || location.state?.memberId || 1;
 
     useEffect(() => {
@@ -154,14 +150,6 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                     {member.phone}
                                 </div>
                             </div>
-
-                            <button
-                                onClick={() => setIsChatModalOpen(true)}
-                                className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-700 active:scale-95 shadow-xl shadow-blue-200 transition-all"
-                            >
-                                <MessageSquare size={16} />
-                                Start Chat
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -182,27 +170,30 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">{stat.label}</p>
                         <p className="text-xl font-black text-gray-900 mt-1 group-hover:scale-110 transition-transform">{stat.value}</p>
                     </div>
-                ))}
-            </div>
+                ))
+                }
+            </div >
 
             {/* Tabbed Content Area */}
-            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden min-h-[400px]">
+            < div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden min-h-[400px]" >
                 {/* Scrollable Tabs */}
-                <div className="flex border-b border-gray-100 overflow-x-auto no-scrollbar scroll-smooth">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`px-8 py-5 text-sm font-bold whitespace-nowrap transition-all duration-300 relative hover:scale-105 ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'
-                                }`}
-                        >
-                            {tab.label}
-                            {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-t-full animate-in slide-in-from-left duration-300"></div>
-                            )}
-                        </button>
-                    ))}
-                </div>
+                < div className="flex border-b border-gray-100 overflow-x-auto no-scrollbar scroll-smooth" >
+                    {
+                        tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`px-8 py-5 text-sm font-bold whitespace-nowrap transition-all duration-300 relative hover:scale-105 ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'
+                                    }`}
+                            >
+                                {tab.label}
+                                {activeTab === tab.id && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-t-full animate-in slide-in-from-left duration-300"></div>
+                                )}
+                            </button>
+                        ))
+                    }
+                </div >
 
                 <div className="p-4 md:p-8">
                     {/* Overview Tab Content */}
@@ -218,9 +209,30 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                 </div>
 
                                 <div>
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Active Protocols</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-fuchsia-50/50 p-5 rounded-3xl border border-fuchsia-100/50 transition-all hover:shadow-md hover:border-fuchsia-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-fuchsia-600 bg-fuchsia-100 px-2 py-1 rounded-lg">Workout Plan</span>
+                                            </div>
+                                            <p className="font-bold text-gray-900 truncate">{member.activeWorkoutPlan ? member.activeWorkoutPlan.name : 'N/A'}</p>
+                                            <p className="text-xs text-fuchsia-600/70 font-bold mt-1 uppercase tracking-widest truncate">{member.activeWorkoutPlan ? member.activeWorkoutPlan.goal : 'No plan assigned'}</p>
+                                        </div>
+                                        <div className="bg-violet-50/50 p-5 rounded-3xl border border-violet-100/50 transition-all hover:shadow-md hover:border-violet-200">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-violet-600 bg-violet-100 px-2 py-1 rounded-lg">Diet Plan</span>
+                                            </div>
+                                            <p className="font-bold text-gray-900 truncate">{member.activeDietPlan ? member.activeDietPlan.name : 'N/A'}</p>
+                                            <p className="text-xs text-violet-600/70 font-bold mt-1 uppercase tracking-widest truncate">{member.activeDietPlan ? member.activeDietPlan.target : 'No plan assigned'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div>
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Recent Sessions</h3>
                                     <div className="space-y-3">
-                                        {member.recentWorkouts?.map((workout) => (
+                                        {member.recentWorkouts?.length > 0 ? member.recentWorkouts.slice(0, 3).map((workout) => (
                                             <div key={workout.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
                                                 <div className="flex items-center gap-4 overflow-hidden">
                                                     <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-600 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
@@ -231,9 +243,9 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                                         <p className="text-xs text-gray-500 font-medium truncate">{workout.date} • {workout.duration}</p>
                                                     </div>
                                                 </div>
-                                                <CheckCircle2 size={18} className="text-green-500 flex-shrink-0 ml-2" />
+                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase text-gray-600 border flex-shrink-0 ml-2 ${workout.status === 'Completed' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-100 border-gray-200'}`}>{workout.status}</span>
                                             </div>
-                                        ))}
+                                        )) : <p className="text-sm font-medium text-gray-400">No recent sessions.</p>}
                                     </div>
                                 </div>
                             </div>
@@ -281,7 +293,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
-                                            {payments.map((p) => (
+                                            {payments.length > 0 ? payments.map((p) => (
                                                 <tr key={p.id}>
                                                     <td className="px-6 py-4 text-sm font-medium text-gray-700">{p.date}</td>
                                                     <td className="px-6 py-4 text-sm font-bold text-gray-900">₹{p.amount}</td>
@@ -292,7 +304,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                                         </span>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            )) : <tr><td colSpan="4" className="text-center py-6 text-sm font-medium text-gray-400">No payments found.</td></tr>}
                                         </tbody>
                                     </table>
 
@@ -332,12 +344,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                     <button className="text-sm font-bold text-blue-600 hover:text-blue-700">View All</button>
                                 </div>
                                 <div className="space-y-4">
-                                    {[
-                                        { name: 'Upper Body Power', date: 'Today, 09:30 AM', duration: '1h 15m', calories: 450, load: '12,450 kg' },
-                                        { name: 'Leg Day Hypertrophy', date: 'Yesterday, 06:00 PM', duration: '1h 30m', calories: 520, load: '15,200 kg' },
-                                        { name: 'Active Recovery', date: '2 Days Ago', duration: '45m', calories: 210, load: '-' },
-                                        { name: 'Push Pull Strength', date: '3 Days Ago', duration: '1h 10m', calories: 480, load: '11,800 kg' },
-                                    ].map((workout, idx) => (
+                                    {member.recentWorkouts?.length > 0 ? member.recentWorkouts.map((workout, idx) => (
                                         <div key={idx} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100 group hover:bg-white hover:border-blue-100 hover:shadow-lg transition-all duration-300">
                                             <div className="flex items-center gap-5">
                                                 <div className="w-12 h-12 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
@@ -355,9 +362,10 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                             <div className="text-right hidden sm:block">
                                                 <p className="text-xl font-black text-gray-900">{workout.calories}</p>
                                                 <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Calories</p>
+                                                <span className={`px-2 py-0.5 mt-1 block w-fit ml-auto rounded-lg text-[10px] font-black uppercase border ${workout.status === 'Completed' || workout.status === 'Attended' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>{workout.status}</span>
                                             </div>
                                         </div>
-                                    ))}
+                                    )) : <div className="text-center py-8 text-gray-400 font-bold uppercase tracking-widest text-xs">No workout history available</div>}
                                 </div>
                             </div>
 
@@ -371,21 +379,21 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-400 font-medium">Total Volume</p>
-                                                <p className="text-2xl font-bold">45,250 kg</p>
+                                                <p className="text-2xl font-bold">{member.workoutStats?.totalVolume || '0 kg'}</p>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center text-sm border-b border-white/10 pb-3">
                                                 <span className="text-gray-400">Workouts</span>
-                                                <span className="font-bold text-xl">5</span>
+                                                <span className="font-bold text-xl">{member.workoutStats?.workouts || 0}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-sm border-b border-white/10 pb-3">
                                                 <span className="text-gray-400">Duration</span>
-                                                <span className="font-bold text-xl">6h 15m</span>
+                                                <span className="font-bold text-xl">{member.workoutStats?.duration || '0h'}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-sm">
                                                 <span className="text-gray-400">Intensity</span>
-                                                <span className="px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 font-bold uppercase text-xs">High</span>
+                                                <span className="px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 font-bold uppercase text-xs">{member.workoutStats?.intensity || 'N/A'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -489,30 +497,51 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                             </div>
 
                             <div className="space-y-6">
-                                <div className="bg-blue-600 rounded-[32px] p-6 text-white shadow-xl shadow-blue-200">
-                                    <h3 className="font-bold text-xl mb-2">BMI Calculator</h3>
-                                    <p className="text-blue-100 text-sm mb-6">Based on latest measurements</p>
+                                {(() => {
+                                    const logs = progressData?.logs || [];
+                                    const latest = logs.length > 0 ? logs[logs.length - 1] : {};
+                                    const weight = parseFloat(latest.weight || 0);
+                                    const heightCm = parseFloat(latest.measurements?.height || 175);
+                                    const bmi = weight > 0 ? (weight / Math.pow(heightCm / 100, 2)).toFixed(1) : 'N/A';
 
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-bold text-blue-200">Current Score</span>
-                                        <span className="text-3xl font-black">22.4</span>
-                                    </div>
-                                    <div className="w-full h-4 bg-black/20 rounded-full overflow-hidden mb-2 relative">
-                                        <div className="absolute left-[40%] top-0 bottom-0 w-1 bg-white/50" />
-                                        <div className="h-full w-[45%] bg-white/90 rounded-full" />
-                                    </div>
-                                    <div className="flex justify-between text-[10px] font-bold text-blue-200 uppercase tracking-widest">
-                                        <span>Underweight</span>
-                                        <span>Normal</span>
-                                        <span>Overweight</span>
-                                    </div>
+                                    let status = 'Unknown';
+                                    let pct = 0;
+                                    if (bmi !== 'N/A') {
+                                        const b = parseFloat(bmi);
+                                        if (b < 18.5) { status = 'Underweight'; pct = 20; }
+                                        else if (b < 25) { status = 'Healthy Weight'; pct = 50; }
+                                        else { status = 'Overweight'; pct = 80; }
+                                    }
 
-                                    <div className="mt-6 pt-6 border-t border-white/20">
-                                        <p className="text-sm font-medium leading-relaxed">
-                                            Great job! Your BMI suggests you are in a <span className="font-black text-white">Healthy Weight</span> range. Keep up the consistency.
-                                        </p>
-                                    </div>
-                                </div>
+                                    return (
+                                        <div className="bg-blue-600 rounded-[32px] p-6 text-white shadow-xl shadow-blue-200">
+                                            <h3 className="font-bold text-xl mb-2">BMI Calculator</h3>
+                                            <p className="text-blue-100 text-sm mb-6">Based on latest measurements</p>
+
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm font-bold text-blue-200">Current Score</span>
+                                                <span className="text-3xl font-black">{bmi}</span>
+                                            </div>
+                                            <div className="w-full h-4 bg-black/20 rounded-full overflow-hidden mb-2 relative">
+                                                <div className="absolute left-[30%] right-[30%] top-0 bottom-0 border-x-2 border-white/50" />
+                                                <div className="h-full bg-white/90 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
+                                            </div>
+                                            <div className="flex justify-between text-[10px] font-bold text-blue-200 uppercase tracking-widest">
+                                                <span>Under</span>
+                                                <span>Normal</span>
+                                                <span>Over</span>
+                                            </div>
+
+                                            <div className="mt-6 pt-6 border-t border-white/20">
+                                                <p className="text-sm font-medium leading-relaxed">
+                                                    {bmi === 'N/A'
+                                                        ? 'Record your weight and height in progress tracking to see your BMI.'
+                                                        : <>Your BMI suggests you are in a <span className="font-black text-white">{status}</span> range.</>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}
@@ -524,74 +553,6 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                 <ShieldCheck size={16} className="text-gray-400" />
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Trainee Profile • Read Only Mode</span>
             </div>
-
-            {/* Premium Chat Modal */}
-            {isChatModalOpen && member && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsChatModalOpen(false)} />
-
-                    <div className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold">
-                                    {member.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <h2 className="text-sm font-bold text-gray-900">{member.name}</h2>
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                        <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Member Online</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsChatModalOpen(false)}
-                                className="p-2 hover:bg-gray-200 rounded-xl text-gray-400 transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Chat Body (Simulated) */}
-                        <div className="p-6 h-[350px] overflow-y-auto bg-gray-50/30 flex flex-col gap-4">
-                            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm max-w-[85%] self-start">
-                                <p className="text-sm text-gray-700">Hello! I noticed you missed your session yesterday. Is everything okay with your training?</p>
-                                <span className="text-[10px] font-bold text-gray-400 mt-2 block">10:30 AM</span>
-                            </div>
-
-                            <div className="bg-blue-600 p-4 rounded-2xl rounded-tr-none text-white shadow-lg shadow-blue-200 max-w-[85%] self-end">
-                                <p className="text-sm font-medium">Just checking in to keep you on track!</p>
-                                <span className="text-[10px] font-bold text-blue-100 mt-2 block">10:31 AM</span>
-                            </div>
-
-                            <div className="mt-auto flex justify-center">
-                                <div className="px-3 py-1 bg-gray-200/50 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    Today
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Chat Input */}
-                        <div className="p-4 bg-white border-t border-gray-100 flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="Type a message..."
-                                className="flex-1 px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                                value={chatMessage}
-                                onChange={(e) => setChatMessage(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && setChatMessage('')}
-                            />
-                            <button
-                                onClick={() => setChatMessage('')}
-                                className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 active:scale-90 transition-all shadow-lg shadow-blue-200"
-                            >
-                                <Send size={18} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

@@ -37,7 +37,7 @@ const MacroInput = ({ label, value, onChange, placeholder, icon: Icon }) => (
 
 const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) => {
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState(initialData || {
+    const [formData, setFormData] = useState({
         name: '',
         clientId: '',
         description: '',
@@ -50,6 +50,35 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
             monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
         }
     });
+
+    React.useEffect(() => {
+        if (initialData && isOpen) {
+            setFormData({
+                ...initialData,
+                target: initialData.goal || 'Muscle Gain',
+                difficulty: initialData.level || 'Intermediate',
+                durationWeeks: parseInt(initialData.duration) || 12,
+                intensity: initialData.intensity || 'High',
+                description: initialData.description || ''
+            });
+        } else if (!initialData && isOpen) {
+            // reset form on open if creating new
+            setFormData({
+                name: '',
+                clientId: '',
+                description: '',
+                target: 'Muscle Gain',
+                durationWeeks: 12,
+                durationDays: 4,
+                difficulty: 'Intermediate',
+                intensity: 'High',
+                days: {
+                    monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
+                }
+            });
+            setStep(1);
+        }
+    }, [initialData, isOpen]);
 
     const [clients, setClients] = useState([]);
 
@@ -127,11 +156,24 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                         alert('Please fill in Plan Name and Assign a Client.');
                                         return;
                                     }
+                                    const flatDays = Object.values(formData.days).flat();
+                                    const totalExercises = flatDays.length;
+                                    const totalSets = flatDays.reduce((acc, ex) => acc + (Number(ex.sets) || 0), 0);
+                                    const volumeStr = `${totalSets} Sets / Wk`;
+                                    const activeDaysCount = Object.values(formData.days).filter(d => d.length > 0).length;
+                                    const avgMinutes = activeDaysCount ? Math.round((totalExercises / activeDaysCount) * 8) : 0;
+                                    const timeStr = `${avgMinutes} min`;
+
                                     onSave({
                                         ...formData,
-                                        id: formData.id || 'wp-' + Date.now(),
-                                        exercisesCount: Object.values(formData.days).flat().length,
-                                        avgDuration: formData.avgDuration || '60 min'
+                                        id: formData.id || undefined,
+                                        level: formData.difficulty,
+                                        target: formData.target,
+                                        goal: formData.target,
+                                        duration: `${formData.durationWeeks} Weeks`,
+                                        volume: volumeStr,
+                                        timePerSession: timeStr,
+                                        intensity: formData.intensity
                                     });
                                 }
                             }}
