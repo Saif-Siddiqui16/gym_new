@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, CheckCircle2, Star, ShieldCheck, Zap, ArrowRight, Loader, PauseCircle, Play, Clock, History, User, CalendarDays } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
-import { upgradePlan, cancelMembership, getMembershipDetails, getServiceRequests, addServiceRequest } from '../../api/member/memberApi';
+import { upgradePlan, cancelMembership, getMembershipDetails, getServiceRequests, addServiceRequest, freezeMembership, unfreezeMembership } from '../../api/member/memberApi';
 import RightDrawer from '../../components/common/RightDrawer';
 import ServiceRequestDrawer from '../components/ServiceRequestDrawer';
 import MemberFreezeDrawer from '../components/MemberFreezeDrawer';
@@ -68,6 +68,10 @@ const MyMembership = () => {
         };
 
         try {
+            // 1. Actually freeze the membership in DB
+            await freezeMembership();
+
+            // 2. Create a service request record
             const newReqData = {
                 type: 'Freeze Request',
                 details: `${formatDate(data.startDate)} – ${formatDate(data.endDate)}`,
@@ -77,8 +81,23 @@ const MyMembership = () => {
             };
             const response = await addServiceRequest(newReqData);
             setRequests([response.request, ...requests]);
+
+            // 3. Update local state to reflect frozen status immediately
+            setMembershipDetails(prev => ({ ...prev, status: 'Frozen', freezeStatus: 'Yes' }));
         } catch (error) {
             console.error('Failed to submit freeze request', error);
+            alert(error?.message || 'Failed to freeze membership');
+        }
+    };
+
+    const handleUnfreeze = async () => {
+        if (!window.confirm('Are you sure you want to unfreeze your membership?')) return;
+        try {
+            await unfreezeMembership();
+            setMembershipDetails(prev => ({ ...prev, status: 'Active', freezeStatus: 'No' }));
+        } catch (error) {
+            console.error('Failed to unfreeze membership', error);
+            alert(error?.message || 'Failed to unfreeze membership');
         }
     };
 
@@ -195,14 +214,24 @@ const MyMembership = () => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                            <Button
-                                variant="outline"
-                                className="w-full py-4 text-[10px] tracking-[0.15em] font-black"
-                                onClick={() => setShowFreezeDrawer(true)}
-                                disabled={hasPendingFreeze}
-                            >
-                                <PauseCircle size={16} /> {(hasPendingFreeze && membershipDetails.freezeStatus === 'No') ? 'FREEZE PENDING' : 'FREEZE'}
-                            </Button>
+                            {membershipDetails.freezeStatus === 'Yes' ? (
+                                <Button
+                                    variant="outline"
+                                    className="w-full py-4 text-[10px] tracking-[0.15em] font-black"
+                                    onClick={handleUnfreeze}
+                                >
+                                    <Play size={16} /> UNFREEZE
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="outline"
+                                    className="w-full py-4 text-[10px] tracking-[0.15em] font-black"
+                                    onClick={() => setShowFreezeDrawer(true)}
+                                    disabled={hasPendingFreeze}
+                                >
+                                    <PauseCircle size={16} /> {(hasPendingFreeze && membershipDetails.freezeStatus === 'No') ? 'FREEZE PENDING' : 'FREEZE'}
+                                </Button>
+                            )}
                             <Button
                                 variant="outline"
                                 className="w-full py-4 text-[10px] tracking-[0.15em] font-black"

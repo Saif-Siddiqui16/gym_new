@@ -51,12 +51,13 @@ const INITIAL_MEMBER_DATA = {
     ],
     planSummary: {
         workoutsCompleted: 0,
-        totalWorkouts: 0,
+        totalWorkouts: 7,
         nextGoal: '...',
         membershipStatus: '...',
         expiryDate: '...',
         daysRemaining: 0
     },
+    lastOrder: null,
     announcements: [],
     benefitWallet: { benefits: [] }
 };
@@ -78,6 +79,7 @@ const MemberDashboard = () => {
                         { ...prev.stats[2], value: apiData.attendanceRate }
                     ],
                     planSummary: apiData.planSummary,
+                    lastOrder: apiData.lastOrder || null,
                     announcements: apiData.announcements,
                     benefitWallet: apiData.benefitWallet
                 }));
@@ -140,7 +142,7 @@ const MemberDashboard = () => {
                             <h3 className="text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] leading-none mb-1 text-emerald-600">Progress Snapshot</h3>
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Active Week</p>
                         </div>
-                        <CircularProgress progress={(data.planSummary.workoutsCompleted / data.planSummary.totalWorkouts) * 100} size={50} />
+                        <CircularProgress progress={data.planSummary.totalWorkouts > 0 ? (data.planSummary.workoutsCompleted / data.planSummary.totalWorkouts) * 100 : 0} size={50} />
                     </div>
 
                     <div>
@@ -202,11 +204,21 @@ const MemberDashboard = () => {
                         <ShoppingBag size={20} strokeWidth={2.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Supply Node</h4>
-                        <div className="flex items-center justify-between gap-2 overflow-hidden">
-                            <span className="text-base font-black text-slate-900 truncate shrink uppercase italic">{data.announcements[0]?.title.split(' ')[0]} ...</span>
-                            <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-emerald-50 to-emerald-100 text-[9px] font-black text-emerald-700 uppercase shadow-sm whitespace-nowrap">SHIPPED</span>
-                        </div>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Last Order</h4>
+                        {data.lastOrder ? (
+                            <div className="flex items-center justify-between gap-2 overflow-hidden">
+                                <span className="text-base font-black text-slate-900 truncate shrink uppercase italic">₹{data.lastOrder.amount}</span>
+                                <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm whitespace-nowrap ${
+                                    data.lastOrder.status?.toLowerCase() === 'delivered'
+                                        ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700'
+                                        : data.lastOrder.status?.toLowerCase() === 'pending'
+                                        ? 'bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700'
+                                        : 'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600'
+                                }`}>{data.lastOrder.status || 'Processing'}</span>
+                            </div>
+                        ) : (
+                            <span className="text-[11px] font-bold text-slate-400">No orders yet</span>
+                        )}
                     </div>
                 </Card>
 

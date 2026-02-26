@@ -10,7 +10,6 @@ const StorePage = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [cart, setCart] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
     const [activeStoreTab, setActiveStoreTab] = useState('shop'); // shop, orders
     const [products, setProducts] = useState([]);
@@ -69,10 +68,7 @@ const StorePage = () => {
         }));
     };
 
-    const viewProductDetails = (product) => {
-        setSelectedProduct(product);
-        setIsProductDrawerOpen(true);
-    };
+
 
     const handleCheckout = () => {
         setCheckoutStep('checkout');
@@ -94,7 +90,7 @@ const StorePage = () => {
         }
     };
 
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * item.quantity), 0);
     const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
@@ -217,7 +213,6 @@ const StorePage = () => {
                                 key={product.id}
                                 product={product}
                                 onAddToCart={addToCart}
-                                onViewDetails={viewProductDetails}
                             />
                         ))}
                     </div>
@@ -260,7 +255,7 @@ const StorePage = () => {
                                             <span className="font-bold text-slate-900">{order.items} Items</span>
                                         </td>
                                         <td className="px-10 py-8">
-                                            <span className="font-black text-violet-600">₹{order.total.toLocaleString()}</span>
+                                            <span className="font-black text-violet-600">₹{order.total ? Number(order.total).toLocaleString() : '0'}</span>
                                         </td>
                                         <td className="px-10 py-8">
                                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
@@ -335,7 +330,7 @@ const StorePage = () => {
                                                         <Trash2 size={16} />
                                                     </button>
                                                 </div>
-                                                <span className="text-violet-600 font-extrabold text-sm mt-2">₹{item.price.toLocaleString()}</span>
+                                                <span className="text-violet-600 font-extrabold text-sm mt-2">₹{item.price ? Number(item.price).toLocaleString() : '0'}</span>
                                                 <div className="flex items-center justify-between mt-auto">
                                                     <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-4">
                                                         <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-white hover:text-violet-600 rounded-lg transition-all font-black text-lg">-</button>
@@ -353,7 +348,7 @@ const StorePage = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between text-slate-500 font-bold text-sm">
                                         <span>Subtotal</span>
-                                        <span className="text-slate-800">₹{cartTotal.toLocaleString()}</span>
+                                        <span className="text-slate-800">₹{Number(cartTotal).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-500 font-bold text-sm">
                                         <span>Shipping</span>
@@ -361,7 +356,7 @@ const StorePage = () => {
                                     </div>
                                     <div className="flex justify-between text-2xl font-black text-slate-800 pt-5 border-t border-slate-100">
                                         <span>Total</span>
-                                        <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">₹{cartTotal.toLocaleString()}</span>
+                                        <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">₹{Number(cartTotal).toLocaleString()}</span>
                                     </div>
                                 </div>
                                 <button
@@ -404,7 +399,7 @@ const StorePage = () => {
                                     </div>
                                     <div className="flex justify-between text-3xl font-black border-t border-white/10 pt-4">
                                         <span>Total</span>
-                                        <span className="text-violet-400">₹{cartTotal.toLocaleString()}</span>
+                                        <span className="text-violet-400">₹{Number(cartTotal).toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>

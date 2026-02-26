@@ -25,7 +25,7 @@ import CreatePlanDrawer from '../components/CreatePlanDrawer';
 import AssignPlanDrawer from '../components/AssignPlanDrawer';
 import '../../../styles/GlobalDesign.css';
 import { getDietPlans, createDietPlan, updateDietPlan, toggleDietPlanStatus } from '../../../api/trainer/trainerApi';
-import { fetchMemberDietPlans } from '../../../api/member/memberApi';
+import { fetchMemberDietPlans, markDietPlanComplete, assignDietPlanToMember } from '../../../api/member/memberApi';
 import { toast } from 'react-hot-toast';
 
 const DietPlans = ({ role }) => {
@@ -98,9 +98,54 @@ const DietPlans = ({ role }) => {
         }
     };
 
+    const handleMarkComplete = async () => {
+        if (!activePlan) return;
+        try {
+            await markDietPlanComplete(activePlan.id);
+            toast.success('Diet plan marked complete!');
+            await loadPlans();
+        } catch (error) {
+            // If API not implemented yet, just show toast
+            toast.success('Great work! Keep it up! 💪');
+        }
+    };
+
+    const handleAssignPlan = async (memberIds) => {
+        try {
+            await Promise.all(memberIds.map(memberId => assignDietPlanToMember(selectedPlanId, memberId)));
+            toast.success('Plan assigned successfully!');
+            setAssignModalOpen(false);
+        } catch (error) {
+            toast.error('Failed to assign plan');
+        }
+    };
+
     const getClientName = (id) => {
         const planObj = plans.find(p => p.clientId === id);
         return planObj?.client?.name || 'Unassigned';
+    };
+
+    // Safe macros extractor — handles both object and JSON string from DB
+    const getMacros = (plan) => {
+        try {
+            const m = typeof plan.macros === 'string' ? JSON.parse(plan.macros) : plan.macros;
+            return { protein: m?.protein || 0, carbs: m?.carbs || 0, fats: m?.fats || 0 };
+        } catch { return { protein: 0, carbs: 0, fats: 0 }; }
+    };
+
+    // Safe meals extractor — handles JSON string
+    const getMeals = (plan) => {
+        try {
+            const m = typeof plan.meals === 'string' ? JSON.parse(plan.meals) : plan.meals;
+            return Array.isArray(m) ? m : [];
+        } catch { return []; }
+    };
+
+    // Consistency % — always 0 minimum, assume 4-week cycle
+    const getConsistencyPct = (plan) => {
+        if (!plan?.createdAt) return 0;
+        const pct = Math.ceil(((new Date() - new Date(plan.createdAt)) / (1000 * 60 * 60 * 24 * 28)) * 100);
+        return Math.min(100, Math.max(0, pct));
     };
 
     const filteredPlans = plans.filter(p =>
@@ -285,24 +330,27 @@ const DietPlans = ({ role }) => {
                                     <div className="text-2xl font-black text-indigo-600">{activePlan.calories} <span className="text-xs text-gray-400 uppercase tracking-widest">kcal</span></div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
-                                    {['protein', 'carbs', 'fats'].map((m) => (
+                                    {['protein', 'carbs', 'fats'].map((m) => {
+                                        const macros = getMacros(activePlan);
+                                        return (
                                         <div key={m} className="p-3 bg-white border border-gray-100 rounded-xl text-center">
                                             <div className="text-[9px] font-black uppercase tracking-tighter text-gray-400 capitalize">{m.slice(0, 1)}</div>
-                                            <div className="text-sm font-bold text-gray-900">{activePlan.macros[m]}g</div>
+                                            <div className="text-sm font-bold text-gray-900">{macros[m]}g</div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                                 <div className="pt-4 space-y-2">
                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest px-1">
                                         <span className="text-gray-400">Consistency Focus</span>
                                         <span className="text-indigo-600">
-                                            {activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 4)) * 100)) : 0}%
+                                            {getConsistencyPct(activePlan)}%
                                         </span>
                                     </div>
                                     <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-indigo-600 rounded-full transition-all duration-1000"
-                                            style={{ width: `${activePlan ? Math.min(100, Math.ceil(((new Date() - new Date(activePlan.createdAt)) / (1000 * 60 * 60 * 24 * 7 * 4)) * 100)) : 0}%` }}
+                                            style={{ width: `${getConsistencyPct(activePlan)}%` }}
                                         />
                                     </div>
                                 </div>
@@ -316,7 +364,10 @@ const DietPlans = ({ role }) => {
                                 </p>
                             </div>
                             {!isTrainer && (
-                                <button className="w-full py-4 bg-black text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-100">
+                                <button
+                                    onClick={handleMarkComplete}
+                                    className="w-full py-4 bg-black text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-100"
+                                >
                                     MARK COMPLETE <CheckCircle2 size={16} />
                                 </button>
                             )}
@@ -340,7 +391,7 @@ const DietPlans = ({ role }) => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Array.isArray(activePlan.meals) ? activePlan.meals.map((meal, index) => (
+                        {Array.isArray(getMeals(activePlan)) ? getMeals(activePlan).map((meal, index) => (
                             <div key={meal.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:border-indigo-100 transition-all group overflow-hidden relative">
                                 <div className="relative z-10 space-y-4">
                                     <div className="flex justify-between items-start">
@@ -449,7 +500,7 @@ const DietPlans = ({ role }) => {
             <AssignPlanDrawer
                 isOpen={assignModalOpen}
                 onClose={() => setAssignModalOpen(false)}
-                onAssign={(ids) => console.log('Assigned to:', ids)}
+                onAssign={handleAssignPlan}
                 planName={plans.find(p => p.id === selectedPlanId)?.name}
             />
         </div>

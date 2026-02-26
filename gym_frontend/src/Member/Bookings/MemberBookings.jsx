@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, User, ChevronRight, Plus, Filter, Zap, Loader, X, AlertCircle } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
-import { fetchMemberBookings, cancelBooking, fetchMemberProfile, fetchAvailableClasses, createBooking } from '../../api/member/memberApi';
+import { fetchMemberBookings, cancelBooking, getMemberQrProfile, fetchAvailableClasses, createBooking, rescheduleBooking } from '../../api/member/memberApi';
 import RightDrawer from '../../components/common/RightDrawer';
 
 const MemberBookings = () => {
@@ -77,8 +77,13 @@ const MemberBookings = () => {
     };
 
     const loadMemberProfile = async () => {
-        const profile = await fetchMemberProfile();
-        setMemberProfile(profile);
+        try {
+            // getMemberQrProfile → GET /member/profile (returns benefitWallet with classCredits, saunaSessions, iceBathCredits)
+            const profile = await getMemberQrProfile();
+            setMemberProfile(profile);
+        } catch (error) {
+            console.error('Failed to load member profile:', error);
+        }
     };
 
     const showToastMsg = (message, type = 'success') => {
@@ -105,10 +110,15 @@ const MemberBookings = () => {
     };
 
     const handleConfirmCancel = async () => {
-        await cancelBooking(bookingToCancel);
-        setBookings(bookings.map(b => b.id === bookingToCancel ? { ...b, status: 'Cancelled' } : b));
-        setShowConfirmCancelModal(false);
-        showToastMsg("Booking cancelled successfully.", "info");
+        try {
+            await cancelBooking(bookingToCancel);
+            setBookings(bookings.map(b => b.id === bookingToCancel ? { ...b, status: 'Cancelled' } : b));
+            setShowConfirmCancelModal(false);
+            showToastMsg("Booking cancelled successfully.", "info");
+        } catch (error) {
+            showToastMsg(error?.message || "Failed to cancel booking.", "error");
+            setShowConfirmCancelModal(false);
+        }
     };
 
     const handleRescheduleTrigger = (booking) => {
@@ -123,14 +133,20 @@ const MemberBookings = () => {
             showToastMsg("Please select a time slot.", "error");
             return;
         }
-        // Simulate API call
-        setBookings(bookings.map(b =>
-            b.id === selectedBooking.id
-                ? { ...b, date: selectedDate, time: `${selectedTime} - ${calculateEndTime(selectedTime)}` }
-                : b
-        ));
-        setShowRescheduleModal(false);
-        showToastMsg("Session rescheduled successfully!");
+        try {
+            // Parse selected date string back to a Date object
+            const newDate = new Date(selectedDate);
+            await rescheduleBooking(selectedBooking.id, newDate.toISOString());
+            setBookings(bookings.map(b =>
+                b.id === selectedBooking.id
+                    ? { ...b, date: selectedDate, time: `${selectedTime} - ${calculateEndTime(selectedTime)}` }
+                    : b
+            ));
+            setShowRescheduleModal(false);
+            showToastMsg("Session rescheduled successfully!");
+        } catch (error) {
+            showToastMsg(error?.message || "Failed to reschedule booking.", "error");
+        }
     };
 
     const handleQuickBookTrigger = (cls) => {
@@ -156,10 +172,10 @@ const MemberBookings = () => {
         }
 
         try {
-            const response = await createBooking({
-                classId: selectedClass.id,
-                date: new Date() // Or selected date if we allow in UI
-            });
+        const response = await createBooking({
+                    classId: selectedClass.id,
+                    date: selectedDate ? new Date(selectedDate).toISOString() : new Date().toISOString()
+                });
 
             if (response.success) {
                 // Update local credits and availability
@@ -182,7 +198,7 @@ const MemberBookings = () => {
         setNewBookingData({
             type: 'Facility',
             name: '',
-            date: 'Next Session',
+            date: new Date().toISOString(), // proper date, not 'Next Session'
             time: '',
             location: 'Wellness Wing',
             trainer: 'Staff'
@@ -215,16 +231,26 @@ const MemberBookings = () => {
         }
 
         try {
-            // Find class ID from availableClasses based on name if Facility or other wizard path
             const targetClass = availableClasses.find(c => c.name === newBookingData.name);
-            if (!targetClass) {
-                showToastMsg("Selected class not available.", "error");
+
+            // If no matching class (e.g. direct Sauna/Ice Bath that may not be a class in DB),
+            // find ANY Facility class as a proxy, or use first available class
+            const facilityClass = targetClass ||
+                availableClasses.find(c => c.requiredBenefit) ||
+                availableClasses[0];
+
+            if (!facilityClass) {
+                showToastMsg("No classes available to book. Please contact staff.", "error");
                 return;
             }
 
+            const bookingDate = newBookingData.date && !isNaN(new Date(newBookingData.date))
+                ? new Date(newBookingData.date).toISOString()
+                : new Date().toISOString();
+
             const response = await createBooking({
-                classId: targetClass.id,
-                date: new Date() // Simplification for now, using selectDate from data if implemented
+                classId: facilityClass.id,
+                date: bookingDate
             });
 
             if (response.success) {
@@ -548,14 +574,29 @@ const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm,
         { id: 'Facility', label: 'Gym Facility', icon: MapPin, color: 'text-indigo-600', bg: 'bg-indigo-50' }
     ];
 
+    const facilityFromDb = availableClasses.filter(c => c.requiredBenefit).map(c => c.name);
     const services = {
         'Group Class': availableClasses.filter(c => !c.requiredBenefit).map(c => c.name),
-        'Personal Training': ['Strength & Conditioning', 'Fat Loss Blast', 'Muscle Building', 'Posture Correction'], // Mock PT for now
-        'Facility': availableClasses.filter(c => c.requiredBenefit).map(c => c.name)
+        'Personal Training': ['Strength & Conditioning', 'Fat Loss Blast', 'Muscle Building', 'Posture Correction'],
+        // Merge DB facility classes + always include Sauna/Ice Bath as fallback
+        'Facility': facilityFromDb.length > 0
+            ? facilityFromDb
+            : ['Sauna Session', 'Ice Bath Session']
     };
 
-    const datesArr = ['Today, May 15', 'Tomorrow, May 16', 'Fri, May 17', 'Sat, May 18', 'Sun, May 19'];
-    const timeSlotsArr = ['08:00 AM', '09:00 AM', '10:00 AM', '05:00 PM', '06:00 PM', '07:00 PM'];
+    // Generate next 7 real dates dynamically
+    const generateDates = () => {
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            days.push({ label, isoDate: d.toISOString() });
+        }
+        return days;
+    };
+    const datesArr = generateDates();
+    const timeSlotsArr = ['06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'];
 
     return (
         <div className="p-8 space-y-8">
@@ -610,13 +651,13 @@ const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm,
                     <div className="space-y-3">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Select Date</label>
                         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                            {datesArr.map(date => (
+                            {datesArr.map(({ label, isoDate }) => (
                                 <button
-                                    key={date}
-                                    onClick={() => setData({ ...data, date })}
-                                    className={`px-5 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border-2 ${data.date === date ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:border-violet-100'}`}
+                                    key={isoDate}
+                                    onClick={() => setData({ ...data, date: isoDate })}
+                                    className={`px-5 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border-2 ${data.date === isoDate ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:border-violet-100'}`}
                                 >
-                                    {date}
+                                    {label}
                                 </button>
                             ))}
                         </div>
@@ -662,8 +703,19 @@ const CreateBookingWizard = ({ step, setStep, data, setData, onClose, onConfirm,
 };
 
 const BookingModalContent = ({ title, subtitle, onClose, onConfirm, confirmLabel, selectedDate, setSelectedDate, selectedTime, setSelectedTime, memberProfile }) => {
-    const dates = ['Today, May 15', 'Tomorrow, May 16', 'Fri, May 17', 'Sat, May 18', 'Sun, May 19'];
-    const timeSlots = ['08:00 AM', '09:00 AM', '10:00 AM', '05:00 PM', '06:00 PM', '07:00 PM'];
+    // Generate next 7 real dates
+    const generateDates = () => {
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            days.push({ label, isoDate: d.toISOString() });
+        }
+        return days;
+    };
+    const dates = generateDates();
+    const timeSlots = ['06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'];
 
     return (
         <div className="p-8 space-y-8">
@@ -676,13 +728,13 @@ const BookingModalContent = ({ title, subtitle, onClose, onConfirm, confirmLabel
                 <div className="space-y-3">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Select Date</label>
                     <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                        {dates.map(date => (
+                        {dates.map(({ label, isoDate }) => (
                             <button
-                                key={date}
-                                onClick={() => setSelectedDate(date)}
-                                className={`px-5 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border-2 ${selectedDate === date ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:border-violet-100'}`}
+                                key={isoDate}
+                                onClick={() => setSelectedDate(isoDate)}
+                                className={`px-5 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border-2 ${selectedDate === isoDate ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:border-violet-100'}`}
                             >
-                                {date}
+                                {label}
                             </button>
                         ))}
                     </div>

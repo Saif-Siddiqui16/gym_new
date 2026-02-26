@@ -72,7 +72,8 @@ const MemberProgress = () => {
         legs: { current: 0, change: 0, unit: 'cm' }
     });
     const [photos, setPhotos] = useState([]);
-    const [targets, setTargets] = useState({ weight: 78.0, bodyFat: 15.0, goal: '' });
+    const [targets, setTargets] = useState({ weight: 78.0, bodyFat: 15.0, height: 175.0, goal: '' });
+    const [attendanceStats, setAttendanceStats] = useState([]);
 
     useEffect(() => {
         loadProgress();
@@ -87,8 +88,13 @@ const MemberProgress = () => {
                 setTargets({
                     weight: parseFloat(data.targets.weight) || 78.0,
                     bodyFat: parseFloat(data.targets.bodyFat) || 15.0,
+                    height: parseFloat(data.targets.height) || 175.0,
                     goal: data.targets.goal || ''
                 });
+            }
+
+            if (data && data.attendanceStats) {
+                setAttendanceStats(data.attendanceStats);
             }
 
             if (data && data.logs && data.logs.length > 0) {
@@ -132,6 +138,7 @@ const MemberProgress = () => {
             const payload = {
                 weight: formData.weight,
                 bodyFat: formData.bodyFat,
+                height: formData.height,
                 measurements: {
                     chest: formData.chest,
                     waist: formData.waist,
@@ -189,6 +196,11 @@ const MemberProgress = () => {
     const currentBodyFat = hasData ? progressHistory[progressHistory.length - 1].bodyFat : 20.0;
     const startBodyFat = hasData ? progressHistory[0].bodyFat : 20.0;
     const targetBodyFat = targets.bodyFat;
+
+    // Calculate BMI
+    const currentHeightMeters = targets.height / 100;
+    const bmi = (currentWeight / (currentHeightMeters * currentHeightMeters)).toFixed(1);
+    const bmiStatus = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Optimal' : bmi < 30 ? 'Overweight' : 'Obese';
 
     const weightChange = (currentWeight - startWeight).toFixed(1);
     const weightTrend = (hasData && progressHistory.length > 1)
@@ -280,10 +292,13 @@ const MemberProgress = () => {
                             <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm group-hover:bg-blue-600 group-hover:text-white">
                                 <Zap size={20} strokeWidth={2.5} />
                             </div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">Optimal</span>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                                bmiStatus === 'Optimal' ? 'text-blue-600 bg-blue-50 border-blue-100' : 
+                                bmiStatus === 'Underweight' ? 'text-amber-600 bg-amber-50 border-amber-100' : 'text-rose-600 bg-rose-50 border-rose-100'
+                            }`}>{bmiStatus}</span>
                         </div>
                         <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">BMI Score</div>
-                        <div className="text-3xl font-black text-slate-900 mb-2 tracking-tight">24.2</div>
+                        <div className="text-3xl font-black text-slate-900 mb-2 tracking-tight">{bmi}</div>
                         <div className="flex items-center gap-2 mt-auto pt-6 text-xs font-semibold text-slate-400 group-hover:text-blue-600 transition-colors">
                             <ArrowUpRight size={14} className="text-blue-500" />
                             <span className="text-slate-900 font-bold">+0.4</span> since update
@@ -381,13 +396,13 @@ const MemberProgress = () => {
                                         </div>
 
                                         <div className="flex items-end justify-between h-40 gap-4 mt-auto">
-                                            {[40, 65, 30, 85, 55, 90, 45].map((h, i) => (
+                                            {(attendanceStats.length > 0 ? attendanceStats : [10, 20, 30, 40, 50, 60, 70].map((v, i) => ({ day: ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i], value: v }))).map((stat, i) => (
                                                 <div key={i} className="flex-1 flex flex-col justify-end items-center gap-2 group h-full">
-                                                    <div className="w-full bg-slate-200 rounded-t-lg relative overflow-hidden transition-all duration-500 group-hover:bg-violet-200" style={{ height: `${h}%` }}>
+                                                    <div className="w-full bg-slate-200 rounded-t-lg relative overflow-hidden transition-all duration-500 group-hover:bg-violet-200" style={{ height: `${stat.value || 10}%` }}>
                                                         <div className="absolute bottom-0 left-0 right-0 bg-violet-500 h-0 transition-all duration-700 delay-100 group-hover:h-full opacity-0 group-hover:opacity-100" />
                                                     </div>
                                                     <span className="text-[10px] font-bold text-slate-400 group-hover:text-violet-600 uppercase">
-                                                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}
+                                                        {stat.day}
                                                     </span>
                                                 </div>
                                             ))}
