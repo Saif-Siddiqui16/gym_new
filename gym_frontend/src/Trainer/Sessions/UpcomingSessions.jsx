@@ -9,24 +9,28 @@ import {
     Search,
     ChevronRight,
     ArrowUpRight,
-    Bell,
     MoreVertical,
     X,
-    FileText,
-    Download,
     Trash2,
     CalendarDays,
     Edit,
     Save
 } from 'lucide-react';
-import { getSessions, updateSessionStatus, createSession } from '../../api/trainer/trainerApi';
+import { getSessions, updateSessionStatus, createSession, updateSession, deleteSession, getSessionRoster } from '../../api/trainer/trainerApi';
 import RightDrawer from '../../components/common/RightDrawer';
+import toast from 'react-hot-toast';
 
 const UpcomingSessions = () => {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+
+    const getDisplayDate = (dateStr) => {
+        if (!dateStr) return new Date();
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    };
 
     // Functional Action States
     const [selectedSession, setSelectedSession] = useState(null);
@@ -39,6 +43,27 @@ const UpcomingSessions = () => {
     const [formData, setFormData] = useState({
         title: '', date: '', time: '', duration: '60 min', location: 'Studio A', maxMembers: '20', type: 'Group Class'
     });
+    const [editingSessionId, setEditingSessionId] = useState(null);
+    const [roster, setRoster] = useState([]);
+    const [loadingRoster, setLoadingRoster] = useState(false);
+
+    useEffect(() => {
+        if (selectedSession && isDetailsModalOpen) {
+            const fetchRoster = async () => {
+                setLoadingRoster(true);
+                try {
+                    const data = await getSessionRoster(selectedSession.id);
+                    setRoster(data || []);
+                } catch (error) {
+                    console.error('Failed to fetch roster:', error);
+                    setRoster([]);
+                } finally {
+                    setLoadingRoster(false);
+                }
+            };
+            fetchRoster();
+        }
+    }, [selectedSession, isDetailsModalOpen]);
 
     useEffect(() => {
         loadSessions();
@@ -74,17 +99,53 @@ const UpcomingSessions = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            await createSession(formData);
+            if (editingSessionId) {
+                await updateSession(editingSessionId, formData);
+                toast.success('Session updated successfully');
+            } else {
+                await createSession(formData);
+                toast.success('Session created successfully');
+            }
             setIsCreateModalOpen(false);
+            setEditingSessionId(null);
             setFormData({ title: '', date: '', time: '', duration: '60 min', location: 'Studio A', maxMembers: '20', type: 'Group Class' });
             loadSessions();
         } catch (error) {
-            console.error('Error creating slot:', error);
-            alert(error);
+            console.error('Error saving slot:', error);
+            toast.error(error.message || 'Failed to save session');
         } finally {
             setIsSaving(false);
         }
     };
+
+    const handleEditClick = (session) => {
+        setEditingSessionId(session.id);
+        setFormData({
+            title: session.title,
+            date: session.date,
+            time: session.time,
+            duration: session.duration || '60 min',
+            location: session.location,
+            maxMembers: session.maxMembers,
+            type: session.type
+        });
+        setIsCreateModalOpen(true);
+        setActiveDropdown(null);
+    };
+
+    const handleDeleteClick = async (id) => {
+        if (window.confirm('Are you sure you want to cancel and delete this session? This action cannot be undone.')) {
+            try {
+                await deleteSession(id);
+                toast.success('Session cancelled and deleted');
+                loadSessions();
+            } catch (error) {
+                toast.error(error.message || 'Failed to delete session');
+            }
+        }
+        setActiveDropdown(null);
+    };
+
 
     return (
         <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto flex flex-col gap-6 animate-in fade-in duration-500 pb-12">
@@ -95,12 +156,12 @@ const UpcomingSessions = () => {
                     <p className="text-gray-500 text-sm mt-1 hover:text-gray-700 transition-colors duration-300">Review your schedule for the next 7 days</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all shadow-sm hover:scale-110 hover:shadow-lg hover:border-blue-300 group">
-                        <Bell size={20} className="group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
-                    </button>
                     <button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            setEditingSessionId(null);
+                            setFormData({ title: '', date: '', time: '', duration: '60 min', location: 'Studio A', maxMembers: '20', type: 'Group Class' });
+                            setIsCreateModalOpen(true);
+                        }}
                         className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-200 active:scale-95 hover:scale-105 hover:shadow-xl"
                     >
                         <span className="hidden sm:inline">Create New Slot</span><span className="sm:hidden">+ New</span>
@@ -153,13 +214,13 @@ const UpcomingSessions = () => {
                             {/* Date Badge Side */}
                             <div className="md:w-36 bg-slate-50 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-indigo-50 transition-colors duration-500">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-indigo-600 transition-colors duration-300">
-                                    {new Date(session.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                                    {getDisplayDate(session.date).toLocaleDateString('en-US', { weekday: 'short' })}
                                 </p>
                                 <p className="text-3xl font-black text-slate-900 group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-500">
-                                    {new Date(session.date).getDate()}
+                                    {getDisplayDate(session.date).getDate()}
                                 </p>
                                 <p className="text-[10px] font-black text-slate-500 group-hover:text-indigo-600 transition-colors duration-300 uppercase tracking-tighter">
-                                    {new Date(session.date).toLocaleDateString('en-US', { month: 'short' })}
+                                    {getDisplayDate(session.date).toLocaleDateString('en-US', { month: 'short' })}
                                 </p>
                             </div>
 
@@ -187,14 +248,17 @@ const UpcomingSessions = () => {
                                             <>
                                                 <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
                                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-20 animate-in zoom-in-95 duration-200 origin-top-right">
-                                                    <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors group/item">
+                                                    <button
+                                                        onClick={() => handleEditClick(session)}
+                                                        className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors group/item"
+                                                    >
                                                         <Edit size={16} className="text-blue-500 group-hover/item:scale-125 group-hover/item:rotate-12 transition-all duration-300" /> Edit Slot
                                                     </button>
-                                                    <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors group/item">
-                                                        <Download size={16} className="text-purple-500 group-hover/item:scale-125 group-hover/item:-translate-y-0.5 transition-all duration-300" /> Export Roster
-                                                    </button>
                                                     <div className="h-px bg-gray-100 my-1 mx-2" />
-                                                    <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors group/item">
+                                                    <button
+                                                        onClick={() => handleDeleteClick(session.id)}
+                                                        className="w-full px-4 py-2.5 text-left text-sm font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors group/item"
+                                                    >
                                                         <Trash2 size={16} className="text-red-500 group-hover/item:scale-125 transition-all duration-300" /> Cancel Session
                                                     </button>
                                                 </div>
@@ -280,11 +344,11 @@ const UpcomingSessions = () => {
                 maxWidth="max-w-2xl"
                 footer={
                     <div className="flex gap-4 w-full">
-                        <button className="flex-1 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-black text-gray-700 hover:bg-gray-100 hover:border-gray-300 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => handleEditClick(selectedSession)}
+                            className="w-full py-4 bg-white border border-gray-200 rounded-2xl text-sm font-black text-gray-700 hover:bg-gray-100 hover:border-gray-300 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+                        >
                             <CalendarDays size={18} /> Reschedule
-                        </button>
-                        <button className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-sm font-black hover:bg-blue-700 shadow-xl shadow-blue-200 active:scale-95 transition-all flex items-center justify-center gap-2">
-                            <Download size={18} /> Download Roster
                         </button>
                     </div>
                 }
@@ -296,10 +360,10 @@ const UpcomingSessions = () => {
                             <div className="flex gap-6">
                                 <div className="w-20 h-20 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
                                     <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">
-                                        {new Date(selectedSession.date).toLocaleDateString('en-US', { month: 'short' })}
+                                        {getDisplayDate(selectedSession.date).toLocaleDateString('en-US', { month: 'short' })}
                                     </p>
                                     <p className="text-2xl font-black text-gray-900 leading-none">
-                                        {new Date(selectedSession.date).getDate()}
+                                        {getDisplayDate(selectedSession.date).getDate()}
                                     </p>
                                 </div>
                                 <div className="pt-1">
@@ -335,43 +399,40 @@ const UpcomingSessions = () => {
                                     </div>
                                 </div>
 
-                                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors group">
-                                    <div className="flex items-center gap-3">
-                                        <FileText size={18} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
-                                        <span className="text-sm font-bold text-gray-600">Session Plan</span>
-                                    </div>
-                                    <ArrowUpRight size={16} className="text-gray-300" />
-                                </button>
                             </div>
 
                             {/* Roster Column */}
                             <div className="md:col-span-2">
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                                     Enrolled Members
-                                    <span className="text-blue-600">View All</span>
                                 </h3>
                                 <div className="space-y-3">
-                                    {[
-                                        { name: 'Alex Thompson', plan: 'Gold Plus', time: 'Enrolled 2d ago' },
-                                        { name: 'Emma Watson', plan: 'Premium', time: 'Enrolled 1d ago' },
-                                        { name: 'Mike Ross', plan: 'Basic', time: 'Enrolled 5h ago' }
-                                    ].map((m, idx) => (
-                                        <div key={idx} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-black text-sm group-hover:from-blue-600 group-hover:to-indigo-700 group-hover:text-white transition-all">
-                                                    {m.name.charAt(0)}
+                                    {loadingRoster ? (
+                                        <div className="flex flex-col items-center py-10 opacity-50">
+                                            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                            <p className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-widest">Loading Roster...</p>
+                                        </div>
+                                    ) : roster.length > 0 ? (
+                                        roster.map((m, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center text-indigo-600 font-black text-sm group-hover:from-indigo-600 group-hover:to-indigo-700 group-hover:text-white transition-all">
+                                                        {m.name.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-black text-gray-900 leading-none mb-1">{m.name}</h4>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{m.plan}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="font-bold text-gray-900 text-sm">{m.name}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{m.plan}</p>
+                                                <div className="text-right">
+                                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Enrolled</p>
+                                                    <p className="text-[8px] font-bold text-gray-400">{new Date(m.bookingDate).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] font-bold text-gray-400">{m.time}</p>
-                                        </div>
-                                    ))}
-                                    {selectedSession.members > 3 && (
-                                        <div className="p-3 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 rounded-xl">
-                                            + {selectedSession.members - 3} more members
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No members enrolled</p>
                                         </div>
                                     )}
                                 </div>
@@ -383,9 +444,12 @@ const UpcomingSessions = () => {
             {/* Create Slot Drawer */}
             <RightDrawer
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                title="Create New Slot"
-                subtitle="Add a new class or session to your schedule"
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setEditingSessionId(null);
+                }}
+                title={editingSessionId ? "Edit Session Slot" : "Create New Slot"}
+                subtitle={editingSessionId ? "Modify your existing session details" : "Add a new class or session to your schedule"}
                 maxWidth="max-w-md"
                 footer={
                     <div className="flex gap-4 w-full">
@@ -395,7 +459,7 @@ const UpcomingSessions = () => {
                             className={`flex-1 py-4 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70' : 'hover:bg-blue-700 active:scale-95'}`}
                         >
                             {isSaving ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
-                            {isSaving ? 'Saving...' : 'Create Slot'}
+                            {isSaving ? 'Saving...' : (editingSessionId ? 'Update Session' : 'Create Slot')}
                         </button>
                     </div>
                 }

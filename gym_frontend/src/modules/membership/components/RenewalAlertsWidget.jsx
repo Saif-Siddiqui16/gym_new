@@ -97,12 +97,6 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="flex-1 py-2 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-600 hover:border-green-200 transition-all">
-                                        <Phone size={14} />
-                                    </button>
-                                    <button className="flex-1 py-2 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-500 hover:border-blue-200 transition-all">
-                                        <MessageCircle size={14} />
-                                    </button>
                                     <button className="flex-[2] py-2 rounded-lg bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">
                                         Renew
                                     </button>
@@ -141,9 +135,7 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                                             <p className="text-[9px] font-bold text-slate-400 uppercase italic">Expired {Math.abs(getDaysDiff(member.endDate))} days ago</p>
                                         </div>
                                     </div>
-                                    <button className="p-2 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all">
-                                        <Phone size={14} />
-                                    </button>
+                                    {/* Removed Phone button */}
                                 </div>
                             </div>
                         )) : (

@@ -11,7 +11,7 @@ import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget
 import { useNavigate } from 'react-router-dom';
 import { KPIS } from '../../finance/data/mockFinance';
 import { IndianRupee, Banknote, Receipt as ReceiptIcon } from 'lucide-react';
-import LiveAccessControl from '../components/LiveAccessControl';
+
 import OpenEquipmentIssues from '../../operations/components/widgets/OpenEquipmentIssues';
 import { MAINTENANCE_TICKETS } from '../../operations/data/maintenanceData';
 import apiClient from '../../../api/apiClient';
@@ -58,7 +58,8 @@ const StaffDashboard = () => {
                     equipmentAlerts: apiData.equipmentAlerts,
                     pendingActions: apiData.pendingActions,
                     renewalAlerts: apiData.renewalAlerts,
-                    checkins: apiData.checkins || prev.checkins
+                    checkins: apiData.checkins || prev.checkins,
+                    myEarnings: apiData.myEarnings
                 }));
             } catch (error) {
                 console.error('Failed to fetch staff dashboard:', error);
@@ -81,16 +82,6 @@ const StaffDashboard = () => {
     }
 
     const enhancedStats = [
-        {
-            id: 1,
-            label: 'Active Updates',
-            value: data.activeUpdates !== undefined ? data.activeUpdates.toString() : '24',
-            trend: '+12%',
-            trendUp: true,
-            icon: Activity,
-            color: 'violet',
-            gradient: 'from-violet-500 to-purple-600'
-        },
         {
             id: 2,
             label: 'Today\'s Shift',
@@ -145,14 +136,20 @@ const StaffDashboard = () => {
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <button
-                                onClick={() => navigate('/staff/attendance/check-in')}
-                                className="flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl text-sm font-bold shadow-sm hover:border-violet-500 hover:text-violet-600 hover:shadow-md transition-all duration-300"
+                                onClick={() => navigate('/finance/cashier')}
+                                className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/60 hover:scale-105 transition-all"
                             >
-                                <Clock size={18} strokeWidth={2.5} /> Clock In
+                                <ReceiptIcon size={18} strokeWidth={2.5} /> New Receipt
+                            </button>
+                            <button
+                                onClick={() => navigate('/finance/petty-cash')}
+                                className="flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl text-sm font-bold shadow-sm hover:border-orange-500 hover:text-orange-600 hover:shadow-md transition-all duration-300"
+                            >
+                                <Banknote size={18} strokeWidth={2.5} /> Log Expense
                             </button>
                             <button
                                 onClick={() => navigate('/staff/attendance/check-in')}
-                                className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all"
+                                className="flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-xl shadow-slate-200 hover:shadow-2xl hover:scale-105 transition-all"
                             >
                                 <UserCheck size={18} strokeWidth={2.5} /> Member Check-in
                             </button>
@@ -162,7 +159,7 @@ const StaffDashboard = () => {
             </div>
 
             {/* Premium Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                 {enhancedStats.map((stat) => (
                     <div key={stat.id} className="group relative bg-white rounded-2xl p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:border-violet-100 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                         <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
@@ -183,10 +180,25 @@ const StaffDashboard = () => {
                         </div>
                     </div>
                 ))}
-            </div>
 
-            {/* LIVE ACCESS CONTROL MONITOR */}
-            <LiveAccessControl userRole="STAFF" checkinsData={data.checkins} />
+                {/* Collection Today Stat */}
+                <div className="group relative bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-800 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-xl bg-white/10 text-emerald-400">
+                                <Banknote size={24} strokeWidth={2.5} />
+                            </div>
+                            <button onClick={() => navigate('/finance/transactions')} className="p-2 bg-white/5 rounded-lg text-white/40 hover:text-white transition-colors">
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                        <h3 className="text-white/50 text-[10px] font-black uppercase tracking-widest mb-1">My Collection Today</h3>
+                        <div className="text-2xl font-black text-white italic tracking-tighter tabular-nums">₹{data.collectionToday?.toLocaleString() || '0'}</div>
+                        <div className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-1">Operational</div>
+                    </div>
+                </div>
+            </div>
 
             {/* Secondary Content Grid - Refactored to balanced 2-column layout */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8 auto-rows-min">
@@ -208,39 +220,39 @@ const StaffDashboard = () => {
                     </div>
                 </div>
 
-                {/* Equipment Alerts */}
-                <OpenEquipmentIssues tickets={data.equipmentAlerts || []} />
+                {/* Removed Equipment Alerts */}
 
-                {/* My Collection Today Widget */}
-                <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden group h-fit">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 translate-x-1/4 -translate-y-1/4 group-hover:scale-125 transition-transform duration-700">
-                        <Banknote size={150} />
-                    </div>
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                                <IndianRupee size={24} />
+                {/* My Earnings */}
+                <div className="grid grid-cols-1 gap-6 h-fit">
+                    {/* Removed My Collection */}
+
+                    {/* My Earnings Widget */}
+                    <div className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 translate-x-1/4 -translate-y-1/4 group-hover:scale-125 transition-transform duration-700">
+                            <IndianRupee size={150} />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                                    <Banknote size={24} />
+                                </div>
+                                <h3 className="text-lg font-black uppercase tracking-widest">My Earnings</h3>
                             </div>
-                            <h3 className="text-lg font-black uppercase tracking-widest">My Collection Today</h3>
-                        </div>
-                        <div className="mb-4 sm:mb-8">
-                            <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-60 mb-2">Total Received Today</p>
-                            <h4 className="text-4xl sm:text-5xl font-black italic tracking-tighter">₹{data.collectionToday !== undefined ? data.collectionToday.toLocaleString() : '8,450'}</h4>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="mb-8">
+                                <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-60 mb-2">{data.myEarnings?.month || 'Current Month'} Projection</p>
+                                <div className="flex items-end gap-2">
+                                    <h4 className="text-4xl font-black italic tracking-tighter">₹{data.myEarnings?.total?.toLocaleString() || '0'}</h4>
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full mb-2 ${data.myEarnings?.status === 'Paid' ? 'bg-emerald-400/20 text-emerald-200' : 'bg-white/20 text-white'}`}>
+                                        {data.myEarnings?.status || 'Pending'}
+                                    </span>
+                                </div>
+                            </div>
                             <button
-                                onClick={() => navigate('/finance/cashier')}
-                                className="flex-1 py-4 bg-white text-emerald-700 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:shadow-white/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                onClick={() => navigate('/staff/profile/me')}
+                                className="w-full py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                             >
-                                <ReceiptIcon size={18} />
-                                New Receipt
-                            </button>
-                            <button
-                                onClick={() => navigate('/finance/petty-cash')}
-                                className="flex-1 py-4 bg-emerald-500 text-white border border-emerald-400 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2"
-                            >
-                                <Banknote size={18} />
-                                Log Expense
+                                <ChevronRight size={18} />
+                                View Payslips
                             </button>
                         </div>
                     </div>
@@ -250,41 +262,7 @@ const StaffDashboard = () => {
                 <div className="space-y-8">
                     <RenewalAlertsWidget alertsData={data.renewalAlerts} />
 
-                    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 bg-slate-50/30">
-                            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                                <AlertTriangle size={20} className="text-amber-500" /> Pending Actions
-                            </h3>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            {data.pendingActions && data.pendingActions.map((action, idx) => (
-                                <div key={idx} className={`group flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 cursor-pointer ${action.type === 'Payment' ? 'hover:border-amber-300 hover:shadow-md' : 'hover:border-blue-300 hover:shadow-md'}`}>
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-3 rounded-xl ${action.type === 'Payment' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-                                            {action.type === 'Payment' ? <Clock size={20} strokeWidth={2.5} /> : <UserCheck size={20} strokeWidth={2.5} />}
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-slate-800 text-sm">{action.title}</div>
-                                            <div className="text-xs font-medium text-slate-500">{action.subtitle}</div>
-                                        </div>
-                                    </div>
-                                    <ChevronRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-all" />
-                                </div>
-                            ))}
-
-                            {(!data.pendingActions || data.pendingActions.length === 0) && (
-                                <div className="text-center py-4 text-slate-400 text-sm italic font-medium">No pending actions for now!</div>
-                            )}
-
-                            <button
-                                onClick={() => navigate('/staff/tasks/my-tasks')}
-                                className="w-full mt-2 py-4 bg-slate-50 text-slate-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-slate-200 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all"
-                            >
-                                View All Tasks
-                            </button>
-                        </div>
-                    </div>
+                    {/* Removed Pending Actions */}
                 </div>
             </div>
         </div>

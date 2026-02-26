@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/apiClient';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 
 const INITIAL_TRAINER_DATA = {
     stats: [
@@ -53,8 +55,10 @@ const INITIAL_TRAINER_DATA = {
         presentDays: 0,
         lateDays: 0,
         absentDays: 0,
-        attendanceRate: 0
-    }
+        attendanceRate: 0,
+        weeklySummary: []
+    },
+    announcements: []
 };
 
 const TrainerDashboard = () => {
@@ -68,34 +72,39 @@ const TrainerDashboard = () => {
     const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
     const [selectedAtRiskMember, setSelectedAtRiskMember] = useState(null);
     const [isAtRiskDrawerOpen, setIsAtRiskDrawerOpen] = useState(false);
+    const [isCompleting, setIsCompleting] = useState(false);
+
+    const fetchDashboardData = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/dashboard/trainer');
+            const apiData = response.data;
+            setData(prev => ({
+                ...prev,
+                stats: [
+                    { ...prev.stats[0], value: apiData.totalMembers.toString() },
+                    { ...prev.stats[1], value: apiData.sessionsToday.toString() },
+                    { ...prev.stats[2], value: apiData.pendingPlans.toString() }
+                ],
+                todaySessions: apiData.todaySessions,
+                myClients: apiData.myClients,
+                pendingTasks: apiData.pendingTasks || [],
+                myAttendance: {
+                    ...prev.myAttendance,
+                    ...apiData.myAttendance
+                },
+                earnings: apiData.earnings || prev.earnings,
+                announcements: apiData.announcements || []
+            }));
+        } catch (error) {
+            console.error('Failed to fetch trainer dashboard:', error);
+            toast.error('Failed to load dashboard data');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const response = await apiClient.get('/dashboard/trainer');
-                const apiData = response.data;
-                setData(prev => ({
-                    ...prev,
-                    stats: [
-                        { ...prev.stats[0], value: apiData.totalMembers.toString() },
-                        { ...prev.stats[1], value: apiData.sessionsToday.toString() },
-                        { ...prev.stats[2], value: apiData.pendingPlans.toString() }
-                    ],
-                    todaySessions: apiData.todaySessions,
-                    myClients: apiData.myClients,
-                    pendingTasks: apiData.pendingTasks || [],
-                    myAttendance: {
-                        ...prev.myAttendance,
-                        ...apiData.myAttendance
-                    },
-                    earnings: apiData.earnings || prev.earnings
-                }));
-            } catch (error) {
-                console.error('Failed to fetch trainer dashboard:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchDashboardData();
     }, []);
 
@@ -122,8 +131,26 @@ const TrainerDashboard = () => {
         setIsAtRiskDrawerOpen(true);
     };
 
+    const handleMarkComplete = async () => {
+        if (!selectedSession || isCompleting) return;
+        setIsCompleting(true);
+        try {
+            await apiClient.patch(`/trainer/sessions/${selectedSession.id}/status`, { status: 'Completed' });
+            toast.success('Session marked as completed!');
+            setIsDrawerOpen(false);
+            await fetchDashboardData();
+        } catch (error) {
+            console.error('Failed to complete session:', error);
+            toast.error(error.response?.data?.message || 'Failed to update session status');
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
     const SessionDetailsDrawer = () => {
         if (!selectedSession) return null;
+
+        const isCompleted = selectedSession.status === 'Completed';
 
         return (
             <RightDrawer
@@ -132,15 +159,22 @@ const TrainerDashboard = () => {
                 title="Session Details"
                 subtitle={`${selectedSession.type} - ${selectedSession.time}`}
                 footer={
-                    <div className="flex gap-3">
-                        <button className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
-                            <CheckCircle size={18} />
-                            Mark Complete
+                    <div className="flex gap-3 px-4 pb-8">
+                        <button
+                            onClick={handleMarkComplete}
+                            disabled={isCompleting || isCompleted}
+                            className={`flex-1 py-4 rounded-2xl text-sm font-bold shadow-xl transition-all flex items-center justify-center gap-3 ${isCompleted
+                                ? 'bg-emerald-100 text-emerald-600 cursor-not-allowed shadow-none border border-emerald-200'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:-translate-y-1 shadow-indigo-100'
+                                }`}
+                        >
+                            {isCompleting ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle size={20} />}
+                            {isCompleted ? 'Session Completed' : 'Mark Complete'}
                         </button>
                     </div>
                 }
             >
-                <div className="space-y-6">
+                <div className="space-y-8 px-2">
                     {/* Client/Session Summary */}
                     <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-600 font-bold text-xl">
@@ -202,10 +236,7 @@ const TrainerDashboard = () => {
                             className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400 min-h-[120px]"
                             placeholder="Add notes about the session or client feedback..."
                         />
-                        <button className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all ml-auto">
-                            <Save size={14} />
-                            Save Notes
-                        </button>
+
                     </div>
                 </div>
             </RightDrawer>
@@ -537,15 +568,19 @@ const TrainerDashboard = () => {
                         </h2>
                         <Card className="p-0 border border-red-50 shadow-sm overflow-hidden">
                             <div className="divide-y divide-gray-100">
-                                {atRiskClients.slice(0, 4).map(member => (
-                                    <div key={member.id} onClick={() => handleAtRiskClick(member)} className="p-4 hover:bg-red-50/30 cursor-pointer transition-all flex justify-between items-center">
-                                        <div className="min-w-0">
-                                            <h4 className="font-bold text-gray-800 text-xs truncate">{member.name}</h4>
-                                            <p className="text-[10px] text-red-500 font-bold">{member.daysSinceLastVisit} Days Inactive</p>
+                                {atRiskClients.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-400 text-xs font-medium italic">No critical alerts</div>
+                                ) : (
+                                    atRiskClients.slice(0, 4).map(member => (
+                                        <div key={member.id} onClick={() => handleAtRiskClick(member)} className="p-4 hover:bg-red-50/30 cursor-pointer transition-all flex justify-between items-center">
+                                            <div className="min-w-0">
+                                                <h4 className="font-bold text-gray-800 text-xs truncate">{member.name}</h4>
+                                                <p className="text-[10px] text-red-500 font-bold">{member.daysSinceLastVisit} Days Inactive</p>
+                                            </div>
+                                            <ChevronRight size={12} className="text-red-300" />
                                         </div>
-                                        <ChevronRight size={12} className="text-red-300" />
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </Card>
                     </div>
@@ -599,7 +634,7 @@ const TrainerDashboard = () => {
                         </Card>
                     </div>
 
-                    {/* Earnings Snapshot (THE CENTRAL PIECE) */}
+                    {/* Earnings Snapshot */}
                     {data.isCommissionBased && (
                         <div className="space-y-4">
                             <h2 className="text-md font-bold text-gray-900 flex items-center gap-3 px-1">
@@ -635,27 +670,6 @@ const TrainerDashboard = () => {
                             </Card>
                         </div>
                     )}
-
-                    {/* Pending Actions */}
-                    <div className="space-y-4">
-                        <h2 className="text-sm font-bold text-gray-800 flex items-center gap-3 px-1">
-                            <AlertCircle size={18} className="text-amber-500" />
-                            Pending Actions
-                        </h2>
-                        <Card className="border border-gray-100 shadow-lg p-0 overflow-hidden">
-                            <div className="divide-y divide-gray-50">
-                                {data.pendingTasks.map((task) => (
-                                    <div key={task.id} onClick={() => navigate(task.route)} className="p-5 hover:bg-slate-50 cursor-pointer flex justify-between items-center group transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-amber-400" />
-                                            <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900">{task.title}</span>
-                                        </div>
-                                        <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black">{task.count}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
-                    </div>
                 </div>
 
                 {/* Column 3: Clients & Announcements */}
@@ -673,17 +687,21 @@ const TrainerDashboard = () => {
                         </div>
                         <Card className="p-5 border border-gray-100 shadow-sm">
                             <div className="space-y-5">
-                                {data.myClients.slice(0, 5).map(client => (
-                                    <div key={client.id} className="group">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">{client.name}</span>
-                                            <span className="text-[10px] font-black text-gray-400">{client.progress}%</span>
+                                {data.myClients.length === 0 ? (
+                                    <div className="p-4 text-center text-gray-400 text-xs italic">No assigned clients</div>
+                                ) : (
+                                    data.myClients.slice(0, 5).map(client => (
+                                        <div key={client.id} className="group cursor-pointer">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">{client.name}</span>
+                                                <span className="text-[10px] font-black text-gray-400">{client.progress}%</span>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500 transition-all duration-1000 group-hover:bg-indigo-500" style={{ width: `${client.progress}%` }} />
+                                            </div>
                                         </div>
-                                        <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-500 transition-all duration-1000 group-hover:bg-indigo-500" style={{ width: `${client.progress}%` }} />
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </Card>
                     </div>
@@ -695,14 +713,25 @@ const TrainerDashboard = () => {
                             Announcements
                         </h2>
                         <div className="space-y-3">
-                            <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-all cursor-pointer">
-                                <h4 className="text-xs font-bold text-indigo-900 mb-1">New Policy: Client Cancellations</h4>
-                                <p className="text-[10px] text-indigo-600 font-medium">Please review the updated 4-hour rule in settings...</p>
-                            </div>
+                            {data.announcements.length === 0 ? (
+                                <div className="p-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-400 text-xs font-medium">
+                                    No announcements yet
+                                </div>
+                            ) : (
+                                data.announcements.map((ann) => (
+                                    <div key={ann.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl hover:bg-indigo-50 transition-all cursor-pointer">
+                                        <h4 className="text-xs font-bold text-indigo-900 mb-1">{ann.title}</h4>
+                                        <p className="text-[10px] text-indigo-600 font-medium line-clamp-2">{ann.content}</p>
+                                        <span className="text-[8px] text-indigo-400 font-black uppercase mt-2 block">{ann.date}</span>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Drawers */}
             <SessionDetailsDrawer />
             <EarningsSnapshotDrawer />
             <AttendanceDetailsDrawer />

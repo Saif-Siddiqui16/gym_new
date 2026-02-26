@@ -120,8 +120,13 @@ const MemberList = () => {
     };
 
     const handleToggleStatus = async (id) => {
-        await toggleMemberStatus(id);
-        loadMembers();
+        try {
+            await toggleMemberStatus(id);
+            loadMembers();
+        } catch (error) {
+            console.error("Error toggling status:", error);
+            alert(error.response?.data?.message || "Failed to update member status");
+        }
     };
 
     const handleDelete = (id) => {
@@ -130,9 +135,14 @@ const MemberList = () => {
 
     const confirmDelete = async () => {
         if (deleteModal.id) {
-            await deleteMember(deleteModal.id);
-            setDeleteModal({ isOpen: false, id: null });
-            loadMembers();
+            try {
+                await deleteMember(deleteModal.id);
+                setDeleteModal({ isOpen: false, id: null });
+                loadMembers();
+            } catch (error) {
+                console.error("Error deleting member:", error);
+                alert(error.response?.data?.message || "Failed to delete member");
+            }
         }
     };
 
@@ -162,9 +172,14 @@ const MemberList = () => {
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        await updateMember(selectedMember.id, editMemberData);
-        setIsEditDrawerOpen(false);
-        loadMembers();
+        try {
+            await updateMember(selectedMember.id, editMemberData);
+            setIsEditDrawerOpen(false);
+            loadMembers();
+        } catch (error) {
+            console.error("Error updating member:", error);
+            alert(error.response?.data?.message || "Failed to update member");
+        }
     };
 
     const handleTrainerChangeSubmit = (requestData) => {
@@ -175,19 +190,23 @@ const MemberList = () => {
 
     const handleAddMemberSubmit = async (e) => {
         e.preventDefault();
-        const memberId = `MEM-2024-${Math.floor(100 + Math.random() * 900)}`;
-        const joinDate = new Date().toISOString().split('T')[0];
-        // Note: expiryDate is usually handled by backend based on plan duration
+        try {
+            const memberId = `MEM-2024-${Math.floor(100 + Math.random() * 900)}`;
+            const joinDate = new Date().toISOString().split('T')[0];
 
-        await createMember({
-            ...newMemberData,
-            memberId,
-            joinDate
-        });
+            await createMember({
+                ...newMemberData,
+                memberId,
+                joinDate
+            });
 
-        setIsAddDrawerOpen(false);
-        setNewMemberData({ name: '', phone: '', planId: '', status: 'Active' });
-        loadMembers();
+            setIsAddDrawerOpen(false);
+            setNewMemberData({ name: '', phone: '', planId: '', status: 'Active' });
+            loadMembers();
+        } catch (error) {
+            console.error("Error adding member:", error);
+            alert(error.response?.data?.message || "Failed to add member");
+        }
     };
 
     const getStatusBadge = (status) => {

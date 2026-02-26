@@ -127,7 +127,7 @@ const HardwareSettings = () => {
             {/* Page Header - Back Button */}
             <div className="w-full max-w-7xl mb-6">
                 <button
-                    onClick={() => navigate('/superadmin/general-settings/general')}
+                    onClick={() => navigate(localStorage.getItem('userRole') === 'SUPER_ADMIN' ? '/superadmin/general-settings/general' : '/branchadmin/settings/general')}
                     className="group flex items-center text-slate-500 hover:text-violet-600 transition-all duration-300 hover:scale-105"
                 >
                     <div className="p-1 rounded-full group-hover:bg-violet-50 transition-all duration-300 mr-2 group-hover:scale-110">

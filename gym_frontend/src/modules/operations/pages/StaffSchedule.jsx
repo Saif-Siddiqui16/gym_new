@@ -24,7 +24,7 @@ const StaffSchedule = () => {
                 id: s.id,
                 name: s.name,
                 role: s.role.charAt(0) + s.role.slice(1).toLowerCase(),
-                shift: 'Full Day (9AM - 6PM)', // Mocking shift as its not in DB currently
+                shift: s.shift || 'N/A',
                 status: s.status === 'Active' ? 'On Duty' : 'Off Duty'
             }));
             setStaffList(formatted);

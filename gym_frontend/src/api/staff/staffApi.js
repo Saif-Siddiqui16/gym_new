@@ -18,3 +18,21 @@ export const updateStaffProfile = async (updated) => {
         throw error.response?.data?.message || 'Failed to update staff profile';
     }
 };
+
+export const changeStaffPassword = async (passwords) => {
+    try {
+        const response = await apiClient.post('/auth/change-password', passwords);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to change password';
+    }
+};
+
+export const fetchStaffEarnings = async () => {
+    try {
+        const response = await apiClient.get('/staff/earnings');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch staff earnings';
+    }
+};

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, Building2, Mail, Phone, MapPin, ArrowLeft, Globe, DollarSign, Sparkles } from 'lucide-react';
 import { fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
+import { fetchTenantSettings, updateTenantSettings } from '../../api/manager/managerApi';
 
 const GeneralSettings = () => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ const GeneralSettings = () => {
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const userRole = localStorage.getItem('userRole');
+    const isSuperAdmin = userRole === 'SUPER_ADMIN';
 
     useEffect(() => {
         loadSettings();
@@ -21,12 +24,12 @@ const GeneralSettings = () => {
     const loadSettings = async () => {
         setLoading(true);
         try {
-            const data = await fetchGlobalSettings();
+            const data = isSuperAdmin ? await fetchGlobalSettings() : await fetchTenantSettings();
             setFormData({
-                orgName: data.siteName,
-                address: data.contactAddress,
-                email: data.supportEmail,
-                phone: data.contactPhone
+                orgName: data.siteName || '',
+                address: data.contactAddress || '',
+                email: data.supportEmail || '',
+                phone: data.contactPhone || ''
             });
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -46,12 +49,19 @@ const GeneralSettings = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
-            await updateGlobalSettings({
+            const payload = {
                 siteName: formData.orgName,
                 contactAddress: formData.address,
                 supportEmail: formData.email,
                 contactPhone: formData.phone
-            });
+            };
+
+            if (isSuperAdmin) {
+                await updateGlobalSettings(payload);
+            } else {
+                await updateTenantSettings(payload);
+            }
+
             alert('Settings updated successfully!');
             navigate('/dashboard');
         } catch (error) {

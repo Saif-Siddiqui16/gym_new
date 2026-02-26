@@ -141,7 +141,6 @@ export const menuConfig = {
                 { label: 'Branch Management', path: '/branchadmin/branch-management/branches', icon: Building },
                 { label: 'Staff Management', path: '/hr/staff/management', icon: Users },
                 { label: 'Add Staff', path: '/hr/staff/create', icon: UserPlus },
-                { label: 'Trainer Requests', path: '/branchadmin/trainer-requests', icon: UserCheck },
                 { label: 'Payroll & Salaries', path: '/hr/payroll', icon: Banknote },
             ]
         },
@@ -160,6 +159,7 @@ export const menuConfig = {
             children: [
                 { label: 'POS Store', path: '/finance/pos', icon: ShoppingCart },
                 { label: 'Inventory', path: '/branchadmin/store/inventory', icon: Box },
+                { label: 'Promo Codes', path: '/branchadmin/promos', icon: Percent },
             ]
         },
         {
@@ -314,7 +314,6 @@ export const menuConfig = {
                 { label: 'Staff List', path: '/hr/staff/management', icon: Users },
                 { label: 'Add Staff', path: '/hr/staff/create', icon: UserPlus },
                 { label: 'Leave Requests', path: '/hr/leave-requests', icon: Calendar },
-                { label: 'Trainer Requests', path: '/manager/requests', icon: UserCheck },
                 { label: 'Trainer Change Requests', path: '/manager/change-requests', icon: Activity },
                 { label: 'Payroll Creation', path: '/manager/payroll/create', icon: Banknote },
                 { label: 'Payroll', path: '/hr/payroll', icon: Banknote },

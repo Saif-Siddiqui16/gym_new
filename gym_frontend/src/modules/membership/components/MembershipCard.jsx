@@ -8,10 +8,12 @@ const MembershipCard = ({ membership }) => {
 
     // Get initials for avatar
     const getInitials = (name) => {
-        if (!name) return '?';
-        return name
+        const displayName = name || membership.name || '';
+        if (!displayName) return '?';
+        return displayName
             .split(' ')
             .map(word => word[0])
+            .filter(Boolean)
             .join('')
             .toUpperCase()
             .slice(0, 2);
@@ -33,7 +35,7 @@ const MembershipCard = ({ membership }) => {
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600 transition-colors duration-300">
-                                {membership.memberName}
+                                {membership.memberName || membership.name || 'No Name'}
                             </h3>
                             <div className="flex items-center gap-1 text-gray-500 text-sm">
                                 <User size={14} />

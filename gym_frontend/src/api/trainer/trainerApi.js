@@ -33,9 +33,9 @@ export const getTrainerEarnings = async () => {
 };
 
 // ATTENDANCE
-export const getTrainerAttendance = async () => {
+export const getTrainerAttendance = async (date) => {
     try {
-        const response = await apiClient.get('/trainer/attendance');
+        const response = await apiClient.get('/trainer/attendance', { params: { date } });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to fetch trainer attendance';
@@ -181,6 +181,11 @@ export const getMemberById = async (id) => {
     }
 };
 
+export const assignPlanToMember = async (memberId, planData) => {
+    const response = await apiClient.post(`/trainer/members/${memberId}/assign-plan`, planData);
+    return response.data;
+};
+
 export const flagMember = async (id, reason) => {
     try {
         const response = await apiClient.patch(`/trainer/members/${id}/flag`, { reason });
@@ -207,6 +212,33 @@ export const createSession = async (sessionData) => {
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to create session';
+    }
+};
+
+export const updateSession = async (id, sessionData) => {
+    try {
+        const response = await apiClient.patch(`/trainer/sessions/${id}`, sessionData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to update session';
+    }
+};
+
+export const deleteSession = async (id) => {
+    try {
+        const response = await apiClient.delete(`/trainer/sessions/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to delete session';
+    }
+};
+
+export const getSessionRoster = async (id) => {
+    try {
+        const response = await apiClient.get(`/trainer/sessions/${id}/roster`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch session roster';
     }
 };
 

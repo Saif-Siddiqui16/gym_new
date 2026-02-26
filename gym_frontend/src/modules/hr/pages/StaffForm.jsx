@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Save, UserPlus, Building2, DollarSign, FileText, ChevronLeft, Info, Star, Award, Zap, TrendingUp, Target, Percent, Briefcase, CheckCircle2, Clock } from 'lucide-react';
+import { Upload, Save, UserPlus, Building2, DollarSign, FileText, ChevronLeft, Info, Star, Award, Zap, TrendingUp, Target, Percent, Briefcase, CheckCircle2, Clock, Eye } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createStaffAPI, fetchStaffByIdAPI, updateStaffAPI } from '../../../api/admin/adminApi';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
+import { ROLES } from '../../../config/roles';
 
 // Initial State with Nested Configurations
 const initialTrainerConfig = {
@@ -191,6 +193,7 @@ const ManagerConfigSection = ({ config, errors, onChange }) => (
 );
 
 const StaffForm = () => {
+    const { role: currentUserRole } = useAuth();
     const navigate = useNavigate();
     const { id } = useParams();
     const isEditMode = !!id;
@@ -209,6 +212,9 @@ const StaffForm = () => {
         baseSalary: '',
         accountNumber: '',
         ifsc: '',
+        startTime: '09:00',
+        endTime: '18:00',
+        shift: '09:00 - 18:00',
         trainerConfig: initialTrainerConfig,
         salesConfig: null,
         managerConfig: null
@@ -241,6 +247,9 @@ const StaffForm = () => {
                 dob: formattedDob,
                 joiningDate: formattedJoined,
                 baseSalary: data.baseSalary || '',
+                shift: data.shift || '',
+                startTime: (data.shift?.includes(' - ') && data.shift.split(' - ')[0].includes(':')) ? data.shift.split(' - ')[0] : '09:00',
+                endTime: (data.shift?.includes(' - ') && data.shift.split(' - ')[1].includes(':')) ? data.shift.split(' - ')[1] : '18:00',
                 trainerConfig: data.role === 'TRAINER' ? data.config : initialTrainerConfig,
                 managerConfig: data.role === 'MANAGER' ? data.config : initialManagerConfig,
                 salesConfig: data.role === 'STAFF' ? data.config : initialSalesConfig,
@@ -443,6 +452,56 @@ const StaffForm = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="relative group">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Shift Start Time</label>
+                                    <div className="relative">
+                                        <input
+                                            type="time"
+                                            name="startTime"
+                                            value={formData.startTime || ''}
+                                            onChange={(e) => {
+                                                const newStart = e.target.value;
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    startTime: newStart,
+                                                    shift: `${newStart} - ${prev.endTime}`
+                                                }));
+                                            }}
+                                            className="w-full pl-10 pr-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all duration-300"
+                                        />
+                                        <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-400" />
+                                    </div>
+                                </div>
+                                <div className="relative group">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Shift End Time</label>
+                                    <div className="relative">
+                                        <input
+                                            type="time"
+                                            name="endTime"
+                                            value={formData.endTime || ''}
+                                            onChange={(e) => {
+                                                const newEnd = e.target.value;
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    endTime: newEnd,
+                                                    shift: `${prev.startTime} - ${newEnd}`
+                                                }));
+                                            }}
+                                            className="w-full pl-10 pr-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all duration-300"
+                                        />
+                                        <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-400" />
+                                    </div>
+                                </div>
+                                <div className="relative group">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Joining Date</label>
+                                    <input
+                                        type="date"
+                                        name="joiningDate"
+                                        value={formData.joiningDate || ''}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none transition-all duration-300"
+                                    />
+                                </div>
+                                <div className="relative group">
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Department</label>
                                     <select
                                         name="department"
@@ -464,21 +523,15 @@ const StaffForm = () => {
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-semibold focus:outline-none appearance-none cursor-pointer"
                                     >
-                                        <option value="Admin">Admin</option>
-                                        <option value="Manager">Manager</option>
+                                        {(currentUserRole === ROLES.SUPER_ADMIN) && (
+                                            <>
+                                                <option value="Admin">Admin</option>
+                                                <option value="Manager">Manager</option>
+                                            </>
+                                        )}
                                         <option value="Trainer">Trainer</option>
                                         <option value="Staff">Staff</option>
                                     </select>
-                                </div>
-                                <div className="relative group">
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Joining Date</label>
-                                    <input
-                                        type="date"
-                                        name="joiningDate"
-                                        value={formData.joiningDate || ''}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none transition-all duration-300"
-                                    />
                                 </div>
                                 <div className="relative group">
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Status</label>
@@ -578,6 +631,21 @@ const StaffForm = () => {
                                     <div className="text-sm font-bold text-slate-900">
                                         {documents.govtId ? documents.govtId.name : 'Upload Government ID'}
                                     </div>
+                                    {documents.govtId && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const win = window.open();
+                                                const content = documents.govtId.data || documents.govtId.url;
+                                                win.document.write(`<iframe src="${content}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                            }}
+                                            className="mt-3 flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-200 transition-colors"
+                                        >
+                                            <Eye size={12} />
+                                            View Current
+                                        </button>
+                                    )}
                                 </div>
 
                                 <input
@@ -596,6 +664,21 @@ const StaffForm = () => {
                                     <div className="text-sm font-bold text-slate-900">
                                         {documents.contract ? documents.contract.name : 'Upload Contract'}
                                     </div>
+                                    {documents.contract && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const win = window.open();
+                                                const content = documents.contract.data || documents.contract.url;
+                                                win.document.write(`<iframe src="${content}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                            }}
+                                            className="mt-3 flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-200 transition-colors"
+                                        >
+                                            <Eye size={12} />
+                                            View Current
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -614,8 +697,8 @@ const StaffForm = () => {
                         </button>
                     </div>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 };
 

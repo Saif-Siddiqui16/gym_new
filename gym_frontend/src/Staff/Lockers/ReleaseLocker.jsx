@@ -17,10 +17,11 @@ const ReleaseLocker = () => {
         const allLockers = await getLockers();
         const occupied = allLockers.filter(l => l.status === 'Occupied').map(l => ({
             id: l.id,
-            name: l.assignee || 'Unknown Member',
+            name: l.assigneeName || l.assignee || 'Unknown Member',
             locker: l.number,
-            assigned: '2023-01-01',
-            expiry: '2023-12-31'
+            memberIdDisplay: l.assigneeMemberId || 'N/A',
+            assigned: 'Active',
+            expiry: l.expiryDate ? new Date(l.expiryDate).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'N/A'
         }));
         setOccupiedLockers(occupied);
     };
@@ -105,7 +106,7 @@ const ReleaseLocker = () => {
                                             </div>
                                             <div>
                                                 <div className="font-bold text-slate-800 text-sm">{row.name}</div>
-                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Premium Member</div>
+                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{row.memberIdDisplay !== 'N/A' ? `ID: ${row.memberIdDisplay}` : 'Member'}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -144,7 +145,7 @@ const ReleaseLocker = () => {
                             <MobileCard
                                 key={row.id}
                                 title={row.name}
-                                subtitle="Premium Member"
+                                subtitle={row.memberIdDisplay !== 'N/A' ? `ID: ${row.memberIdDisplay}` : 'Member'}
                                 badge={`#${row.locker}`}
                                 badgeColor="violet"
                                 fields={[

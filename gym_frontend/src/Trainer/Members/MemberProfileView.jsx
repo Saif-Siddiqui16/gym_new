@@ -16,7 +16,8 @@ import {
     CreditCard,
     MessageSquare,
     X,
-    Send
+    Send,
+    Plus
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMemberById, getMemberPayments } from '../../api/trainer/trainerApi';
@@ -140,7 +141,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                 {member.status}
                             </span>
                         </div>
-                        <p className="text-gray-500 font-medium mb-4">{member.id} • {member.plan}</p>
+                        <p className="text-gray-500 font-medium mb-4">{member.id} • {typeof member.plan === 'object' ? member.plan?.name : (member.plan || 'No Active Plan')}</p>
 
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-semibold">

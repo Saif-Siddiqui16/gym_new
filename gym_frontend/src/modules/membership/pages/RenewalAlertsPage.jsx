@@ -13,7 +13,7 @@ import {
     ExternalLink,
     CheckCircle2
 } from 'lucide-react';
-import { getRenewalAlerts } from '../../../api/manager/managerApi';
+import { getRenewalAlerts, fetchTenantSettings } from '../../../api/manager/managerApi';
 import RenewalModal from '../components/RenewalModal';
 import toast from 'react-hot-toast';
 
@@ -25,16 +25,25 @@ const RenewalAlertsPage = () => {
     const [loading, setLoading] = useState(true);
     const [selectedMember, setSelectedMember] = useState(null);
     const [isRenewalModalOpen, setIsRenewalModalOpen] = useState(false);
+    const [templates, setTemplates] = useState([]);
 
     useEffect(() => {
+        setMembers([]); // Instantly clear stale data on tab/search change
+        setLoading(true);
+
         const fetchData = async () => {
-            setLoading(true);
             try {
-                const data = await getRenewalAlerts({ type: activeTab, search: searchTerm });
-                setMembers(data);
+                const [alertsData, settingsData] = await Promise.all([
+                    getRenewalAlerts({ type: activeTab, search: searchTerm }),
+                    fetchTenantSettings().catch(() => ({ messageTemplates: [] }))
+                ]);
+                setMembers(alertsData);
+                if (settingsData && settingsData.messageTemplates) {
+                    setTemplates(settingsData.messageTemplates);
+                }
             } catch (err) {
-                console.error("Failed to load renewal alerts:", err);
-                toast.error("Failed to load renewal alerts");
+                console.error("Failed to load renewal alerts or settings:", err);
+                toast.error("Failed to load data");
             } finally {
                 setLoading(false);
             }
@@ -66,10 +75,24 @@ const RenewalAlertsPage = () => {
     };
 
     const handleMessageMember = (member) => {
-        alert(`Opening WhatsApp for ${member.memberName}...`);
+        // Find Membership Renewal template
+        const template = templates.find(t => t.name === 'Membership Renewal Reminder' || t.id === 1);
+        let message = '';
+
+        if (template) {
+            message = template.text
+                .replace('{{member_name}}', member.memberName)
+                .replace('{{plan_name}}', member.planName)
+                .replace('{{days}}', getDaysDiff(member.endDate))
+                .replace('{{link}}', window.location.origin + '/renew');
+        } else {
+            message = `Hi ${member.memberName}, your membership ${member.planName} is expiring soon. Please renew!`;
+        }
+
         // Clean phone number for WhatsApp link
         const cleanPhone = member.phone.replace(/\D/g, '');
-        window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        const encodedMessage = encodeURIComponent(message);
+        window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, '_blank');
     };
 
     return (
@@ -200,20 +223,6 @@ const RenewalAlertsPage = () => {
                                         <td className="px-8 py-5">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
-                                                    onClick={() => handleMessageMember(member)}
-                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-200"
-                                                    title="WhatsApp Member"
-                                                >
-                                                    <MessageCircle size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleCallMember(member)}
-                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all border border-transparent hover:border-blue-200"
-                                                    title="Call Member"
-                                                >
-                                                    <Phone size={18} />
-                                                </button>
-                                                <button
                                                     onClick={() => handleRenewClick(member)}
                                                     className={`px-5 py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all hover:scale-105 active:scale-95 ${activeTab === 'expiring'
                                                         ? 'bg-amber-500 text-white shadow-amber-100 hover:shadow-amber-200'
@@ -272,20 +281,8 @@ const RenewalAlertsPage = () => {
 
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleCallMember(member)}
-                                            className="flex-1 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 active:bg-slate-100 transition-colors"
-                                        >
-                                            <Phone size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleMessageMember(member)}
-                                            className="flex-1 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 active:bg-slate-100 transition-colors"
-                                        >
-                                            <MessageCircle size={18} />
-                                        </button>
-                                        <button
                                             onClick={() => handleRenewClick(member)}
-                                            className={`flex-[3] h-12 rounded-xl font-black uppercase tracking-widest text-[10px] text-white shadow-xl transition-all active:scale-95 ${activeTab === 'expiring' ? 'bg-amber-500 shadow-amber-100' : 'bg-rose-600 shadow-rose-100'
+                                            className={`w-full h-12 rounded-xl font-black uppercase tracking-widest text-[10px] text-white shadow-xl transition-all active:scale-95 ${activeTab === 'expiring' ? 'bg-amber-500 shadow-amber-100' : 'bg-rose-600 shadow-rose-100'
                                                 }`}
                                         >
                                             Renew

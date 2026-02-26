@@ -5,6 +5,8 @@ import { fetchStaffAPI, } from '../../api/admin/adminApi';
 import { deleteStaff } from '../../api/superadmin/superAdminApi';
 import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../config/roles';
 
 const ROLE_PERMISSIONS = {
     'Admin': ['Full Access', 'Finance', 'HR', 'Settings', 'Branch Ops'],
@@ -51,6 +53,7 @@ const ConfirmationDrawer = ({ isOpen, onClose, onConfirm, title, message }) => {
 };
 
 const StaffManagement = ({ role, branchId }) => {
+    const { role: currentUserRole } = useAuth();
     const navigate = useNavigate();
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -96,7 +99,8 @@ const StaffManagement = ({ role, branchId }) => {
         }
     };
 
-    const roles = ['All Roles', ...Object.keys(ROLE_PERMISSIONS)];
+    const allRolesList = Object.keys(ROLE_PERMISSIONS);
+    const roles = ['All Roles', ...(currentUserRole === ROLES.SUPER_ADMIN ? allRolesList : allRolesList.filter(r => r !== 'Admin' && r !== 'Manager'))];
 
     const filteredStaff = staffList.filter(s => {
         // Backend already scopes results by tenantId — no extra branchId filter needed
@@ -271,7 +275,7 @@ const StaffManagement = ({ role, branchId }) => {
                                                         {staff.role === 'Manager' && <span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 text-[8px] font-black uppercase rounded tracking-widest">Lead</span>}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                        Joined: {staff.joinedDate} • Reports to: <span className="text-slate-600 font-extrabold">{staff.reportingManager || 'Owner'}</span>
+                                                        Joined: {staff.joinedDate} • Shift: <span className="text-slate-600 font-extrabold">{staff.shift || 'N/A'}</span>
                                                     </p>
                                                 </div>
                                             </div>

@@ -19,35 +19,55 @@ import DashboardGrid from '../../modules/dashboard/components/DashboardGrid';
 import MobileCard from '../../components/common/MobileCard';
 import RightDrawer from '../../components/common/RightDrawer';
 import Card from '../../components/ui/Card';
+import toast from 'react-hot-toast';
 
 // Simulated Logged-In User ID
 const CURRENT_TRAINER_ID = 'T-101';
 
 const TrainerAttendance = () => {
-    const [monthFilter, setMonthFilter] = useState('May 2024');
+    const currentMonthYear = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+    const [monthFilter, setMonthFilter] = useState(currentMonthYear);
     const [isLeaveDrawerOpen, setIsLeaveDrawerOpen] = useState(false);
     const [isCheckedIn, setIsCheckedIn] = useState(false);
-    const [leaveRequests, setLeaveRequests] = useState([
-        { id: 1, type: 'Vacation', start: 'Mar 10, 2026', end: 'Mar 12, 2026', status: 'Pending', reason: 'Family vacation' },
-        { id: 2, type: 'Sick Leave', start: 'Feb 05, 2026', end: 'Feb 05, 2026', status: 'Approved', reason: 'Fever' },
-        { id: 3, type: 'Casual', start: 'Jan 20, 2026', end: 'Jan 20, 2026', status: 'Rejected', reason: 'Personal work' },
-    ]);
+    const [isCheckedOut, setIsCheckedOut] = useState(false);
+    const [leaveRequests, setLeaveRequests] = useState([]);
 
     const [attendanceData, setAttendanceData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [logsPage, setLogsPage] = useState(1);
+    const [leavesPage, setLeavesPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const formatLocalTime = (date) => {
+        if (!date) return 'Not yet';
+        return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const formatLocalDate = (date) => {
+        if (!date) return '-';
+        const d = new Date(date);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Use UTC methods to match backend normalization
+        return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+    };
 
     const loadAttendance = async () => {
         setLoading(true);
         try {
-            const data = await getTrainerAttendance();
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const data = await getTrainerAttendance(todayStr);
             setAttendanceData(data);
             setLeaveRequests(data.leaveRequests || []);
 
             // Check if user is checked in but not checked out today
-            const isCurrentlyCheckedIn = data.summary?.todayCheckIn !== 'Not yet' && data.summary?.todayCheckOut === 'Not yet';
-            setIsCheckedIn(isCurrentlyCheckedIn);
+            const hasCheckIn = !!data.summary?.todayCheckIn;
+            const hasCheckOut = !!data.summary?.todayCheckOut;
+
+            setIsCheckedIn(hasCheckIn && !hasCheckOut);
+            setIsCheckedOut(hasCheckIn && hasCheckOut);
         } catch (error) {
             console.error(error);
+            toast.error("Failed to load attendance logs");
         } finally {
             setLoading(false);
         }
@@ -57,6 +77,24 @@ const TrainerAttendance = () => {
         loadAttendance();
     }, []);
 
+    const filteredLogs = attendanceData?.logs?.filter(log => {
+        const logDate = new Date(log.date);
+        const logMonthYear = logDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        return logMonthYear === monthFilter;
+    }) || [];
+
+    const filteredLeaves = leaveRequests?.filter(leave => {
+        const leaveDate = new Date(leave.start);
+        const leaveMonthYear = leaveDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        return leaveMonthYear === monthFilter;
+    }) || [];
+
+    const paginatedLogs = filteredLogs.slice((logsPage - 1) * itemsPerPage, logsPage * itemsPerPage);
+    const paginatedLeaves = filteredLeaves.slice((leavesPage - 1) * itemsPerPage, leavesPage * itemsPerPage);
+
+    const logsTotalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+    const leavesTotalPages = Math.ceil(filteredLeaves.length / itemsPerPage);
+
     const getStatusStyle = (status) => {
         switch (status) {
             case 'Present':
@@ -65,18 +103,19 @@ const TrainerAttendance = () => {
             case 'Rejected': return 'bg-red-100 text-red-700 border border-red-200';
             case 'Late':
             case 'Pending': return 'bg-amber-100 text-amber-700 border border-amber-200';
+            case 'On Leave': return 'bg-blue-100 text-blue-700 border border-blue-200';
             default: return 'bg-slate-100 text-slate-700 border border-slate-200';
         }
     };
 
     const handleCheckIn = async () => {
         try {
-            const result = await checkInTrainer({ isCheckedIn });
-            alert(result.message);
-            setIsCheckedIn(!isCheckedIn);
+            const localDate = new Date().toLocaleDateString('en-CA'); // Get YYYY-MM-DD in local time
+            const result = await checkInTrainer({ localDate });
+            toast.success(result.message);
             loadAttendance();
         } catch (err) {
-            alert('Failed to check in/out.');
+            toast.error(err || 'Failed to check in/out.');
         }
     };
 
@@ -117,67 +156,86 @@ const TrainerAttendance = () => {
                     </div>
                 }
             >
-                <div className="space-y-6">
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Leave Type</label>
-                        <select
-                            value={leaveForm.type}
-                            onChange={(e) => setLeaveForm({ ...leaveForm, type: e.target.value })}
-                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                            <option>Sick Leave</option>
-                            <option>Casual Leave</option>
-                            <option>Emergency</option>
-                            <option>Vacation</option>
-                        </select>
+                <div className="space-y-8 px-6 py-6">
+                    {/* Leave Type Select */}
+                    <div className="space-y-2.5">
+                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Leave Type</label>
+                        <div className="relative group">
+                            <select
+                                value={leaveForm.type}
+                                onChange={(e) => setLeaveForm({ ...leaveForm, type: e.target.value })}
+                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300 appearance-none cursor-pointer group-hover:border-slate-200"
+                            >
+                                <option>Sick Leave</option>
+                                <option>Casual Leave</option>
+                                <option>Emergency</option>
+                                <option>Vacation</option>
+                            </select>
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:rotate-180 transition-transform duration-300" />
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Start Date</label>
+                    {/* Date Range Group */}
+                    <div className="grid grid-cols-2 gap-5">
+                        <div className="space-y-2.5">
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Start Date</label>
                             <input
                                 type="date"
                                 value={leaveForm.start}
                                 onChange={(e) => setLeaveForm({ ...leaveForm, start: e.target.value })}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300 hover:border-slate-200"
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">End Date</label>
+                        <div className="space-y-2.5">
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">End Date</label>
                             <input
                                 type="date"
                                 value={leaveForm.end}
                                 onChange={(e) => setLeaveForm({ ...leaveForm, end: e.target.value })}
-                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300 hover:border-slate-200"
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div>
-                            <p className="text-sm font-bold text-gray-800">Half Day Request?</p>
-                            <p className="text-[10px] text-gray-500 font-medium tracking-tight">Select if applying for a partial day</p>
+                    {/* Modern Toggle Switch */}
+                    <div className="group flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-white rounded-[24px] border border-slate-100 hover:border-indigo-100 hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform duration-300">
+                                <Clock size={20} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-slate-800">Half Day Request?</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Select if applying for a partial day</p>
+                            </div>
                         </div>
-                        <div className="w-10 h-6 bg-gray-200 rounded-full cursor-pointer relative transition-all duration-300">
-                            <div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1 shadow-sm transition-all duration-300" />
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setLeaveForm(prev => ({ ...prev, isHalfDay: !prev.isHalfDay }))}
+                            className={`w-12 h-6 rounded-full relative transition-all duration-500 group-hover:scale-110 ${leaveForm.isHalfDay ? 'bg-indigo-600 shadow-lg shadow-indigo-200' : 'bg-slate-200'}`}
+                        >
+                            <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all duration-500 ${leaveForm.isHalfDay ? 'left-7' : 'left-1'}`} />
+                        </button>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Reason</label>
+                    {/* Reason Textarea */}
+                    <div className="space-y-2.5">
+                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Reason for Leave</label>
                         <textarea
                             rows={4}
                             value={leaveForm.reason}
                             onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
-                            placeholder="Explain your reason for leave..."
-                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                            placeholder="Please provide a detailed reason..."
+                            className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300 hover:border-slate-200 resize-none"
                         />
                     </div>
 
-                    <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 flex gap-3">
-                        <AlertCircle size={18} className="text-violet-500 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-violet-700 font-medium leading-relaxed">
-                            Your request will be sent to the manager for approval. You'll be notified once updated.
+                    {/* Information Alert */}
+                    <div className="p-5 bg-indigo-50/50 rounded-[24px] border border-indigo-100/50 flex gap-4 transform hover:scale-[1.02] transition-transform duration-300">
+                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-indigo-500 shadow-sm flex-shrink-0">
+                            <AlertCircle size={16} />
+                        </div>
+                        <p className="text-[11px] text-indigo-700 font-bold leading-relaxed">
+                            Your request will be forwarded to the management team for review. You will receive a notification once a decision has been made.
                         </p>
                     </div>
                 </div>
@@ -230,13 +288,16 @@ const TrainerAttendance = () => {
                             </button>
                             <button
                                 onClick={handleCheckIn}
-                                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold shadow-xl transition-all w-full sm:w-auto hover:scale-105 active:scale-95 ${isCheckedIn
-                                    ? 'bg-amber-500 text-white shadow-amber-500/30 hover:shadow-amber-500/40'
-                                    : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/30 hover:shadow-violet-500/40'
+                                disabled={isCheckedOut}
+                                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold shadow-xl transition-all w-full sm:w-auto hover:scale-105 active:scale-95 ${isCheckedOut
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
+                                    : isCheckedIn
+                                        ? 'bg-amber-500 text-white shadow-amber-500/30 hover:shadow-amber-500/40'
+                                        : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/30 hover:shadow-violet-500/40'
                                     }`}
                             >
-                                {isCheckedIn ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
-                                Today's {isCheckedIn ? 'Check-out' : 'Check-in'}
+                                {isCheckedOut ? <CheckCircle2 size={18} /> : isCheckedIn ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
+                                {isCheckedOut ? 'Attendance Completed' : `Today's ${isCheckedIn ? 'Check-out' : 'Check-in'}`}
                             </button>
                         </div>
                     </div>
@@ -247,13 +308,13 @@ const TrainerAttendance = () => {
             <DashboardGrid>
                 <StatsCard
                     title="Today Check-in"
-                    value={attendanceData.summary.todayCheckIn}
+                    value={formatLocalTime(attendanceData.summary.todayCheckIn)}
                     icon={ArrowUpRight}
                     color="primary"
                 />
                 <StatsCard
                     title="Today Check-out"
-                    value={attendanceData.summary.todayCheckOut}
+                    value={formatLocalTime(attendanceData.summary.todayCheckOut)}
                     icon={ArrowDownLeft}
                     color="success"
                 />
@@ -285,9 +346,12 @@ const TrainerAttendance = () => {
                                 onChange={(e) => setMonthFilter(e.target.value)}
                                 className="appearance-none bg-slate-50 border border-slate-100 text-slate-600 py-2.5 pl-4 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:border-violet-500 transition-all cursor-pointer"
                             >
-                                <option>May 2024</option>
-                                <option>April 2024</option>
-                                <option>March 2024</option>
+                                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => {
+                                    const d = new Date();
+                                    d.setMonth(d.getMonth() - i);
+                                    const label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+                                    return <option key={label} value={label}>{label}</option>
+                                })}
                             </select>
                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                         </div>
@@ -310,46 +374,77 @@ const TrainerAttendance = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {attendanceData.logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-slate-50/50 transition-all duration-200 group">
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm font-bold text-slate-900 group-hover:text-violet-700 transition-colors">{log.date}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                                            <ArrowUpRight size={14} className="text-emerald-500" />
-                                            {log.checkIn}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                                            <ArrowDownLeft size={14} className="text-rose-500" />
-                                            {log.checkOut}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm font-black text-slate-900">{log.hours}</span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex justify-center">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusStyle(log.status)}`}>
-                                                {log.status}
+                            {paginatedLogs.length > 0 ? (
+                                paginatedLogs.map((log) => (
+                                    <tr key={log.id} className="hover:bg-slate-50/50 transition-all duration-200 group">
+                                        <td className="px-6 py-5">
+                                            <span className="text-sm font-bold text-slate-900 group-hover:text-violet-700 transition-colors">
+                                                {formatLocalDate(log.date)}
                                             </span>
-                                        </div>
-                                    </td>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
+                                                <ArrowUpRight size={14} className="text-emerald-500" />
+                                                {formatLocalTime(log.checkIn)}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
+                                                <ArrowDownLeft size={14} className="text-rose-500" />
+                                                {formatLocalTime(log.checkOut)}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-sm font-black text-slate-900">{log.hours}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex justify-center">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusStyle(log.status)}`}>
+                                                    {log.status}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-10 text-center text-slate-400 font-medium">No logs found for this month</td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
 
-                {/* Mobile Version */}
+                {/* Pagination for Logs */}
+                {logsTotalPages > 1 && (
+                    <div className="flex items-center justify-between px-2 py-4 border-t border-slate-50">
+                        <p className="text-xs font-bold text-slate-400">Page {logsPage} of {logsTotalPages}</p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setLogsPage(p => Math.max(1, p - 1))}
+                                disabled={logsPage === 1}
+                                className="px-4 py-2 text-xs font-bold bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-100 disabled:opacity-50 transition-all"
+                            >
+                                Previous
+                            </button>
+                            <button
+                                onClick={() => setLogsPage(p => Math.min(logsTotalPages, p + 1))}
+                                disabled={logsPage === logsTotalPages}
+                                className="px-4 py-2 text-xs font-bold bg-violet-50 text-violet-700 rounded-xl hover:bg-violet-100 disabled:opacity-50 transition-all"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Mobile Version Update */}
                 <div className="md:hidden space-y-4">
-                    {attendanceData.logs.map((log) => (
+                    {paginatedLogs.map((log) => (
                         <MobileCard
                             key={log.id}
-                            title={log.date}
-                            subtitle={`Check-in: ${log.checkIn}`}
+                            title={formatLocalDate(log.date)}
+                            subtitle={`Check-in: ${formatLocalTime(log.checkIn)}`}
                             status={log.status}
                             statusColor={log.status === 'Present' ? 'emerald' : log.status === 'Late' ? 'amber' : 'red'}
                             badge={log.hours}
@@ -357,6 +452,9 @@ const TrainerAttendance = () => {
                             icon={Clock}
                         />
                     ))}
+                    {filteredLogs.length === 0 && (
+                        <div className="py-8 text-center text-slate-400 text-sm font-medium">No data available</div>
+                    )}
                 </div>
             </div>
 
@@ -379,46 +477,80 @@ const TrainerAttendance = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {leaveRequests.map((leave) => (
-                                    <tr key={leave.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-5">
-                                            <span className="text-sm font-bold text-slate-900">{leave.start === leave.end ? leave.start : `${leave.start} – ${leave.end}`}</span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <span className="text-xs font-bold text-slate-600">{leave.type}</span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <span className="text-xs text-slate-500 font-medium truncate max-w-[200px] block">{leave.reason}</span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex justify-center">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusStyle(leave.status)}`}>
-                                                    {leave.status}
+                                {paginatedLeaves.length > 0 ? (
+                                    paginatedLeaves.map((leave) => (
+                                        <tr key={leave.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-5">
+                                                <span className="text-sm font-bold text-slate-900">
+                                                    {formatLocalDate(leave.start)} {leave.start !== leave.end ? ` – ${formatLocalDate(leave.end)}` : ''}
                                                 </span>
-                                            </div>
-                                        </td>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className="text-xs font-bold text-slate-600">{leave.type}</span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <span className="text-xs text-slate-500 font-medium truncate max-w-[200px] block">{leave.reason}</span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex justify-center">
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusStyle(leave.status)}`}>
+                                                        {leave.status}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="px-6 py-10 text-center text-slate-400 font-medium">No leave records for this month</td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {/* Mobile History Cards */}
+                    {/* Pagination for Leaves */}
+                    {leavesTotalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-50">
+                            <p className="text-xs font-bold text-slate-400">Page {leavesPage} of {leavesTotalPages}</p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setLeavesPage(p => Math.max(1, p - 1))}
+                                    disabled={leavesPage === 1}
+                                    className="px-4 py-2 text-xs font-bold bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-100 disabled:opacity-50 transition-all"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={() => setLeavesPage(p => Math.min(leavesTotalPages, p + 1))}
+                                    disabled={leavesPage === leavesTotalPages}
+                                    className="px-4 py-2 text-xs font-bold bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-100 disabled:opacity-50 transition-all"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mobile History Cards Update */}
                     <div className="md:hidden p-4 space-y-4">
-                        {leaveRequests.map((leave) => (
+                        {paginatedLeaves.map((leave) => (
                             <div key={leave.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="text-sm font-bold text-slate-900">{leave.start === leave.end ? leave.start : `${leave.start} – ${leave.end}`}</p>
+                                        <p className="text-sm font-bold text-slate-900">{formatLocalDate(leave.start)}</p>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight">{leave.type}</p>
                                     </div>
                                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${getStatusStyle(leave.status)}`}>
                                         {leave.status}
                                     </span>
                                 </div>
-                                <p className="text-xs text-slate-500 font-medium">{leave.reason}</p>
+                                <p className="text-xs text-slate-500 font-medium italic">"{leave.reason}"</p>
                             </div>
                         ))}
+                        {filteredLeaves.length === 0 && (
+                            <div className="py-4 text-center text-slate-400 text-xs font-medium">No records found</div>
+                        )}
                     </div>
                 </Card>
             </div>

@@ -3,12 +3,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User, Calendar, FileText, CheckCircle, LogOut, ChevronRight, Hash } from 'lucide-react';
 import '../../styles/GlobalDesign.css';
 import { getLockers, assignLocker } from '../../api/staff/lockerApi';
+import { getMembers } from '../../api/staff/memberApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
 const AssignLocker = () => {
     const navigate = useNavigate();
     const { state } = useLocation();
     const [formData, setFormData] = useState({
+        memberId: '',
         memberName: state?.memberName || '',
         lockerId: '',
         expiryDate: '',
@@ -16,15 +18,22 @@ const AssignLocker = () => {
     });
 
     const [availableLockers, setAvailableLockers] = useState([]);
-    const members = ['Rahul Sharma', 'Vikram Malhotra', 'Sneha Gupta', 'Amit Verma', 'Alice Johnson'];
+    const [membersList, setMembersList] = useState([]);
 
     useEffect(() => {
-        const fetchLockers = async () => {
-            const allLockers = await getLockers();
-            const available = allLockers.filter(l => l.status.toLowerCase() === 'available');
-            setAvailableLockers(available);
+        const fetchData = async () => {
+            try {
+                const allLockers = await getLockers();
+                const available = allLockers.filter(l => l.status.toLowerCase() === 'available');
+                setAvailableLockers(available);
+
+                const allMembers = await getMembers();
+                setMembersList(allMembers);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
         };
-        fetchLockers();
+        fetchData();
     }, []);
 
     const handleChange = (e) => {
@@ -34,13 +43,18 @@ const AssignLocker = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await assignLocker(formData.lockerId, "mock-mem-id", formData.memberName);
+        if (!formData.memberId || !formData.lockerId) {
+            alert('Please select both a member and a locker');
+            return;
+        }
+
+        const result = await assignLocker(formData.lockerId, formData.memberId.toString(), formData.memberName, formData.expiryDate, formData.notes);
 
         if (result.success) {
             alert(result.message);
-            setFormData({ memberName: '', lockerId: '', expiryDate: '', notes: '' });
+            setFormData({ memberId: '', memberName: '', lockerId: '', expiryDate: '', notes: '' });
             const allLockers = await getLockers();
-            setAvailableLockers(allLockers.filter(l => l.status === 'Available'));
+            setAvailableLockers(allLockers.filter(l => l.status.toLowerCase() === 'available'));
         } else {
             alert(result.message);
         }
@@ -92,9 +106,13 @@ const AssignLocker = () => {
                                 Member Name
                             </label>
                             <CustomDropdown
-                                options={members}
-                                value={formData.memberName}
-                                onChange={(val) => handleChange({ target: { name: 'memberName', value: val } })}
+                                options={membersList.map(m => ({ value: m.id, label: `${m.name} (${m.phone})` }))}
+                                value={formData.memberId}
+                                onChange={(val) => {
+                                    const member = membersList.find(m => m.id === val);
+                                    handleChange({ target: { name: 'memberId', value: val } });
+                                    handleChange({ target: { name: 'memberName', value: member?.name || '' } });
+                                }}
                                 placeholder="Select Member"
                                 className="w-full"
                             />

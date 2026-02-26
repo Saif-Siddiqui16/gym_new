@@ -59,10 +59,16 @@ const TodaysCheckIns = () => {
     const [history, setHistory] = useState([]);
     const [statsData, setStatsData] = useState({ total: 0, inside: 0, checkedOut: 0 });
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
     useEffect(() => {
         loadData();
     }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter, searchTerm]);
 
     const loadData = async () => {
         setLoading(true);
@@ -141,10 +147,27 @@ const TodaysCheckIns = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {history
-                                .filter(item => statusFilter === 'All' || item.status === statusFilter)
-                                .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                                .map((row) => (
+                            {(() => {
+                                const filtered = history
+                                    .filter(item => statusFilter === 'All' || item.status === statusFilter)
+                                    .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                                const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+                                if (paginated.length === 0) {
+                                    return (
+                                        <tr>
+                                            <td colSpan="5" className="px-6 py-12 text-center text-gray-400">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <Filter size={20} className="text-gray-300" />
+                                                    <p>No records found.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+
+                                return paginated.map((row) => (
                                     <tr key={row.id} className="hover:bg-gray-50 group transition-all duration-200">
                                         <td className="px-6 py-4" data-label="Member Name">
                                             <div className="flex items-center gap-3">
@@ -191,28 +214,30 @@ const TodaysCheckIns = () => {
                                             )}
                                         </td>
                                     </tr>
-                                ))}
-                            {history.filter(item => statusFilter === 'All' || item.status === statusFilter)
-                                .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <Filter size={20} className="text-gray-300" />
-                                                <p>No records found.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
+                                ));
+                            })()}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Mobile View */}
                 <div className="md:hidden p-4 space-y-4">
-                    {history
-                        .filter(item => statusFilter === 'All' || item.status === statusFilter)
-                        .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                        .map((row) => (
+                    {(() => {
+                        const filtered = history
+                            .filter(item => statusFilter === 'All' || item.status === statusFilter)
+                            .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                        const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+                        if (paginated.length === 0) {
+                            return (
+                                <div className="py-8 text-center text-sm text-gray-500 bg-white rounded-2xl border border-gray-100">
+                                    No records found.
+                                </div>
+                            );
+                        }
+
+                        return paginated.map((row) => (
                             <MobileCard
                                 key={row.id}
                                 title={row.name}
@@ -231,16 +256,58 @@ const TodaysCheckIns = () => {
                                     }
                                 ] : []}
                             />
-                        ))}
-                    {history.filter(item => statusFilter === 'All' || item.status === statusFilter)
-                        .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
-                            <div className="py-8 text-center text-sm text-gray-500 bg-white rounded-2xl border border-gray-100">
-                                No records found.
-                            </div>
-                        )}
+                        ));
+                    })()}
                 </div>
-            </div >
-        </div >
+
+                {/* Pagination Controls */}
+                {history.length > 0 && (
+                    <div className="p-6 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            Showing <span className="text-indigo-600">
+                                {Math.min(itemsPerPage, history.filter(item => statusFilter === 'All' || item.status === statusFilter).filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length)}
+                            </span> of <span className="text-gray-900">
+                                {history.filter(item => statusFilter === 'All' || item.status === statusFilter).filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length}
+                            </span> records
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentPage === 1 ? 'text-gray-300 bg-gray-50 cursor-not-allowed' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:scale-95'}`}
+                            >
+                                Previous
+                            </button>
+
+                            {/* Page Numbers */}
+                            <div className="hidden md:flex items-center gap-1">
+                                {Array.from({
+                                    length: Math.ceil(history
+                                        .filter(item => statusFilter === 'All' || item.status === statusFilter)
+                                        .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage)
+                                }).map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${currentPage === i + 1 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(Math.ceil(history.filter(item => statusFilter === 'All' || item.status === statusFilter).filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage), prev + 1))}
+                                disabled={currentPage === Math.ceil(history.filter(item => statusFilter === 'All' || item.status === statusFilter).filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${currentPage === Math.ceil(history.filter(item => statusFilter === 'All' || item.status === statusFilter).filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length / itemsPerPage) ? 'text-gray-300 bg-gray-50 cursor-not-allowed' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:scale-95'}`}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 };
 

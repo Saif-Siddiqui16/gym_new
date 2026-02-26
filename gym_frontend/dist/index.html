@@ -6,8 +6,8 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>new-gym</title>
-  <script type="module" crossorigin src="/assets/index-Dr4-eLQv.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-B-zhaIbI.css">
+  <script type="module" crossorigin src="/assets/index-Dydn0iOg.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DX2ooajz.css">
 </head>
 
 <body>
@@ -22,8 +22,11 @@
       node.style.top = '0';
       node.style.left = '0';
       node.style.zIndex = '999999';
-      node.innerHTML = '<h2>Runtime Error:</h2><p>' + msg + '</p><p>at ' + url + ':' + lineNo + ':' + columnNo + '</p>';
+      node.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+      node.style.borderRadius = '0 0 12px 0';
+      node.innerHTML = '<h2>Runtime Error:</h2><p>' + msg + '</p>';
       document.body.appendChild(node);
+      setTimeout(function() { if(node.parentNode) node.parentNode.removeChild(node); }, 5000);
       return false;
     };
     window.onunhandledrejection = function (event) {
@@ -35,8 +38,11 @@
       node.style.top = '100px';
       node.style.left = '0';
       node.style.zIndex = '999999';
+      node.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+      node.style.borderRadius = '0 12px 12px 0';
       node.innerHTML = '<h2>Unhandled Promise Rejection:</h2><p>' + event.reason + '</p>';
       document.body.appendChild(node);
+      setTimeout(function() { if(node.parentNode) node.parentNode.removeChild(node); }, 5000);
     };
   </script>
 </body>
