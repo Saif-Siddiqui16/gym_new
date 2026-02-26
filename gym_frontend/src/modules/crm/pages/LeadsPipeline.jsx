@@ -140,7 +140,9 @@ const LeadsPipeline = () => {
                                             </div>
                                             <div>
                                                 <h4 className="font-bold text-slate-800 text-sm group-hover:text-violet-700 transition-colors uppercase tracking-tight">{lead.name}</h4>
-                                                <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wider">{lead.interest?.[0] || 'Inquiry'}</p>
+                                                <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wider">
+                                                    {Array.isArray(lead.interests) && lead.interests.length > 0 ? lead.interests[0] : 'Inquiry'}
+                                                </p>
                                             </div>
                                         </div>
                                         <button className="p-1 text-slate-300 hover:text-slate-600">
@@ -155,7 +157,9 @@ const LeadsPipeline = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-500">
                                             <Calendar size={12} className="text-violet-400" />
-                                            <span className="text-[11px] font-medium tracking-tight">Follow-up: {lead.followUpDate}</span>
+                                            <span className="text-[11px] font-medium tracking-tight">
+                                                Follow-up: {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'Not set'}
+                                            </span>
                                         </div>
                                     </div>
 

@@ -9,12 +9,13 @@ export const getLockers = async () => {
     }
 };
 
-export const assignLocker = async (lockerId, memberId, memberName, isPaid = null) => {
+export const assignLocker = async (lockerId, memberId, memberName, expiryDate, notes) => {
     try {
         const response = await apiClient.post(`/staff/lockers/${lockerId}/assign`, {
             memberId,
             memberName,
-            isPaid
+            expiryDate,
+            notes
         });
         return { success: true, message: 'Locker assigned successfully', data: response.data };
     } catch (error) {

@@ -1,39 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, Check, Search, ClipboardList, Info, ArrowRight } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
+import { getDietPlans, getWorkoutPlans, assignPlanToMember } from '../../../api/trainer/trainerApi';
+import toast from 'react-hot-toast';
 
 const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPlanId, setSelectedPlanId] = useState(null);
+    const [selectedPlanType, setSelectedPlanType] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [notes, setNotes] = useState('');
 
-    // Mock Plans - In real app, filter by loggedInTrainerId
-    const MOCK_PLANS = [
-        { id: 'DP-101', name: 'Lean Bulk High Protein', type: 'Diet', duration: '4 Weeks', trainer_id: 'T-101' },
-        { id: 'DP-102', name: 'Keto Shred Protocol', type: 'Diet', duration: '8 Weeks', trainer_id: 'T-101' },
-        { id: 'WP-201', name: 'Hypertrophy Mastery 2.0', type: 'Workout', duration: '12 Weeks', trainer_id: 'T-101' },
-        { id: 'WP-202', name: 'Strength 5x5 Foundation', type: 'Workout', duration: '6 Weeks', trainer_id: 'T-101' },
-    ];
+    const [plans, setPlans] = useState([]);
+    const [loadingPlans, setLoadingPlans] = useState(false);
 
-    const filteredPlans = MOCK_PLANS.filter(plan =>
+    useEffect(() => {
+        if (isOpen) {
+            fetchPlans();
+        } else {
+            setSearchTerm('');
+            setSelectedPlanId(null);
+            setSelectedPlanType(null);
+            setStartDate('');
+            setEndDate('');
+            setNotes('');
+        }
+    }, [isOpen]);
+
+    const fetchPlans = async () => {
+        setLoadingPlans(true);
+        try {
+            const [diet, workout] = await Promise.all([
+                getDietPlans(),
+                getWorkoutPlans()
+            ]);
+            const formattedDiet = diet.map(p => ({ ...p, type: 'Diet' }));
+            const formattedWorkout = workout.map(p => ({ ...p, type: 'Workout' }));
+            setPlans([...formattedDiet, ...formattedWorkout]);
+        } catch (error) {
+            toast.error('Failed to load trainer plans');
+        } finally {
+            setLoadingPlans(false);
+        }
+    };
+
+    const filteredPlans = plans.filter(plan =>
         plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         plan.type.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleAssign = () => {
+    const handleAssign = async () => {
         const assignmentData = {
-            memberId,
             planId: selectedPlanId,
+            type: selectedPlanType,
             startDate,
             endDate,
             notes
         };
-        console.log('Final Assignment Data:', assignmentData);
-        // Simulate API call
-        alert(`Plan assigned to ${memberName} successfully!`);
-        onClose();
+        try {
+            await assignPlanToMember(memberId, assignmentData);
+            toast.success(`Plan assigned to ${memberName} successfully!`);
+            onClose();
+        } catch (error) {
+            toast.error(error.message || 'Failed to assign plan');
+        }
     };
 
     return (
@@ -69,37 +100,43 @@ const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId }) => {
                         </div>
 
                         <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-1">
-                            {filteredPlans.map(plan => {
-                                const isSelected = selectedPlanId === plan.id;
-                                return (
-                                    <button
-                                        key={plan.id}
-                                        onClick={() => setSelectedPlanId(plan.id)}
-                                        className={`p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${isSelected
+                            {loadingPlans ? (
+                                <div className="p-4 text-center text-xs font-bold text-slate-400">Loading plans...</div>
+                            ) : filteredPlans.length === 0 ? (
+                                <div className="p-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">No plans found. Please create plans from your Dashboard first.</div>
+                            ) : (
+                                filteredPlans.map(plan => {
+                                    const isSelected = selectedPlanId === plan.id;
+                                    return (
+                                        <button
+                                            key={plan.id}
+                                            onClick={() => { setSelectedPlanId(plan.id); setSelectedPlanType(plan.type); }}
+                                            className={`p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${isSelected
                                                 ? 'bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-100'
                                                 : 'bg-white border-slate-100 hover:border-indigo-200 hover:bg-slate-50'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] uppercase ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                                                }`}>
-                                                {plan.type.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className={`font-black text-sm uppercase tracking-tight ${isSelected ? 'text-white' : 'text-slate-800'}`}>
-                                                    {plan.name}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${isSelected ? 'text-white' : 'text-slate-400'}`}>
-                                                        {plan.type} • {plan.duration}
-                                                    </span>
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] uppercase ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                                    }`}>
+                                                    {plan.type?.charAt(0) || '?'}
+                                                </div>
+                                                <div>
+                                                    <p className={`font-black text-sm uppercase tracking-tight ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                                                        {plan.name}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <span className={`text-[10px] font-bold uppercase tracking-widest opacity-60 ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                                                            {plan.type} • {plan.duration}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        {isSelected && <Check size={18} className="text-white" strokeWidth={3} />}
-                                    </button>
-                                );
-                            })}
+                                            {isSelected && <Check size={18} className="text-white" strokeWidth={3} />}
+                                        </button>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
 

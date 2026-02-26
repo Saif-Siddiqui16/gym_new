@@ -82,7 +82,7 @@ const TodayFollowUps = ({ isWidget = false }) => {
                                         </div>
                                         <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium">
                                             <Clock size={10} className="text-violet-400" />
-                                            {lead.followUpTime || 'Not set'}
+                                            {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not set'}
                                         </div>
                                     </div>
                                 </div>

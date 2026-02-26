@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Download, CheckCircle, Clock, Search, Filter, Calendar, TrendingUp, Users, Banknote, XCircle, IndianRupee } from 'lucide-react';
+import { DollarSign, Download, CheckCircle, Clock, Search, Filter, Calendar, TrendingUp, Users, Banknote, XCircle, IndianRupee, FilePlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import MobileCard from '../../../components/common/MobileCard';
-import { fetchPayrollHistoryAPI, updatePayrollStatusAPI } from '../../../api/admin/adminApi';
+import { fetchPayrollHistoryAPI, updatePayrollStatusAPI, fetchPayrollStaffAPI } from '../../../api/admin/adminApi';
 
 const Payroll = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -11,6 +15,7 @@ const Payroll = () => {
     const defaultMonthStr = `${monthNames[now.getMonth() + 1]} ${now.getFullYear()}`;
     const [selectedMonth, setSelectedMonth] = useState(defaultMonthStr);
     const [history, setHistory] = useState([]);
+    const [allStaff, setAllStaff] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Drawer State
@@ -22,34 +27,65 @@ const Payroll = () => {
     const [editDeductions, setEditDeductions] = useState(0);
 
     useEffect(() => {
-        const loadHistory = async () => {
+        const loadData = async () => {
             try {
-                const data = await fetchPayrollHistoryAPI();
-                // Map backend data to frontend requirements
-                const mappedData = data.map(record => ({
+                const [historyData, staffData] = await Promise.all([
+                    fetchPayrollHistoryAPI(),
+                    fetchPayrollStaffAPI()
+                ]);
+
+                setAllStaff(staffData);
+
+                // Map backend history to frontend requirements
+                const mappedHistory = historyData.map(record => ({
                     id: record.id,
+                    staffId: record.staffId,
                     name: record.staffName,
-                    baseSalary: Number(record.amount), // Fallback or use real baseSalary if added to backend
+                    baseSalary: Number(record.amount) - (Number(record.incentives || 0)) + (Number(record.deductions || 0)),
                     attendanceRate: 100, // Placeholder
-                    commission: 0, // Placeholder
-                    bonus: 0, // Placeholder
-                    deductions: 0, // Placeholder
+                    commission: 0, // Should this be from staff model? Let's check user model.
+                    incentives: Number(record.incentives || 0),
+                    bonus: 0, // Legacy field
+                    deductions: Number(record.deductions || 0),
                     netPay: Number(record.amount),
                     status: record.status,
                     month: `${monthNames[record.month]} ${record.year}`,
                     paymentDate: record.status === 'Paid' ? 'Processed' : null
                 }));
-                setHistory(mappedData);
+                setHistory(mappedHistory);
             } catch (error) {
-                console.error("Error loading payroll history:", error);
+                console.error("Error loading payroll data:", error);
             } finally {
                 setLoading(false);
             }
         };
-        loadHistory();
+        loadData();
     }, []);
 
-    const currentMonthData = history.filter(r => r.month === selectedMonth) || [];
+    // Merge all staff with their history records for the selected month
+    const currentMonthData = allStaff.map(staff => {
+        const historyRecord = history.find(h => h.staffId === staff.id && h.month === selectedMonth);
+
+        if (historyRecord) return historyRecord;
+
+        // Return a mock record for staff without a payroll entry for this month
+        return {
+            id: `PREVIEW-${staff.id}`,
+            staffId: staff.id,
+            name: staff.name,
+            baseSalary: Number(staff.baseSalary || 20000),
+            attendanceRate: 100,
+            commission: 0,
+            incentives: 0,
+            bonus: 0,
+            deductions: 0,
+            netPay: Number(staff.baseSalary || 20000),
+            status: 'Not Generated',
+            month: selectedMonth,
+            paymentDate: null
+        };
+    });
+
     const selectedEmployee = currentMonthData.find(e => e.id === selectedEmployeeId);
 
     // Sync edit state when employee changes
@@ -66,18 +102,19 @@ const Payroll = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const totalPayroll = currentMonthData.reduce((sum, record) => sum + record.netPay, 0);
-    const paidAmount = currentMonthData.filter(r => r.status === 'Paid').reduce((sum, record) => sum + record.netPay, 0);
-    const pendingAmount = currentMonthData.filter(r => r.status === 'Pending').reduce((sum, record) => sum + record.netPay, 0);
-    const paidCount = currentMonthData.filter(r => r.status === 'Paid').length;
-    const pendingCount = currentMonthData.filter(r => r.status === 'Pending').length;
+    const createdPayrolls = history.filter(h => h.month === selectedMonth);
+    const totalPayroll = createdPayrolls.reduce((sum, record) => sum + record.netPay, 0);
+    const paidAmount = createdPayrolls.filter(r => r.status === 'Paid').reduce((sum, record) => sum + record.netPay, 0);
+    const pendingAmount = createdPayrolls.filter(r => r.status === 'Pending').reduce((sum, record) => sum + record.netPay, 0);
+    const paidCount = createdPayrolls.filter(r => r.status === 'Paid').length;
+    const pendingCount = createdPayrolls.filter(r => r.status === 'Pending').length;
 
     // Monthly Analytics
-    const highestPaidEmployee = currentMonthData.length > 0
-        ? [...currentMonthData].sort((a, b) => b.netPay - a.netPay)[0]
+    const highestPaidEmployee = createdPayrolls.length > 0
+        ? [...createdPayrolls].sort((a, b) => b.netPay - a.netPay)[0]
         : null;
-    const totalIncentivesAmt = currentMonthData.reduce((sum, r) => sum + Number(r.bonus || 0) + Number(r.commission || 0), 0);
-    const totalDeductionsAmt = currentMonthData.reduce((sum, r) => sum + Number(r.deductions || 0), 0);
+    const totalIncentivesAmt = createdPayrolls.reduce((sum, r) => sum + Number(r.incentives || 0) + Number(r.commission || 0), 0);
+    const totalDeductionsAmt = createdPayrolls.reduce((sum, r) => sum + Number(r.deductions || 0), 0);
 
     const handleSavePayroll = () => {
         // Implementation for saving adjustments if needed
@@ -111,12 +148,139 @@ const Payroll = () => {
         return status === 'Paid' ? 'emerald' : 'amber';
     };
 
+    const handleDownloadPayslip = (record) => {
+        try {
+            const doc = new jsPDF();
+
+            // Extract gym name from local storage
+            const userStr = localStorage.getItem('userData');
+            let gymName = 'Gym CRM';
+            if (userStr) {
+                const userObj = JSON.parse(userStr);
+                gymName = userObj?.branchName || userObj?.tenant?.name || 'GYM CRM';
+            }
+
+            // High-End Color Palette
+            const primaryColor = [124, 58, 237]; // violet-600
+            const secondaryColor = [30, 41, 59]; // slate-800
+            const accentColor = [5, 150, 105];   // emerald-600
+            const mutedColor = [100, 116, 139]; // slate-500
+            const borderColor = [226, 232, 240]; // slate-200
+
+            // Header Section
+            doc.setFillColor(...primaryColor);
+            doc.rect(0, 0, 210, 40, 'F');
+
+            doc.setFontSize(24);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.text(gymName.toUpperCase(), 15, 25);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(255, 255, 255, 0.8);
+            doc.text('MONTHLY SALARY SLIP', 195, 25, { align: 'right' });
+
+            // Employee Information Card
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(15, 50, 180, 35, 3, 3, 'F');
+
+            doc.setFontSize(9);
+            doc.setTextColor(...mutedColor);
+            doc.text('EMPLOYEE NAME', 25, 60);
+            doc.setFontSize(14);
+            doc.setTextColor(...secondaryColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text(record.name.toUpperCase(), 25, 68);
+
+            doc.setFontSize(9);
+            doc.setTextColor(...mutedColor);
+            doc.setFont('helvetica', 'normal');
+            doc.text('PAYMENT MONTH', 100, 60);
+            doc.setFontSize(11);
+            doc.setTextColor(...secondaryColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text(record.month.toUpperCase(), 100, 68);
+
+            doc.setFontSize(9);
+            doc.setTextColor(...mutedColor);
+            doc.setFont('helvetica', 'normal');
+            doc.text('STATUS', 160, 60);
+            doc.setFontSize(11);
+            doc.setTextColor(...(record.status === 'Paid' ? accentColor : [217, 119, 6]));
+            doc.text(record.status.toUpperCase(), 160, 68);
+
+            // Salary Breakdown Table
+            const earnings = [
+                ['Basic Salary', `Rs. ${record.baseSalary.toLocaleString()}`],
+                ['Incentives', `+ Rs. ${record.incentives.toLocaleString()}`],
+                ['Commission', `+ Rs. ${record.commission.toLocaleString()}`]
+            ];
+
+            const deductions = [
+                ['Tax & Other Deductions', `- Rs. ${record.deductions.toLocaleString()}`]
+            ];
+
+            autoTable(doc, {
+                startY: 95,
+                head: [['EARNINGS DESCRIPTION', 'AMOUNT']],
+                body: earnings,
+                theme: 'striped',
+                headStyles: { fillColor: [241, 245, 249], textColor: secondaryColor, fontStyle: 'bold' },
+                styles: { fontSize: 10, cellPadding: 5 },
+                columnStyles: { 1: { halign: 'right' } }
+            });
+
+            autoTable(doc, {
+                startY: doc.lastAutoTable.finalY + 5,
+                head: [['DEDUCTIONS DESCRIPTION', 'AMOUNT']],
+                body: deductions,
+                theme: 'striped',
+                headStyles: { fillColor: [254, 242, 242], textColor: [153, 27, 27], fontStyle: 'bold' },
+                styles: { fontSize: 10, cellPadding: 5 },
+                columnStyles: { 1: { halign: 'right' } }
+            });
+
+            // Summary Box
+            const finalY = doc.lastAutoTable.finalY + 15;
+            doc.setFillColor(...primaryColor);
+            doc.roundedRect(120, finalY, 75, 25, 3, 3, 'F');
+
+            doc.setFontSize(10);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'normal');
+            doc.text('NET PAYABLE', 128, finalY + 10);
+
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Rs. ${record.netPay.toLocaleString()}`, 128, finalY + 18);
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(...mutedColor);
+            doc.setFont('helvetica', 'italic');
+            doc.text('This is a computer-generated document and does not require a physical signature.', 105, 280, { align: 'center' });
+            doc.text(`Generated on ${new Date().toLocaleString()}`, 105, 285, { align: 'center' });
+
+            doc.save(`Payslip_${record.name.replace(/\s+/g, '_')}_${record.month.replace(/\s+/g, '_')}.pdf`);
+
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Failed to generate PDF. Please try again.");
+        }
+    };
+
     // Get unique months from history for the selector
     const availableMonths = [...new Set(history.map(r => r.month))].sort((a, b) => {
         const dateA = new Date(a);
         const dateB = new Date(b);
         return dateB - dateA;
     });
+
+    // Ensure current month is always available even if no history exists
+    if (!availableMonths.includes(selectedMonth) && selectedMonth === defaultMonthStr) {
+        availableMonths.push(defaultMonthStr);
+    }
 
     useEffect(() => {
         if (availableMonths.length > 0 && !availableMonths.includes(selectedMonth)) {
@@ -131,12 +295,21 @@ const Payroll = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                                <Banknote className="text-violet-600" size={24} />
-                                Payroll Management
-                            </h1>
-                            <p className="text-slate-600 text-xs sm:text-sm">View and process monthly staff salaries</p>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
+                                    <Banknote className="text-violet-600" size={24} />
+                                    Payroll Management
+                                </h1>
+                                <p className="text-slate-600 text-xs sm:text-sm">View and process monthly staff salaries</p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/manager/payroll/create')}
+                                className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-all shadow-lg shadow-violet-100"
+                            >
+                                <FilePlus size={18} />
+                                Create Payroll
+                            </button>
                         </div>
 
                         {/* Month Selector */}
@@ -205,8 +378,8 @@ const Payroll = () => {
                             <Users size={16} className="sm:w-5 sm:h-5" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">{currentMonthData.length}</div>
-                    <div className="text-slate-500 text-xs sm:text-sm">Active Employees</div>
+                    <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">{allStaff.length}</div>
+                    <div className="text-slate-500 text-xs sm:text-sm">{createdPayrolls.length} Created Payrolls</div>
                 </div>
             </div>
 
@@ -325,6 +498,12 @@ const Payroll = () => {
                                     onClick: () => record.status === 'Pending' ? handleMarkAsPaid(record.id) : openDrawer(record),
                                     variant: record.status === 'Paid' ? 'success' : 'primary',
                                 },
+                                {
+                                    label: 'Download',
+                                    icon: Download,
+                                    onClick: () => handleDownloadPayslip(record),
+                                    variant: 'secondary',
+                                }
                             ]}
                             onClick={() => openDrawer(record)}
                         />
@@ -396,10 +575,14 @@ const Payroll = () => {
                                                 <CheckCircle size={14} />
                                                 Paid
                                             </span>
-                                        ) : (
+                                        ) : record.status === 'Pending' ? (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 border border-orange-200 shadow-sm transition-all duration-300 hover:scale-110 hover:shadow-md">
                                                 <Clock size={14} />
                                                 Pending
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                                Not Generated
                                             </span>
                                         )}
                                     </td>
@@ -421,7 +604,10 @@ const Payroll = () => {
                                             >
                                                 <Search size={18} />
                                             </button>
-                                            <button className="group/btn p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all duration-300 hover:scale-110">
+                                            <button
+                                                onClick={() => handleDownloadPayslip(record)}
+                                                className="group/btn p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all duration-300 hover:scale-110"
+                                            >
                                                 <Download size={18} className="transition-transform duration-300 group-hover/btn:translate-y-0.5" />
                                             </button>
                                         </div>
@@ -502,103 +688,91 @@ const Payroll = () => {
                                             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
                                                 <DollarSign size={14} className="text-violet-500" /> Salary Breakdown
                                             </h3>
-                                            <div className="space-y-4 bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                                                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                                                    <span className="text-sm font-medium text-slate-600">Base Salary</span>
-                                                    <span className="text-sm font-bold text-slate-900">₹{(selectedEmployee?.baseSalary || 0).toLocaleString()}</span>
+                                            <div className="bg-slate-50 rounded-2xl p-5 space-y-4 border border-slate-100">
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-slate-500 font-medium">Base Salary</span>
+                                                    <span className="text-slate-900 font-bold">₹{selectedEmployee.baseSalary.toLocaleString()}</span>
                                                 </div>
-
-                                                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                                                    <span className="text-sm font-medium text-slate-600">Attendance</span>
-                                                    <span className="text-sm font-bold text-slate-900">{selectedEmployee?.attendanceRate || 0}%</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                                                    <span className="text-sm font-medium text-slate-600">Commission</span>
-                                                    <span className="text-sm font-bold text-indigo-600">₹{(selectedEmployee?.commission || 0).toLocaleString()}</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                                                    <span className="text-sm font-medium text-slate-600">Incentives / Bonus</span>
-                                                    <span className="text-sm font-bold text-emerald-600">+₹{(selectedEmployee?.bonus || 0).toLocaleString()}</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                                                    <span className="text-sm font-medium text-slate-600">Deductions</span>
-                                                    <span className="text-sm font-bold text-red-600">-₹{(selectedEmployee?.deductions || 0).toLocaleString()}</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-center pt-2">
-                                                    <span className="text-base font-black text-slate-900">Net Pay</span>
-                                                    <span className="text-2xl font-black text-violet-600">
-                                                        ₹{(selectedEmployee?.netPay || 0).toLocaleString()}
-                                                    </span>
-                                                </div>
-
-                                                {selectedEmployee?.status === 'Paid' && (
-                                                    <div className="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center italic">
-                                                        Salary Locked After Payment
+                                                {selectedEmployee.commission > 0 && (
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-slate-500 font-medium whitespace-nowrap">Commission</span>
+                                                        <span className="text-emerald-600 font-bold">₹{selectedEmployee.commission.toLocaleString()}</span>
                                                     </div>
                                                 )}
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-slate-500 font-medium">Incentives</span>
+                                                    <span className="text-emerald-600 font-bold">+₹{selectedEmployee.incentives.toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-slate-500 font-medium">Deductions</span>
+                                                    <span className="text-red-500 font-bold">-₹{selectedEmployee.deductions.toLocaleString()}</span>
+                                                </div>
+                                                <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+                                                    <span className="text-slate-900 font-black uppercase text-xs tracking-wider">Net Payable</span>
+                                                    <span className="text-violet-600 font-black text-xl">₹{selectedEmployee.netPay.toLocaleString()}</span>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        {/* Payment Info */}
-                                        <div>
-                                            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                                                <Banknote size={14} className="text-violet-500" /> Payment Information
-                                            </h3>
-                                            <div className={`rounded-2xl p-5 border-2 ${selectedEmployee?.status === 'Paid' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
-                                                {selectedEmployee?.status === 'Paid' ? (
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg">
-                                                            <CheckCircle size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-sm font-black text-emerald-900 leading-tight">Paid Successfully</div>
-                                                            <div className="text-xs font-medium text-emerald-700 mt-0.5">Payment Date: {selectedEmployee.paymentDate || 'Today'}</div>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400">
-                                                            <Clock size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-sm font-black text-slate-900 leading-tight">Payment Outstanding</div>
-                                                            <div className="text-xs font-medium text-slate-500 mt-0.5">Not Processed Yet</div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
+                                            {selectedEmployee?.status === 'Paid' && (
+                                                <div className="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center italic">
+                                                    Salary Locked After Payment
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Action Footer */}
-                                    <div className="p-6 bg-slate-50 border-t border-slate-100 space-y-3">
-                                        {selectedEmployee?.status === 'Pending' ? (
-                                            <>
-                                                <button
-                                                    onClick={() => handleMarkAsPaid(selectedEmployee.id)}
-                                                    className="w-full flex items-center justify-center gap-2 py-4 bg-violet-600 text-white rounded-xl font-bold shadow-xl shadow-violet-200 hover:bg-violet-700 hover:scale-[1.02] active:scale-95 transition-all duration-300"
-                                                >
-                                                    <Banknote size={20} />
-                                                    Confirm Payment & Mark Paid
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <button
-                                                disabled
-                                                className="w-full flex items-center justify-center gap-2 py-4 bg-emerald-100 text-emerald-600 rounded-xl font-bold border-2 border-emerald-200 cursor-not-allowed opacity-80"
-                                            >
-                                                <CheckCircle size={20} />
-                                                Payroll Processed
-                                            </button>
-                                        )}
-                                        <p className="text-center text-[10px] text-slate-400 mt-2 leading-relaxed tracking-wide uppercase font-bold">
-                                            This action will be recorded in the system audit logs.
-                                        </p>
+                                    {/* Payment Info */}
+                                    <div>
+                                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                            <Banknote size={14} className="text-violet-500" /> Payment Information
+                                        </h3>
+                                        <div className={`rounded-2xl p-5 border-2 ${selectedEmployee?.status === 'Paid' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
+                                            {selectedEmployee?.status === 'Paid' ? (
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg">
+                                                        <CheckCircle size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-black text-emerald-900 leading-tight">Paid Successfully</div>
+                                                        <div className="text-xs font-medium text-emerald-700 mt-0.5">Payment Date: {selectedEmployee.paymentDate || 'Today'}</div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400">
+                                                        <Clock size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-black text-slate-900 leading-tight">Payment Outstanding</div>
+                                                        <div className="text-xs font-medium text-slate-500 mt-0.5">Not Processed Yet</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div className="p-6 bg-slate-50 border-t border-slate-100 space-y-3">
+                                    {selectedEmployee?.status === 'Pending' ? (
+                                        <button
+                                            onClick={() => handleMarkAsPaid(selectedEmployee.id)}
+                                            className="w-full flex items-center justify-center gap-2 py-4 bg-violet-600 text-white rounded-xl font-bold shadow-xl shadow-violet-200 hover:bg-violet-700 hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                                        >
+                                            <Banknote size={20} />
+                                            Confirm Payment & Mark Paid
+                                        </button>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="w-full flex items-center justify-center gap-2 py-4 bg-emerald-100 text-emerald-600 rounded-xl font-bold border-2 border-emerald-200 cursor-not-allowed opacity-80"
+                                        >
+                                            <CheckCircle size={20} />
+                                            Payroll Processed
+                                        </button>
+                                    )}
+                                    <p className="text-center text-[10px] text-slate-400 mt-2 leading-relaxed tracking-wide uppercase font-bold">
+                                        This action will be recorded in the system audit logs.
+                                    </p>
                                 </div>
                             </div>
                         </div>

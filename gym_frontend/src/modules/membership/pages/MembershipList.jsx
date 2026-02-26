@@ -22,7 +22,14 @@ const MembershipList = () => {
             if (statusFilter !== 'All') params.status = statusFilter;
 
             const data = await membershipApi.getMembers(params);
-            setMemberships(data);
+            const mappedData = data.map(m => ({
+                ...m,
+                memberName: m.name,
+                planName: m.plan || 'No Plan Active',
+                startDate: m.joinDate ? new Date(m.joinDate).toLocaleDateString('en-GB') : 'N/A',
+                endDate: m.expiryDate ? new Date(m.expiryDate).toLocaleDateString('en-GB') : 'N/A'
+            }));
+            setMemberships(mappedData);
         } catch (error) {
             console.error('Failed to fetch members:', error);
             toast.error('Failed to load memberships');

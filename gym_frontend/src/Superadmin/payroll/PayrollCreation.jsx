@@ -9,8 +9,11 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedStaffId, setSelectedStaffId] = useState('');
-    const [month, setMonth] = useState('January');
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const [month, setMonth] = useState(monthNames[now.getMonth()]);
+    const currentYear = now.getFullYear();
     const [year, setYear] = useState(currentYear.toString());
     const [incentives, setIncentives] = useState(0);
     const [deductions, setDeductions] = useState(0);
@@ -56,13 +59,15 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
             month,
             year,
             amount: netSalary,
-            status
+            status,
+            incentives: parseFloat(incentives || 0),
+            deductions: parseFloat(deductions || 0)
         };
 
         try {
             await createPayrollAPI(payrollData);
             alert("Payroll created successfully!");
-            navigate('/superadmin/payroll/history');
+            navigate('/hr/payroll');
         } catch (error) {
             console.error("Error creating payroll:", error);
             alert("Failed to create payroll: " + (error.response?.data?.message || error.message));

@@ -9,7 +9,7 @@ import '../TailwindFallback.css';
 const MemberAttendanceLog = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
-    const [selectedDate, setSelectedDate] = useState('2024-03-15');
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);

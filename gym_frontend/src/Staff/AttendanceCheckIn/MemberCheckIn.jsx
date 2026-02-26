@@ -61,7 +61,7 @@ const MemberCheckIn = () => {
 
     const handleCheckIn = async () => {
         if (foundMember) {
-            const result = await checkInMember(foundMember.id);
+            const result = await checkInMember(foundMember.id, foundMember.isStaffUser);
             if (result.success) {
                 alert(result.message);
                 setFoundMember(null);
@@ -99,7 +99,7 @@ const MemberCheckIn = () => {
 
             <div className="max-w-2xl mx-auto space-y-6">
                 {/* Search Card */}
-                <div className="group relative bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-100 transition-all duration-300">
+                <div className="group relative bg-white rounded-[32px] shadow-xl border border-slate-100 hover:shadow-2xl hover:border-violet-100 transition-all duration-300 mb-8">
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-50/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative z-10 p-8">
@@ -132,29 +132,63 @@ const MemberCheckIn = () => {
                                 </button>
                             </form>
 
-                            {/* Suggestions Dropdown */}
+                            {/* Premium Suggestions Dropdown - Increased Width & Visibility */}
                             {showSuggestions && suggestions.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200 ring-1 ring-black/5">
-                                    {suggestions.map((member) => (
-                                        <button
-                                            key={member.id}
-                                            onClick={() => handleSelectMember(member)}
-                                            className="w-full px-4 py-3 text-left hover:bg-violet-50 transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
-                                                    {member.name.charAt(0)}
+                                <div className="absolute top-full -left-4 -right-4 mt-4 bg-white/98 backdrop-blur-xl border border-slate-200/80 rounded-[32px] shadow-[0_30px_70px_rgba(15,23,42,0.18)] z-[200] animate-in slide-in-from-top-6 duration-500 ring-8 ring-slate-100/40">
+                                    <div className="max-h-[500px] overflow-y-auto p-3 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-slate-200">
+                                        {suggestions.map((member) => (
+                                            <button
+                                                key={`${member.type}-${member.id}`}
+                                                onClick={() => handleSelectMember(member)}
+                                                className="w-full px-6 py-5 text-left hover:bg-violet-50/90 rounded-[24px] transition-all duration-300 flex items-center justify-between group border border-transparent hover:border-violet-100/50 hover:shadow-sm"
+                                            >
+                                                <div className="flex items-center gap-5">
+                                                    <div className={`h-16 w-16 rounded-[22px] flex items-center justify-center font-black text-xl shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${member.type === 'Staff'
+                                                            ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-orange-300/40'
+                                                            : 'bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-violet-300/40'
+                                                        }`}>
+                                                        {member.name.charAt(0)}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <p className="text-lg font-black text-slate-900 tracking-tight group-hover:text-violet-700 transition-colors capitalize leading-tight mb-1.5">
+                                                            {member.name.toLowerCase()}
+                                                        </p>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="px-2 py-0.5 bg-slate-100 rounded-md text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                                ID: {member.memberId || member.id}
+                                                            </div>
+                                                            <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                            <span className="text-[11px] font-bold text-slate-400 tabular-nums">
+                                                                {member.phone || member.email || 'No contact info'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-slate-800">{member.name}</p>
-                                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-wider">{member.id} • {member.phone}</p>
+                                                <div className="flex flex-col items-end gap-2.5">
+                                                    <div className={`px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${member.status === 'Active'
+                                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100/50'
+                                                            : 'bg-rose-50 text-rose-600 border-rose-100/50'
+                                                        }`}>
+                                                        {member.status}
+                                                    </div>
+                                                    <div className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] shadow-lg ${member.type === 'Staff'
+                                                            ? 'bg-slate-900 text-amber-400'
+                                                            : 'bg-slate-900 text-violet-400'
+                                                        }`}>
+                                                        {member.type}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${member.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                                {member.status}
-                                            </span>
-                                        </button>
-                                    ))}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="bg-slate-50/80 p-4 border-t border-slate-100/60 flex justify-center items-center gap-3">
+                                        <div className="flex gap-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce"></div>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce [animation-delay:-0.15s]"></div>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-bounce [animation-delay:-0.3s]"></div>
+                                        </div>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Select Profile to Check-In</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -183,8 +217,8 @@ const MemberCheckIn = () => {
 
                         <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
                             <div className={`w-28 h-28 rounded-3xl flex items-center justify-center text-4xl font-black shadow-xl transform hover:scale-105 transition-transform duration-300 ${isExpired
-                                    ? 'bg-gradient-to-br from-red-100 to-red-200 text-red-600 shadow-red-200'
-                                    : 'bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-600 shadow-emerald-200'
+                                ? 'bg-gradient-to-br from-red-100 to-red-200 text-red-600 shadow-red-200'
+                                : 'bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-600 shadow-emerald-200'
                                 }`}>
                                 {(foundMember?.name || '?').charAt(0)}
                             </div>
@@ -198,8 +232,8 @@ const MemberCheckIn = () => {
                                             {foundMember.id}
                                         </span>
                                         <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wide border ${isExpired
-                                                ? 'bg-red-50 text-red-600 border-red-100'
-                                                : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            ? 'bg-red-50 text-red-600 border-red-100'
+                                            : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                             }`}>
                                             {foundMember.status}
                                         </span>

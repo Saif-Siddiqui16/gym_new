@@ -2,78 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, UserPlus, FileText, BarChart, Calendar, CheckCircle2, ChevronDown, Check } from 'lucide-react';
 import { createTask, getAllStaff } from '../../api/manager/managerApi';
+import CustomDropdown from '../../components/common/CustomDropdown';
 import '../../styles/GlobalDesign.css';
 
-// Custom Animated Select Component
-const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, placeholder, isObjectOptions }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    // Close on click outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const handleSelect = (option) => {
-        const val = isObjectOptions ? option.id : option;
-        onChange({ target: { name, value: val } });
-        setIsOpen(false);
-    };
-
-    const getDisplayValue = () => {
-        if (!value) return placeholder;
-        if (isObjectOptions) {
-            const found = options.find(o => o.id === value);
-            return found ? found.name : placeholder;
-        }
-        return value;
-    };
-
-    return (
-        <div className="space-y-2 relative" ref={dropdownRef}>
-            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                <Icon size={16} className="text-indigo-500" />
-                {label}
-            </label>
-            <div
-                onClick={() => setIsOpen(!isOpen)}
-                className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-indigo-300 hover:shadow-md ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500 bg-white' : ''}`}
-            >
-                <span className={`text-sm ${value ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
-                    {getDisplayValue()}
-                </span>
-                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} />
-            </div>
-
-            {/* Animated Dropdown Menu */}
-            <div className={`absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${isOpen ? 'opacity-100 scale-100 translate-y-0 max-h-60' : 'opacity-0 scale-95 -translate-y-2 max-h-0 pointer-events-none'}`}>
-                <div className="py-1 overflow-y-auto max-h-60">
-                    {options.map((option) => {
-                        const optVal = isObjectOptions ? option.id : option;
-                        const optLabel = isObjectOptions ? option.name : option;
-                        return (
-                            <div
-                                key={optVal}
-                                onClick={() => handleSelect(option)}
-                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                            >
-                                {optLabel}
-                                {value === optVal && <Check size={16} className="text-indigo-600" />}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
-    );
-};
-
+// AssignTask Component
 const AssignTask = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -122,7 +54,9 @@ const AssignTask = () => {
             });
             setTimeout(() => {
                 setSuccess(false);
-                navigate('/branchadmin/tasks/list');
+                const currentPath = window.location.pathname;
+                const listPath = currentPath.replace('/assign', '/list');
+                navigate(listPath);
             }, 1500);
         } catch (error) {
             console.error('Task Assignment Failed:', error);
@@ -140,7 +74,7 @@ const AssignTask = () => {
             </div>
 
             <div className="max-w-3xl animate-fade-in-up">
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-500">
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-visible hover:shadow-lg transition-shadow duration-500">
                     <form onSubmit={handleSubmit} className="p-8">
                         <div className="space-y-6">
                             {/* Task Title */}
@@ -178,27 +112,33 @@ const AssignTask = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-20">
-                                {/* Custom Animated Selects */}
-                                <CustomSelect
-                                    label="Assign To"
-                                    icon={UserPlus}
-                                    name="assignedToId"
-                                    value={formData.assignedToId}
-                                    onChange={handleChange}
-                                    options={staffList}
-                                    placeholder="Select Staff"
-                                    isObjectOptions={true}
-                                />
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                        <UserPlus size={16} className="text-indigo-500" />
+                                        Assign To
+                                    </label>
+                                    <CustomDropdown
+                                        options={staffList.map(s => ({ value: s.id, label: s.name }))}
+                                        value={formData.assignedToId}
+                                        onChange={(val) => handleChange({ target: { name: 'assignedToId', value: val } })}
+                                        placeholder="Select Staff"
+                                        className="w-full"
+                                    />
+                                </div>
 
-                                <CustomSelect
-                                    label="Priority"
-                                    icon={BarChart}
-                                    name="priority"
-                                    value={formData.priority}
-                                    onChange={handleChange}
-                                    options={['Low', 'Medium', 'High']}
-                                    placeholder="Select Priority"
-                                />
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                        <BarChart size={16} className="text-indigo-500" />
+                                        Priority
+                                    </label>
+                                    <CustomDropdown
+                                        options={['Low', 'Medium', 'High']}
+                                        value={formData.priority}
+                                        onChange={(val) => handleChange({ target: { name: 'priority', value: val } })}
+                                        placeholder="Select Priority"
+                                        className="w-full"
+                                    />
+                                </div>
                             </div>
 
                             {/* Due Date */}

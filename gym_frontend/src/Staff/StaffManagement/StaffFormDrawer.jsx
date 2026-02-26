@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, ShieldCheck, Save, XCircle, Info, BadgeCheck, Briefcase } from 'lucide-react';
+import { User, Mail, Phone, ShieldCheck, Save, XCircle, Info, BadgeCheck, Briefcase, Clock } from 'lucide-react';
 import { addStaff, editStaff } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../config/roles';
 
 const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
+    const { role: currentUserRole } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -11,6 +14,9 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
         role: 'Receptionist',
         status: 'Active',
         reportingManager: '',
+        startTime: '09:00',
+        endTime: '18:00',
+        shift: '09:00 - 18:00',
         permissions: []
     });
 
@@ -18,7 +24,10 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
     const [staffList, setStaffList] = useState([]);
 
     // Roles aligned with StaffManagement.jsx permissions
-    const roles = ['Admin', 'Manager', 'Trainer', 'Receptionist'];
+    const allRoles = ['Admin', 'Manager', 'Trainer', 'Receptionist'];
+    const roles = currentUserRole === ROLES.SUPER_ADMIN
+        ? allRoles
+        : allRoles.filter(r => r !== 'Admin' && r !== 'Manager');
 
     useEffect(() => {
         const loadStaffData = async () => {
@@ -37,6 +46,9 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             role: staffMember.role || 'Receptionist',
                             status: staffMember.status || 'Active',
                             reportingManager: staffMember.reportingManager || 'None',
+                            shift: staffMember.shift || '',
+                            startTime: (staffMember.shift?.includes(' - ') && staffMember.shift.split(' - ')[0].includes(':')) ? staffMember.shift.split(' - ')[0] : '09:00',
+                            endTime: (staffMember.shift?.includes(' - ') && staffMember.shift.split(' - ')[1].includes(':')) ? staffMember.shift.split(' - ')[1] : '18:00',
                             permissions: staffMember.permissions || []
                         });
                     }
@@ -58,6 +70,9 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 role: 'Receptionist',
                 status: 'Active',
                 reportingManager: 'None',
+                startTime: '09:00',
+                endTime: '18:00',
+                shift: '09:00 - 18:00',
                 permissions: []
             });
         }
@@ -180,6 +195,41 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                 onChange={(val) => setFormData({ ...formData, reportingManager: val })}
                                 placeholder="Select manager"
                             />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Start Time *</label>
+                                <div className="relative group">
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-purple-500 transition-colors" size={20} />
+                                    <input
+                                        required
+                                        type="time"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-purple-500 transition-all"
+                                        value={formData.startTime}
+                                        onChange={(e) => {
+                                            const newStart = e.target.value;
+                                            setFormData({ ...formData, startTime: newStart, shift: `${newStart} - ${formData.endTime}` });
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">End Time *</label>
+                                <div className="relative group">
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-purple-500 transition-colors" size={20} />
+                                    <input
+                                        required
+                                        type="time"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-purple-500 transition-all"
+                                        value={formData.endTime}
+                                        onChange={(e) => {
+                                            const newEnd = e.target.value;
+                                            setFormData({ ...formData, endTime: newEnd, shift: `${formData.startTime} - ${newEnd}` });
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-4">

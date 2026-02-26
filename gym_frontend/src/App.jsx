@@ -148,6 +148,7 @@ import Commissions from './modules/finance/pages/Commissions';
 import CashierMode from './modules/finance/pages/CashierMode';
 import TransactionsPage from './modules/finance/pages/TransactionsPage';
 import PettyCashPage from './modules/finance/pages/PettyCashPage';
+import PromoCodes from './modules/finance/pages/PromoCodes';
 
 // Module: Facility Management
 import EquipmentListPage from './modules/operations/pages/EquipmentListPage';
@@ -372,6 +373,7 @@ export default function App() {
           {/* MODULE: BRANCH ADMIN */}
           {currentRole === ROLES.BRANCH_ADMIN && (
             <>
+              <Route path="/branchadmin/promos" element={<PromoCodes />} />
               <Route path="/branchadmin/store/inventory" element={<StoreInventory />} />
               <Route path="/branchadmin/members/list" element={<MemberList />} />
               <Route path="/branchadmin/bookings/calendar" element={<BookingCalendar />} />
@@ -385,7 +387,6 @@ export default function App() {
               <Route path="/branchadmin/reports/expenses" element={<ExpenseReport />} />
               <Route path="/branchadmin/reports/performance" element={<BranchPerformanceReport />} />
               <Route path="/branchadmin/branch-management/branches" element={<BranchList />} />
-              <Route path="/branchadmin/trainer-requests" element={<TrainerRequests role={currentRole} />} />
 
               {/* Reused Settings Routes */}
 
@@ -413,7 +414,6 @@ export default function App() {
               <Route path="/manager/tasks/list" element={<TaskList />} />
               <Route path="/manager/tasks/assign" element={<AssignTask />} />
               <Route path="/manager/communication" element={<CommunicationPage />} />
-              <Route path="/manager/requests" element={<TrainerRequests role={currentRole} />} />
               <Route path="/manager/change-requests" element={<TrainerChangeRequestList role={currentRole} />} />
               <Route path="/manager/wallet" element={<WalletList role={currentRole} />} />
               <Route path="/manager/payroll/create" element={<PayrollCreation role={currentRole} />} />

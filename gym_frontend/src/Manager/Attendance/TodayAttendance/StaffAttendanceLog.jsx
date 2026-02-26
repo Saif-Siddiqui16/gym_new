@@ -10,7 +10,7 @@ const StaffAttendanceLog = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRole, setFilterRole] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
-    const [selectedDate, setSelectedDate] = useState('2024-03-15');
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [staff, setStaff] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -148,7 +148,7 @@ const StaffAttendanceLog = () => {
                             </div>
                             <div className="w-full sm:w-auto hover:scale-105 transition-transform duration-300">
                                 <CustomDropdown
-                                    options={['All', 'Trainer', 'Receptionist', 'Cleaning', 'Manager']}
+                                    options={['All', 'Staff', 'Trainer', 'Manager', 'Receptionist', 'Cleaning']}
                                     value={filterRole}
                                     onChange={(value) => { setFilterRole(value); setCurrentPage(1); }}
                                     placeholder="All Roles"
@@ -206,7 +206,7 @@ const StaffAttendanceLog = () => {
                                                 {getRoleBadge(record.role)}
                                             </td>
                                             <td className="px-6 py-4 text-slate-600 text-sm font-semibold group-hover/row:text-violet-600 transition-colors duration-300">
-                                                {record.shift || '-'}
+                                                {record.shiftTime || '-'}
                                             </td>
                                             <td className="px-6 py-4 text-slate-700 text-sm font-semibold group-hover/row:text-violet-600 transition-colors duration-300">
                                                 {record.time || record.checkIn}
@@ -248,7 +248,7 @@ const StaffAttendanceLog = () => {
                                     badge={record.status}
                                     badgeColor={record.status === 'On Time' || record.status === 'checked-in' ? 'emerald' : record.status === 'Late' ? 'amber' : record.status === 'Absent' ? 'rose' : 'blue'}
                                     fields={[
-                                        { label: 'Shift', value: record.shift || '-' },
+                                        { label: 'Shift', value: record.shiftTime || '-' },
                                         { label: 'Check-In', value: record.time || record.checkIn, icon: Clock },
                                         { label: 'Check-Out', value: record.checkOut || '-', icon: Clock }
                                     ]}

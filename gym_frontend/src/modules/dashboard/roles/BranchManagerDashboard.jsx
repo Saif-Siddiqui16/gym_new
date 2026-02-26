@@ -144,53 +144,8 @@ const BranchManagerDashboard = () => {
                 })}
             </div>
 
-            {/* ACCESS CONTROL & RISK MANAGEMENT */}
+            {/* ACCESS CONTROL */}
             <div className="mb-10">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200">
-                        <ShieldAlert size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black text-slate-800 tracking-tight">Security & Payment Risk</h3>
-                        <p className="text-xs font-semibold text-slate-500">Real-time revenue leak prevention</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {/* Risk Stat 1 */}
-                    <div className="bg-white rounded-[32px] p-6 border-b-4 border-rose-500 shadow-xl flex items-center gap-5 group hover:scale-[1.02] transition-all">
-                        <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <XOctagon size={28} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Defaulter Check-ins</p>
-                            <h4 className="text-2xl font-black text-slate-800">{risks.defaulters} <span className="text-xs text-rose-500 font-bold ml-1">STOPPED</span></h4>
-                        </div>
-                    </div>
-
-                    {/* Risk Stat 2 */}
-                    <div className="bg-white rounded-[32px] p-6 border-b-4 border-amber-500 shadow-xl flex items-center gap-5 group hover:scale-[1.02] transition-all">
-                        <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <Zap size={28} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiring Soon</p>
-                            <h4 className="text-2xl font-black text-slate-800">{risks.expiringSoon} <span className="text-xs text-amber-500 font-bold ml-1">NOTIFIED</span></h4>
-                        </div>
-                    </div>
-
-                    {/* Risk Stat 3 */}
-                    <div className="bg-white rounded-[32px] p-6 border-b-4 border-slate-900 shadow-xl flex items-center gap-5 group hover:scale-[1.02] transition-all">
-                        <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-900 flex items-center justify-center group-hover:rotate-12 transition-transform">
-                            <History size={28} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Manual Overrides</p>
-                            <h4 className="text-2xl font-black text-slate-800">{risks.manualOverrides} <span className="text-xs text-slate-500 font-bold ml-1">AUDITED</span></h4>
-                        </div>
-                    </div>
-                </div>
-
                 <LiveAccessControl userRole="MANAGER" />
             </div>
 

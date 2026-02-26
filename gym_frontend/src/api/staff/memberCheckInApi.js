@@ -29,26 +29,26 @@ export const getMemberSuggestions = async (query) => {
     try {
         if (!query || query.length < 2) return [];
         const response = await apiClient.get('/staff/members/search', { params: { search: query } });
-        return response.data.slice(0, 5);
+        return response.data.slice(0, 10);
     } catch (error) {
         throw error.response?.data?.message || 'Failed to fetch suggestions';
     }
 };
 
-export const checkInMember = async (id) => {
+export const checkInMember = async (id, isStaffUser = false) => {
     try {
         // Backend mapping for check-in
-        const response = await apiClient.post('/staff/attendance/check-in', { memberId: id });
+        const response = await apiClient.post('/staff/attendance/check-in', { memberId: id, isStaffUser });
         return { success: true, message: 'Check-in successful', data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data?.message || 'Check-in failed' };
     }
 };
 
-export const checkOutMember = async (id) => {
+export const checkOutMember = async (id, isStaffUser = false) => {
     try {
         // Backend mapping for check-out
-        const response = await apiClient.post('/staff/attendance/check-out', { memberId: id });
+        const response = await apiClient.post('/staff/attendance/check-out', { memberId: id, isStaffUser });
         return { success: true, message: 'Check-out successful', data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data?.message || 'Check-out failed' };

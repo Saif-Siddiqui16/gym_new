@@ -324,7 +324,15 @@ const AvailabilitySettingsPage = () => {
                                                     <Coffee size={20} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-black text-gray-800">{off.reason}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm font-black text-gray-800">{off.reason}</p>
+                                                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${off.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' :
+                                                                off.status === 'Rejected' ? 'bg-rose-50 text-rose-600' :
+                                                                    'bg-amber-50 text-amber-600'
+                                                            }`}>
+                                                            {off.status}
+                                                        </span>
+                                                    </div>
                                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{off.start === off.end ? off.start : `${off.start} to ${off.end}`}</p>
                                                 </div>
                                             </div>

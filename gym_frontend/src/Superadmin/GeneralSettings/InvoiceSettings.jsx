@@ -4,6 +4,7 @@ import { ROLES } from '../../config/roles';
 import { useNavigate } from 'react-router-dom';
 import { Save, FileText, Loader2, Receipt, Hash, Percent, Eye, ArrowLeft } from 'lucide-react';
 import { fetchInvoiceSettings, updateInvoiceSettings } from '../../api/superadmin/superAdminApi';
+import { fetchTenantSettings, updateTenantSettings } from '../../api/manager/managerApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import BranchScopeSelector from '../../components/common/BranchScopeSelector';
 import { BRANCHES } from '../../modules/settings/data/mockSettingsData';
@@ -11,7 +12,8 @@ import { BRANCHES } from '../../modules/settings/data/mockSettingsData';
 const InvoiceSettings = () => {
     const navigate = useNavigate();
     const context = useOutletContext();
-    const role = context?.role;
+    const role = context?.role || localStorage.getItem('userRole');
+    const isSuperAdmin = role === ROLES.SUPER_ADMIN;
     const isReadOnly = role === ROLES.MANAGER;
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [formData, setFormData] = useState({
@@ -29,8 +31,12 @@ const InvoiceSettings = () => {
     const loadSettings = async () => {
         setLoading(true);
         try {
-            const data = await fetchInvoiceSettings();
-            setFormData(data);
+            const data = isSuperAdmin ? await fetchInvoiceSettings() : await fetchTenantSettings();
+            setFormData({
+                prefix: data.invoicePrefix || 'INV-',
+                startNumber: data.invoiceStartNumber || '1001',
+                gstPercent: data.gstPercent?.toString() || '18'
+            });
         } catch (error) {
             console.error('Error fetching invoice settings:', error);
         } finally {
@@ -49,7 +55,17 @@ const InvoiceSettings = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            await updateInvoiceSettings(formData);
+            const payload = {
+                invoicePrefix: formData.prefix,
+                invoiceStartNumber: parseInt(formData.startNumber),
+                gstPercent: parseFloat(formData.gstPercent)
+            };
+
+            if (isSuperAdmin) {
+                await updateInvoiceSettings(payload);
+            } else {
+                await updateTenantSettings(payload);
+            }
             alert('Invoice settings updated successfully!');
         } catch (error) {
             console.error('Error saving invoice settings:', error);
@@ -75,7 +91,7 @@ const InvoiceSettings = () => {
             {/* Page Header - Back Button */}
             <div className="w-full max-w-6xl mb-6">
                 <button
-                    onClick={() => navigate('/superadmin/general-settings/general')}
+                    onClick={() => navigate(isSuperAdmin ? '/superadmin/general-settings/general' : '/branchadmin/settings/general')}
                     className="group flex items-center text-slate-500 hover:text-violet-600 transition-all duration-300 hover:scale-105"
                 >
                     <div className="p-1 rounded-full group-hover:bg-violet-50 transition-all duration-300 mr-2 group-hover:scale-110">

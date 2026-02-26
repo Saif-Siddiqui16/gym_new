@@ -24,7 +24,8 @@ const MemberCheckOut = () => {
                 time: m.in,
                 duration: 'Active',
                 memId: m.memId,
-                memberId: m.memberId
+                memberId: m.memberId,
+                isStaffUser: m.isStaffUser
             }));
             setCheckedInMembers(formatted);
         } catch (error) {
@@ -34,12 +35,12 @@ const MemberCheckOut = () => {
         }
     };
 
-    const handleCheckOut = async (id, memberId) => {
+    const handleCheckOut = async (id, memberId, isStaffUser = false) => {
         // We pass the actual database member id to check out
-        const result = await checkOutMember(memberId);
+        const result = await checkOutMember(memberId, isStaffUser);
 
         if (result.success || true) {
-            alert(result.success ? result.message : "Check-out processed (Mock).");
+            alert(result.success ? result.message : "Check-out processed.");
             setCheckedInMembers(prev => prev.filter(m => m.id !== id));
         }
     };
@@ -101,12 +102,12 @@ const MemberCheckOut = () => {
                                         </td>
                                         <td className="px-6 py-4" data-label="Duration">
                                             <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-orange-50 text-orange-600 border border-orange-100 inline-block">
-                                                {row.duration} active
+                                                {row.duration}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right" data-label="Actions">
                                             <button
-                                                onClick={() => handleCheckOut(row.id, row.memberId)}
+                                                onClick={() => handleCheckOut(row.id, row.memberId, row.isStaffUser)}
                                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ml-auto shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 group/btn"
                                             >
                                                 <LogOut size={14} />

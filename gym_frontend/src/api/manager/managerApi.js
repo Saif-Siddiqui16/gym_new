@@ -11,6 +11,22 @@ export const updateManagerProfile = async (updated) => {
     return response.data;
 };
 
+export const changePassword = async (passwords) => {
+    const response = await apiClient.post('/admin/change-password', passwords);
+    return response.data;
+};
+
+// --- SETTINGS API ---
+export const fetchTenantSettings = async () => {
+    const response = await apiClient.get('/admin/settings/tenant');
+    return response.data;
+};
+
+export const updateTenantSettings = async (settings) => {
+    const response = await apiClient.patch('/admin/settings/tenant', settings);
+    return response.data;
+};
+
 // --- MEMBERS API ---
 
 export const getMembers = async ({ filters = {}, page = 1, limit = 5 } = {}) => {
@@ -207,5 +223,10 @@ export const getMessages = async (chatId) => {
 
 export const sendMessage = async (chatId, text) => {
     const response = await apiClient.post(`/admin/communication/chats/${chatId}/send`, { text });
+    return response.data;
+};
+
+export const getChatUsers = async () => {
+    const response = await apiClient.get('/admin/communication/chat-users');
     return response.data;
 };
