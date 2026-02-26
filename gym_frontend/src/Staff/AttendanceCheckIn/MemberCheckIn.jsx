@@ -192,18 +192,6 @@ const MemberCheckIn = () => {
                                 </div>
                             )}
                         </div>
-
-                        <div className="mt-8 flex items-center justify-center">
-                            <span className="text-xs font-black text-slate-400 px-4 bg-white relative z-10 uppercase tracking-widest">OR</span>
-                            <div className="absolute w-full h-px bg-slate-100 left-0"></div>
-                        </div>
-
-                        <button className="w-full mt-8 py-4 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center gap-3 text-slate-500 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-600 transition-all duration-300 group/scan">
-                            <div className="p-2 bg-slate-100 rounded-lg group-hover/scan:bg-white group-hover/scan:text-violet-600 transition-colors">
-                                <ScanLine size={24} />
-                            </div>
-                            <span className="font-bold">Scan QR / Barcode</span>
-                        </button>
                     </div>
                 </div>
 

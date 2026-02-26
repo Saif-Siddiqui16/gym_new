@@ -1,18 +1,62 @@
-import React, { useState } from 'react';
-import { ORGANIZATION } from '../data/mockSettingsData';
+import React, { useState, useEffect } from 'react';
 import { Building, Mail, Phone, MapPin, Globe, CreditCard, Camera, Save, ArrowRight } from 'lucide-react';
+import { fetchTenantSettings, updateTenantSettings } from '../../../api/manager/managerApi';
+import toast from 'react-hot-toast';
 
 const OrganizationSettings = ({ role }) => {
     const isManager = role === 'MANAGER';
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [formData, setFormData] = useState({
-        ...ORGANIZATION,
-        openingHours: '06:00 AM - 10:00 PM',
-        wifiPassword: 'KiaaanFitness@2024'
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        timezone: 'UTC',
+        currency: 'USD',
+        logoUrl: '',
+        openingHours: '',
+        wifiPassword: ''
     });
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchTenantSettings();
+                setFormData(prev => ({
+                    ...prev,
+                    ...data
+                }));
+            } catch (error) {
+                toast.error('Failed to load settings');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadSettings();
+    }, []);
 
     const handleChange = (e) => {
         if (isManager && !['openingHours', 'wifiPassword'].includes(e.target.name)) return;
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const data = await updateTenantSettings(formData);
+            toast.success('Settings updated successfully');
+            setFormData(prev => ({
+                ...prev,
+                ...data
+            }));
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update settings');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -40,9 +84,16 @@ const OrganizationSettings = ({ role }) => {
                                 </p>
                             </div>
                         </div>
-                        <button className="group flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all w-full lg:w-auto">
-                            <Save size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Save Changes
+                        <button 
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className={`group flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-bold shadow-xl transition-all w-full lg:w-auto ${isSaving ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105'}`}>
+                            {isSaving ? (
+                                <div className="w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Save size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+                            )}
+                            {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 </div>
