@@ -221,9 +221,9 @@ export const getMessages = async (chatId) => {
     return response.data;
 };
 
-export const sendMessage = async (chatId, text) => {
-    const response = await apiClient.post(`/admin/communication/chats/${chatId}/send`, { text });
-    return response.data;
+export const sendMessage = async (conversationId, text, receiverId) => {
+    const response = await apiClient.post(`/admin/communication/chats/${conversationId || 'new'}/send`, { text, conversationId, receiverId });
+    return response;
 };
 
 export const getChatUsers = async () => {

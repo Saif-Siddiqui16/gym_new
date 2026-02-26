@@ -13,7 +13,8 @@ import {
     Gift,
     Infinity,
     Wrench,
-    Users
+    Users,
+    ShieldCheck
 } from 'lucide-react';
 
 import CustomDropdown from '../../components/common/CustomDropdown';
@@ -35,7 +36,8 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             managers: { value: 2, isUnlimited: false },
             staff: { value: 5, isUnlimited: false },
             trainers: { value: 3, isUnlimited: false },
-            members: { value: 100, isUnlimited: false }
+            members: { value: 100, isUnlimited: false },
+            amenities: { value: 5, isUnlimited: false }
         },
 
         // Operational Limits
@@ -47,7 +49,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             leads: { value: 50, isUnlimited: false }
         },
 
-        // Member Benefit Limits
+        // Member Benefit Templates
         benefits: []
     });
 
@@ -78,7 +80,8 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                         managers: { value: 2, isUnlimited: false },
                         staff: { value: 5, isUnlimited: false },
                         trainers: { value: 3, isUnlimited: false },
-                        members: { value: 100, isUnlimited: false }
+                        members: { value: 100, isUnlimited: false },
+                        amenities: { value: 5, isUnlimited: false }
                     },
                     opsLimits: {
                         workouts: { value: 10, isUnlimited: false },
@@ -132,29 +135,26 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
         }));
     };
 
-    const addBenefit = () => {
+    const addBenefitTemplate = () => {
         setFormData(prev => ({
             ...prev,
             benefits: [...prev.benefits, {
                 id: Date.now(),
                 name: '',
-                limit: '5',
-                isUnlimited: false,
-                unit: 'Lifetime',
-                gender: 'All',
-                room: ''
+                description: '',
+                category: 'Premium'
             }]
         }));
     };
 
-    const removeBenefit = (id) => {
+    const removeBenefitTemplate = (id) => {
         setFormData(prev => ({
             ...prev,
             benefits: prev.benefits.filter(b => b.id !== id)
         }));
     };
 
-    const updateBenefit = (id, field, value) => {
+    const updateBenefitTemplate = (id, field, value) => {
         setFormData(prev => ({
             ...prev,
             benefits: prev.benefits.map(b => b.id === id ? { ...b, [field]: value } : b)
@@ -316,11 +316,11 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             onToggleUnlimited={(v) => handleLimitChange('limits', 'branches', 'isUnlimited', v)}
                         />
                         <PlanLimitField
-                            label="Max Managers"
-                            value={formData.limits.managers.value}
-                            isUnlimited={formData.limits.managers.isUnlimited}
-                            onChange={(v) => handleLimitChange('limits', 'managers', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('limits', 'managers', 'isUnlimited', v)}
+                            label="Max Amenities / Benefits"
+                            value={formData.limits.amenities.value}
+                            isUnlimited={formData.limits.amenities.isUnlimited}
+                            onChange={(v) => handleLimitChange('limits', 'amenities', 'value', v)}
+                            onToggleUnlimited={(v) => handleLimitChange('limits', 'amenities', 'isUnlimited', v)}
                         />
                         <PlanLimitField
                             label="Max Staff Accounts"
@@ -394,12 +394,12 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 )}
             </div>
 
-            {/* SECTION 4: MEMBER BENEFITS */}
+            {/* SECTION 4: BENEFIT TEMPLATES */}
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                 <CollapsibleHeader
                     icon={Gift}
-                    title="Member Benefit Usage Limits"
-                    subtitle="Directly syncs with Benefit Tracking"
+                    title="Premium Benefit Entitlements"
+                    subtitle="Define allowed amenity templates"
                     section="benefits"
                     active={activeSections.benefits}
                     color="text-rose-600"
@@ -407,17 +407,27 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
 
                 {activeSections.benefits && (
                     <div className="p-6 pt-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-start gap-4 bg-sky-50 p-6 rounded-3xl border border-sky-100">
+                            <div className="p-3 bg-white rounded-2xl text-sky-600 shadow-sm"><Info size={24} /></div>
+                            <div>
+                                <h5 className="font-black text-sm text-sky-900">Entitlement Logic</h5>
+                                <p className="text-xs font-bold text-sky-700/70 leading-relaxed mt-1">
+                                    Define specific amenities that gyms are allowed to offer. If left empty, gyms can create any amenity within their count limit.
+                                </p>
+                            </div>
+                        </div>
+
                         <div className="flex justify-between items-center bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
                             <div>
-                                <h5 className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Benefit Sync Active</h5>
-                                <p className="text-xs font-bold text-slate-500">Configure sessions/access per member tier.</p>
+                                <h5 className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Benefit Templates</h5>
+                                <p className="text-xs font-bold text-slate-500">Add pre-approved perks for this plan.</p>
                             </div>
                             <button
                                 type="button"
-                                onClick={addBenefit}
+                                onClick={addBenefitTemplate}
                                 className="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-black shadow-lg shadow-rose-200 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"
                             >
-                                <Plus size={16} /> Add Benefit
+                                <Plus size={16} /> Add Template
                             </button>
                         </div>
 
@@ -425,7 +435,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <div key={benefit.id} className="relative group animate-in zoom-in-95 duration-200">
                                 <button
                                     type="button"
-                                    onClick={() => removeBenefit(benefit.id)}
+                                    onClick={() => removeBenefitTemplate(benefit.id)}
                                     className="absolute -right-2 -top-2 w-8 h-8 bg-white shadow-lg border border-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 transition-all z-10"
                                 >
                                     <Trash2 size={16} />
@@ -434,65 +444,48 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                 <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Benefit Name</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entitlement Name</label>
                                             <input
                                                 type="text"
                                                 value={benefit.name}
-                                                onChange={(e) => updateBenefit(benefit.id, 'name', e.target.value)}
-                                                placeholder="e.g., Sauna Sessions"
+                                                onChange={(e) => updateBenefitTemplate(benefit.id, 'name', e.target.value)}
+                                                placeholder="e.g., Steam Room, Spa, VIP Lounge"
                                                 className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
                                             />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Room / Facility</label>
-                                            <input
-                                                type="text"
-                                                value={benefit.room || ''}
-                                                onChange={(e) => updateBenefit(benefit.id, 'room', e.target.value)}
-                                                placeholder="e.g., Room A, Sauna 1"
-                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender Separation</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category / Label</label>
                                             <select
-                                                value={benefit.gender || 'All'}
-                                                onChange={(e) => updateBenefit(benefit.id, 'gender', e.target.value)}
+                                                value={benefit.category || 'Premium'}
+                                                onChange={(e) => updateBenefitTemplate(benefit.id, 'category', e.target.value)}
                                                 className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all cursor-pointer"
                                             >
-                                                <option value="All">All Genders</option>
-                                                <option value="Male">Male Only</option>
-                                                <option value="Female">Female Only</option>
+                                                <option value="Basic">Basic Perk</option>
+                                                <option value="Premium">Premium Amenity</option>
+                                                <option value="VVIP">Elite Service</option>
                                             </select>
                                         </div>
                                     </div>
 
-                                    <PlanLimitField
-                                        label="Quota Limit"
-                                        value={benefit.limit}
-                                        isUnlimited={benefit.isUnlimited}
-                                        onChange={(v) => updateBenefit(benefit.id, 'limit', v)}
-                                        onToggleUnlimited={(v) => updateBenefit(benefit.id, 'isUnlimited', v)}
-                                        unitValue={benefit.unit}
-                                        onUnitChange={(v) => updateBenefit(benefit.id, 'unit', v)}
-                                        options={[
-                                            { value: 'Per Month', label: 'Per Month' },
-                                            { value: 'Per Year', label: 'Per Year' },
-                                            { value: 'Lifetime', label: 'Entire Duration' }
-                                        ]}
-                                    />
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Template Description</label>
+                                        <input
+                                            type="text"
+                                            value={benefit.description || ''}
+                                            onChange={(e) => updateBenefitTemplate(benefit.id, 'description', e.target.value)}
+                                            placeholder="Standard description for this benefit..."
+                                            className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         ))}
 
                         {formData.benefits.length === 0 && (
-                            <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-[32px]">
-                                <Infinity size={40} className="mx-auto text-slate-200 mb-2" />
-                                <p className="text-sm font-bold text-slate-400">No member benefits configured for this plan.</p>
+                            <div className="text-center py-12 bg-slate-50 border-2 border-dashed border-slate-100 rounded-[32px]">
+                                <ShieldCheck size={40} className="mx-auto text-slate-200 mb-2" />
+                                <p className="text-sm font-bold text-slate-400 italic">No specific templates restricted. Open access to defined count limit.</p>
                             </div>
                         )}
                     </div>

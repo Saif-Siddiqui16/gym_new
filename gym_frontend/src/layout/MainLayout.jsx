@@ -6,6 +6,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 const TITLE_MAP = {
     '/dashboard': 'Dashboard',
     '/memberships': 'Membership Management',
+    '/memberships/benefits-config': 'Benefits Configuration',
     '/classes': 'Class Scheduling',
     '/diet-plans': 'Diet Plans',
     '/workout-plans': 'Workout Plans',

@@ -81,18 +81,12 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
                 </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex gap-4">
+            <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex">
                 <button
                     onClick={onClose}
                     className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-600 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all border border-slate-200 shadow-sm"
                 >
                     Close Inspector
-                </button>
-                <button
-                    className="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-violet-500/20 transition-all flex items-center justify-center gap-2"
-                >
-                    <ExternalLink size={14} /> Open in Logs
                 </button>
             </div>
         </div>

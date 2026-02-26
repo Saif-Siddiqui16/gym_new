@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Edit2, Trash2, CheckCircle2, Crown, Sparkles, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Search, Filter, Edit2, Trash2, CheckCircle2, Crown, Sparkles, LayoutGrid, List as ListIcon, Layers } from 'lucide-react';
 import { MEMBERSHIP_PLANS } from '../data/mockMemberships';
 import CreateMembershipPlanDrawer from '../components/CreateMembershipPlanDrawer';
 import { membershipApi } from '../../../api/membershipApi';
 import toast from 'react-hot-toast';
 
 const MembershipPlans = () => {
+    const navigate = useNavigate();
     const [plans, setPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
@@ -81,13 +83,22 @@ const MembershipPlans = () => {
                     </h1>
                     <p className="text-gray-500 font-medium mt-1">Configure plan tiers, pricing, and benefits.</p>
                 </div>
-                <button
-                    onClick={openCreate}
-                    className="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all flex items-center justify-center gap-2"
-                >
-                    <Plus size={20} strokeWidth={3} />
-                    Create New Plan
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <button
+                        onClick={() => navigate('/memberships/benefits-config')}
+                        className="px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-100 rounded-xl font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Layers size={20} />
+                        Configure Benefits
+                    </button>
+                    <button
+                        onClick={openCreate}
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Plus size={20} strokeWidth={3} />
+                        Create New Plan
+                    </button>
+                </div>
             </div>
 
             {/* Filters */}
