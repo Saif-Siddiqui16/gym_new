@@ -10,24 +10,20 @@ import {
     Target,
     Zap,
     TrendingUp,
-    Timer,
-    Flame,
-    Music,
-    MoreHorizontal,
-    Edit2,
-    Trash2,
-    ArrowUpRight,
     Activity,
     Info,
     ChevronLeft,
     User,
-    Play
+    Play,
+    Flame,
+    Edit2,
+    Trash2
 } from 'lucide-react';
 import { WORKOUT_PLANS, MEMBER_WORKOUT_STATUS } from '../data/mockWorkoutData';
 import CreateWorkoutDrawer from '../components/CreateWorkoutDrawer';
 import AssignWorkoutDrawer from '../components/AssignWorkoutDrawer';
 import '../../../styles/GlobalDesign.css';
-import { getWorkoutPlans, createWorkoutPlan, updateWorkoutPlan, toggleWorkoutPlanStatus } from '../../../api/trainer/trainerApi';
+import { getWorkoutPlans, createWorkoutPlan, updateWorkoutPlan, toggleWorkoutPlanStatus, deleteWorkoutPlan, assignPlanToMember } from '../../../api/trainer/trainerApi';
 import { fetchMemberWorkoutPlans } from '../../../api/member/memberApi';
 import { toast } from 'react-hot-toast';
 
@@ -91,14 +87,14 @@ const WorkoutPlans = ({ role }) => {
     };
 
     const handleDeletePlan = async (planId) => {
-        if (window.confirm('Are you sure you want to deactivate this workout protocol?')) {
+        if (window.confirm('Are you sure you want to permanently delete this workout protocol?')) {
             try {
-                await toggleWorkoutPlanStatus(planId);
-                toast.success('Protocol deactivated successfully');
+                await deleteWorkoutPlan(planId);
+                toast.success('Protocol deleted successfully');
                 await loadPlans();
             } catch (error) {
                 console.error('Error deleting plan', error);
-                toast.error('Failed to deactivate protocol');
+                toast.error('Failed to delete protocol');
             }
         }
     };
@@ -108,9 +104,25 @@ const WorkoutPlans = ({ role }) => {
         setAssignModalOpen(true);
     };
 
-    const handleAssignPlan = (selectedMembers) => {
-        console.log(`Assigned Plan ${selectedPlanId} to members:`, selectedMembers);
-        setAssignModalOpen(false);
+    const handleAssignPlan = async (assignmentData) => {
+        try {
+            const { members, startDate, endDate, notes } = assignmentData;
+            for (const memberId of members) {
+                await assignPlanToMember(memberId, {
+                    planId: selectedPlanId,
+                    type: 'Workout',
+                    startDate,
+                    endDate,
+                    notes
+                });
+            }
+            toast.success(`Protocol reliably assigned to ${members.length} member(s).`);
+            setAssignModalOpen(false);
+            await loadPlans();
+        } catch (error) {
+            console.error('Error assigning plan', error);
+            toast.error('Failed to assign protocol');
+        }
     };
 
     const openEditModal = (plan) => {
@@ -295,12 +307,12 @@ const WorkoutPlans = ({ role }) => {
                     <div className="lg:col-span-8 space-y-6 md:space-y-8">
                         {/* Day Selector */}
                         <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
-                            {daysOfWeek.map((day) => {
-                                const hasProtocol = activePlan?.days?.[day];
+                            {['all', ...daysOfWeek].map((day) => {
+                                const hasProtocol = day === 'all' || (activePlan?.days?.[day]?.length > 0);
                                 return (
                                     <button
                                         key={day}
-                                        onClick={() => setActiveDay(day)}
+                                        onClick={() => hasProtocol && setActiveDay(day)}
                                         className={`flex-shrink-0 px-6 py-3.5 rounded-xl text-sm font-bold transition-all border ${activeDay === day
                                             ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-200 border-transparent scale-105'
                                             : hasProtocol
@@ -341,23 +353,68 @@ const WorkoutPlans = ({ role }) => {
                                         <Calendar size={24} strokeWidth={2.5} />
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-black text-slate-900 tracking-tight">{activePlan ? `Day ${daysOfWeek.indexOf(activeDay) + 1}: ${activePlan.name}` : "Today's Protocol"}</h2>
+                                        <h2 className="text-lg font-black text-slate-900 tracking-tight">{activePlan ? (activeDay === 'all' ? 'Full Weekly Architecture' : `Day ${daysOfWeek.indexOf(activeDay) + 1}: ${activePlan.name}`) : "Today's Protocol"}</h2>
                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">Focus: {activePlan?.goal || 'Strength & Power'}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
-                                    <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-slate-600 rounded-xl text-xs font-bold border border-slate-200 hover:border-violet-500 hover:text-violet-600 transition-all shadow-sm flex-1 md:flex-none">
-                                        <Music size={14} /> Playlist
-                                    </button>
-                                    <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 hover:-translate-y-0.5 flex-1 md:flex-none">
-                                        <Timer size={14} /> Start Session
-                                    </button>
-                                </div>
+
                             </div>
 
                             <div className="p-6">
                                 <div className="space-y-4">
-                                    {activePlan?.days?.[activeDay] ? (
+                                    {activeDay === 'all' ? (
+                                        daysOfWeek.map(day => (activePlan?.days?.[day]?.length > 0) && (
+                                            <div key={day} className="space-y-4">
+                                                <div className="flex items-center gap-4 px-2 py-2 border-b border-slate-50 mb-2">
+                                                    <div className="w-2 h-2 rounded-full bg-violet-500 shadow-sm animate-pulse"></div>
+                                                    <span className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">{day}</span>
+                                                </div>
+                                                {activePlan.days[day].map((exercise, idx) => (
+                                                    <div key={`${day}-${exercise.id}`} className="group flex flex-col md:flex-row items-stretch md:items-center p-5 rounded-2xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 transition-all gap-6 relative overflow-hidden">
+                                                        {/* Hover Highlight */}
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                                        <div className="flex items-center gap-5 md:w-1/3">
+                                                            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center shadow-inner text-slate-400 font-black text-lg group-hover:bg-violet-600 group-hover:text-white transition-all duration-300">
+                                                                {idx + 1}
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-base font-bold text-slate-900 mb-1 group-hover:text-violet-700 transition-colors">{exercise.name}</h4>
+                                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                                    {exercise.notes ? (exercise.notes.length > 20 ? exercise.notes.substring(0, 20) + '...' : exercise.notes) : 'Standard Movement'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+                                                            <div className="text-center md:text-left">
+                                                                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Sets</div>
+                                                                <div className="text-sm font-bold text-slate-900 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">{exercise.sets}</div>
+                                                            </div>
+                                                            <div className="text-center md:text-left">
+                                                                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Reps</div>
+                                                                <div className="text-sm font-bold text-slate-900 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">{exercise.reps}</div>
+                                                            </div>
+                                                            <div className="text-center md:text-left">
+                                                                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">RPE</div>
+                                                                <div className="text-sm font-bold text-orange-600 flex items-center gap-1">
+                                                                    <Flame size={12} fill="currentColor" /> {exercise.rpe}/10
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-center md:text-left">
+                                                                <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Rest</div>
+                                                                <div className="text-sm font-bold text-violet-600">{exercise.rest}</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <button className="hidden md:flex w-10 h-10 bg-slate-50 rounded-xl items-center justify-center text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all border border-transparent hover:border-violet-100">
+                                                            <Info size={18} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))
+                                    ) : activePlan?.days?.[activeDay]?.length > 0 ? (
                                         activePlan.days[activeDay].map((exercise, idx) => (
                                             <div key={exercise.id} className="group flex flex-col md:flex-row items-stretch md:items-center p-5 rounded-2xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 transition-all gap-6 relative overflow-hidden">
                                                 {/* Hover Highlight */}

@@ -15,7 +15,6 @@ import {
     Activity,
     TrendingUp,
     DollarSign,
-    Dumbbell,
     ExternalLink,
     ArrowRight,
     MessageSquare,
@@ -503,13 +502,7 @@ const TrainerDashboard = () => {
                         <Calendar size={16} />
                         My Schedule
                     </button>
-                    <button
-                        onClick={() => navigate('/trainer/sessions/upcoming')}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-all shadow-md"
-                    >
-                        <Dumbbell size={16} />
-                        Start Session
-                    </button>
+
                 </div>
             </div>
 

@@ -1,28 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Search, CheckCircle2, User, Dumbbell } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
+import { getAssignedMembers } from '../../../api/trainer/trainerApi';
 
 const AssignWorkoutDrawer = ({ isOpen, onClose, onAssign, planName }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
 
-    // Date & Notes States
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [notes, setNotes] = useState('');
 
-    // Mock members data - In real app, fetch from API
-    const MOCK_MEMBERS = [
-        { id: 'M-101', name: 'John Doe', currentPlan: 'Hypertrophy Mastery 2.0' },
-        { id: 'M-102', name: 'Jane Smith', currentPlan: null },
-        { id: 'M-103', name: 'Mike Monitor', currentPlan: 'Strength 5x5' },
-        { id: 'M-104', name: 'Alice Cooper', currentPlan: null },
-        { id: 'M-105', name: 'Bob Builder', currentPlan: 'Endurance Basics' },
-    ];
+    const [members, setMembers] = useState([]);
+    const [loadingMembers, setLoadingMembers] = useState(false);
 
-    const filteredMembers = MOCK_MEMBERS.filter(m =>
+    useEffect(() => {
+        if (isOpen) {
+            setLoadingMembers(true);
+            getAssignedMembers({ limit: 100 })
+                .then(res => setMembers(res?.data || []))
+                .catch(console.error)
+                .finally(() => setLoadingMembers(false));
+
+            // Retain reset behavior when opening
+            setSelectedMembers([]);
+            setStartDate('');
+            setEndDate('');
+            setNotes('');
+            setSearchTerm('');
+        }
+    }, [isOpen]);
+
+
+    const filteredMembers = members.filter(m =>
         m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.id.toLowerCase().includes(searchTerm.toLowerCase())
+        String(m.id).toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const toggleMember = (memberId) => {
@@ -120,7 +132,7 @@ const AssignWorkoutDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                                         <div>
                                             <p className={`font-bold text-sm ${isSelected ? 'text-indigo-900' : 'text-gray-900'}`}>{member.name}</p>
                                             <p className="text-xs font-semibold text-gray-400">
-                                                {member.currentPlan ? `Current: ${member.currentPlan}` : 'No active protocol'}
+                                                {member.workoutPlans && member.workoutPlans.length > 0 ? `Current: ${member.workoutPlans[0].name}` : 'No active protocol'}
                                             </p>
                                         </div>
                                     </div>
@@ -134,7 +146,14 @@ const AssignWorkoutDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                             );
                         })}
 
-                        {filteredMembers.length === 0 && (
+                        {loadingMembers && (
+                            <div className="text-center py-8">
+                                <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                                <p className="text-sm font-bold text-gray-400">Loading members...</p>
+                            </div>
+                        )}
+
+                        {!loadingMembers && filteredMembers.length === 0 && (
                             <div className="text-center py-8 text-gray-400">
                                 <User size={32} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-sm font-bold">No athletes found</p>

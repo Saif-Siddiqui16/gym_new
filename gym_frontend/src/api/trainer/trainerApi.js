@@ -161,6 +161,11 @@ export const toggleWorkoutPlanStatus = async (id) => {
     return response.data;
 };
 
+export const deleteWorkoutPlan = async (id) => {
+    const response = await apiClient.delete(`/trainer/workout-plans/${id}`);
+    return response.data;
+};
+
 // MEMBERS
 export const getAssignedMembers = async ({ filters = {}, page = 1, limit = 5 } = {}) => {
     try {
@@ -192,6 +197,24 @@ export const flagMember = async (id, reason) => {
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to flag member';
+    }
+};
+
+export const getMemberMessages = async (id) => {
+    try {
+        const response = await apiClient.get(`/trainer/members/${id}/messages`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch messages';
+    }
+};
+
+export const sendMemberMessage = async (id, content) => {
+    try {
+        const response = await apiClient.post(`/trainer/members/${id}/messages`, { content });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to send message';
     }
 };
 
