@@ -167,6 +167,7 @@ export const menuConfig = {
             icon: CreditCard,
             children: [
                 { label: 'Plans & Benefits', path: '/memberships', icon: CreditCard },
+                { label: 'Benefits Config', path: '/memberships/benefits-config', icon: Layers },
                 { label: 'Renewal Alerts', path: '/members/renewal-alerts', icon: AlertCircle },
             ]
         },
@@ -248,6 +249,7 @@ export const menuConfig = {
             icon: CreditCard,
             children: [
                 { label: 'Plans & Benefits', path: '/memberships', icon: CreditCard },
+                { label: 'Benefits Config', path: '/memberships/benefits-config', icon: Layers },
                 { label: 'Renewal Alerts', path: '/members/renewal-alerts', icon: AlertCircle },
             ]
         },

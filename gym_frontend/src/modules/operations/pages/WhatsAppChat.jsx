@@ -13,11 +13,14 @@ import {
     FileText,
     Calendar
 } from 'lucide-react';
-import { getChatUsers } from '../../../api/manager/managerApi';
+import { getChatUsers, getChats, getMessages, sendMessage } from '../../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
+import { io } from 'socket.io-client';
+import BaseUrl from '../../../api/BaseUrl/BaseUrl';
 
 const WhatsAppChat = () => {
-    const [users, setUsers] = useState([]);
+    const [chats, setChats] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,77 +28,163 @@ const WhatsAppChat = () => {
     const [chatHistory, setChatHistory] = useState({});
     const [showSidebar, setShowSidebar] = useState(true);
     const messagesEndRef = useRef(null);
+    const socket = useRef();
+    const currentUserId = JSON.parse(localStorage.getItem('userData'))?.id;
 
-    // Auto-scroll to bottom
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Establishing Socket Connection
+    useEffect(() => {
+        if (currentUserId) {
+            // Extract domain from BaseUrl (remove /api/v1)
+            const socketUrl = BaseUrl.replace(/\/api\/v1$/, '');
+            socket.current = io(socketUrl);
+            socket.current.emit('join', currentUserId);
+
+            socket.current.on('new_message', (msg) => {
+                setChatHistory(prev => {
+                    const convId = msg.conversationId;
+                    const existing = prev[convId] || [];
+                    // Avoid duplicates
+                    if (existing.some(m => m.id === msg.id)) return prev;
+                    return {
+                        ...prev,
+                        [convId]: [...existing, msg]
+                    };
+                });
+
+                // Refresh chats to show last message in sidebar
+                loadChats();
+            });
+        }
+        return () => socket.current?.disconnect();
+    }, [currentUserId]);
+
+    const loadChats = async () => {
+        try {
+            const data = await getChats();
+            setChats(data || []);
+        } catch (err) {
+            console.error("Failed to load chats:", err);
+        }
     };
 
     useEffect(() => {
-        const loadUsers = async () => {
-            try {
-                setLoading(true);
-                const data = await getChatUsers();
-                setUsers(data || []);
-            } catch (err) {
-                console.error("Failed to load chat users:", err);
-                toast.error("Failed to load users");
-            } finally {
-                setLoading(false);
-            }
+        const init = async () => {
+            setLoading(true);
+            await loadChats();
+            setLoading(false);
         };
-        loadUsers();
+        init();
 
         const handleResize = () => {
-            if (window.innerWidth >= 768) {
-                setShowSidebar(true);
-            }
+            if (window.innerWidth >= 768) setShowSidebar(true);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const filteredUsers = (users || []).filter(u =>
-        u.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Handle Search
+    useEffect(() => {
+        const search = async () => {
+            if (!searchTerm.trim()) {
+                setSearchResults([]);
+                return;
+            }
+            try {
+                const users = await getChatUsers();
+                const filtered = users.filter(u =>
+                    u.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                    !chats.some(c => c.receiverId === u.id)
+                );
+                setSearchResults(filtered);
+            } catch (err) {
+                console.error("Search failed:", err);
+            }
+        };
+        const timer = setTimeout(search, 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm, chats]);
 
-    const handleSendMessage = (e) => {
+    const fetchMessages = async (chatId) => {
+        try {
+            const msgs = await getMessages(chatId);
+            setChatHistory(prev => ({ ...prev, [chatId]: msgs }));
+        } catch (err) {
+            console.error("Failed to load messages:", err);
+        }
+    };
+
+    const handleSelectChat = (chat) => {
+        setSelectedUser(chat);
+        if (!chatHistory[chat.id]) {
+            fetchMessages(chat.id);
+        }
+        if (window.innerWidth < 768) setShowSidebar(false);
+    };
+
+    const handleStartNewChat = (user) => {
+        // Create a temporary chat object
+        const newChat = {
+            id: null, // Indicates new chat
+            receiverId: user.id,
+            name: user.name,
+            role: user.role,
+            avatar: user.avatar || user.name.charAt(0),
+            lastMsg: 'Start a conversation...',
+            time: 'Now'
+        };
+        setSelectedUser(newChat);
+        setSearchTerm('');
+        if (window.innerWidth < 768) setShowSidebar(false);
+    };
+
+    const handleSendMessage = async (e) => {
         if (e) e.preventDefault();
         if (!messageInput.trim() || !selectedUser) return;
 
-        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const newMessage = {
-            id: Date.now(),
-            text: messageInput,
-            time: timestamp,
-            sentBy: 'staff'
-        };
-
-        setChatHistory(prev => ({
-            ...prev,
-            [selectedUser.id]: [...(prev[selectedUser.id] || []), newMessage]
-        }));
+        const text = messageInput;
         setMessageInput('');
-    };
 
-    const applyTemplate = (type) => {
-        if (!selectedUser) return;
-        let text = '';
-        if (type === 'payment') {
-            text = `Hi ${selectedUser.name}, regarding the branch management...`;
-        } else if (type === 'booking') {
-            text = `Hi ${selectedUser.name}, the training schedule has been updated.`;
+        try {
+            const res = await sendMessage(
+                selectedUser.id ? selectedUser.id : null, // conversationId
+                text,
+                selectedUser.receiverId ? selectedUser.receiverId : null // receiverId
+            );
+
+            const msgData = res.data;
+            const newMessage = {
+                id: msgData.id,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                sentBy: 'staff'
+            };
+
+            const actualChatId = res.data.conversationId;
+
+            // If it was a new chat, update selectedUser and fetch chats
+            if (!selectedUser.id) {
+                setSelectedUser({ ...selectedUser, id: actualChatId });
+                await loadChats();
+            }
+
+            setChatHistory(prev => ({
+                ...prev,
+                [actualChatId]: [...(prev[actualChatId] || []), newMessage]
+            }));
+
+        } catch (err) {
+            console.error("Failed to send:", err);
+            toast.error("Failed to send message");
         }
-        setMessageInput(text);
     };
 
-    const currentMessages = selectedUser ? (chatHistory[selectedUser.id] || [
-        { id: 'welcome', text: `Hi ${selectedUser.name}! How can we help you today?`, time: '09:00 AM', sentBy: 'member' }
-    ]) : [];
+    const currentMessages = selectedUser && selectedUser.id ? (chatHistory[selectedUser.id] || []) : [];
 
     useEffect(() => {
-        scrollToBottom();
-    }, [chatHistory, selectedUser]);
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [currentMessages]);
+
+    const displayList = searchTerm.trim() ? searchResults : chats;
 
     return (
         <div className="flex h-[calc(100vh-140px)] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden relative">
@@ -114,7 +203,7 @@ const WhatsAppChat = () => {
                         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors" />
                         <input
                             type="text"
-                            placeholder="Search members..."
+                            placeholder="Search members or staff..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-violet-500/20 transition-all outline-none font-medium"
@@ -124,30 +213,32 @@ const WhatsAppChat = () => {
 
                 <div className="flex-1 overflow-y-auto">
                     {loading ? (
-                        <div className="p-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">Loading Users...</div>
-                    ) : filteredUsers.map(user => (
-                        <button
-                            key={user.id}
-                            onClick={() => {
-                                setSelectedUser(user);
-                                if (window.innerWidth < 768) setShowSidebar(false);
-                            }}
-                            className={`w-full p-4 flex items-center gap-3 hover:bg-white transition-all border-b border-slate-50/50 ${selectedUser?.id === user.id ? 'bg-white border-l-4 border-l-violet-600 shadow-sm' : ''}`}
-                        >
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                                {user.name.charAt(0)}
-                            </div>
-                            <div className="flex-1 text-left min-w-0">
-                                <div className="flex justify-between items-start mb-0.5">
-                                    <span className="font-bold text-slate-800 truncate">{user.name}</span>
-                                    <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">Now</span>
+                        <div className="p-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">Loading...</div>
+                    ) : (
+                        displayList.map(item => (
+                            <button
+                                key={item.id || item.receiverId}
+                                onClick={() => searchTerm ? handleStartNewChat(item) : handleSelectChat(item)}
+                                className={`w-full p-4 flex items-center gap-3 hover:bg-white transition-all border-b border-slate-50/50 ${selectedUser?.id === item.id || selectedUser?.receiverId === item.id ? 'bg-white border-l-4 border-l-violet-600 shadow-sm' : ''}`}
+                            >
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                    {(item.avatar && typeof item.avatar === 'string' && item.avatar.length === 1) ? item.avatar : (item.name?.charAt(0) || 'U')}
                                 </div>
-                                <div className="text-xs text-slate-500 truncate font-black uppercase tracking-tighter opacity-70">
-                                    {user.role.replace('_', ' ')}
+                                <div className="flex-1 text-left min-w-0">
+                                    <div className="flex justify-between items-start mb-0.5">
+                                        <span className="font-bold text-slate-800 truncate">{item.name}</span>
+                                        <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{item.time}</span>
+                                    </div>
+                                    <div className="text-xs text-slate-500 truncate font-medium opacity-70">
+                                        {item.lastMsg || item.role?.replace('_', ' ')}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    ))}
+                            </button>
+                        ))
+                    )}
+                    {!loading && displayList.length === 0 && (
+                        <div className="p-10 text-center text-slate-400 text-xs font-bold uppercase tracking-tighter">No results found</div>
+                    )}
                 </div>
             </div>
 
@@ -155,13 +246,9 @@ const WhatsAppChat = () => {
             <div className={`flex-1 flex flex-col bg-[#f0f2f5] relative ${!selectedUser ? 'items-center justify-center' : ''}`}>
                 {selectedUser ? (
                     <>
-                        {/* Chat Header */}
                         <div className="p-4 bg-white border-b border-slate-100 flex items-center justify-between shadow-sm z-10">
                             <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setShowSidebar(true)}
-                                    className="md:hidden p-2 -ml-2 text-slate-500 hover:text-violet-600 transition-colors"
-                                >
+                                <button onClick={() => setShowSidebar(true)} className="md:hidden p-2 -ml-2 text-slate-500 hover:text-violet-600 transition-colors">
                                     <ChevronLeft size={24} />
                                 </button>
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
@@ -171,40 +258,20 @@ const WhatsAppChat = () => {
                                     <h3 className="font-bold text-slate-800 leading-tight tracking-tight">{selectedUser.name}</h3>
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                        <span className="text-[10px] text-emerald-600 font-black uppercase tracking-wider">{selectedUser.role.replace('_', ' ')}</span>
+                                        <span className="text-[10px] text-emerald-600 font-black uppercase tracking-wider">{selectedUser.role?.replace('_', ' ')}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all">
-                                    <Phone size={20} />
-                                </button>
-                                <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all">
-                                    <MoreVertical size={20} />
-                                </button>
+                                <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"><Phone size={20} /></button>
+                                <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"><MoreVertical size={20} /></button>
                             </div>
                         </div>
 
-                        {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar">
-                            <div className="flex justify-center mb-6">
-                                <span className="bg-white/80 backdrop-blur px-3 py-1 rounded-lg text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 shadow-sm">
-                                    Today
-                                </span>
-                            </div>
-
                             {currentMessages.map((msg, idx) => (
-                                <div
-                                    key={msg.id}
-                                    className={`flex ${msg.sentBy === 'staff' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
-                                    style={{ animationDelay: `${idx * 50}ms` }}
-                                >
-                                    <div className={`
-                                        max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative
-                                        ${msg.sentBy === 'staff'
-                                            ? 'bg-violet-600 text-white rounded-tr-none'
-                                            : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'}
-                                    `}>
+                                <div key={msg.id} className={`flex ${msg.sentBy === 'staff' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                                    <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative ${msg.sentBy === 'staff' ? 'bg-violet-600 text-white rounded-tr-none' : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'}`}>
                                         <p className="text-sm font-medium leading-relaxed">{msg.text}</p>
                                         <div className={`flex items-center justify-end gap-1 mt-1 ${msg.sentBy === 'staff' ? 'text-violet-200' : 'text-slate-400'}`}>
                                             <span className="text-[9px] font-bold uppercase">{msg.time}</span>
@@ -216,46 +283,13 @@ const WhatsAppChat = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        {/* Input Area */}
                         <div className="p-4 bg-white border-t border-slate-100 flex flex-col gap-3">
-                            {/* Template Buttons */}
-                            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                                <button
-                                    onClick={() => applyTemplate('payment')}
-                                    className="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-600 rounded-lg text-[11px] font-bold border border-violet-100 hover:bg-violet-100 transition-colors shadow-sm"
-                                >
-                                    <FileText size={14} />
-                                    Payment Reminder
-                                </button>
-                                <button
-                                    onClick={() => applyTemplate('booking')}
-                                    className="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[11px] font-bold border border-indigo-100 hover:bg-indigo-100 transition-colors shadow-sm"
-                                >
-                                    <Calendar size={14} />
-                                    Booking Confirmation
-                                </button>
-                            </div>
-
                             <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-                                <button type="button" className="p-2 text-slate-400 hover:text-violet-600 transition-colors">
-                                    <Paperclip size={22} />
-                                </button>
+                                <button type="button" className="p-2 text-slate-400 hover:text-violet-600 transition-colors"><Paperclip size={22} /></button>
                                 <div className="flex-1 relative">
-                                    <input
-                                        type="text"
-                                        value={messageInput}
-                                        onChange={(e) => setMessageInput(e.target.value)}
-                                        placeholder="Type a message..."
-                                        className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500/20 transition-all font-medium"
-                                    />
+                                    <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} placeholder="Type a message..." className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500/20 transition-all font-medium" />
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={!messageInput.trim()}
-                                    className={`p-3 rounded-xl transition-all shadow-lg active:scale-95 ${messageInput.trim() ? 'bg-violet-600 text-white shadow-violet-200 hover:bg-violet-700 hover:scale-105' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
-                                >
-                                    <Send size={20} />
-                                </button>
+                                <button type="submit" disabled={!messageInput.trim()} className={`p-3 rounded-xl transition-all shadow-lg active:scale-95 ${messageInput.trim() ? 'bg-violet-600 text-white shadow-violet-200 hover:bg-violet-700 hover:scale-105' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}><Send size={20} /></button>
                             </form>
                         </div>
                     </>
@@ -266,7 +300,7 @@ const WhatsAppChat = () => {
                         </div>
                         <h2 className="text-2xl font-black text-slate-800 mb-2">My WhatsApp Chat</h2>
                         <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
-                            Select a Superadmin or Branch Staff from the sidebar to start a conversation.
+                            Search for members or staff in the sidebar to start a conversation.
                         </p>
                     </div>
                 )}

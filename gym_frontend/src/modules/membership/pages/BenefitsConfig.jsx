@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Plus,
     Edit2,
@@ -18,65 +18,120 @@ import {
     Calendar,
     Infinity,
     Sparkles,
-    Info
+    Info,
+    RefreshCw,
+    AlertCircle
 } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
-import { BENEFITS } from '../data/mockMemberships';
+import amenityApi from '../../../api/amenityApi';
+import { fetchMySubscription } from '../../../api/superadmin/superAdminApi';
+import toast from 'react-hot-toast';
 
 const ICONS = {
     Dumbbell, User, Users, Utensils, Lock, Thermometer, Zap, Droplets, Activity, Clock, Calendar
 };
 
 const BenefitsConfig = () => {
-    const [benefits, setBenefits] = useState(BENEFITS);
+    const [benefits, setBenefits] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBenefit, setEditingBenefit] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [subData, setSubData] = useState(null);
 
     // Form State
     const [formData, setFormData] = useState({
         name: '',
-        type: 'recurring', // recurring | global
-        limit: '',
+        status: 'Active',
+        gender: 'UNISEX',
         icon: 'Dumbbell',
         description: ''
     });
 
+    const fetchData = async () => {
+        try {
+            setIsLoading(true);
+            const [amenitiesData, subscription] = await Promise.all([
+                amenityApi.getAll(),
+                fetchMySubscription().catch(() => null)
+            ]);
+            setBenefits(amenitiesData);
+            setSubData(subscription);
+        } catch (error) {
+            toast.error('Failed to load configuration');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     const handleEdit = (benefit) => {
         setEditingBenefit(benefit);
-        setFormData(benefit);
+        setFormData({
+            name: benefit.name,
+            status: benefit.status,
+            gender: benefit.gender,
+            icon: benefit.icon || 'Dumbbell',
+            description: benefit.description || ''
+        });
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this benefit?')) {
-            setBenefits(prev => prev.filter(b => b.id !== id));
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this benefit? This might affect existing membership plans.')) {
+            try {
+                await amenityApi.delete(id);
+                toast.success('Benefit removed');
+                fetchData();
+            } catch (error) {
+                toast.error(error);
+            }
         }
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        if (editingBenefit) {
-            setBenefits(prev => prev.map(b => b.id === editingBenefit.id ? { ...formData, id: b.id } : b));
-        } else {
-            const newBenefit = {
-                ...formData,
-                id: formData.name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now()
-            };
-            setBenefits(prev => [...prev, newBenefit]);
+        try {
+            if (editingBenefit) {
+                await amenityApi.update(editingBenefit.id, formData);
+                toast.success('Benefit updated');
+            } else {
+                await amenityApi.create(formData);
+                toast.success('Benefit established');
+            }
+            setIsModalOpen(false);
+            fetchData();
+        } catch (error) {
+            toast.error(error);
         }
-        setIsModalOpen(false);
-        setEditingBenefit(null);
-        setFormData({ name: '', type: 'recurring', limit: '', icon: 'Dumbbell', description: '' });
     };
 
     const openCreateModal = () => {
         setEditingBenefit(null);
-        setFormData({ name: '', type: 'recurring', limit: '', icon: 'Dumbbell', description: '' });
+        setFormData({ name: '', status: 'Active', gender: 'UNISEX', icon: 'Dumbbell', description: '' });
         setIsModalOpen(true);
     };
+
+    const planLimits = subData?.plan?.limits?.amenities || { value: 'Unlimited', isUnlimited: true };
+    const quotaUsed = benefits.length;
+    const quotaTotal = planLimits.isUnlimited ? '∞' : planLimits.value;
+    const isAtLimit = !planLimits.isUnlimited && quotaUsed >= parseInt(planLimits.value);
+
+    // Filter allowed templates from SaaS Plan
+    const allowedTemplates = subData?.plan?.benefits || [];
+
+    if (isLoading) {
+        return (
+            <div className="h-96 flex items-center justify-center">
+                <RefreshCw className="animate-spin text-indigo-600" size={48} />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 fade-in p-6">
@@ -90,14 +145,28 @@ const BenefitsConfig = () => {
                         <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1">
                             <Infinity size={12} /> SaaS Sync Active
                         </span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Controlled by Plan Limits</span>
+                        <span className="text-[10px] font-black text-slate-900 uppercase">
+                            Quota: <span className={isAtLimit ? 'text-red-500' : 'text-indigo-600'}>{quotaUsed} / {quotaTotal}</span>
+                        </span>
                     </div>
-                    <Button variant="primary" onClick={openCreateModal} className="px-6 py-3 rounded-xl shadow-lg shadow-indigo-200">
+                    <Button
+                        variant="primary"
+                        onClick={openCreateModal}
+                        disabled={isAtLimit && !editingBenefit}
+                        className="px-6 py-3 rounded-xl shadow-lg shadow-indigo-200"
+                    >
                         <Plus size={20} className="mr-2" />
                         Create New Benefit
                     </Button>
                 </div>
             </div>
+
+            {isAtLimit && (
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3 text-amber-700">
+                    <AlertCircle size={20} />
+                    <p className="text-sm font-bold">You have reached your SaaS plan limit for benefits. Upgrade your subscription to add more.</p>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {benefits.map(benefit => {
@@ -122,19 +191,23 @@ const BenefitsConfig = () => {
                                 </div>
 
                                 <h3 className="text-xl font-black text-gray-900 mb-1">{benefit.name}</h3>
-                                <div className="flex items-center gap-1.5 mb-3">
-                                    <div className="w-1 h-3 bg-indigo-500 rounded-full"></div>
-                                    <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">SaaS Sync Logic</span>
-                                </div>
-                                <p className="text-gray-500 text-sm font-medium mb-4 min-h-[40px] italic line-clamp-2">"{benefit.description}"</p>
-
-                                <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
-                                    <div className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${benefit.type === 'recurring' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
-                                        }`}>
-                                        {benefit.type === 'recurring' ? 'Monthly' : 'Global'}
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1 h-3 bg-indigo-500 rounded-full"></div>
+                                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{benefit.gender}</span>
                                     </div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                        Default Limit: <span className="text-gray-900 ml-1 font-black">{benefit.limit}</span>
+                                    {benefit.status === 'Active' ? (
+                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-2 py-0.5 rounded-md">Live</span>
+                                    ) : (
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">Paused</span>
+                                    )}
+                                </div>
+                                <p className="text-gray-500 text-sm font-medium mb-4 min-h-[40px] italic line-clamp-2">"{benefit.description || 'No description provided.'}"</p>
+
+                                <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Established {new Date(benefit.createdAt).toLocaleDateString()}</span>
+                                    <div className="p-1 px-2 bg-slate-900 rounded-lg text-[8px] font-black text-white uppercase tracking-tighter">
+                                        Active Profile
                                     </div>
                                 </div>
                             </div>
@@ -142,6 +215,16 @@ const BenefitsConfig = () => {
                         </div>
                     );
                 })}
+                {benefits.length === 0 && (
+                    <div className="col-span-full py-20 text-center bg-white rounded-[32px] border-2 border-dashed border-gray-100">
+                        <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Sparkles size={40} />
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900">No Benefits Established</h3>
+                        <p className="text-gray-500 font-bold mt-2">Start by creating your first member perk or amenity.</p>
+                        <Button variant="primary" onClick={openCreateModal} className="mt-6">Establish First Benefit</Button>
+                    </div>
+                )}
             </div>
 
             {/* Config Modal */}
@@ -165,14 +248,26 @@ const BenefitsConfig = () => {
                         </div>
 
                         <form onSubmit={handleSave} className="p-6 space-y-5">
-                            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 mb-2">
-                                <h4 className="text-[10px] font-black text-indigo-700 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                    <Info size={14} /> Usage Logic Reminder
-                                </h4>
-                                <p className="text-[11px] font-bold text-indigo-600/70 leading-relaxed">
-                                    Individual member usage for this benefit will be capped based on their plan's quota set in Plan Management.
-                                </p>
-                            </div>
+                            {!editingBenefit && allowedTemplates.length > 0 && (
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Included in your Plan</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {allowedTemplates.map(t => (
+                                            <button
+                                                key={t.id}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, name: t.name, description: t.description || '' })}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border-2 transition-all ${formData.name === t.name
+                                                        ? 'bg-indigo-600 border-indigo-600 text-white'
+                                                        : 'bg-white border-gray-100 text-gray-500 hover:border-indigo-200'
+                                                    }`}
+                                            >
+                                                {t.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Benefit Designation</label>
@@ -187,25 +282,27 @@ const BenefitsConfig = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Sync Strategy</label>
+                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Gender Restriction</label>
                                     <select
                                         className="w-full h-12 px-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-indigo-100 outline-none font-bold text-sm appearance-none"
-                                        value={formData.type}
-                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                        value={formData.gender}
+                                        onChange={e => setFormData({ ...formData, gender: e.target.value })}
                                     >
-                                        <option value="recurring">Monthly Reset</option>
-                                        <option value="global">Lifetime Quota</option>
+                                        <option value="UNISEX">Unisex / All</option>
+                                        <option value="MALE">Male Only</option>
+                                        <option value="FEMALE">Female Only</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Base Usage Cap</label>
-                                    <Input
-                                        className="w-full h-12 bg-gray-50 border-transparent focus:bg-white transition-all font-bold"
-                                        placeholder="e.g. 10 or Unlimited"
-                                        value={formData.limit}
-                                        onChange={e => setFormData({ ...formData, limit: e.target.value })}
-                                        required
-                                    />
+                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Status</label>
+                                    <select
+                                        className="w-full h-12 px-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-indigo-100 outline-none font-bold text-sm appearance-none"
+                                        value={formData.status}
+                                        onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                    >
+                                        <option value="Active">Active / Live</option>
+                                        <option value="Inactive">Paused / Hidden</option>
+                                    </select>
                                 </div>
                             </div>
 

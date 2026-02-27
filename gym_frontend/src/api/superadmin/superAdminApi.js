@@ -487,6 +487,15 @@ const updateAdminProfile = async (profileData) => {
     }
 };
 
+const fetchMySubscription = async () => {
+    try {
+        const response = await api.get('/superadmin/my-subscription');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch subscription';
+    }
+};
+
 const fetchDevices = async () => {
     try {
         const response = await api.get('/superadmin/devices');
@@ -578,6 +587,7 @@ export {
     updateTrainerRequest,
     fetchAdminProfile,
     updateAdminProfile,
+    fetchMySubscription,
     fetchDevices,
     addDevice,
     updateDevice,
