@@ -36,6 +36,7 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         weight: '',
         bodyFat: '',
+        height: '',
         chest: '',
         waist: '',
         arms: '',
@@ -78,9 +79,10 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                 <div className="space-y-10">
                     {/* Primary Metrics */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <MetricInput label="Current Weight" value={formData.weight} onChange={val => setFormData({ ...formData, weight: val })} unit="kg" icon={Scale} />
                         <MetricInput label="Body Fat %" value={formData.bodyFat} onChange={val => setFormData({ ...formData, bodyFat: val })} unit="%" icon={Percent} />
+                        <MetricInput label="Height" value={formData.height} onChange={val => setFormData({ ...formData, height: val })} unit="cm" icon={Activity} />
                     </div>
 
                     {/* Circumference Metrics */}

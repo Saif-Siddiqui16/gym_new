@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShoppingBag, Star, Eye } from 'lucide-react';
+import { ShoppingBag, Star } from 'lucide-react';
 
-const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
+const ProductCard = ({ product, onAddToCart }) => {
     return (
         <div className="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-violet-200/50 transition-all duration-700 hover:-translate-y-3 border border-slate-100/50">
             {/* Image Section */}
@@ -28,13 +28,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
                 </div>
 
                 {/* Interactive Action Buttons */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                    <button
-                        onClick={() => onViewDetails(product)}
-                        className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-800 shadow-xl hover:bg-violet-600 hover:text-white transition-all transform hover:scale-110 active:scale-95"
-                    >
-                        <Eye size={20} />
-                    </button>
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
                     <button
                         onClick={() => onAddToCart(product)}
                         className="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:bg-slate-900 transition-all transform hover:scale-110 active:scale-95"
@@ -62,11 +56,13 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
 
                 <div className="flex items-end justify-between">
                     <div>
-                        <span className="block text-[10px] text-slate-400 line-through mb-1 font-bold tracking-wider">
-                            ₹{product.originalPrice.toLocaleString()}
-                        </span>
+                        {product.originalPrice && parseFloat(product.originalPrice) > parseFloat(product.price) && (
+                            <span className="block text-[10px] text-slate-400 line-through mb-1 font-bold tracking-wider">
+                                ₹{Number(product.originalPrice).toLocaleString()}
+                            </span>
+                        )}
                         <span className="text-2xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
-                            ₹{product.price.toLocaleString()}
+                            ₹{product.price ? Number(product.price).toLocaleString() : '0'}
                         </span>
                     </div>
 

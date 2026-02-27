@@ -73,9 +73,9 @@ export const cancelBooking = async (id) => {
     }
 };
 
-export const rescheduleBooking = async (id) => {
+export const rescheduleBooking = async (id, newDate) => {
     try {
-        const response = await apiClient.patch(`/member/bookings/${id}/reschedule`);
+        const response = await apiClient.patch(`/member/bookings/${id}/reschedule`, { newDate });
         return { success: true };
     } catch (error) {
         throw error.response?.data?.message || 'Failed to reschedule booking';
@@ -88,6 +88,26 @@ export const createBooking = async (details) => {
         return { success: true, data: response.data };
     } catch (error) {
         throw error.response?.data?.message || 'Failed to create booking';
+    }
+};
+
+// Mark a diet plan as complete for today
+export const markDietPlanComplete = async (planId) => {
+    try {
+        const response = await apiClient.patch(`/member/diet-plans/${planId}/complete`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to mark plan complete';
+    }
+};
+
+// Assign a diet/workout plan to a member (trainer action)
+export const assignDietPlanToMember = async (planId, memberId) => {
+    try {
+        const response = await apiClient.post(`/trainer/diet-plans/${planId}/assign`, { memberId });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to assign plan';
     }
 };
 
