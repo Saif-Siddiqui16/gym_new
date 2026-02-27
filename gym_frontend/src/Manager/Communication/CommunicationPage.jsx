@@ -43,18 +43,23 @@ const CommunicationPage = () => {
 
     const handleSend = async () => {
         if (!msgInput.trim() || !selectedChat) return;
+        const text = msgInput;
+        setMsgInput('');
+
         try {
-            await sendMessage(selectedChat.id, msgInput);
-            setMessages([...messages, {
-                id: Date.now(),
-                text: msgInput,
+            const res = await sendMessage(selectedChat.id, text);
+            const msgData = res.data?.data || res.data;
+            
+            setMessages(prev => [...prev, {
+                id: msgData.id || Date.now(),
+                text: text,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 sender: 'me',
                 status: 'sent'
             }]);
-            setMsgInput('');
         } catch (error) {
             console.error("Failed to send msg:", error);
+            setMsgInput(text); // put back on error
         }
     };
 

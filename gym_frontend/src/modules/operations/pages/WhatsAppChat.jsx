@@ -142,28 +142,32 @@ const WhatsAppChat = () => {
         if (!messageInput.trim() || !selectedUser) return;
 
         const text = messageInput;
+        const tempId = `temp-${Date.now()}`;
+        
+        // Optimistic UI update could go here, but focusing on fixing the API flow first
         setMessageInput('');
 
         try {
             const res = await sendMessage(
-                selectedUser.id ? selectedUser.id : null, // conversationId
+                selectedUser.id && selectedUser.id !== 'undefined' ? selectedUser.id : null, 
                 text,
-                selectedUser.receiverId ? selectedUser.receiverId : null // receiverId
+                selectedUser.receiverId ? selectedUser.receiverId : null
             );
 
-            const msgData = res.data;
+            // Backend returns: { success: true, message: '...', data: messageObject }
+            const msgData = res.data?.data || res.data; // fallback in case structure varies
+            const actualChatId = msgData.conversationId;
+
             const newMessage = {
-                id: msgData.id,
+                id: msgData.id || tempId,
                 text: text,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 sentBy: 'staff'
             };
 
-            const actualChatId = res.data.conversationId;
-
-            // If it was a new chat, update selectedUser and fetch chats
-            if (!selectedUser.id) {
-                setSelectedUser({ ...selectedUser, id: actualChatId });
+            // If it was a new chat, update selectedUser and refresh list
+            if (!selectedUser.id || selectedUser.id === 'undefined') {
+                setSelectedUser(prev => ({ ...prev, id: actualChatId }));
                 await loadChats();
             }
 
@@ -173,8 +177,11 @@ const WhatsAppChat = () => {
             }));
 
         } catch (err) {
-            console.error("Failed to send:", err);
-            toast.error("Failed to send message");
+            console.error("Failed to send message:", err);
+            const errorMsg = err.response?.data?.message || "Failed to send message";
+            toast.error(errorMsg);
+            // Put text back if failed
+            setMessageInput(text);
         }
     };
 

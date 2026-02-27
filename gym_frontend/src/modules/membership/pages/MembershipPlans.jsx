@@ -4,24 +4,38 @@ import { Plus, Search, Filter, Edit2, Trash2, CheckCircle2, Crown, Sparkles, Lay
 import { MEMBERSHIP_PLANS } from '../data/mockMemberships';
 import CreateMembershipPlanDrawer from '../components/CreateMembershipPlanDrawer';
 import { membershipApi } from '../../../api/membershipApi';
+import amenityApi from '../../../api/amenityApi';
 import toast from 'react-hot-toast';
 
 const MembershipPlans = () => {
     const navigate = useNavigate();
     const [plans, setPlans] = useState([]);
+    const [amenities, setAmenities] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
+    const amenityMap = React.useMemo(() => {
+        const map = {};
+        amenities.forEach(a => {
+            map[a.id] = a.name;
+        });
+        return map;
+    }, [amenities]);
+
     const fetchPlans = async () => {
         try {
             setIsLoading(true);
-            const data = await membershipApi.getPlans();
-            setPlans(data);
+            const [plansData, amenitiesData] = await Promise.all([
+                membershipApi.getPlans(),
+                amenityApi.getAll()
+            ]);
+            setPlans(plansData);
+            setAmenities(amenitiesData);
         } catch (error) {
-            toast.error('Failed to fetch plans');
+            toast.error('Failed to fetch data');
         } finally {
             setIsLoading(false);
         }
@@ -181,7 +195,7 @@ const MembershipPlans = () => {
                             <div className="flex flex-wrap gap-2">
                                 {plan.benefits?.slice(0, 3).map((b, i) => (
                                     <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100">
-                                        {b.limit === 'Unlimited' ? '∞' : b.limit} {(b.id || 'benefit').replace(/_/g, ' ')}
+                                        {b.limit === 'Unlimited' ? '∞' : b.limit} {amenityMap[b.id] || String(b.id || 'benefit').replace(/_/g, ' ')}
                                     </span>
                                 ))}
                                 {plan.benefits?.length > 3 && (
