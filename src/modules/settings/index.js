@@ -1,0 +1,17 @@
+export { default as SettingsLayout } from './SettingsLayout';
+export { default as OrganizationSettings } from './pages/OrganizationSettings';
+export { default as BranchManagement } from './pages/BranchManagement';
+export { default as RolesPermissions } from './pages/RolesPermissions';
+export { default as BillingPlans } from './pages/BillingPlans';
+export { default as Integrations } from './pages/Integrations';
+export { default as Notifications } from './pages/Notifications';
+export { default as SecuritySettings } from './pages/SecuritySettings';
+export { default as AuditLogs } from './pages/AuditLogs';
+export { default as PaymentGateway } from './pages/PaymentGateway';
+export { default as AmenitySettings } from './pages/AmenitySettings';
+export { default as ReferralSettings } from './pages/ReferralSettings';
+export { default as MessageTemplates } from './pages/MessageTemplates';
+export { default as PlanBenefitTemplates } from './pages/PlanBenefitTemplates';
+export { default as ExpenseSettings } from './pages/ExpenseSettings';
+export { default as IntegrationsSettings } from './pages/IntegrationsSettings';
+export { default as WebsiteSettings } from './pages/WebsiteSettings';
