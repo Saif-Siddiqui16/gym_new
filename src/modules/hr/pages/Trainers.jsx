@@ -209,19 +209,19 @@ const Trainers = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto space-y-8">
 
                 {/* Premium Header */}
                 <div className="mb-8 relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 animate-pulse pointer-events-none group-hover:opacity-15 transition-opacity"></div>
-                    <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-100 p-6 md:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 animate-pulse pointer-events-none group-hover:opacity-15 transition-opacity"></div>
+                    <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-100  flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                         <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-transform duration-300 group-hover:scale-105">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-transform duration-300 group-hover:scale-105">
                                 <Users size={28} />
                             </div>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                     Trainers
                                 </h1>
                                 <p className="text-slate-600 text-sm font-medium mt-1">Manage trainers, certifications, and client assignments</p>
@@ -236,7 +236,7 @@ const Trainers = () => {
                             </button>
                             <button
                                 onClick={() => { resetForm(); setIsDrawerOpen(true); }}
-                                className="h-11 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30/20 hover:shadow-violet-500/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="h-11 px-6 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/30/20 hover:shadow-primary/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <Plus size={18} /> Add Trainer
                             </button>
@@ -248,17 +248,15 @@ const Trainers = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                     {kpiCards.map((kpi, idx) => (
                         <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5 relative overflow-hidden">
-                            {/* Background Decorative Icon */}
-                            <div className="absolute -right-4 -bottom-4 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-                                <kpi.icon size={80} />
-                            </div>
+                            {/* Background Decorative Circle */}
+                            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl transition-opacity group-hover:opacity-100 opacity-50 pointer-events-none"></div>
 
                             <div className="flex items-start justify-between w-full relative z-10">
                                 <div className="flex-1 min-w-0 pr-2">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{kpi.label}</p>
                                     <h3 className="text-3xl font-black text-slate-900 truncate">{kpi.value}</h3>
                                 </div>
-                                <div className={`w-12 h-12 flex-shrink-0 rounded-xl ${kpi.variant === 'blue' ? 'bg-violet-50 text-violet-600' : 'bg-violet-50 text-violet-600'} flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                <div className={`w-12 h-12 flex-shrink-0 rounded-xl ${kpi.variant === 'blue' ? 'bg-primary-light text-primary' : 'bg-primary-light text-primary'} flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                                     <kpi.icon size={20} />
                                 </div>
                             </div>
@@ -275,7 +273,7 @@ const Trainers = () => {
                             <input
                                 type="text"
                                 placeholder="Search by name or email..."
-                                className="w-full pl-12 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm focus:border-violet-500 transition-all outline-none"
+                                className="w-full pl-12 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm focus:border-primary transition-all outline-none"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -319,7 +317,7 @@ const Trainers = () => {
                                     <tr key={trainer.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="py-4 px-6" data-label="Trainer Details">
                                             <div className="flex items-center gap-4 justify-end sm:justify-start">
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center text-violet-600 font-bold text-lg">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center text-primary font-bold text-lg">
                                                     {trainer.name?.charAt(0)}
                                                 </div>
                                                 <div className="text-right sm:text-left">
@@ -370,7 +368,7 @@ const Trainers = () => {
                                         </td>
                                         <td className="py-4 px-6 text-right" data-label="Actions">
                                             <div className="flex items-center justify-end gap-2 sm:opacity-0 group-hover:opacity-100 sm:transition-all">
-                                                <button onClick={() => openEditDrawer(trainer)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-violet-600 transition-all shadow-sm border border-transparent hover:border-slate-100">
+                                                <button onClick={() => openEditDrawer(trainer)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-primary transition-all shadow-sm border border-transparent hover:border-slate-100">
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button onClick={() => handleDelete(trainer.id)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-rose-600 transition-all shadow-sm border border-transparent hover:border-slate-100">
@@ -396,7 +394,7 @@ const Trainers = () => {
                 <form onSubmit={handleCreateOrUpdate} className="p-6 space-y-8 pb-24">
 
                     {/* Image Placeholder */}
-                    <div className="flex flex-col items-center justify-center p-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                    <div className="flex flex-col items-center justify-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
                         <div className="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 mb-2">
                             <Users size={40} />
                         </div>
@@ -409,7 +407,7 @@ const Trainers = () => {
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name *</label>
                                 <input
                                     required
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="John Doe"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -418,7 +416,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone</label>
                                 <input
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="+91 000 000 0000"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -429,7 +427,7 @@ const Trainers = () => {
                                 <input
                                     required
                                     type="email"
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="john@example.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -441,7 +439,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">ID Type</label>
                                 <select
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none bg-white"
                                     value={formData.idType}
                                     onChange={(e) => setFormData({ ...formData, idType: e.target.value })}
                                 >
@@ -454,7 +452,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">ID Number</label>
                                 <input
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none"
                                     placeholder="Enter ID number"
                                     value={formData.idNumber}
                                     onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
@@ -465,7 +463,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Specialization</label>
                             <input
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none"
                                 placeholder="Yoga, HIIT, Strength (comma separated)"
                                 value={formData.specialization}
                                 onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
@@ -475,7 +473,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Certifications</label>
                             <textarea
-                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none min-h-[80px]"
+                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none min-h-[80px]"
                                 placeholder="ACE, NASM, CPR Certified"
                                 value={formData.certifications}
                                 onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
@@ -486,7 +484,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Salary Type</label>
                                 <select
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none bg-white"
                                     value={formData.salaryType}
                                     onChange={(e) => setFormData({ ...formData, salaryType: e.target.value })}
                                 >
@@ -500,7 +498,7 @@ const Trainers = () => {
                                         <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Base Salary</label>
                                         <input
                                             type="number"
-                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
+                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none"
                                             placeholder="0"
                                             value={formData.baseSalary}
                                             onChange={(e) => setFormData({ ...formData, baseSalary: e.target.value })}
@@ -511,7 +509,7 @@ const Trainers = () => {
                                         <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Hourly Rate ($)</label>
                                         <input
                                             type="number"
-                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
+                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none"
                                             placeholder="0"
                                             value={formData.hourlyRate}
                                             onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
@@ -525,7 +523,7 @@ const Trainers = () => {
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">PT Share Percentage (%)</label>
                             <input
                                 type="number"
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none"
                                 placeholder="40"
                                 value={formData.ptSharePercent}
                                 onChange={(e) => setFormData({ ...formData, ptSharePercent: e.target.value })}
@@ -536,7 +534,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Bio</label>
                             <textarea
-                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none min-h-[100px]"
+                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none min-h-[100px]"
                                 placeholder="Say something about your experience..."
                                 value={formData.bio}
                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -555,7 +553,7 @@ const Trainers = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold uppercase tracking-widest text-xs shadow-xl shadow-violet-500/30/20 hover:shadow-violet-500/30/40 transition-all flex items-center justify-center gap-2"
+                            className="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-bold uppercase tracking-widest text-xs shadow-xl shadow-primary/30/20 hover:shadow-primary/30/40 transition-all flex items-center justify-center gap-2"
                         >
                             <Check size={18} strokeWidth={3} />
                             {editingTrainer ? 'Update Trainer' : 'Create Trainer'}

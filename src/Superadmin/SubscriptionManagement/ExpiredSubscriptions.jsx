@@ -201,7 +201,7 @@ const ExpiredSubscriptions = () => {
                                                     <RefreshCw size={16} className="transition-transform duration-300 group-hover/btn:rotate-180" />
                                                 </button>
                                                 <button
-                                                    className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
+                                                    className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
                                                     onClick={() => handleView(subscription)}
                                                     title="View Details"
                                                 >
@@ -239,7 +239,7 @@ const ExpiredSubscriptions = () => {
                                 {[...Array(totalPages)].map((_, index) => (
                                     <button
                                         key={index + 1}
-                                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1 ? 'bg-violet-600 text-white shadow-md hover:shadow-lg' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm'}`}
+                                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1 ? 'bg-primary text-white shadow-md hover:shadow-lg' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm'}`}
                                         onClick={() => handlePageClick(index + 1)}
                                     >
                                         {index + 1}
@@ -271,12 +271,12 @@ const ExpiredSubscriptions = () => {
             )}
             {/* Subscription Details Modal */}
             {isViewModalOpen && selectedSubscription && (
-                <div className="fixed inset-0 z-50 overflow-y-auto" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 z-50 " style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="flex items-center justify-center min-h-screen ">
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
                         <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all duration-500 hover:scale-[1.02] sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slide-up">
                             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div className="sm:flex sm:items-start text-violet-600">
+                                <div className="sm:flex sm:items-start text-primary">
                                     <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-violet-100 sm:mx-0 sm:h-10 sm:w-10 transition-all duration-300 hover:scale-125 hover:rotate-12 hover:shadow-lg">
                                         <Eye size={20} />
                                     </div>
@@ -335,7 +335,7 @@ const ExpiredSubscriptions = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsViewModalOpen(false)}
-                                    className="w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5"
+                                    className="w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5"
                                 >
                                     Close
                                 </button>

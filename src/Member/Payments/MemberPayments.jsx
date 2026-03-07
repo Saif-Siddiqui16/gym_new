@@ -54,7 +54,7 @@ const MemberPayments = () => {
                 head: [['Description', 'Amount', 'Date']],
                 body: [[`Gym Membership Services`, `INR ${Number(inv.amount).toLocaleString()}`, new Date(inv.dueDate).toLocaleDateString()]],
                 theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+                headStyles: { fillColor: [79, 70, 229] } // primary
             });
 
             doc.save(`Invoice_${inv.id}.pdf`);
@@ -79,7 +79,7 @@ const MemberPayments = () => {
                 head: [['Description', 'Amount', 'Date']],
                 body: [[`Gym Membership Services`, `INR ${Number(inv.amount).toLocaleString()}`, new Date(inv.dueDate).toLocaleDateString()]],
                 theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+                headStyles: { fillColor: [79, 70, 229] } // primary
             });
 
             const pdfBlob = doc.output('blob');
@@ -127,11 +127,11 @@ const MemberPayments = () => {
     ];
 
     return (
-        <div className="saas-container h-screen overflow-y-auto p-8 space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
+        <div className="saas-container h-screen  space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
                 <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
+                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <Receipt size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -144,7 +144,7 @@ const MemberPayments = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {stats.map(stat => (
-                    <div key={stat.id} className="relative group overflow-hidden bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
+                    <div key={stat.id} className="relative group overflow-hidden bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50 transition-all group-hover:scale-110" />
                         <div className="relative flex items-center gap-6">
                             <div className={`${stat.lightColor} w-16 h-16 rounded-2xl flex items-center justify-center ${stat.textColor}`}>
@@ -164,7 +164,7 @@ const MemberPayments = () => {
                 <div className="bg-white rounded-[3rem] border-2 border-slate-100 p-10 shadow-xl shadow-slate-200/50">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-violet-50 rounded-2xl text-violet-600">
+                            <div className="p-3 bg-primary-light rounded-2xl text-primary">
                                 <Receipt size={24} strokeWidth={2.5} />
                             </div>
                             <div>
@@ -191,7 +191,7 @@ const MemberPayments = () => {
                                         <tr key={inv.id} className="group hover:bg-slate-50 transition-all rounded-3xl overflow-hidden">
                                             <td className="px-6 py-6 border-y-2 border-l-2 border-slate-100 first:rounded-l-3xl first:border-l-2">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-white rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-violet-600 group-hover:border-violet-100 transition-all">
+                                                    <div className="w-12 h-12 bg-white rounded-xl border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:border-violet-100 transition-all">
                                                         <FileText size={20} strokeWidth={2.5} />
                                                     </div>
                                                     <div>
@@ -221,14 +221,14 @@ const MemberPayments = () => {
                                                 <div className="flex justify-end gap-3">
                                                     <button
                                                         onClick={() => handleDownloadInvoice(inv)}
-                                                        className="p-3 text-slate-400 hover:text-violet-600 bg-white hover:bg-violet-50 border-2 border-slate-100 hover:border-violet-100 rounded-xl transition-all shadow-sm"
+                                                        className="p-3 text-slate-400 hover:text-primary bg-white hover:bg-primary-light border-2 border-slate-100 hover:border-violet-100 rounded-xl transition-all shadow-sm"
                                                         title="Download Invoice"
                                                     >
                                                         <Download size={18} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleViewInvoice(inv)}
-                                                        className="flex items-center gap-2 px-6 h-12 bg-violet-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95 group/btn"
+                                                        className="flex items-center gap-2 px-6 h-12 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 group/btn"
                                                     >
                                                         View
                                                         <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
@@ -251,7 +251,7 @@ const MemberPayments = () => {
                     )}
 
                     <div className="mt-12 flex items-center justify-center">
-                        <div className="px-8 py-3 bg-violet-50 rounded-full flex items-center gap-3 text-violet-600">
+                        <div className="px-8 py-3 bg-primary-light rounded-full flex items-center gap-3 text-primary">
                             <Sparkles size={16} />
                             <span className="text-[10px] font-black uppercase tracking-[0.2em]">All transactions are secured with military-grade encryption</span>
                         </div>

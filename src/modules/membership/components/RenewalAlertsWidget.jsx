@@ -47,7 +47,7 @@ const RenewalAlertsWidget = ({ alertsData }) => {
 
     return (
         <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-500">
-            <div className="p-4 md:p-6 border-b border-slate-100 bg-gradient-to-r from-amber-50/50 to-rose-50/50 flex items-center justify-between">
+            <div className=" border-b border-slate-100 bg-gradient-to-r from-amber-50/50 to-rose-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-amber-500">
                         <AlertCircle size={20} />
@@ -65,7 +65,7 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                 </button>
             </div>
 
-            <div className="p-4 md:p-6 space-y-8">
+            <div className=" space-y-8">
                 {/* Expiring Soon Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-2">
@@ -100,7 +100,7 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                                     <button className="flex-1 py-2 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-600 hover:border-green-200 transition-all">
                                         <Phone size={14} />
                                     </button>
-                                    <button className="flex-1 py-2 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-violet-500 hover:border-violet-200 transition-all">
+                                    <button className="flex-1 py-2 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-violet-200 transition-all">
                                         <MessageCircle size={14} />
                                     </button>
                                     <button className="flex-[2] py-2 rounded-lg bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-100 hover:bg-amber-600 transition-all">

@@ -158,8 +158,8 @@ const PettyCashPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                     <div>
@@ -234,7 +234,7 @@ const PettyCashPage = () => {
                         </div>
                         <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-xl group hover:border-violet-200 transition-all">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 rounded-2xl bg-violet-50 text-violet-500 group-hover:scale-110 transition-transform">
+                                <div className="p-3 rounded-2xl bg-primary-light text-primary group-hover:scale-110 transition-transform">
                                     <CreditCard size={24} />
                                 </div>
                                 <div>
@@ -248,7 +248,7 @@ const PettyCashPage = () => {
 
                 {/* Entry Form */}
                 {showForm && (
-                    <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 p-8 mb-8 animate-in slide-in-from-top-4 duration-300">
+                    <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 mb-8 animate-in slide-in-from-top-4 duration-300">
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
@@ -462,7 +462,7 @@ const PettyCashPage = () => {
                                         </div>
                                         <div className="text-right">
                                             <span className="text-xl font-black text-slate-900 tabular-nums block leading-none">₹{Number(exp.amount).toLocaleString()}</span>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border mt-2 inline-block ${exp.paymentMethod === 'Cash' ? 'bg-orange-50 border-orange-100 text-orange-600' : 'bg-violet-50 border-violet-100 text-violet-600'
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border mt-2 inline-block ${exp.paymentMethod === 'Cash' ? 'bg-orange-50 border-orange-100 text-orange-600' : 'bg-primary-light border-violet-100 text-primary'
                                                 }`}>
                                                 {exp.paymentMethod}
                                             </span>

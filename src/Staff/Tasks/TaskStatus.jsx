@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutGrid, ClipboardList, Activity, CheckCircle, Search, Filter, Clock } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import { getAllTasks } from '../../api/staff/taskApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -10,9 +9,9 @@ const TaskStatus = () => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState([
-        { label: 'Total Tasks', value: '0', icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'Total Tasks', value: '0', icon: ClipboardList, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Pending', value: '0', icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
-        { label: 'In Progress', value: '0', icon: Activity, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'In Progress', value: '0', icon: Activity, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Completed', value: '0', icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
     ]);
 
@@ -47,9 +46,9 @@ const TaskStatus = () => {
 
     const updateStats = (allData) => {
         setStats([
-            { label: 'Total Tasks', value: allData.length.toString(), icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600' },
+            { label: 'Total Tasks', value: allData.length.toString(), icon: ClipboardList, bg: 'bg-primary-light', color: 'text-primary' },
             { label: 'Pending', value: allData.filter(t => t.status === 'Pending').length.toString(), icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
-            { label: 'In Progress', value: allData.filter(t => t.status === 'In Progress').length.toString(), icon: Activity, bg: 'bg-violet-50', color: 'text-violet-600' },
+            { label: 'In Progress', value: allData.filter(t => t.status === 'In Progress').length.toString(), icon: Activity, bg: 'bg-primary-light', color: 'text-primary' },
             { label: 'Completed', value: allData.filter(t => t.status === 'Completed').length.toString(), icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
         ]);
     };
@@ -57,7 +56,7 @@ const TaskStatus = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'Completed': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-green-100 text-green-700 uppercase">Completed</span>;
-            case 'In Progress': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-violet-100 text-violet-700 uppercase">In Progress</span>;
+            case 'In Progress': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-violet-100 text-primary-hover uppercase">In Progress</span>;
             case 'Pending': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-yellow-100 text-yellow-700 uppercase">Pending</span>;
             default: return null;
         }
@@ -94,7 +93,7 @@ const TaskStatus = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-4 sm:p-6 border-b border-gray-50 flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <Filter size={18} className="text-violet-600" />
+                        <Filter size={18} className="text-primary" />
                         <CustomDropdown
                             options={[
                                 { value: 'All', label: 'All Status' },
@@ -112,7 +111,7 @@ const TaskStatus = () => {
                         <input
                             type="text"
                             placeholder="Search tasks..."
-                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-violet-500 focus:shadow-md transition-all duration-300"
+                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-primary focus:shadow-md transition-all duration-300"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -133,17 +132,17 @@ const TaskStatus = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="4" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Crunching data...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : paginatedTasks.length > 0 ? (
                                 paginatedTasks.map((task) => (
-                                    <tr key={task.id} className="hover:bg-violet-50/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group hover:shadow-md">
+                                    <tr key={task.id} className="hover:bg-primary-light/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group hover:shadow-md">
                                         <td data-label="Task Title">
-                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-violet-600 transition-colors">{task.title}</p>
+                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-primary transition-colors">{task.title}</p>
                                         </td>
                                         <td data-label="Assigned By">
                                             <p className="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">{task.assignedBy}</p>
@@ -182,7 +181,7 @@ const TaskStatus = () => {
                         <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-1 border rounded transition-colors ${currentPage === page ? 'border-violet-600 bg-violet-600 text-white' : 'border-gray-200 hover:bg-white'}`}
+                            className={`px-3 py-1 border rounded transition-colors ${currentPage === page ? 'border-primary bg-primary text-white' : 'border-gray-200 hover:bg-white'}`}
                         >
                             {page}
                         </button>

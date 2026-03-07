@@ -98,7 +98,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         type="submit"
                         form="broadcast-form"
                         disabled={isSubmitting}
-                        className="px-8 h-11 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="px-8 h-11 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -112,7 +112,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                 </div>
             }
         >
-            <div className="px-8 py-8 h-full custom-scrollbar overflow-y-auto">
+            <div className="px-8 py-8 h-full custom-scrollbar ">
                 <form id="broadcast-form" onSubmit={handleSubmit} className="space-y-8 pb-10">
 
                     {/* Channel Selector */}
@@ -120,7 +120,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Channel</label>
                         <div className="relative group">
                             <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
                                 value={formData.channel}
                                 onChange={(e) => setFormData({ ...formData, channel: e.target.value, templateId: '' })}
                             >
@@ -128,7 +128,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 <option value="SMS">SMS</option>
                                 <option value="Email">Email</option>
                             </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
                     </div>
 
@@ -139,7 +139,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         </label>
                         <div className="relative group">
                             <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
                                 value={formData.templateId}
                                 onChange={handleTemplateChange}
                             >
@@ -151,7 +151,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                                     <option value="" disabled>No templates found for this branch</option>
                                 )}
                             </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Audience</label>
                         <div className="relative group">
                             <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
                                 value={formData.audience}
                                 onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
                             >
@@ -169,7 +169,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 <option value="Expired Members">Expired Members</option>
                                 <option value="Staff">Staff</option>
                             </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
                     </div>
 
@@ -180,7 +180,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                             required
                             rows={6}
                             placeholder="Enter your message..."
-                            className="w-full p-6 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold text-slate-700 transition-all outline-none bg-slate-50/50 resize-none"
+                            className="w-full p-6 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold text-slate-700 transition-all outline-none bg-slate-50/50 resize-none"
                             value={formData.message}
                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         />
@@ -190,7 +190,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                     {/* Information Notice */}
                     <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 relative overflow-hidden group shadow-sm transition-all hover:bg-white hover:shadow-md">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-violet-600 transition-transform">
+                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary transition-transform">
                                 <Info size={16} />
                             </div>
                             <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Configuration Note</h4>

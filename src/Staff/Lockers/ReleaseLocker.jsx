@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Calendar, LogOut, Search, Plus, Filter, AlertTriangle } from 'lucide-react';
 import MobileCard from '../../components/common/MobileCard';
-import '../../styles/GlobalDesign.css';
 import { getLockers, releaseLocker } from '../../api/staff/lockerApi';
 
 const ReleaseLocker = () => {
@@ -38,22 +37,22 @@ const ReleaseLocker = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-1 md:p-8 animate-fadeIn">
+        <div className="min-h-screen animate-fadeIn">
             {/* Premium Header */}
             <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
                                 <LogOut size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
                             </div>
                             <div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Release Locker
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[10px] font-black rounded-md shadow-sm animate-pulse whitespace-nowrap">
+                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse whitespace-nowrap">
                                         Admin Mode
                                     </span>
                                 </div>
@@ -62,7 +61,7 @@ const ReleaseLocker = () => {
                         </div>
                         <button
                             onClick={() => navigate('/staff/lockers/assign')}
-                            className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                            className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                         >
                             <Plus size={18} strokeWidth={2.5} />
                             Assign New Locker
@@ -74,11 +73,11 @@ const ReleaseLocker = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
                 <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="relative w-full md:w-96 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                         <input
                             type="text"
                             placeholder="Search locker or member name..."
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                         />
                     </div>
                 </div>
@@ -97,10 +96,10 @@ const ReleaseLocker = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {occupiedLockers.map((row) => (
-                                <tr key={row.id} className="group hover:bg-violet-50/30 transition-colors duration-200">
+                                <tr key={row.id} className="group hover:bg-primary-light/30 transition-colors duration-200">
                                     <td className="py-5 px-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-violet-600 flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-110 transition-transform duration-300">
                                                 {(row.name || '?').charAt(0)}
                                             </div>
                                             <div>
@@ -110,7 +109,7 @@ const ReleaseLocker = () => {
                                         </div>
                                     </td>
                                     <td className="py-5 px-6">
-                                        <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-black border border-violet-100">
+                                        <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-primary-light text-primary-hover text-xs font-black border border-violet-100">
                                             <Lock size={12} className="mr-1.5" />
                                             {row.locker}
                                         </span>

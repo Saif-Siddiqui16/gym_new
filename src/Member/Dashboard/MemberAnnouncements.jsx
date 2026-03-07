@@ -54,11 +54,11 @@ const MemberAnnouncements = () => {
                 badge: 'bg-amber-100 text-amber-700'
             },
             low: {
-                bg: 'bg-violet-50',
-                text: 'text-violet-600',
+                bg: 'bg-primary-light',
+                text: 'text-primary',
                 border: 'border-violet-100',
                 icon: Info,
-                badge: 'bg-violet-100 text-violet-700'
+                badge: 'bg-violet-100 text-primary-hover'
             },
         };
 
@@ -68,11 +68,11 @@ const MemberAnnouncements = () => {
     };
 
     return (
-        <div className="saas-container h-screen overflow-y-auto p-8 space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
+        <div className="saas-container h-screen  space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
                 <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
+                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <Megaphone size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -83,15 +83,15 @@ const MemberAnnouncements = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-5xl">
+            <div className="max-w-full">
                 {announcements.length > 0 ? (
                     <div className="grid grid-cols-1 gap-8">
                         {announcements.map((item) => {
                             const style = getPriorityStyle(item.priority);
                             const PriorityIcon = style.icon;
                             return (
-                                <div key={item.id} className="group relative bg-white p-8 rounded-[3rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50 transition-all group-hover:scale-110" />
+                                <div key={item.id} className="group relative bg-white rounded-[3rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16 blur-3xl opacity-50 transition-all group-hover:scale-110" />
 
                                     <div className="relative">
                                         <div className="flex items-center justify-between mb-8">
@@ -109,7 +109,7 @@ const MemberAnnouncements = () => {
                                             </div>
                                         </div>
 
-                                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-4 group-hover:text-violet-600 transition-colors">
+                                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-4 group-hover:text-primary transition-colors">
                                             {item.title}
                                         </h3>
 
@@ -126,7 +126,7 @@ const MemberAnnouncements = () => {
                                             </div>
                                             <button
                                                 onClick={() => setSelectedAnnouncement(item)}
-                                                className="flex items-center gap-2 text-[10px] font-black text-violet-600 uppercase tracking-widest hover:translate-x-1 transition-transform"
+                                                className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform"
                                             >
                                                 Read More <ChevronRight size={14} />
                                             </button>
@@ -169,22 +169,22 @@ const MemberAnnouncements = () => {
                             <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4">
                                 {selectedAnnouncement.title}
                             </h3>
-                            <div className="h-1.5 w-20 bg-violet-600 rounded-full mb-8" />
+                            <div className="h-1.5 w-20 bg-primary rounded-full mb-8" />
                         </div>
 
-                        <div className="bg-slate-50/50 p-8 rounded-[2.5rem] border border-slate-100">
+                        <div className="bg-slate-50/50 rounded-[2.5rem] border border-slate-100">
                             <p className="text-slate-600 text-lg font-medium leading-relaxed whitespace-pre-wrap">
                                 {selectedAnnouncement.content}
                             </p>
                         </div>
 
-                        <div className="p-6 bg-violet-50/50 rounded-3xl border border-violet-100 flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm shrink-0">
+                        <div className="p-6 bg-primary-light/50 rounded-3xl border border-violet-100 flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm shrink-0">
                                 <Sparkles size={20} />
                             </div>
                             <div>
                                 <p className="text-[10px] font-black text-violet-900 uppercase tracking-widest mb-1">Stay Notified</p>
-                                <p className="text-xs text-violet-700/70 font-bold leading-normal">
+                                <p className="text-xs text-primary-hover/70 font-bold leading-normal">
                                     Turn on push notifications in your profile settings to get instant updates on gym events and schedule changes.
                                 </p>
                             </div>
@@ -192,7 +192,7 @@ const MemberAnnouncements = () => {
 
                         <button
                             onClick={() => setSelectedAnnouncement(null)}
-                            className="w-full h-14 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all flex items-center justify-center gap-2 mt-4"
+                            className="w-full h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all flex items-center justify-center gap-2 mt-4"
                         >
                             Close Detail
                         </button>
@@ -202,7 +202,7 @@ const MemberAnnouncements = () => {
 
             {/* Footer Tip */}
             <div className="flex items-center justify-center pt-10">
-                <div className="px-8 py-3 bg-violet-50 rounded-full flex items-center gap-3 text-violet-600">
+                <div className="px-8 py-3 bg-primary-light rounded-full flex items-center gap-3 text-primary">
                     <Sparkles size={16} />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Personalized updates for your fitness journey</span>
                 </div>

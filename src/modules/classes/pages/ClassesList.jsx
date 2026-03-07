@@ -16,6 +16,7 @@ import Button from '../../../components/ui/Button';
 import Card from '../../../components/ui/Card';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
+import RightDrawer from '../../../components/common/RightDrawer';
 
 const ClassesList = () => {
     const { role, user } = useAuth();
@@ -252,27 +253,27 @@ const ClassesList = () => {
     const classTypes = ['General', 'Yoga', 'HIIT', 'Spin', 'Pilates', 'Zumba', 'Strength', 'Boxing', 'Sauna'];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 px-6 py-6">
+        <div className="saas-page space-y-8">
             {/* Header Area */}
-            <div className="relative overflow-hidden bg-card p-8 rounded-[2rem] border border-border shadow-md mb-8 group">
+            <div className="relative overflow-hidden saas-card !p-8 mb-8 group">
                 {/* Premium Glow Effect */}
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-violet-500/5 rounded-full blur-3xl group-hover:bg-violet-500/10 transition-all duration-700" />
+                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700" />
 
                 <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
                             <Dumbbell size={28} />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground tracking-tight">Classes</h1>
-                            <p className="text-muted-foreground text-sm font-medium mt-1">Manage group classes and bookings</p>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Classes</h1>
+                            <p className="text-slate-500 text-sm font-medium mt-2">Manage group classes and bookings</p>
                         </div>
                     </div>
                     <Button
-                        onClick={() => setShowPanel(true)}
+                        onClick={() => { resetForm(); setShowPanel(true); }}
                         variant="primary"
-                        className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                        className="btn-primary shadow-xl shadow-primary/30"
                         icon={Plus}
                     >
                         Create Class
@@ -286,7 +287,7 @@ const ClassesList = () => {
                     title="Upcoming Classes"
                     value={filteredClasses.filter(c => c.status === 'Scheduled').length}
                     icon={<Calendar size={22} />}
-                    gradient="from-violet-500 to-purple-600"
+                    gradient="from-primary to-primary"
                 />
                 <KPICard
                     title="Today's Classes"
@@ -295,7 +296,7 @@ const ClassesList = () => {
                         return c.schedule && c.schedule.startsWith(todayStr);
                     }).length}
                     icon={<Clock size={22} />}
-                    gradient="from-violet-500 to-purple-600"
+                    gradient="from-primary to-primary"
                 />
                 <KPICard
                     title="Total Bookings"
@@ -390,13 +391,13 @@ const ClassesList = () => {
                 <div className="px-4 py-3 flex items-center gap-6 border-b border-slate-50">
                     <button
                         onClick={() => setContentTab('Schedule')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Schedule' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Schedule' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Schedule ({filteredClasses.length})
                     </button>
                     <button
                         onClick={() => setContentTab('Attendance')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Attendance' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Attendance' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Attendance
                     </button>
@@ -548,163 +549,152 @@ const ClassesList = () => {
                 </div>
             </div >
 
-            {/* Side Panel Overlay */}
-            {
-                showPanel && (
-                    <div className="fixed inset-0 z-[100] overflow-hidden">
-                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => !submitting && setShowPanel(false)} />
-                        <div className="absolute inset-y-0 right-0 max-w-full flex">
-                            <div className="w-screen max-w-md bg-white shadow-2xl animate-slide-in-right flex flex-col">
-                                {/* Panel Header */}
-                                <div className="p-6 border-b border-border flex items-center justify-between bg-muted/30">
-                                    <div>
-                                        <h2 className="text-xl font-bold text-foreground tracking-tight">{editingClassId ? 'Edit Class' : 'Create New Class'}</h2>
-                                        <p className="text-xs font-medium text-muted-foreground mt-1">{editingClassId ? 'Update existing class details' : 'Schedule a new group class'}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowPanel(false)}
-                                        className="p-2 hover:bg-muted rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground active:scale-90"
-                                        disabled={submitting}
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
+            {/* Standardized Side Panel Overlay */}
+            <RightDrawer
+                isOpen={showPanel}
+                onClose={() => !submitting && setShowPanel(false)}
+                title={editingClassId ? 'Edit Class' : 'Class Scheduling'}
+                subtitle={editingClassId ? 'Update existing class details' : 'Schedule a new group class'}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={submitting}
+                            onClick={() => setShowPanel(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            loading={submitting}
+                            onClick={handleSubmit}
+                        >
+                            {editingClassId ? 'Update Class' : 'Create Class'}
+                        </Button>
+                    </div>
+                }
+            >
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Class Name */}
+                    <div className="saas-form-group">
+                        <label className="saas-label">Class Name *</label>
+                        <input
+                            required
+                            placeholder="Yoga, HIIT, Spin, etc."
+                            className="saas-input"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                    </div>
 
-                                {/* Panel Form */}
-                                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8 flex flex-col bg-white">
-                                    {/* Class Name */}
-                                    <Input
-                                        label="Class Name *"
-                                        required
-                                        placeholder="Yoga, HIIT, Spin, etc."
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    />
-
-                                    {/* Class Type & Capacity */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Class Type</label>
-                                            <Select
-                                                value={formData.type}
-                                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                            >
-                                                <option value="">Select type</option>
-                                                {classTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                                            </Select>
-                                        </div>
-                                        <Input
-                                            label="Capacity *"
-                                            type="number"
-                                            required
-                                            min="1"
-                                            value={formData.capacity}
-                                            onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                                        />
-                                    </div>
-
-                                    {/* Date & Time & Duration */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div className="space-y-4">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Schedule *</label>
-                                            <div className="space-y-3">
-                                                <Input
-                                                    type="date"
-                                                    required
-                                                    value={formData.date}
-                                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                                />
-                                                <Input
-                                                    type="time"
-                                                    required
-                                                    value={formData.time}
-                                                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                                />
-                                            </div>
-                                            <p className="text-[10px] text-gray-400 italic pl-1 flex items-center gap-1">
-                                                <AlertCircle size={10} /> format: day-month-year 12h/24h
-                                            </p>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <Input
-                                                label="Duration (min)"
-                                                type="number"
-                                                value={formData.duration}
-                                                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                            />
-                                            <p className="text-[10px] text-gray-400 italic pl-1">Typically 30, 45 or 60 min</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Trainer */}
-                                    <div className="space-y-3">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Assign Trainer</label>
-                                        <Select
-                                            value={formData.trainerId}
-                                            onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
-                                        >
-                                            <option value="">No trainer</option>
-                                            {trainers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                        </Select>
-                                    </div>
-
-                                    {/* Description */}
-                                    <div className="space-y-3 flex-1 flex flex-col">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Class Description</label>
-                                        <textarea
-                                            placeholder="What will members learn in this class?"
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full flex-1 min-h-[120px] px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-violet-500 outline-none transition-all placeholder:text-gray-400 resize-none"
-                                        />
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="grid grid-cols-2 gap-4 pt-6 mt-auto border-t border-border">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            disabled={submitting}
-                                            onClick={() => setShowPanel(false)}
-                                            className="h-12 rounded-xl font-bold uppercase tracking-wider text-[11px]"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            variant="primary"
-                                            disabled={submitting}
-                                            className="h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
-                                        >
-                                            {submitting ? (
-                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            ) : (
-                                                editingClassId ? 'Update Class' : 'Create Class'
-                                            )}
-                                        </Button>
-                                    </div>
-                                </form>
-                            </div>
+                    {/* Class Type & Capacity */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="saas-form-group">
+                            <label className="saas-label">Class Type</label>
+                            <select
+                                className="saas-input cursor-pointer"
+                                value={formData.type}
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                            >
+                                <option value="">Select type</option>
+                                {classTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                        </div>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Capacity *</label>
+                            <input
+                                type="number"
+                                required
+                                min="1"
+                                className="saas-input"
+                                value={formData.capacity}
+                                onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                            />
                         </div>
                     </div>
-                )
-            }
+
+                    {/* Schedule */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="saas-form-group">
+                            <label className="saas-label">Schedule *</label>
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    type="date"
+                                    required
+                                    className="saas-input !py-2"
+                                    value={formData.date}
+                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                />
+                                <input
+                                    type="time"
+                                    required
+                                    className="saas-input !py-2"
+                                    value={formData.time}
+                                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                />
+                                <p className="text-[9px] text-slate-400 italic flex items-center gap-1 font-bold uppercase tracking-widest mt-1">
+                                    <AlertCircle size={10} /> format: day-month-year
+                                </p>
+                            </div>
+                        </div>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Duration (min)</label>
+                            <input
+                                type="number"
+                                className="saas-input"
+                                placeholder="60"
+                                value={formData.duration}
+                                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                            />
+                            <p className="text-[9px] text-slate-400 italic mt-1 font-bold uppercase tracking-widest">Typically 30, 45, 60</p>
+                        </div>
+                    </div>
+
+                    {/* Trainer */}
+                    <div className="saas-form-group">
+                        <label className="saas-label">Assign Trainer</label>
+                        <select
+                            className="saas-input cursor-pointer"
+                            value={formData.trainerId}
+                            onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
+                        >
+                            <option value="">No trainer</option>
+                            {trainers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Description */}
+                    <div className="saas-form-group">
+                        <label className="saas-label">Class Description</label>
+                        <textarea
+                            rows={3}
+                            placeholder="What will members learn? (e.g. Focus on core strength and flexibility...)"
+                            className="saas-input min-h-[100px] resize-none"
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        />
+                    </div>
+                </form>
+            </RightDrawer>
         </div >
     );
 };
 
-const KPICard = ({ title, value, icon, gradient }) => {
+const KPICard = ({ title, value, icon: Icon, gradient }) => {
     return (
-        <div className="bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+        <div className="saas-card group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden flex flex-col justify-center min-h-[120px]">
             <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-50 rounded-full blur-2xl group-hover:bg-primary/5 transition-all" />
 
-            <div className="flex items-center gap-5 relative">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-lg transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-300`}>
-                    {icon}
+            <div className="flex items-center gap-4 relative z-10 px-1">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-lg shadow-black/5 transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-300 shrink-0`}>
+                    {React.cloneElement(Icon, { size: 28, strokeWidth: 2 })}
                 </div>
-                <div>
-                    <div className="text-2xl font-bold text-foreground leading-none mb-1">{value}</div>
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{title}</div>
+                <div className="min-w-0">
+                    <div className="text-2xl md:text-3xl font-black text-slate-900 leading-none mb-1.5 truncate">{value}</div>
+                    <div className="saas-label !mb-0 truncate">{title}</div>
                 </div>
             </div>
         </div>

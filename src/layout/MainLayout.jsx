@@ -33,8 +33,23 @@ const MainLayout = ({ role }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const pageTitle = TITLE_MAP[location.pathname] || 'Dashboard';
-
+    let pageTitle = TITLE_MAP[location.pathname];
+    if (!pageTitle) {
+        if (location.pathname === '/dashboard') {
+            pageTitle = 'Dashboard';
+        } else {
+            const parts = location.pathname.split('/').filter(Boolean);
+            const lastPart = parts[parts.length - 1];
+            if (lastPart) {
+                pageTitle = lastPart
+                    .split('-')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            } else {
+                pageTitle = 'Dashboard';
+            }
+        }
+    }
     return (
         <div className="app-shell">
             <Sidebar role={role} collapsed={collapsed} setCollapsed={setCollapsed} />

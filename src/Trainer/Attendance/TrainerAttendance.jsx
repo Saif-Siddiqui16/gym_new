@@ -88,19 +88,19 @@ const TrainerAttendance = () => {
     const isCheckedIn = !!attendanceData.activeShift;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-8 animate-fadeIn font-sans text-slate-900 overflow-y-auto">
+        <div className="min-h-screen animate-fadeIn font-sans text-slate-900 ">
 
             {/* Header Section */}
             <div className="mb-6 md:mb-10 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl md:rounded-3xl blur-2xl opacity-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl md:rounded-3xl blur-2xl opacity-10"></div>
                 <div className="relative bg-white/80 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 p-5 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-1">
                         <div className="flex items-center gap-3">
                             <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Staff Attendance</h1>
-                            {loading && <RefreshCw size={20} className="animate-spin text-violet-500" />}
+                            {loading && <RefreshCw size={20} className="animate-spin text-primary" />}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-0.5 bg-violet-50 text-violet-600 rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Live Status</span>
+                            <span className="px-2 py-0.5 bg-primary-light text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Live Status</span>
                             <div className="hidden md:block w-1 h-1 rounded-full bg-slate-200" />
                             <p className="text-slate-500 font-bold text-[9px] md:text-[10px] uppercase tracking-widest leading-relaxed">
                                 Track your working hours and branch occupancy
@@ -110,11 +110,11 @@ const TrainerAttendance = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto space-y-10">
+            <div className="max-w-full mx-auto space-y-10">
 
                 {/* Info Section - Personal View */}
-                <div className="bg-[#eff6ff] border border-[#dbeafe] rounded-xl md:rounded-2xl p-4 md:p-6 flex items-center gap-4 md:gap-5 shadow-sm group hover:border-violet-200 transition-all duration-300">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white text-violet-600 flex items-center justify-center border border-violet-50 shadow-sm shrink-0 group-hover:scale-110 transition-transform">
+                <div className="bg-[#eff6ff] border border-[#dbeafe] rounded-xl md:rounded-2xl  flex items-center gap-4 md:gap-5 shadow-sm group hover:border-violet-200 transition-all duration-300">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white text-primary flex items-center justify-center border border-primary-light shadow-sm shrink-0 group-hover:scale-110 transition-transform">
                         <Shield size={20} className="md:w-5 md:h-5" />
                     </div>
                     <div>
@@ -126,7 +126,7 @@ const TrainerAttendance = () => {
                 {/* Main Section - Your Attendance */}
                 <div className="space-y-4 md:space-y-6 px-1">
                     <div className="flex items-center gap-3 px-1">
-                        <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-primary-light text-primary flex items-center justify-center shadow-sm">
                             <User size={16} />
                         </div>
                         <h2 className="text-[11px] md:text-xs font-black text-slate-900 uppercase tracking-widest md:tracking-[0.2em]">Your Attendance</h2>
@@ -149,7 +149,7 @@ const TrainerAttendance = () => {
                             disabled={actionLoading || (isCheckedIn && attendanceData.logs.some(l => l.checkOut))}
                             className={`w-full md:w-auto relative z-10 flex items-center justify-center gap-3 px-8 md:px-12 py-3.5 md:py-4 rounded-xl md:rounded-2xl text-[10px] font-semibold uppercase tracking-widest transition-all shadow-xl active:scale-95 ${isCheckedIn
                                 ? 'bg-amber-500 text-white shadow-amber-200 hover:bg-amber-600'
-                                : 'bg-violet-600 !text-white shadow-violet-200 hover:bg-violet-700'} hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                : 'bg-primary !text-white shadow-violet-200 hover:bg-primary-hover'} hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                             {actionLoading ? <RefreshCw className="animate-spin" size={18} /> : (isCheckedIn ? <LogOut size={18} /> : <UserCheck size={18} />)}
                             {isCheckedIn ? 'Check Out Now' : 'Check In Now'}
@@ -184,7 +184,7 @@ const TrainerAttendance = () => {
 
                 <div className="space-y-4 md:space-y-6 pt-4 px-1">
                     <div className="flex items-center gap-3 px-1">
-                        <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-primary-light text-primary flex items-center justify-center shadow-sm">
                             <LayoutDashboard size={16} />
                         </div>
                         <div className="min-w-0">
@@ -215,7 +215,7 @@ const TrainerAttendance = () => {
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-[10px] md:text-xs font-bold text-slate-700 uppercase tracking-wider">{person.name}</span>
-                                                            <span className="text-[8px] font-black text-violet-500 uppercase tracking-widest leading-none mt-0.5">{person.role}</span>
+                                                            <span className="text-[8px] font-black text-primary uppercase tracking-widest leading-none mt-0.5">{person.role}</span>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -223,7 +223,7 @@ const TrainerAttendance = () => {
                                                     <span className="text-[10px] md:text-xs font-bold text-slate-500">{person.time}</span>
                                                 </td>
                                                 <td className="px-6 md:px-10 py-5 md:py-6">
-                                                    <span className="text-[10px] md:text-xs font-bold text-violet-600">Active</span>
+                                                    <span className="text-[10px] md:text-xs font-bold text-primary">Active</span>
                                                 </td>
                                                 <td className="px-6 md:px-10 py-5 md:py-6">
                                                     <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-green-100">Inside</span>
@@ -249,7 +249,7 @@ const TrainerAttendance = () => {
                 {/* Today's Attendance Log Section */}
                 <div className="space-y-4 md:space-y-6 pt-4 px-1">
                     <div className="flex items-center gap-3 px-1">
-                        <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-sm">
+                        <div className="w-8 h-8 rounded-xl bg-primary-light text-primary flex items-center justify-center shadow-sm">
                             <History size={16} />
                         </div>
                         <div className="min-w-0">

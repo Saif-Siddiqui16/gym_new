@@ -80,12 +80,12 @@
 //                 const mappedStats = validCardsData.map(stat => ({
 //                     ...stat,
 //                     icon: iconMap[stat.icon] || Activity,
-//                     bg: stat.color === 'blue' ? 'bg-violet-50' :
+//                     bg: stat.color === 'blue' ? 'bg-primary-light' :
 //                         stat.color === 'green' ? 'bg-emerald-50' :
-//                             stat.color === 'purple' ? 'bg-violet-50' : 'bg-amber-50',
-//                     color: stat.color === 'blue' ? 'text-violet-600' :
+//                             stat.color === 'purple' ? 'bg-primary-light' : 'bg-amber-50',
+//                     color: stat.color === 'blue' ? 'text-primary' :
 //                         stat.color === 'green' ? 'text-emerald-600' :
-//                             stat.color === 'purple' ? 'text-violet-600' : 'text-amber-600'
+//                             stat.color === 'purple' ? 'text-primary' : 'text-amber-600'
 //                 }));
 //
 //                 setStats(mappedStats);
@@ -102,9 +102,9 @@
 //
 //     const getRoleBadgeColor = () => {
 //         switch (userRole) {
-//             case 'staff': return 'bg-violet-100 text-violet-700 border-violet-200';
+//             case 'staff': return 'bg-violet-100 text-primary-hover border-violet-200';
 //             case 'trainer': return 'bg-orange-100 text-orange-700 border-orange-200';
-//             default: return 'bg-violet-100 text-violet-700 border-violet-200';
+//             default: return 'bg-violet-100 text-primary-hover border-violet-200';
 //         }
 //     };
 //
@@ -112,9 +112,9 @@
 //         return (
 //             <div className="flex items-center justify-center min-h-[400px]">
 //                 <div className="relative">
-//                     <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-violet-600 animate-spin"></div>
+//                     <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-primary animate-spin"></div>
 //                     <div className="absolute inset-0 flex items-center justify-center">
-//                         <Zap size={16} className="text-violet-600 animate-pulse" />
+//                         <Zap size={16} className="text-primary animate-pulse" />
 //                     </div>
 //                 </div>
 //             </div>
@@ -159,7 +159,7 @@
 //     };
 //
 //     return (
-//         <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-10 font-sans selection:bg-violet-100">
+//         <div className="min-h-screen bg-slate-50/50  font-sans selection:bg-violet-100">
 //             <div className="max-w-[1600px] mx-auto space-y-10">
 //                 {/* Modern Header */}
 //                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
@@ -273,7 +273,7 @@
 //                                         <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filter Feed</div>
 //                                         <button
 //                                             onClick={() => { setFilterType('all'); setIsFilterOpen(false); }}
-//                                             className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-slate-50 transition-colors ${filterType === 'all' ? 'text-violet-600 bg-violet-50' : 'text-slate-600'}`}
+//                                             className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-slate-50 transition-colors ${filterType === 'all' ? 'text-primary bg-primary-light' : 'text-slate-600'}`}
 //                                         >
 //                                             Show All
 //                                         </button>
@@ -294,7 +294,7 @@
 //                             </div>
 //                         </div>
 //
-//                         <div className="p-8 space-y-8 max-h-[400px] overflow-y-auto">
+//                         <div className="p-8 space-y-8 max-h-[400px] ">
 //                             {Array.isArray(recentActivity) && recentActivity
 //                                 .filter(item => {
 //                                     if (!item) return false;
@@ -336,9 +336,9 @@
 //                     </div>
 //
 //                     {/* Quick Stats / Revenue Placeholder to match design */}
-//                     <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between min-h-[400px]">
-//                         <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[100px] opacity-40 -mr-20 -mt-20"></div>
-//                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600 rounded-full blur-[100px] opacity-40 -ml-20 -mb-20"></div>
+//                     <div className="bg-slate-900 rounded-[40px] text-white relative overflow-hidden shadow-2xl flex flex-col justify-between min-h-[400px]">
+//                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-40 -mr-20 -mt-20"></div>
+//                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-40 -ml-20 -mb-20"></div>
 //
 //                         <div className="relative z-10">
 //                             <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6">
@@ -355,7 +355,7 @@
 //                                     <span className="font-black text-white">$1,240</span>
 //                                 </div>
 //                                 <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-//                                     <div className="bg-violet-500 h-full w-[85%] rounded-full"></div>
+//                                     <div className="bg-primary h-full w-[85%] rounded-full"></div>
 //                                 </div>
 //                             </div>
 //                             <div className="p-4 bg-white/5 rounded-2xl backdrop-blur-sm border border-white/10">

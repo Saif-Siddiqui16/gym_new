@@ -114,7 +114,7 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
                 >
                     <Menu size={22} />
                 </button>
-                <h1 className="text-sm sm:text-base md:text-xl font-bold text-slate-900 truncate max-w-[150px] sm:max-w-none">
+                <h1 className="text-sm sm:text-base md:text-xl font-bold text-title truncate max-w-[150px] sm:max-w-none m-0">
                     {title}
                 </h1>
             </div>
@@ -143,7 +143,7 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
                 <div className="relative">
                     <button
                         onClick={() => setNotifOpen(!notifOpen)}
-                        className={`p-2 rounded-xl transition-all relative ${notifOpen ? 'bg-violet-50 text-violet-600 shadow-sm' : 'text-slate-400 hover:text-violet-600 hover:bg-slate-50'}`}
+                        className={`p-2 rounded-xl transition-all relative ${notifOpen ? 'bg-primary-light text-primary shadow-sm' : 'text-slate-400 hover:text-primary hover:bg-slate-50'}`}
                     >
                         <Bell size={20} />
                         {unreadCount > 0 && (
@@ -156,64 +156,39 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
                 </div>
 
                 {/* Profile Dropdown */}
-                <div style={{ position: 'relative' }} ref={dropdownRef}>
+                <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={toggleDropdown}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px'
-                        }}
+                        className="flex items-center gap-2 p-1 hover:bg-slate-50 rounded-full transition-all"
                     >
-                        <div style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            background: 'var(--border-color)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden',
-                            border: '2px solid var(--violet-600, #4f46e5)'
-                        }}>
+                        <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-primary/20">
                             {user?.avatar && user.avatar.length > 1 ? (
-                                <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
-                                <User size={20} color="var(--muted)" />
+                                <User size={18} className="text-muted" />
                             )}
                         </div>
                     </button>
 
                     {dropdownOpen && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '120%',
-                            right: 0,
-                            width: '180px',
-                            backgroundColor: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                            padding: 'var(--space-1)',
-                            zIndex: 1000,
-                            border: '1px solid var(--border-color)'
-                        }}>
+                        <div className="dropdown-menu">
+                            <div className="px-4 py-2 border-bottom mb-1">
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Account</div>
+                                <div className="text-sm font-semibold truncate">{user?.name || 'User'}</div>
+                            </div>
                             <button
                                 onClick={handleProfile}
-                                className="sidebar-item"
-                                style={{ width: '100%', margin: 0, border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer' }}
+                                className="dropdown-item"
                             >
-                                <User size={16} /> Profile
+                                <UserCircle size={18} />
+                                <span>My Profile</span>
                             </button>
                             <button
                                 onClick={handleLogout}
-                                className="sidebar-item"
-                                style={{ width: '100%', margin: '4px 0 0 0', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', color: '#EF4444' }}
+                                className="dropdown-item danger text-red-500"
                             >
-                                <LogOut size={16} /> Logout
+                                <LogOut size={18} />
+                                <span>Logout</span>
                             </button>
                         </div>
                     )}

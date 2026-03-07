@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, UserX, Clock, Filter, ArrowUpRight } from 'lucide-react';
 import { getMembers, getMemberStats } from '../../api/manager/managerApi';
-import '../../styles/GlobalDesign.css';
 
 const MemberStatus = () => {
     const [statusFilter, setStatusFilter] = useState('All');
@@ -24,7 +23,7 @@ const MemberStatus = () => {
 
         if (statData) {
             setStats([
-                { title: 'Total Members', value: (statData.total || 0).toLocaleString(), change: statData.trends?.total || '0%', icon: Users, color: 'text-violet-600', bg: 'bg-violet-100' },
+                { title: 'Total Members', value: (statData.total || 0).toLocaleString(), change: statData.trends?.total || '0%', icon: Users, color: 'text-primary', bg: 'bg-violet-100' },
                 { title: 'Active Members', value: (statData.active || 0).toLocaleString(), change: statData.trends?.active || '0%', icon: UserCheck, color: 'text-green-600', bg: 'bg-green-100' },
                 { title: 'Expired Members', value: (statData.expired || 0).toLocaleString(), change: statData.trends?.expired || '0%', icon: Clock, color: 'text-red-600', bg: 'bg-red-100' },
                 { title: 'Inactive Members', value: (statData.inactive || 0).toLocaleString(), change: statData.trends?.inactive || '0%', icon: UserX, color: 'text-gray-600', bg: 'bg-gray-100' },
@@ -44,7 +43,7 @@ const MemberStatus = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans">
+        <div className=" bg-gray-50 min-h-screen font-sans">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">Member Status</h1>
@@ -85,7 +84,7 @@ const MemberStatus = () => {
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
                                 className={`px-3 md:px-5 py-2 rounded-lg text-xs md:text-sm font-bold transition-all duration-300 relative overflow-hidden whitespace-nowrap flex-shrink-0 ${statusFilter === status
-                                    ? 'bg-white text-violet-600 shadow-md ring-1 ring-black/5 transform scale-100'
+                                    ? 'bg-white text-primary shadow-md ring-1 ring-black/5 transform scale-100'
                                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                                     }`}
                             >
@@ -109,21 +108,21 @@ const MemberStatus = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="4" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Loading status data...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : members.length > 0 ? (
                                 members.map((member) => (
-                                    <tr key={member.id} className="hover:bg-violet-50/50 transition-colors duration-200 group cursor-pointer">
+                                    <tr key={member.id} className="hover:bg-primary-light/50 transition-colors duration-200 group cursor-pointer">
                                         <td className="px-4 md:px-6 py-4 md:whitespace-nowrap" data-label="Member Name">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm md:text-xs font-bold text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors flex-shrink-0">
+                                                <div className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm md:text-xs font-bold text-slate-500 group-hover:bg-violet-100 group-hover:text-primary transition-colors flex-shrink-0">
                                                     {(member.name || '?').charAt(0)}
                                                 </div>
-                                                <div className="text-sm md:text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{member.name}</div>
+                                                <div className="text-sm md:text-sm font-bold text-gray-900 group-hover:text-primary-hover transition-colors">{member.name}</div>
                                             </div>
                                         </td>
                                         <td className="px-4 md:px-6 py-3 md:py-4 md:whitespace-nowrap" data-label="Membership Plan">

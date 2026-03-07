@@ -1,7 +1,7 @@
 /* Fallback utilities if Tailwind is not fully loading */
 .saas-container {
     padding: 1.5rem;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
 }
 

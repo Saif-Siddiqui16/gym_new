@@ -25,6 +25,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import AddLockerDrawer from './AddLockerDrawer';
 import BulkCreateLockersDrawer from './BulkCreateLockersDrawer';
 import LockerDetailsDrawer from './LockerDetailsDrawer';
+import StatsCard from '../../dashboard/components/StatsCard';
 
 const LockerManagement = () => {
     const { selectedBranch } = useBranchContext();
@@ -77,12 +78,12 @@ const LockerManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 pb-24">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen pb-24">
+            <div className="max-w-full mx-auto space-y-8">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-100">
+                        <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-violet-100">
                             <Lock size={28} />
                         </div>
                         <div>
@@ -112,10 +113,10 @@ const LockerManagement = () => {
 
                 {/* KPI Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title="Total Lockers" value={stats.total} icon={Package} color="indigo" />
-                    <StatCard title="Available" value={stats.available} icon={Unlock} color="emerald" />
-                    <StatCard title="Assigned" value={stats.assigned} icon={User} color="blue" subtitle={`${stats.occupancyRate}% Occupancy`} />
-                    <StatCard title="Maintenance" value={stats.maintenance} icon={AlertCircle} color="amber" />
+                    <StatsCard title="Total Lockers" value={stats.total.toString()} icon={Package} color="primary" />
+                    <StatsCard title="Available" value={stats.available.toString()} icon={Unlock} color="success" />
+                    <StatsCard title="Assigned" value={stats.assigned.toString()} icon={User} color="primary" subtitle={`${stats.occupancyRate}% Occupancy`} />
+                    <StatsCard title="Maintenance" value={stats.maintenance.toString()} icon={AlertCircle} color="warning" />
                 </div>
 
                 {/* Main Content Area */}
@@ -130,14 +131,14 @@ const LockerManagement = () => {
                                     placeholder="Search locker number..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-12 pr-4 h-12 bg-slate-50 border-2 border-transparent focus:border-violet-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none"
+                                    className="w-full pl-12 pr-4 h-12 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none"
                                 />
                             </div>
                             <div className="relative w-48 hidden md:block">
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="w-full pl-4 pr-10 h-12 bg-slate-50 border-2 border-transparent focus:border-violet-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none appearance-none cursor-pointer"
+                                    className="w-full pl-4 pr-10 h-12 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none appearance-none cursor-pointer"
                                 >
                                     <option>All Status</option>
                                     <option>Available</option>
@@ -165,7 +166,7 @@ const LockerManagement = () => {
                     <div className="p-8">
                         {loading ? (
                             <div className="h-96 flex flex-col items-center justify-center gap-4">
-                                <div className="w-12 h-12 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin"></div>
+                                <div className="w-12 h-12 border-4 border-violet-100 border-t-primary rounded-full animate-spin"></div>
                                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Lockers...</p>
                             </div>
                         ) : lockers.length === 0 ? (
@@ -199,9 +200,9 @@ const LockerManagement = () => {
                     {!loading && lockers.length > 0 && activeTab === 'Overview' && (
                         <div className="p-6 bg-slate-50/50 border-t-2 border-slate-50 flex items-center gap-6 justify-center flex-wrap">
                             <LegendItem color="bg-emerald-500" label="Available" />
-                            <LegendItem color="bg-violet-500" label="Assigned" />
+                            <LegendItem color="bg-primary" label="Assigned" />
                             <LegendItem color="bg-amber-500" label="Maintenance" />
-                            <LegendItem color="bg-violet-500" label="Reserved" />
+                            <LegendItem color="bg-primary" label="Reserved" />
                             <LegendItem color="bg-rose-500" label="Expired" />
                         </div>
                     )}
@@ -254,33 +255,12 @@ const LockerManagement = () => {
 
 /* ── UI Components ── */
 
-const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
-    const colorMap = {
-        indigo: 'bg-violet-50 text-violet-600',
-        emerald: 'bg-emerald-50 text-emerald-600',
-        blue: 'bg-violet-50 text-violet-600',
-        amber: 'bg-amber-50 text-amber-600'
-    };
-    return (
-        <div className="bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex items-center justify-between group hover:border-violet-100 transition-all">
-            <div className="space-y-1">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</p>
-                <div className="flex flex-col">
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">{value}</h2>
-                    {subtitle && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{subtitle}</p>}
-                </div>
-            </div>
-            <div className={`w-14 h-14 rounded-2xl ${colorMap[color]} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                <Icon size={24} strokeWidth={2.5} />
-            </div>
-        </div>
-    );
-};
+
 
 const TabButton = ({ active, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
     >
         {children}
     </button>
@@ -289,7 +269,7 @@ const TabButton = ({ active, onClick, children }) => (
 const IconButton = ({ active, onClick, icon: Icon }) => (
     <button
         onClick={onClick}
-        className={`p-2 rounded-xl transition-all ${active ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        className={`p-2 rounded-xl transition-all ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
     >
         <Icon size={18} />
     </button>
@@ -309,10 +289,10 @@ const LockerCard = ({ locker, onClick }) => {
     if (isAvailable) { style = "bg-emerald-50 border-emerald-100 text-emerald-700"; iconColor = "text-emerald-500"; dotColor = "bg-emerald-500"; }
     else if (isAssigned) {
         if (isExpired) { style = "bg-rose-50 border-rose-200 text-rose-700"; iconColor = "text-rose-500"; dotColor = "bg-rose-500"; }
-        else { style = "bg-violet-50 border-violet-100 text-violet-700"; iconColor = "text-violet-500"; dotColor = "bg-violet-500"; }
+        else { style = "bg-primary-light border-violet-100 text-primary-hover"; iconColor = "text-primary"; dotColor = "bg-primary"; }
     }
     else if (isMaintenance) { style = "bg-amber-50 border-amber-200 text-amber-700"; iconColor = "text-amber-500"; dotColor = "bg-amber-500"; }
-    else if (isReserved) { style = "bg-violet-50 border-violet-200 text-violet-700"; iconColor = "text-violet-500"; dotColor = "bg-violet-500"; }
+    else if (isReserved) { style = "bg-primary-light border-violet-200 text-primary-hover"; iconColor = "text-primary"; dotColor = "bg-primary"; }
 
     return (
         <div
@@ -388,9 +368,9 @@ const AssignedMemberTable = ({ lockers, onRowClick }) => (
 const StatusBadge = ({ status }) => {
     const styles = {
         Available: 'bg-emerald-50 text-emerald-700',
-        Assigned: 'bg-violet-50 text-violet-700',
+        Assigned: 'bg-primary-light text-primary-hover',
         Maintenance: 'bg-amber-50 text-amber-700',
-        Reserved: 'bg-violet-50 text-violet-700'
+        Reserved: 'bg-primary-light text-primary-hover'
     };
     return (
         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>

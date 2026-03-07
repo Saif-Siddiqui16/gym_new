@@ -196,12 +196,12 @@ const TaskList = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 min-h-screen p-6 md:p-8 font-sans pb-24 text-slate-800">
+        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 min-h-screen font-sans pb-24 text-slate-800">
             {/* Header section matching exact text */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
                             Task Management
                         </h1>
                     </div>
@@ -217,7 +217,7 @@ const TaskList = () => {
             </div>
 
             {/* Stats Cards Exact text */}
-            <div className="max-w-7xl mx-auto mb-10">
+            <div className="max-w-full mx-auto mb-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                     {[
                         { label: 'Total Tasks', value: stats.total.toString(), color: 'indigo', icon: ListTodo },
@@ -240,7 +240,7 @@ const TaskList = () => {
             </div>
 
             {/* Section: All Tasks */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="flex flex-col mb-6">
                     <h2 className="text-xl font-black text-slate-800 tracking-tight">All Tasks</h2>
                 </div>
@@ -252,7 +252,7 @@ const TaskList = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-8 py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${activeTab === tab
-                                ? 'border-violet-600 text-violet-600'
+                                ? 'border-primary text-primary'
                                 : 'border-transparent text-slate-400 hover:text-slate-600'
                                 }`}
                         >
@@ -279,7 +279,7 @@ const TaskList = () => {
                                 {loading ? (
                                     <tr>
                                         <td colSpan="6" className="py-24 text-center">
-                                            <Loader2 className="animate-spin mx-auto text-violet-600" size={40} />
+                                            <Loader2 className="animate-spin mx-auto text-primary" size={40} />
                                         </td>
                                     </tr>
                                 ) : tasks.length > 0 ? (
@@ -288,14 +288,14 @@ const TaskList = () => {
                                             <td className="px-8 py-5 font-bold text-slate-700">{task.title}</td>
                                             <td className="px-8 py-5">
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${task.priority === 'High' ? 'bg-rose-50 text-rose-600' :
-                                                    task.priority === 'Medium' ? 'bg-violet-50 text-violet-600' :
+                                                    task.priority === 'Medium' ? 'bg-primary-light text-primary' :
                                                         'bg-slate-50 text-slate-600'
                                                     }`}>
                                                     {task.priority}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-slate-600 flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-[10px] font-black uppercase">
+                                                <div className="w-8 h-8 rounded-full bg-violet-100 text-primary flex items-center justify-center text-[10px] font-black uppercase">
                                                     {task.assignedTo?.substring(0, 2)}
                                                 </div>
                                                 {task.assignedTo}
@@ -313,14 +313,14 @@ const TaskList = () => {
                                             <td className="px-8 py-5 text-right flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleViewTask(task)}
-                                                    className="p-2 hover:bg-violet-50 text-slate-400 hover:text-violet-600 rounded-lg transition-colors"
+                                                    className="p-2 hover:bg-primary-light text-slate-400 hover:text-primary rounded-lg transition-colors"
                                                     title="View Details"
                                                 >
                                                     <Eye size={18} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleEditTask(task)}
-                                                    className="p-2 hover:bg-violet-50 text-slate-400 hover:text-violet-600 rounded-lg transition-colors"
+                                                    className="p-2 hover:bg-primary-light text-slate-400 hover:text-primary rounded-lg transition-colors"
                                                     title="Edit Task"
                                                 >
                                                     <FileText size={18} />
@@ -387,7 +387,7 @@ const TaskList = () => {
                     {/* Branch */}
                     <div className="space-y-2 group">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            <Building2 size={14} className="text-violet-500" />
+                            <Building2 size={14} className="text-primary" />
                             Branch *
                         </label>
                         <CustomDropdown
@@ -403,7 +403,7 @@ const TaskList = () => {
                     {/* Task Title */}
                     <div className="space-y-2 group">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            <FileText size={14} className="text-violet-500" />
+                            <FileText size={14} className="text-primary" />
                             Title *
                         </label>
                         <input
@@ -411,7 +411,7 @@ const TaskList = () => {
                             type="text"
                             disabled={isReadOnly}
                             placeholder="Task title"
-                            className={`saas-input w-full h-12 px-5 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 ${isReadOnly ? 'cursor-default' : ''}`}
+                            className={`saas-input w-full h-12 px-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 ${isReadOnly ? 'cursor-default' : ''}`}
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
@@ -420,14 +420,14 @@ const TaskList = () => {
                     {/* Description */}
                     <div className="space-y-2 group">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            <AlertCircle size={14} className="text-violet-500" />
+                            <AlertCircle size={14} className="text-primary" />
                             Description
                         </label>
                         <textarea
                             disabled={isReadOnly}
                             placeholder="Task description..."
                             rows="4"
-                            className={`saas-input w-full p-5 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 resize-none ${isReadOnly ? 'cursor-default' : ''}`}
+                            className={`saas-input w-full p-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 resize-none ${isReadOnly ? 'cursor-default' : ''}`}
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         ></textarea>
@@ -437,7 +437,7 @@ const TaskList = () => {
                         {/* Priority */}
                         <div className="space-y-2 group">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                <Filter size={14} className="text-violet-500" />
+                                <Filter size={14} className="text-primary" />
                                 Priority
                             </label>
                             <CustomDropdown
@@ -452,14 +452,14 @@ const TaskList = () => {
                         {/* Due Date */}
                         <div className="space-y-2 group">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                <Calendar size={14} className="text-violet-500" />
+                                <Calendar size={14} className="text-primary" />
                                 Due Date
                             </label>
                             <input
                                 required
                                 type="date"
                                 disabled={isReadOnly}
-                                className={`saas-input w-full h-[52px] px-5 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 ${isReadOnly ? 'cursor-default' : ''}`}
+                                className={`saas-input w-full h-[52px] px-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 group-hover:border-slate-200 ${isReadOnly ? 'cursor-default' : ''}`}
                                 value={formData.dueDate}
                                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                             />
@@ -469,7 +469,7 @@ const TaskList = () => {
                     {/* Assign To */}
                     <div className="space-y-2 group">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                            <UserPlus size={14} className="text-violet-500" />
+                            <UserPlus size={14} className="text-primary" />
                             Assign To
                         </label>
                         <CustomDropdown

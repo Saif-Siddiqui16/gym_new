@@ -12,11 +12,11 @@ const MobileCard = ({
     // Premium badge color configurations
     const getBadgeStyle = (color) => {
         const styles = {
-            violet: 'from-violet-500 to-purple-600 shadow-violet-500/30/50',
+            violet: 'from-primary to-primary shadow-primary/30/50',
             emerald: 'from-emerald-500 to-emerald-600 shadow-emerald-500/50',
             red: 'from-red-500 to-red-600 shadow-red-500/50',
             amber: 'from-amber-500 to-orange-600 shadow-amber-500/50',
-            blue: 'from-violet-500 to-purple-600 shadow-violet-500/30/50',
+            blue: 'from-primary to-primary shadow-primary/30/50',
             slate: 'from-slate-500 to-slate-600 shadow-slate-500/50',
             purple: 'from-purple-500 to-fuchsia-600 shadow-purple-500/50',
         };
@@ -26,18 +26,18 @@ const MobileCard = ({
     return (
         <div className={`group relative bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-4 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden ${className}`}>
             {/* Premium gradient background on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
 
             {/* Content */}
             <div className="relative z-10">
                 {/* Header with gradient icon */}
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/30/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shadow-primary/30/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
                             <div className="w-5 h-5 rounded-full bg-white/20"></div>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-bold text-slate-900 group-hover:text-violet-700 transition-colors duration-300 truncate">
+                            <h3 className="text-base font-bold text-slate-900 group-hover:text-primary-hover transition-colors duration-300 truncate">
                                 {title}
                             </h3>
                             {subtitle && (
@@ -58,10 +58,10 @@ const MobileCard = ({
                         {fields.map((field, index) => {
                             const FieldIcon = field.icon;
                             return (
-                                <div key={index} className="flex justify-between items-center p-2.5 rounded-lg bg-slate-50/50 hover:bg-violet-50/50 transition-colors duration-200">
+                                <div key={index} className="flex justify-between items-center p-2.5 rounded-lg bg-slate-50/50 hover:bg-primary-light/50 transition-colors duration-200">
                                     <div className="flex items-center gap-2">
                                         {FieldIcon && (
-                                            <FieldIcon size={14} className="text-slate-400 group-hover:text-violet-500 transition-colors" strokeWidth={2.5} />
+                                            <FieldIcon size={14} className="text-slate-400 group-hover:text-primary transition-colors" strokeWidth={2.5} />
                                         )}
                                         <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{field.label}</span>
                                     </div>
@@ -84,10 +84,10 @@ const MobileCard = ({
                                     className={`
                                         group/btn flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105
                                         ${action.variant === 'primary'
-                                            ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/30/50 hover:shadow-violet-500/30/60'
+                                            ? 'bg-gradient-to-r from-primary to-primary text-white shadow-primary/30/50 hover:shadow-primary/30/60'
                                             : action.variant === 'danger'
                                                 ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-red-500/50 hover:shadow-red-500/60'
-                                                : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300 hover:text-violet-700'
+                                                : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300 hover:text-primary-hover'
                                         }
                                     `}
                                 >

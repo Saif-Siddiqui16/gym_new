@@ -218,27 +218,25 @@ const LeadsPipeline = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-0 md:p-8 space-y-6 sm:space-y-8 animate-fadeIn">
-
+        <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
+            {/* Header Section */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-lg shadow-violet-200 shrink-0">
-                                <Users size={24} className="sm:w-8 sm:h-8" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-8 md:p-10">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-5">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
+                                <Users size={32} />
                             </div>
                             <div>
-                                <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Lead Management</h1>
-                                <p className="text-slate-500 font-bold text-[10px] sm:text-sm uppercase tracking-widest mt-1">
-                                    Track and convert your fitness prospects
-                                </p>
+                                <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none">Lead Management</h1>
+                                <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Track and convert your fitness prospects</p>
                             </div>
                         </div>
                         <Button
                             onClick={openAddDrawer}
                             variant="primary"
-                            className="w-full sm:w-auto px-8 h-12 rounded-2xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all font-bold"
+                            className="h-12 px-8 rounded-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all transform active:scale-95 text-xs font-black uppercase tracking-widest whitespace-nowrap"
                             icon={UserPlus}
                         >
                             Add Lead
@@ -247,19 +245,33 @@ const LeadsPipeline = () => {
                 </div>
             </div>
 
-            {/* Stats Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                <StatsCard title="Total Leads" value={stats.total.toString()} icon={Users} color="primary" isEarningsLayout={true} />
-                <StatsCard title="New" value={stats.new.toString()} icon={UserPlus} color="info" isEarningsLayout={true} />
-                <StatsCard title="Contacted" value={stats.contacted.toString()} icon={Phone} color="warning" isEarningsLayout={true} />
-                <StatsCard title="Interested" value={stats.interested.toString()} icon={TrendingUp} color="success" isEarningsLayout={true} />
-                <StatsCard title="Converted" value={stats.converted.toString()} icon={CheckCircle} color="secondary" isEarningsLayout={true} />
+            {/* Stats Cards Section - Improved Responsiveness */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {[
+                    { title: "Total Leads", value: stats.total, icon: Users, color: "bg-primary-light", text: "text-primary" },
+                    { title: "New", value: stats.new, icon: UserPlus, color: "bg-indigo-50", text: "text-indigo-600" },
+                    { title: "Contacted", value: stats.contacted, icon: Phone, color: "bg-amber-50", text: "text-amber-600" },
+                    { title: "Interested", value: stats.interested, icon: TrendingUp, color: "bg-emerald-50", text: "text-emerald-600" },
+                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "bg-blue-50", text: "text-blue-600" }
+                ].map((item, idx) => (
+                    <div key={idx} className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 group/stat cursor-default min-w-0">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className={`w-14 h-14 rounded-2xl ${item.color} ${item.text} flex items-center justify-center group-hover/stat:scale-110 transition-transform shadow-sm`}>
+                                <item.icon size={26} />
+                            </div>
+                        </div>
+                        <div className="min-w-0 overflow-hidden">
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 truncate">{item.title}</p>
+                            <h3 className="text-4xl font-black text-slate-900 tracking-tight truncate">{item.value}</h3>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {/* Lead Sources Section */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-4 sm:p-8">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10">
                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
                         <BarChart3 size={20} />
                     </div>
                     <div>
@@ -269,14 +281,14 @@ const LeadsPipeline = () => {
                 </div>
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
-                        <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     </div>
                 ) : leads.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                         {sourceStats.map((source) => {
                             const percentage = leads.length > 0 ? Math.round((source.count / leads.length) * 100) : 0;
                             return (
-                                <div key={source.name} className="relative group p-6 rounded-3xl border border-slate-100 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-50 transition-all duration-300 bg-white">
+                                <div key={source.name} className="relative group p-6 rounded-3xl border border-slate-100 hover:border-violet-200 hover:shadow-xl hover:shadow-primary-light transition-all duration-300 bg-white">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className={`w-12 h-12 rounded-2xl bg-${source.color}-50 text-${source.color}-600 flex items-center justify-center group-hover:scale-110 transition-transform`}>
                                             <source.icon size={24} />
@@ -316,9 +328,9 @@ const LeadsPipeline = () => {
 
             {/* All Leads Section */}
             <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-4 sm:p-8 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 bg-slate-50/30">
+                <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/30">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
                             <Users size={20} />
                         </div>
                         <div>
@@ -333,44 +345,44 @@ const LeadsPipeline = () => {
                             placeholder="Search leads..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-white"
+                            className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white"
                         />
                     </div>
                 </div>
 
-                <div className="saas-table-wrapper border-0 rounded-none">
+                <div className="saas-table-wrapper border-0 rounded-none overflow-visible">
                     <table className="saas-table saas-table-responsive">
                         <thead className="bg-slate-50 border-b border-slate-100">
                             <tr>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source</th>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created</th>
-                                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Follow-up</th>
-                                <th className="text-right py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Follow-up</th>
+                                <th className="text-right py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
                                     <td colSpan="7" className="px-8 py-24 text-center">
-                                        <Loader2 className="w-8 h-8 text-violet-600 animate-spin mx-auto" />
+                                        <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
                                     </td>
                                 </tr>
                             ) : filteredLeads.length > 0 ? (
                                 filteredLeads.map((lead) => (
                                     <tr key={lead.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-8 py-4 font-bold text-slate-900" data-label="Name">{lead.name}</td>
-                                        <td className="px-8 py-4 text-slate-600 text-sm" data-label="Contact">
+                                        <td className="px-4 py-4 font-bold text-slate-900" data-label="Name">{lead.name}</td>
+                                        <td className="px-4 py-4 text-slate-600 text-sm" data-label="Contact">
                                             <div className="flex flex-col">
                                                 <span>{lead.phone}</span>
                                                 <span className="text-[10px] text-slate-400 font-bold">{lead.email || 'No email'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-4" data-label="Status">
+                                        <td className="px-4 py-4" data-label="Status">
                                             <div className="flex flex-col gap-1">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-violet-50 text-violet-600' :
+                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-primary-light text-primary' :
                                                     lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
                                                         lead.status === 'Contacted' ? 'bg-orange-50 text-orange-600' :
                                                             'bg-slate-100 text-slate-600'
@@ -379,11 +391,11 @@ const LeadsPipeline = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-4 text-slate-600 text-sm font-bold uppercase tracking-widest text-[10px]" data-label="Source">{lead.source}</td>
-                                        <td className="px-8 py-4 text-slate-500 text-[10px] font-bold" data-label="Created">
+                                        <td className="px-4 py-4 text-slate-600 text-sm font-bold uppercase tracking-widest text-[10px]" data-label="Source">{lead.source}</td>
+                                        <td className="px-4 py-4 text-slate-500 text-[10px] font-bold" data-label="Created">
                                             {new Date(lead.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="px-8 py-4" data-label="Follow-up">
+                                        <td className="px-4 py-4" data-label="Follow-up">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-slate-700">{lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'No date'}</span>
                                                 <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">
@@ -391,13 +403,13 @@ const LeadsPipeline = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-4 text-right" data-label="Actions">
+                                        <td className="px-4 py-4 text-right" data-label="Actions">
                                             <div className="relative inline-block text-left">
                                                 <button
                                                     onClick={(e) => setActiveMenu(activeMenu === lead.id ? null : lead.id)}
                                                     className={`w-10 h-10 flex items-center justify-center rounded-2xl transition-all duration-300 ${activeMenu === lead.id
-                                                        ? 'bg-violet-600 text-white shadow-xl shadow-violet-200 rotate-90 scale-110'
-                                                        : 'text-slate-400 hover:text-violet-600 hover:bg-violet-50'
+                                                        ? 'bg-primary text-white shadow-xl shadow-violet-200 rotate-90 scale-110'
+                                                        : 'text-slate-400 hover:text-primary hover:bg-primary-light'
                                                         }`}
                                                 >
                                                     <MoreHorizontal size={22} />
@@ -407,7 +419,7 @@ const LeadsPipeline = () => {
                                                     <div className="absolute right-full mr-2 top-0 w-56 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] p-2 animate-scaleIn origin-right">
                                                         {/* Header */}
                                                         <div className="flex items-center gap-3 p-3 mb-2 bg-slate-50 rounded-2xl">
-                                                            <div className="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg">
+                                                            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
                                                                 <Users size={14} />
                                                             </div>
                                                             <div className="flex flex-col text-left">
@@ -429,25 +441,25 @@ const LeadsPipeline = () => {
                                                         <div className="space-y-1">
                                                             <button
                                                                 onClick={() => openEditDrawer(lead)}
-                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all group"
+                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-primary-light hover:text-primary rounded-xl transition-all group"
                                                             >
-                                                                <Edit3 size={14} className="text-slate-400 group-hover:text-violet-500" />
+                                                                <Edit3 size={14} className="text-slate-400 group-hover:text-primary" />
                                                                 Edit Profile
                                                             </button>
 
                                                             <button
                                                                 onClick={() => openLogDrawer(lead)}
-                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all group"
+                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-primary-light hover:text-primary rounded-xl transition-all group"
                                                             >
-                                                                <Phone size={14} className="text-slate-400 group-hover:text-violet-500" />
+                                                                <Phone size={14} className="text-slate-400 group-hover:text-primary" />
                                                                 Log Contact
                                                             </button>
 
                                                             <button
                                                                 onClick={() => fetchLeadHistory(lead.id)}
-                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all group"
+                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-primary-light hover:text-primary rounded-xl transition-all group"
                                                             >
-                                                                <TrendingUp size={14} className="text-slate-400 group-hover:text-violet-500" />
+                                                                <TrendingUp size={14} className="text-slate-400 group-hover:text-primary" />
                                                                 View Profile
                                                             </button>
 
@@ -523,7 +535,6 @@ const LeadsPipeline = () => {
                             type="button"
                             variant="outline"
                             onClick={() => setShowAddDrawer(false)}
-                            className="px-6 h-11 rounded-xl"
                         >
                             Cancel
                         </Button>
@@ -532,77 +543,73 @@ const LeadsPipeline = () => {
                             variant="primary"
                             loading={submitting}
                             onClick={handleAddLead}
-                            className="px-6 h-11 rounded-xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all"
+                            icon={isEdit ? Edit3 : UserPlus}
                         >
                             {isEdit ? 'Update Lead' : 'Add Lead'}
                         </Button>
                     </div>
                 }
             >
-                <div className="p-8 space-y-6">
-                    <div className="space-y-5">
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Full Name *</label>
+                <div className="space-y-5">
+                    <div className="space-y-6">
+                        <div className="saas-form-group">
+                            <label className="saas-label">Full Name *</label>
                             <input
                                 type="text"
                                 placeholder="Enter full name"
+                                className="saas-input"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Phone *</label>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Phone *</label>
                             <input
                                 type="tel"
                                 placeholder="+91 98765 43210"
+                                className="saas-input"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Email</label>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Email</label>
                             <input
                                 type="email"
                                 placeholder="email@example.com"
+                                className="saas-input"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Source</label>
-                            <div className="relative">
-                                <select
-                                    value={formData.source}
-                                    onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
-                                >
-                                    <option value="Walk-in">Walk-in</option>
-                                    <option value="Online">Online</option>
-                                    <option value="Referral">Referral</option>
-                                    <option value="Social Media">Social Media</option>
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <Filter size={14} />
-                                </div>
-                            </div>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Source</label>
+                            <select
+                                value={formData.source}
+                                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                                className="saas-input appearance-none cursor-pointer"
+                            >
+                                <option value="Walk-in">Walk-in</option>
+                                <option value="Online">Online</option>
+                                <option value="Referral">Referral</option>
+                                <option value="Social Media">Social Media</option>
+                            </select>
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Notes</label>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Notes</label>
                             <textarea
                                 placeholder="Any additional notes..."
                                 rows={4}
+                                className="saas-input resize-none"
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
                             />
                         </div>
                     </div>
                 </div>
             </RightDrawer>
 
+            {/* Log Contact Drawer */}
             {/* Log Contact Drawer */}
             <RightDrawer
                 isOpen={showLogDrawer}
@@ -616,7 +623,6 @@ const LeadsPipeline = () => {
                             type="button"
                             variant="outline"
                             onClick={() => setShowLogDrawer(false)}
-                            className="px-6 h-11 rounded-xl"
                         >
                             Cancel
                         </Button>
@@ -625,50 +631,49 @@ const LeadsPipeline = () => {
                             variant="primary"
                             loading={submitting}
                             onClick={handleLogContact}
-                            className="px-6 h-11 rounded-xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all"
                         >
                             Save Log
                         </Button>
                     </div>
                 }
             >
-                <div className="p-8 space-y-6">
-                    <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">What happened? (Notes)</label>
+                <div className="space-y-6">
+                    <div className="saas-form-group">
+                        <label className="saas-label">What happened? (Notes)</label>
                         <textarea
                             placeholder="Customer is interested, asked for a trial session..."
                             rows={4}
                             value={logData.notes}
                             onChange={(e) => setLogData({ ...logData, notes: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                            className="saas-input resize-none"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Next Follow-up Date</label>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Next Follow-up Date</label>
                             <input
                                 type="date"
                                 value={logData.nextDate}
                                 onChange={(e) => setLogData({ ...logData, nextDate: e.target.value })}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                                className="saas-input"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Time</label>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Time</label>
                             <input
                                 type="time"
                                 value={logData.nextTime}
                                 onChange={(e) => setLogData({ ...logData, nextTime: e.target.value })}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                                className="saas-input"
                             />
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Update Status</label>
+                    <div className="saas-form-group">
+                        <label className="saas-label">Update Status</label>
                         <select
                             value={logData.status}
                             onChange={(e) => setLogData({ ...logData, status: e.target.value })}
-                            className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            className="saas-input"
                         >
                             <option value="New">New</option>
                             <option value="Contacted">Contacted</option>
@@ -688,17 +693,17 @@ const LeadsPipeline = () => {
                 subtitle={`Timeline for ${leadHistory?.name}`}
                 maxWidth="max-w-lg"
             >
-                <div className="p-8">
+                <div className="">
                     {leadHistory?.followUps?.length > 0 ? (
-                        <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-slate-100">
+                        <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-slate-100 mt-2">
                             {leadHistory.followUps.map((log, idx) => (
                                 <div key={log.id} className="relative pl-10">
-                                    <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-white border-4 border-violet-500 shadow-sm z-10 flex items-center justify-center">
-                                        <div className="w-2 h-2 rounded-full bg-violet-500"></div>
+                                    <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-white border-4 border-primary shadow-sm z-10 flex items-center justify-center">
+                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
                                     </div>
                                     <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-2">
                                         <div className="flex justify-between items-start">
-                                            <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Contact Logged</span>
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Contact Logged</span>
                                             <span className="text-[10px] font-bold text-slate-400">{new Date(log.createdAt).toLocaleString()}</span>
                                         </div>
                                         <p className="text-sm font-semibold text-slate-700 leading-relaxed italic">"{log.notes}"</p>

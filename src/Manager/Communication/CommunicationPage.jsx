@@ -65,7 +65,7 @@ const CommunicationPage = () => {
     });
 
     return (
-        <div className="p-4 md:p-8 h-screen bg-slate-50 flex flex-col">
+        <div className=" h-screen bg-slate-50 flex flex-col">
             {/* Module Switcher Tabs */}
             <div className="flex justify-center mb-6 shrink-0">
                 <div className="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 flex gap-2">
@@ -101,20 +101,20 @@ const CommunicationPage = () => {
                             <div className="p-8 pb-0">
                                 <div className="flex items-center justify-between mb-6">
                                     <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                                        <MessageSquare className="text-violet-600" />
+                                        <MessageSquare className="text-primary" />
                                         Chats
                                     </h1>
-                                    <div className="p-2.5 bg-violet-50 text-violet-600 rounded-xl hover:bg-violet-600 hover:text-white transition-all cursor-pointer shadow-sm">
+                                    <div className="p-2.5 bg-primary-light text-primary rounded-xl hover:bg-primary hover:text-white transition-all cursor-pointer shadow-sm">
                                         <Plus size={20} />
                                     </div>
                                 </div>
 
                                 <div className="relative group mb-6">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-all" size={18} />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" size={18} />
                                     <input
                                         type="text"
                                         placeholder="Search members..."
-                                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all shadow-sm"
+                                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary transition-all shadow-sm"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
@@ -125,16 +125,16 @@ const CommunicationPage = () => {
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
-                                            className={`pb-4 text-xs font-black uppercase tracking-widest relative transition-all ${activeTab === tab ? 'text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                            className={`pb-4 text-xs font-black uppercase tracking-widest relative transition-all ${activeTab === tab ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
                                             {tab}
-                                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-600 rounded-t-full" />}
+                                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-4 space-y-2 custom-scrollbar pb-8">
+                            <div className="flex-1  px-4 space-y-2 custom-scrollbar pb-8">
                                 {filteredChats.length === 0 ? (
                                     <div className="py-20 flex flex-col items-center justify-center opacity-40">
                                         <Search size={40} className="text-slate-300" />
@@ -154,7 +154,7 @@ const CommunicationPage = () => {
                                                 }`}
                                         >
                                             <div className="relative">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black shadow-lg">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black shadow-lg">
                                                     {chat.avatar}
                                                 </div>
                                                 {chat.status === 'online' ? (
@@ -171,7 +171,7 @@ const CommunicationPage = () => {
                                                 <div className="flex justify-between items-center">
                                                     <p className="text-xs text-slate-500 truncate font-medium">{chat.lastMsg}</p>
                                                     {chat.unread > 0 && (
-                                                        <span className="min-w-[20px] h-5 px-1.5 bg-violet-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg animate-pulse">
+                                                        <span className="min-w-[20px] h-5 px-1.5 bg-primary text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg animate-pulse">
                                                             {chat.unread}
                                                         </span>
                                                     )}
@@ -188,12 +188,12 @@ const CommunicationPage = () => {
                             {selectedChat ? (
                                 <>
                                     {/* Chat Header */}
-                                    <div className="p-6 md:p-8 flex items-center justify-between border-b border-slate-50 bg-white/80 backdrop-blur-md sticky top-0 z-20">
+                                    <div className=" flex items-center justify-between border-b border-slate-50 bg-white/80 backdrop-blur-md sticky top-0 z-20">
                                         <div className="flex items-center gap-4">
                                             <button onClick={() => setView('list')} className="md:hidden p-2 text-slate-400 hover:text-slate-600">
                                                 <ChevronLeft />
                                             </button>
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white font-black shadow-lg">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-purple-400 flex items-center justify-center text-white font-black shadow-lg">
                                                 {selectedChat.avatar}
                                             </div>
                                             <div>
@@ -207,15 +207,15 @@ const CommunicationPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Audio Call"><Phone size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Video Call"><Video size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Member Info"><Info size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="More Options"><MoreVertical size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all" title="Audio Call"><Phone size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all" title="Video Call"><Video size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all" title="Member Info"><Info size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all" title="More Options"><MoreVertical size={20} /></button>
                                         </div>
                                     </div>
 
                                     {/* Chat Messages */}
-                                    <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/20 custom-scrollbar">
+                                    <div className="flex-1  space-y-8 bg-slate-50/20 custom-scrollbar">
                                         <div className="flex justify-center">
                                             <span className="px-4 py-1.5 bg-white text-[10px] font-black text-slate-400 uppercase tracking-widest rounded-full border border-slate-100 shadow-sm">Today</span>
                                         </div>
@@ -241,12 +241,12 @@ const CommunicationPage = () => {
                                     </div>
 
                                     {/* Chat Input */}
-                                    <div className="p-6 md:p-8 border-t border-slate-50 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
+                                    <div className=" border-t border-slate-50 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                                         <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-[28px] border-2 border-slate-50 focus-within:border-violet-100 focus-within:bg-white transition-all shadow-sm">
                                             <div className="flex items-center gap-1 pl-2">
-                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"><Smile size={22} /></button>
-                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"><Paperclip size={22} /></button>
-                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors hidden md:block"><Image size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-primary transition-colors"><Smile size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-primary transition-colors"><Paperclip size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-primary transition-colors hidden md:block"><Image size={22} /></button>
                                             </div>
                                             <input
                                                 type="text"
@@ -258,7 +258,7 @@ const CommunicationPage = () => {
                                             />
                                             <button
                                                 onClick={handleSend}
-                                                className="w-12 h-12 bg-violet-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-violet-100 hover:bg-violet-700 hover:scale-110 active:scale-95 transition-all"
+                                                className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-violet-100 hover:bg-primary-hover hover:scale-110 active:scale-95 transition-all"
                                             >
                                                 <Send size={20} />
                                             </button>

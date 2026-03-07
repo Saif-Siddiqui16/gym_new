@@ -99,7 +99,7 @@ const StoreOrders = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/20 p-4 sm:p-8 min-h-screen">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/20 p-4 sm:p-8 min-h-screen">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div className="flex items-center gap-4">
@@ -117,7 +117,7 @@ const StoreOrders = () => {
                     <button onClick={handleExportCSV} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-all active:scale-95">
                         <Download size={18} /> Export CSV
                     </button>
-                    <button onClick={handleGenerateReport} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-black shadow-lg shadow-violet-200 hover:bg-violet-700 transition-all active:scale-95">
+                    <button onClick={handleGenerateReport} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all active:scale-95">
                         <ReceiptText size={18} /> Generate Report
                     </button>
                 </div>
@@ -153,12 +153,12 @@ const StoreOrders = () => {
                     </div>
                 </div>
                 <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex items-center gap-5 hover:shadow-xl transition-all duration-300">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg">
                         <ReceiptText size={24} />
                     </div>
                     <div>
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Revenue</p>
-                        <h3 className="text-2xl font-black text-violet-600">₹{orders.reduce((acc, o) => acc + parseFloat(o.totalAmount), 0).toLocaleString()}</h3>
+                        <h3 className="text-2xl font-black text-primary">₹{orders.reduce((acc, o) => acc + parseFloat(o.totalAmount), 0).toLocaleString()}</h3>
                     </div>
                 </div>
             </div>
@@ -198,7 +198,7 @@ const StoreOrders = () => {
             <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden min-h-[400px]">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-32">
-                        <div className="w-12 h-12 border-4 border-slate-100 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                        <div className="w-12 h-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin mb-4"></div>
                         <p className="text-slate-400 font-black animate-pulse uppercase tracking-widest text-xs">Fetching orders...</p>
                     </div>
                 ) : filteredOrders.length > 0 ? (
@@ -218,10 +218,10 @@ const StoreOrders = () => {
                             <tbody className="divide-y divide-slate-100">
                                 {filteredOrders.map(o => (
                                     <tr key={o.id} className="group hover:bg-slate-50/50 transition-all duration-300">
-                                        <td className="px-8 py-6 text-sm font-black text-slate-900 group-hover:text-violet-600 transition-colors">#{o.id.toString().padStart(6, '0')}</td>
+                                        <td className="px-8 py-6 text-sm font-black text-slate-900 group-hover:text-primary transition-colors">#{o.id.toString().padStart(6, '0')}</td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-500 transition-colors">
+                                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary-light group-hover:text-primary transition-colors">
                                                     <User size={18} />
                                                 </div>
                                                 <div>
@@ -243,8 +243,8 @@ const StoreOrders = () => {
                                         </td>
                                         <td className="px-8 py-6 text-sm font-black text-slate-900">₹{parseFloat(o.totalAmount).toLocaleString()}</td>
                                         <td className="px-8 py-6">
-                                            <span className={`inline-flex px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${o.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : o.status === 'Processing' ? 'bg-violet-50 text-violet-600 border border-violet-100' : o.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${o.status === 'Completed' ? 'bg-emerald-500' : o.status === 'Processing' ? 'bg-violet-500' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                                            <span className={`inline-flex px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${o.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : o.status === 'Processing' ? 'bg-primary-light text-primary border border-violet-100' : o.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${o.status === 'Completed' ? 'bg-emerald-500' : o.status === 'Processing' ? 'bg-primary' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
                                                 {o.status}
                                             </span>
                                         </td>
@@ -282,7 +282,7 @@ const StoreOrders = () => {
                         {/* Modal Header */}
                         <div className="p-8 border-b border-slate-50 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-200">
+                                <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-violet-200">
                                     <ReceiptText size={24} />
                                 </div>
                                 <div>
@@ -299,7 +299,7 @@ const StoreOrders = () => {
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-8 max-h-[70vh] overflow-y-auto">
+                        <div className="p-8 max-h-[70vh] ">
                             {/* Order Info Grid */}
                             <div className="grid grid-cols-2 gap-8 mb-8">
                                 <div className="space-y-4">
@@ -331,7 +331,7 @@ const StoreOrders = () => {
                                     {selectedOrder.items?.map((item, idx) => (
                                         <div key={idx} className="flex justify-between items-center p-4 rounded-2xl bg-slate-50 border border-slate-100 group">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-violet-600 transition-colors">
+                                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
                                                     <ShoppingCart size={18} />
                                                 </div>
                                                 <div>
@@ -347,7 +347,7 @@ const StoreOrders = () => {
 
                             {/* Summary */}
                             <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
-                                <div className="flex justify-between items-center bg-gradient-to-r from-violet-600 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-violet-200">
+                                <div className="flex justify-between items-center bg-gradient-to-r from-primary to-primary p-6 rounded-2xl text-white shadow-xl shadow-violet-200">
                                     <div className="flex gap-4 items-center">
                                         <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
                                             <ReceiptText size={24} className="text-white" />

@@ -112,7 +112,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     onChange={onChange}
                     className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
         </div>
     );
@@ -279,14 +279,14 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                                 <div
                                     key={benefit.id}
                                     className={`p-4 rounded-xl border-2 transition-all ${isSelected
-                                        ? 'border-violet-500 bg-violet-50/10'
+                                        ? 'border-primary bg-primary-light/10'
                                         : 'border-slate-100 bg-white'
                                         }`}
                                 >
                                     <div className="flex items-start gap-4">
                                         <div
                                             onClick={() => handleBenefitToggle(benefit.id)}
-                                            className={`mt-1 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${isSelected ? 'bg-violet-500 border-violet-500' : 'border-slate-300'
+                                            className={`mt-1 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${isSelected ? 'bg-primary border-primary' : 'border-slate-300'
                                                 }`}
                                         >
                                             {isSelected && <Check size={14} className="text-white" strokeWidth={3} />}

@@ -144,7 +144,7 @@ const AmenitySettings = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        <Layers className="text-violet-600" size={28} />
+                        <Layers className="text-primary" size={28} />
                         Amenity Management
                     </h1>
                     <p className="text-slate-500 text-sm font-medium">Create and manage facilities available at your gym</p>
@@ -166,7 +166,7 @@ const AmenitySettings = () => {
                     <input
                         type="text"
                         placeholder="Search amenities..."
-                        className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
+                        className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -188,13 +188,13 @@ const AmenitySettings = () => {
                             className="group relative bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:border-violet-200 transition-all duration-300"
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className="p-3 bg-violet-50 text-violet-600 rounded-xl group-hover:bg-violet-600 group-hover:text-white transition-colors duration-300">
+                                <div className="p-3 bg-primary-light text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                                     {getIcon(amenity.icon)}
                                 </div>
                                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleOpenModal(amenity)}
-                                        className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-all"
+                                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all"
                                     >
                                         <Edit2 size={16} />
                                     </button>
@@ -215,9 +215,9 @@ const AmenitySettings = () => {
                                     }`}>
                                     {amenity.status}
                                 </span>
-                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${amenity.gender === 'MALE' ? 'bg-violet-50 text-violet-600' :
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${amenity.gender === 'MALE' ? 'bg-primary-light text-primary' :
                                     amenity.gender === 'FEMALE' ? 'bg-pink-50 text-pink-600' :
-                                        'bg-purple-50 text-purple-600'
+                                        'bg-purple-50 text-primary'
                                     }`}>
                                     {amenity.gender === 'MALE' ? '♂ MALE' : amenity.gender === 'FEMALE' ? '♀ FEMALE' : '⚧ UNISEX'}
                                 </span>
@@ -261,7 +261,7 @@ const AmenitySettings = () => {
                             required
                             type="text"
                             placeholder="e.g. Luxury Sauna"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-bold"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
@@ -272,7 +272,7 @@ const AmenitySettings = () => {
                         <textarea
                             rows="3"
                             placeholder="Brief details about the facility..."
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium resize-none"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium resize-none"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
@@ -287,7 +287,7 @@ const AmenitySettings = () => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, icon: opt.name })}
                                     className={`p-3 rounded-xl flex items-center justify-center transition-all ${formData.icon === opt.name
-                                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 ring-2 ring-violet-600 ring-offset-2'
+                                        ? 'bg-primary text-white shadow-lg shadow-violet-200 ring-2 ring-primary ring-offset-2'
                                         : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
                                         }`}
                                 >
@@ -301,7 +301,7 @@ const AmenitySettings = () => {
                         <div>
                             <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Gender Scope</label>
                             <select
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-bold appearance-none"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold appearance-none"
                                 value={formData.gender}
                                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                             >
@@ -313,7 +313,7 @@ const AmenitySettings = () => {
                         <div>
                             <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Status</label>
                             <select
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-bold appearance-none"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold appearance-none"
                                 value={formData.status}
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                             >

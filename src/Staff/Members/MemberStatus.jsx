@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { UserCheck, UserX, Clock, Search, Filter, MoreVertical, Eye, RefreshCw, ChevronRight } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { getMembers, getMemberStats } from '../../api/staff/memberApi';
-import '../../styles/GlobalDesign.css';
 
 const MemberStatus = () => {
     const [filterStatus, setFilterStatus] = useState('All');
@@ -26,7 +25,7 @@ const MemberStatus = () => {
 
             if (statData) {
                 setStats([
-                    { label: 'Total Members', value: statData.total.toLocaleString(), icon: Clock, bg: 'bg-violet-50', color: 'text-violet-600' }, // Changed from Users
+                    { label: 'Total Members', value: statData.total.toLocaleString(), icon: Clock, bg: 'bg-primary-light', color: 'text-primary' }, // Changed from Users
                     { label: 'Active', value: statData.active.toLocaleString(), icon: UserCheck, bg: 'bg-green-50', color: 'text-green-600' },
                     { label: 'Expired', value: statData.expired.toLocaleString(), icon: Clock, bg: 'bg-red-50', color: 'text-red-600' }, // Changed from AlertCircle
                     { label: 'Inactive', value: statData.inactive.toLocaleString(), icon: UserX, bg: 'bg-gray-100', color: 'text-gray-600' },
@@ -56,7 +55,7 @@ const MemberStatus = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans staffdashboard-memberstatus">
+        <div className=" bg-gray-50 min-h-screen font-sans staffdashboard-memberstatus">
             <div className="mb-8">
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">Member Status</h1>
                 <p className="text-sm text-gray-500 mt-1">Overview of membership distributions and current validity status.</p>
@@ -101,7 +100,7 @@ const MemberStatus = () => {
                         <input
                             type="text"
                             placeholder="Find member..."
-                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-xs font-medium focus:ring-2 focus:ring-violet-500 focus:border-violet-500 focus:shadow-md transition-all duration-300"
+                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-xs font-medium focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-md transition-all duration-300"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -123,17 +122,17 @@ const MemberStatus = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Loading members...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : filteredMembers.length > 0 ? (
                                 filteredMembers.map((row) => (
-                                    <tr key={row.id} className="hover:bg-violet-50/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group hover:shadow-md">
+                                    <tr key={row.id} className="hover:bg-primary-light/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group hover:shadow-md">
                                         <td data-label="Member Name">
-                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-violet-600 transition-colors">{row.name}</p>
+                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-primary transition-colors">{row.name}</p>
                                         </td>
                                         <td data-label="Plan">
                                             <p className="text-xs font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">{row.plan}</p>

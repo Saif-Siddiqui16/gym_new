@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Download, Filter, Search, Calendar, Target, MousePointer2, Percent, Share2, Loader2 } from 'lucide-react';
-import '../../../styles/GlobalDesign.css';
 import apiClient from '../../../api/apiClient';
 
 const LeadConversionReport = () => {
@@ -16,8 +15,8 @@ const LeadConversionReport = () => {
 
     const [stats, setStats] = useState([
         { label: 'Total Leads', value: '0', icon: MousePointer2, bg: 'bg-orange-50', color: 'text-orange-600' },
-        { label: 'Converted Leads', value: '0', icon: Target, bg: 'bg-purple-50', color: 'text-purple-600' },
-        { label: 'Conversion rate', value: '0%', icon: Percent, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'Converted Leads', value: '0', icon: Target, bg: 'bg-purple-50', color: 'text-primary' },
+        { label: 'Conversion rate', value: '0%', icon: Percent, bg: 'bg-primary-light', color: 'text-primary' },
     ]);
 
     const [leadData, setLeadData] = useState([]);
@@ -82,7 +81,7 @@ const LeadConversionReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
@@ -203,7 +202,7 @@ const LeadConversionReport = () => {
                                             <td className="px-6 py-4 text-sm text-slate-500">{row.date}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Converted' ? 'bg-emerald-100 text-emerald-700' :
-                                                    row.status === 'Follow-up' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-700'
+                                                    row.status === 'Follow-up' ? 'bg-violet-100 text-primary-hover' : 'bg-slate-100 text-slate-700'
                                                     }`}>
                                                     {row.status}
                                                 </span>

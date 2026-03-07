@@ -111,7 +111,7 @@ const SessionCalendar = () => {
 
     if (submitted) {
         return (
-            <div className="saas-container p-4 md:p-6 flex items-center justify-center min-h-[60vh]">
+            <div className="saas-container  flex items-center justify-center min-h-[60vh]">
                 <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm p-12 flex flex-col items-center gap-4 text-center max-w-md w-full">
                     <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center">
                         <CheckCircle size={32} className="text-emerald-500" strokeWidth={2.5} />
@@ -124,7 +124,7 @@ const SessionCalendar = () => {
                             setFormData({ clientId: '', sessionDate: '', sessionTime: '10:00', duration: 60, notes: '' });
                             setSelectedClient(null);
                         }}
-                        className="mt-4 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/20 transition-all"
+                        className="mt-4 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30/20 transition-all"
                     >
                         Schedule Another
                     </button>
@@ -134,7 +134,7 @@ const SessionCalendar = () => {
     }
 
     return (
-        <div className="saas-container p-4 md:p-6 space-y-6">
+        <div className="saas-container  space-y-6">
 
             {/* Page Header */}
             <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
@@ -168,7 +168,7 @@ const SessionCalendar = () => {
                                     required
                                     value={formData.clientId}
                                     onChange={(e) => handleChange('clientId', e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 >
                                     <option value="">Choose a client</option>
                                     {clients.map(c => (
@@ -176,11 +176,11 @@ const SessionCalendar = () => {
                                     ))}
                                 </select>
                                 {selectedClient && (
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-100 rounded-xl mt-1">
-                                        <div className="w-5 h-5 rounded-lg bg-violet-600 flex items-center justify-center text-white text-[9px] font-black">
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-primary-light border border-violet-100 rounded-xl mt-1">
+                                        <div className="w-5 h-5 rounded-lg bg-primary flex items-center justify-center text-white text-[9px] font-black">
                                             {(selectedClient.member?.name || 'C').charAt(0)}
                                         </div>
-                                        <span className="text-xs font-bold text-violet-700">{selectedClient.member?.name}</span>
+                                        <span className="text-xs font-bold text-primary-hover">{selectedClient.member?.name}</span>
                                         <span className="text-[10px] text-violet-400 ml-auto">{selectedClient.package?.name} · {selectedClient.remainingSessions} sessions left</span>
                                     </div>
                                 )}
@@ -197,7 +197,7 @@ const SessionCalendar = () => {
                                     required
                                     value={formData.sessionDate}
                                     onChange={(e) => handleChange('sessionDate', e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 />
                             </div>
 
@@ -212,7 +212,7 @@ const SessionCalendar = () => {
                                     required
                                     value={formData.sessionTime}
                                     onChange={(e) => handleChange('sessionTime', e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 />
                             </div>
 
@@ -230,7 +230,7 @@ const SessionCalendar = () => {
                                         step="5"
                                         value={formData.duration}
                                         onChange={(e) => handleChange('duration', e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                     />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium pointer-events-none">min</span>
                                 </div>
@@ -241,7 +241,7 @@ const SessionCalendar = () => {
                                             type="button"
                                             onClick={() => handleChange('duration', d)}
                                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${formData.duration == d
-                                                ? 'bg-violet-600 !text-white shadow-sm shadow-violet-200'
+                                                ? 'bg-primary !text-white shadow-sm shadow-violet-200'
                                                 : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                                 }`}
                                         >
@@ -263,7 +263,7 @@ const SessionCalendar = () => {
                                     value={formData.notes}
                                     onChange={(e) => handleChange('notes', e.target.value)}
                                     placeholder="Focus areas, workout plan, etc."
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all resize-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                                 />
                             </div>
 
@@ -272,7 +272,7 @@ const SessionCalendar = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/25 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-3.5 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30/25 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                                 >
                                     <Calendar size={16} strokeWidth={2.5} />
                                     {loading ? 'Scheduling...' : 'Schedule Session'}
@@ -289,8 +289,8 @@ const SessionCalendar = () => {
 
                         {/* Panel Header */}
                         <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
-                            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
-                                <Users size={18} className="text-violet-600" strokeWidth={2.5} />
+                            <div className="w-9 h-9 bg-primary-light rounded-xl flex items-center justify-center">
+                                <Users size={18} className="text-primary" strokeWidth={2.5} />
                             </div>
                             <div>
                                 <h2 className="text-sm font-bold text-slate-800">Your PT Clients</h2>
@@ -320,11 +320,11 @@ const SessionCalendar = () => {
                                             key={acc.id}
                                             type="button"
                                             onClick={() => handleClientSelect(acc)}
-                                            className={`w-full px-6 py-4 text-left transition-all group ${isSelected ? 'bg-violet-50/60' : 'hover:bg-slate-50/70'}`}
+                                            className={`w-full px-6 py-4 text-left transition-all group ${isSelected ? 'bg-primary-light/60' : 'hover:bg-slate-50/70'}`}
                                         >
                                             <div className="flex items-center justify-between mb-2">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isSelected ? 'bg-violet-600 !text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${isSelected ? 'bg-primary !text-white' : 'bg-slate-100 text-slate-500'}`}>
                                                         {(acc.member?.name || 'C').charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
@@ -346,11 +346,11 @@ const SessionCalendar = () => {
                                                         <Package size={11} className="text-violet-400" />
                                                         <span className="text-[11px] font-bold text-slate-600">{acc.package?.name || 'Package'}</span>
                                                     </div>
-                                                    <span className="text-[11px] font-black text-violet-600">{acc.remainingSessions} left</span>
+                                                    <span className="text-[11px] font-black text-primary">{acc.remainingSessions} left</span>
                                                 </div>
                                                 <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all"
+                                                        className="h-full bg-gradient-to-r from-primary to-purple-500 rounded-full transition-all"
                                                         style={{ width: `${Math.max(progress, 4)}%` }}
                                                     />
                                                 </div>

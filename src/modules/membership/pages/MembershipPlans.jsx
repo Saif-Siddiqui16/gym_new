@@ -91,18 +91,18 @@ const MembershipPlans = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             {/* 📌 STEP 1: PAGE HEADER */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">Membership Plans</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Membership Plans</h1>
                         <p className="text-slate-600 text-sm font-medium mt-1">Design, manage, and optimize your membership tiers</p>
                     </div>
                     <button
                         onClick={openCreate}
-                        className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-violet-500/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        className="px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
                         <Plus size={18} />
                         Create Plan
@@ -119,7 +119,7 @@ const MembershipPlans = () => {
                             <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">Active Plans</p>
                             <h3 className="text-3xl font-black text-slate-900">{plans.length}</h3>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md">
                             <Crown size={20} />
                         </div>
                     </div>
@@ -148,14 +148,14 @@ const MembershipPlans = () => {
                             </h3>
                             <div className="mt-2 space-y-0.5">
                                 {plans.length > 0 && (
-                                    <p className="text-[10px] font-bold text-violet-600 uppercase tracking-widest">
+                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
                                         {plans.sort((a, b) => (b.memberCount || 0) - (a.memberCount || 0))[0]?.name || '—'}
                                     </p>
                                 )}
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{plans.reduce((acc, p) => acc + (p.memberCount || 0), 0)} total members</p>
                             </div>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md">
                             <Sparkles size={20} />
                         </div>
                     </div>
@@ -167,14 +167,14 @@ const MembershipPlans = () => {
                 {filteredPlans.map(plan => (
                     <div key={plan.id} className="group bg-white rounded-2xl p-6 shadow-lg border border-slate-100 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5 flex flex-col relative overflow-hidden">
                         {/* Status Glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-500/5 to-transparent rounded-bl-full pointer-events-none"></div>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full pointer-events-none"></div>
 
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex-1 pr-2">
                                 <h3 className="text-xl font-extrabold text-slate-900 leading-tight">{plan.name}</h3>
                                 <p className="text-sm text-slate-500 mt-1 line-clamp-2 min-h-[40px] font-medium">{plan.description || 'No description provided'}</p>
                                 {plan.branch && plan.branch !== '—' && (
-                                    <span className="inline-block mt-1 px-2 py-0.5 bg-violet-50 text-violet-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-100">
+                                    <span className="inline-block mt-1 px-2 py-0.5 bg-primary-light text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-100">
                                         📍 {plan.branch}
                                     </span>
                                 )}
@@ -214,7 +214,7 @@ const MembershipPlans = () => {
                         <div className="mt-auto">
                             <button
                                 onClick={() => handleEdit(plan)}
-                                className="w-full h-12 bg-violet-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-violet-700 transition-all active:scale-95 shadow-md shadow-violet-200 flex items-center justify-center gap-2"
+                                className="w-full h-12 bg-primary text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 shadow-md shadow-violet-200 flex items-center justify-center gap-2"
                             >
                                 <Edit2 size={14} />
                                 Edit Plan

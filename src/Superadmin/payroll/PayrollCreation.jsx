@@ -74,18 +74,18 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen">
-            <div className="max-w-4xl mx-auto">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
+            <div className="max-w-full mx-auto">
                 {/* Header */}
                 <div className="mb-8 p-6 bg-white rounded-2xl shadow-xl border border-slate-100 flex justify-between items-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 to-fuchsia-500/5"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-fuchsia-500/5"></div>
                     <div className="relative z-10">
-                        <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-1">
+                        <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-1">
                             Create Payroll
                         </h1>
                         <p className="text-slate-500 text-sm font-medium">Assign salary, incentives, deductions, and mark as paid</p>
                     </div>
-                    <div className="hidden sm:flex w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 items-center justify-center text-white shadow-lg shadow-violet-200">
+                    <div className="hidden sm:flex w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary items-center justify-center text-white shadow-lg shadow-violet-200">
                         <FilePlus size={28} />
                     </div>
                 </div>
@@ -98,13 +98,13 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                             <div className="space-y-2">
                                 <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Select Staff</label>
                                 <div className="relative group">
-                                    <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-500 z-10" />
+                                    <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
                                     <select
                                         required
                                         disabled={loading}
                                         value={selectedStaffId}
                                         onChange={(e) => setSelectedStaffId(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300 appearance-none cursor-pointer"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
                                     >
                                         <option value="">{loading ? 'Loading...' : 'Choose Employee'}</option>
                                         {staffList.map(s => (
@@ -117,11 +117,11 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                             <div className="space-y-2">
                                 <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Month</label>
                                 <div className="relative group">
-                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-500 z-10" />
+                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
                                     <select
                                         value={month}
                                         onChange={(e) => setMonth(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300 appearance-none cursor-pointer"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
                                     >
                                         {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
                                             <option key={m} value={m}>{m}</option>
@@ -133,11 +133,11 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                             <div className="space-y-2">
                                 <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Year</label>
                                 <div className="relative group">
-                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-500 z-10" />
+                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
                                     <select
                                         value={year}
                                         onChange={(e) => setYear(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300 appearance-none cursor-pointer"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
                                     >
                                         {[2024, 2025, 2026, 2027].map(y => (
                                             <option key={y} value={y.toString()}>{y}</option>
@@ -148,9 +148,9 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                         </div>
 
                         {/* Section 2: Salary Breakdown */}
-                        <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100">
+                        <div className="bg-slate-50 rounded-3xl border border-slate-100">
                             <div className="flex items-center gap-2 mb-6">
-                                <Banknote className="text-violet-600" size={20} />
+                                <Banknote className="text-primary" size={20} />
                                 <h2 className="text-sm font-black text-slate-800 tracking-tight uppercase">Salary Calculation</h2>
                             </div>
 
@@ -192,7 +192,7 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                             <div className="mt-8 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-6">
                                 <div className="flex flex-col items-center sm:items-start">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Final Net Salary</span>
-                                    <span className="text-4xl font-black text-violet-600 tracking-tighter shadow-violet-100">₹{netSalary.toLocaleString()}</span>
+                                    <span className="text-4xl font-black text-primary tracking-tighter shadow-violet-100">₹{netSalary.toLocaleString()}</span>
                                 </div>
 
                                 <div className="flex items-center gap-4 bg-white p-2 border-2 border-slate-100 rounded-2xl shadow-sm">
@@ -218,7 +218,7 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
                             <button
                                 type="submit"
-                                className="flex-1 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-violet-200 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3"
+                                className="flex-1 py-4 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-violet-200 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3"
                             >
                                 <CheckCircle size={24} /> Confirm & Create Payroll
                             </button>

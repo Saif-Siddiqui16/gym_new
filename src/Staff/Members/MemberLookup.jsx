@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Eye, CreditCard, Phone } from 'lucide-react';
 import { getMembers } from '../../api/staff/memberApi';
-import '../../styles/GlobalDesign.css';
 
 const MemberLookup = () => {
     const navigate = useNavigate();
@@ -46,20 +45,20 @@ const MemberLookup = () => {
     );
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans staffdashboard-memberlookup">
+        <div className=" bg-gray-50 min-h-screen font-sans staffdashboard-memberlookup">
             <div className="mb-8 transform hover:translate-x-1 transition-transform duration-300">
-                <h1 className="text-xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text hover:from-violet-600 hover:to-purple-600 transition-all duration-500">Member Lookup</h1>
+                <h1 className="text-xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text hover:from-primary hover:to-primary transition-all duration-500">Member Lookup</h1>
                 <p className="text-sm text-gray-500 mt-1 hover:text-gray-700 transition-colors duration-300">Quickly search and find member profiles for front-desk assistance.</p>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8 hover:shadow-xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
-                <div className="p-6 border-b border-gray-50 bg-white/50 hover:bg-violet-50/30 transition-colors duration-300">
+                <div className="p-6 border-b border-gray-50 bg-white/50 hover:bg-primary-light/30 transition-colors duration-300">
                     <div className="relative w-full group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-violet-600 group-hover:scale-110 transition-all duration-300" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary group-hover:scale-110 transition-all duration-300" size={20} />
                         <input
                             type="text"
                             placeholder="Search by Name, Membership ID, or Phone number..."
-                            className="saas-input pl-12 h-12 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-violet-500 text-sm transition-all shadow-sm hover:border-violet-300 hover:shadow-md"
+                            className="saas-input pl-12 h-12 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-primary text-sm transition-all shadow-sm hover:border-violet-300 hover:shadow-md"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -70,37 +69,37 @@ const MemberLookup = () => {
                     <table className="saas-table saas-table-responsive">
                         <thead className="hover:bg-gray-100 transition-colors duration-300">
                             <tr>
-                                <th className="hover:text-violet-600 transition-colors duration-300 cursor-pointer">Member details</th>
-                                <th className="hover:text-violet-600 transition-colors duration-300 cursor-pointer">Plan info</th>
-                                <th className="text-center hover:text-violet-600 transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="text-right hover:text-violet-600 transition-colors duration-300 cursor-pointer">Actions</th>
+                                <th className="hover:text-primary transition-colors duration-300 cursor-pointer">Member details</th>
+                                <th className="hover:text-primary transition-colors duration-300 cursor-pointer">Plan info</th>
+                                <th className="text-center hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
+                                <th className="text-right hover:text-primary transition-colors duration-300 cursor-pointer">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {loading ? (
                                 <tr>
                                     <td colSpan="4" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Loading records...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : filteredResults.length > 0 ? (
                                 filteredResults.map((member) => (
-                                    <tr key={member.id} className="hover:bg-violet-50/30 transition-all duration-300 group cursor-pointer hover:shadow-md hover:scale-[1.01] transform">
+                                    <tr key={member.id} className="hover:bg-primary-light/30 transition-all duration-300 group cursor-pointer hover:shadow-md hover:scale-[1.01] transform">
                                         <td data-label="Member details">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-sm group-hover:scale-125 group-hover:bg-violet-100 group-hover:shadow-lg group-hover:rotate-6 transition-all duration-500">
+                                                <div className="w-10 h-10 rounded-full bg-primary-light text-primary flex items-center justify-center font-bold text-sm group-hover:scale-125 group-hover:bg-violet-100 group-hover:shadow-lg group-hover:rotate-6 transition-all duration-500">
                                                     {(member.name || '?').charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-violet-700 group-hover:translate-x-1 transition-all duration-300">{member.name}</p>
+                                                    <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-primary-hover group-hover:translate-x-1 transition-all duration-300">{member.name}</p>
                                                     <div className="flex items-center gap-3 mt-0.5">
-                                                        <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1 group-hover:text-violet-500 transition-colors duration-300">
+                                                        <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1 group-hover:text-primary transition-colors duration-300">
                                                             <CreditCard size={10} className="group-hover:scale-110 transition-transform duration-300" /> {member.id}
                                                         </span>
-                                                        <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1 group-hover:text-violet-500 transition-colors duration-300">
+                                                        <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1 group-hover:text-primary transition-colors duration-300">
                                                             <Phone size={10} className="group-hover:scale-110 transition-transform duration-300" /> {member.phone}
                                                         </span>
                                                     </div>
@@ -108,7 +107,7 @@ const MemberLookup = () => {
                                             </div>
                                         </td>
                                         <td data-label="Plan info">
-                                            <span className="text-xs font-bold text-gray-600 px-2 py-1 bg-gray-100 rounded-lg group-hover:bg-violet-100 group-hover:text-violet-700 group-hover:scale-110 transition-all duration-300 inline-block">
+                                            <span className="text-xs font-bold text-gray-600 px-2 py-1 bg-gray-100 rounded-lg group-hover:bg-violet-100 group-hover:text-primary-hover group-hover:scale-110 transition-all duration-300 inline-block">
                                                 {member.plan}
                                             </span>
                                         </td>
@@ -119,13 +118,13 @@ const MemberLookup = () => {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleViewProfile(member)}
-                                                    className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-sm active:scale-95 hover:scale-110 hover:shadow-lg group/btn">
+                                                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-sm active:scale-95 hover:scale-110 hover:shadow-lg group/btn">
                                                     <Eye size={14} className="group-hover/btn:scale-125 group-hover/btn:rotate-12 transition-all duration-300" />
                                                     View Profile
                                                 </button>
                                                 <button
                                                     onClick={() => navigate('/staff/lockers/assign', { state: { memberName: member.name } })}
-                                                    className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-sm active:scale-95 hover:scale-110 hover:shadow-lg group/btn">
+                                                    className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 shadow-sm active:scale-95 hover:scale-110 hover:shadow-lg group/btn">
                                                     <CreditCard size={14} className="group-hover/btn:scale-125 group-hover/btn:-rotate-12 transition-all duration-300" />
                                                     Locker
                                                 </button>

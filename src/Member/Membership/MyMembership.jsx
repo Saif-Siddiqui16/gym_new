@@ -23,7 +23,6 @@ import Card from '../../components/ui/Card';
 import RightDrawer from '../../components/common/RightDrawer';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
-import '../../styles/GlobalDesign.css';
 
 const MyMembership = ({ role }) => {
     const navigate = useNavigate();
@@ -106,11 +105,11 @@ const MyMembership = ({ role }) => {
     };
 
     return (
-        <div className="saas-container h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b-2 border-slate-100">
                 <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
+                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
                         {isRequestsPage ? <ClipboardList size={32} strokeWidth={2.5} /> : <Star size={32} strokeWidth={2.5} />}
                     </div>
                     <div>
@@ -125,24 +124,24 @@ const MyMembership = ({ role }) => {
                 {!isRequestsPage && (
                     <button
                         onClick={() => setIsBookingOpen(true)}
-                        className="px-8 h-12 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-1 transition-all flex items-center gap-2 group"
+                        className="px-8 h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center gap-2 group"
                     >
                         <Calendar size={16} strokeWidth={3} /> Book a Slot
                     </button>
                 )}
             </div>
 
-            <div className="grid grid-cols-1 gap-8 max-w-4xl">
+            <div className="grid grid-cols-1 gap-8 max-w-full">
                 {/* Plan Summary Section */}
                 {!isRequestsPage && (
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                                 <Crown size={16} />
                             </div>
                             <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Plan Summary</h2>
                         </div>
-                        <Card className="p-10 border-2 border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden relative border-l-8 border-l-violet-600">
+                        <Card className="p-10 border-2 border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden relative border-l-8 border-l-primary">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                                 <div className="space-y-3">
                                     <h3 className="text-2xl font-black text-slate-900 tracking-tight">{membershipInfo?.currentPlan || 'Premium Gold Plan'}</h3>
@@ -157,7 +156,7 @@ const MyMembership = ({ role }) => {
                                 </div>
                             </div>
                             {/* Decorative background element */}
-                            <div className="absolute top-0 right-0 p-8 text-black/[0.02]">
+                            <div className="absolute top-0 right-0 text-black/[0.02]">
                                 <Star size={120} strokeWidth={1} />
                             </div>
                         </Card>
@@ -167,7 +166,7 @@ const MyMembership = ({ role }) => {
                 {/* Benefits List Section */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3 px-1">
-                        <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                        <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                             <Shield size={16} />
                         </div>
                         <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Benefits</h2>
@@ -221,7 +220,7 @@ const MyMembership = ({ role }) => {
                                 </div>
                                 <button
                                     onClick={() => navigate('/store/dashboard')}
-                                    className="px-10 h-14 border-2 border-violet-600 text-violet-600 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-100/20 hover:bg-violet-50 transition-all flex items-center gap-3"
+                                    className="px-10 h-14 border-2 border-primary text-primary rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-100/20 hover:bg-primary-light transition-all flex items-center gap-3"
                                 >
                                     <Package size={16} /> Browse Add-on Packages
                                 </button>
@@ -249,7 +248,7 @@ const MyMembership = ({ role }) => {
                                     key={item.id}
                                     onClick={() => setSelectedDate(item)}
                                     className={`flex flex-col items-center justify-center min-w-[70px] h-[90px] rounded-2xl border-2 transition-all duration-300 shrink-0 ${isActive
-                                        ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-100 scale-105'
+                                        ? 'bg-primary border-primary text-white shadow-lg shadow-violet-100 scale-105'
                                         : 'bg-white border-slate-100 text-slate-400 hover:border-violet-100'
                                         }`}
                                 >
@@ -272,16 +271,16 @@ const MyMembership = ({ role }) => {
 
                         {loadingSlots ? (
                             <div className="flex flex-col items-center justify-center py-20 gap-3">
-                                <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Finding available slots...</p>
                             </div>
                         ) : availableSlots.length > 0 ? (
                             <div className="grid grid-cols-1 gap-4">
                                 {availableSlots.map((slot) => (
-                                    <div key={slot.id} className="group relative bg-white p-6 rounded-3xl border-2 border-slate-100 hover:border-violet-200 transition-all hover:shadow-xl hover:shadow-violet-50">
+                                    <div key={slot.id} className="group relative bg-white p-6 rounded-3xl border-2 border-slate-100 hover:border-violet-200 transition-all hover:shadow-xl hover:shadow-primary-light">
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-5">
-                                                <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:scale-110 transition-transform">
+                                                <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                                                     <Activity size={24} />
                                                 </div>
                                                 <div>
@@ -300,7 +299,7 @@ const MyMembership = ({ role }) => {
                                             <button
                                                 disabled={isSubmitting || (slot.maxCapacity - (slot._count?.bookings || 0)) <= 0}
                                                 onClick={() => handleBookSlot(slot.id)}
-                                                className="px-6 h-12 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-600 disabled:opacity-50 transition-all active:scale-95"
+                                                className="px-6 h-12 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary disabled:opacity-50 transition-all active:scale-95"
                                             >
                                                 {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Secure Spot'}
                                             </button>
@@ -323,7 +322,7 @@ const MyMembership = ({ role }) => {
                                 </div>
                                 <button
                                     onClick={() => setSelectedDate(calendarDates[0])}
-                                    className="text-[9px] font-black text-violet-600 uppercase tracking-widest hover:underline"
+                                    className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline"
                                 >
                                     View Other Dates
                                 </button>

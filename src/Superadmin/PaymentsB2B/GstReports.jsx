@@ -55,14 +55,14 @@ const GstReports = () => {
                 <div className="flex gap-3">
                     <button
                         onClick={handleExportCSV}
-                        className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
+                        className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
                     >
                         <Download className="w-4 h-4" />
                         Export CSV
                     </button>
                     <button
                         onClick={handleExportPDF}
-                        className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
+                        className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
                     >
                         <FileText className="w-4 h-4" />
                         Export PDF
@@ -133,7 +133,7 @@ const GstReports = () => {
                             {gstData.map((record) => (
                                 <tr key={record.invoiceNo} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-purple-600">
+                                        <span className="text-sm font-semibold text-primary">
                                             {record.invoiceNo}
                                         </span>
                                     </td>
@@ -153,7 +153,7 @@ const GstReports = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-bold text-purple-700">
+                                        <span className="text-sm font-bold text-primary-hover">
                                             {record.gstAmount}
                                         </span>
                                     </td>
@@ -181,7 +181,7 @@ const GstReports = () => {
                         </div>
                         <div>
                             <p className="text-xs text-gray-600 mb-1">Total GST Amount</p>
-                            <p className="text-lg font-bold text-purple-700">₹21,627</p>
+                            <p className="text-lg font-bold text-primary-hover">₹21,627</p>
                         </div>
                     </div>
                 </div>
@@ -202,7 +202,7 @@ const GstReports = () => {
                         </div>
                         <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
                             <span className="text-gray-800 font-semibold">Total GST</span>
-                            <span className="font-bold text-purple-700">₹21,627</span>
+                            <span className="font-bold text-primary-hover">₹21,627</span>
                         </div>
                     </div>
                 </div>

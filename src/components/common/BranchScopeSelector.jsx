@@ -3,10 +3,10 @@ import { GitBranch, Globe } from 'lucide-react';
 
 const BranchScopeSelector = ({ value, onChange, branches = [] }) => {
     return (
-        <div className="bg-violet-50 p-4 rounded-xl border border-violet-100 mb-6">
+        <div className="bg-primary-light p-4 rounded-xl border border-violet-100 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-lg shadow-sm text-violet-600">
+                    <div className="p-2 bg-white rounded-lg shadow-sm text-primary">
                         <GitBranch size={20} />
                     </div>
                     <div>
@@ -19,7 +19,7 @@ const BranchScopeSelector = ({ value, onChange, branches = [] }) => {
                     <select
                         value={value || 'all'}
                         onChange={(e) => onChange(e.target.value === 'all' ? null : e.target.value)}
-                        className="w-full sm:w-64 pl-4 pr-10 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all appearance-none cursor-pointer shadow-sm hover:border-slate-300"
+                        className="w-full sm:w-64 pl-4 pr-10 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer shadow-sm hover:border-slate-300"
                         style={{
                             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                             backgroundRepeat: 'no-repeat',

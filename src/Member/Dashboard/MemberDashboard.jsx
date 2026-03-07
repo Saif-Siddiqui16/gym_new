@@ -5,7 +5,6 @@
 // import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import { Activity, Calendar, CreditCard, Star, TrendingUp, Zap, ChevronRight, QrCode, ArrowUpRight, Dumbbell, Award } from 'lucide-react';
-// import '../../styles/GlobalDesign.css';
 //
 // const MemberDashboard = () => {
 //     const navigate = useNavigate();
@@ -15,16 +14,16 @@
 //     // window.addEventListener('scroll', () => setScrolled(window.scrollY > 20));
 //
 //     return (
-//         <div className="p-4 sm:p-6 lg:p-10 min-h-screen bg-slate-50 font-sans selection:bg-violet-100 selection:text-violet-700">
+//         <div className=" min-h-screen bg-slate-50 font-sans selection:bg-violet-100 selection:text-primary-hover">
 //             {/* Subtle Background Pattern */}
 //             <div className={`fixed inset-0 z-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none transition-opacity duration-500 ${scrolled ? 'opacity-0' : 'opacity-100'}`}></div>
 //
-//             <div className="relative z-10 max-w-7xl mx-auto space-y-12">
+//             <div className="relative z-10 max-w-full mx-auto space-y-12">
 //                 {/* Modern Header */}
 //                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
 //                     <div>
 //                         <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter mb-2">
-//                             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">Vikram</span>
+//                             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-fuchsia-600">Vikram</span>
 //                         </h1>
 //                         <p className="text-slate-500 font-bold text-lg">Ready to crush your goals today?</p>
 //                     </div>
@@ -90,7 +89,7 @@
 //                             <h3 className="text-2xl font-black text-slate-900 tracking-tight">Upcoming Sessions</h3>
 //                             <button
 //                                 onClick={() => navigate('/member/bookings')}
-//                                 className="text-sm font-bold text-violet-600 hover:text-violet-700 hover:underline flex items-center gap-1"
+//                                 className="text-sm font-bold text-primary hover:text-primary-hover hover:underline flex items-center gap-1"
 //                             >
 //                                 View Full Schedule <ChevronRight size={14} strokeWidth={3} />
 //                             </button>
@@ -122,14 +121,14 @@
 //                             <QuickAction icon={QrCode} label="Check In" color="bg-slate-900 text-white" onClick={() => navigate('/member/check-in')} />
 //                             <QuickAction icon={Calendar} label="Book Class" color="bg-white text-slate-700 border border-slate-200 hover:border-violet-200" onClick={() => navigate('/member/bookings')} />
 //                             <QuickAction icon={CreditCard} label="Payments" color="bg-white text-slate-700 border border-slate-200 hover:border-violet-200" onClick={() => navigate('/member/payments')} />
-//                             <QuickAction icon={Star} label="Referrals" color="bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white" onClick={() => navigate('/member/home')} />
+//                             <QuickAction icon={Star} label="Referrals" color="bg-gradient-to-br from-primary to-fuchsia-600 text-white" onClick={() => navigate('/member/home')} />
 //                         </div>
 //                     </div>
 //
 //                     {/* Pro Membership Card */}
-//                     <div className="relative overflow-hidden rounded-[40px] bg-slate-900 text-white p-8 flex flex-col justify-between shadow-2xl shadow-slate-200 h-full min-h-[400px] group">
+//                     <div className="relative overflow-hidden rounded-[40px] bg-slate-900 text-white flex flex-col justify-between shadow-2xl shadow-slate-200 h-full min-h-[400px] group">
 //                         {/* Background Gradients */}
-//                         <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[80px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"></div>
+//                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[80px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"></div>
 //                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-600 rounded-full blur-[80px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"></div>
 //
 //                         <div className="relative z-10">
@@ -155,7 +154,7 @@
 //                                 </div>
 //                                 <button
 //                                     onClick={() => navigate('/member/membership')}
-//                                     className="p-3 rounded-full bg-white text-slate-900 hover:bg-violet-50 transition-colors"
+//                                     className="p-3 rounded-full bg-white text-slate-900 hover:bg-primary-light transition-colors"
 //                                 >
 //                                     <ArrowUpRight size={20} strokeWidth={3} />
 //                                 </button>
@@ -175,7 +174,7 @@
 //
 // const StatCard = ({ title, value, unit, icon: Icon, color, target, highlight, trend, onClick }) => {
 //     const variants = {
-//         violet: 'bg-violet-50 text-violet-600 ring-violet-100',
+//         violet: 'bg-primary-light text-primary ring-violet-100',
 //         emerald: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
 //         orange: 'bg-orange-50 text-orange-600 ring-orange-100',
 //         fuchsia: 'bg-fuchsia-50 text-fuchsia-600 ring-fuchsia-100',
@@ -203,7 +202,7 @@
 //             {target && !highlight && (
 //                 <div className="mt-4 w-full h-1.5 bg-slate-50 rounded-full overflow-hidden">
 //                     <div
-//                         className={`h-full rounded-full ${color === 'violet' ? 'bg-violet-500' : 'bg-emerald-500'}`}
+//                         className={`h-full rounded-full ${color === 'violet' ? 'bg-primary' : 'bg-emerald-500'}`}
 //                         style={{ width: `${(parseInt(value) / parseInt(target)) * 100}%` }}
 //                     ></div>
 //                 </div>
@@ -217,7 +216,7 @@
 //         <div className="group flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-[24px] border border-slate-100 hover:border-violet-100 hover:shadow-lg transition-all duration-300">
 //             <div className="w-full sm:w-24 h-24 rounded-2xl overflow-hidden shrink-0 relative">
 //                 <img src={image} alt={title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-//                 <div className="absolute inset-0 bg-violet-600/10 group-hover:bg-transparent transition-all"></div>
+//                 <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-all"></div>
 //             </div>
 //
 //             <div className="flex-1 w-full text-center sm:text-left">
@@ -236,7 +235,7 @@
 //
 //             <button
 //                 onClick={onClick}
-//                 className="w-full sm:w-auto p-3 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-violet-600 group-hover:text-white transition-all"
+//                 className="w-full sm:w-auto p-3 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-all"
 //             >
 //                 <ChevronRight size={20} />
 //             </button>

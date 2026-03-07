@@ -94,7 +94,7 @@ const MemberNotifications = () => {
             case 'danger': return 'bg-rose-50 border-rose-100 text-rose-600 icon-rose';
             case 'warning': return 'bg-amber-50 border-amber-100 text-amber-600 icon-amber';
             case 'success': return 'bg-emerald-50 border-emerald-100 text-emerald-600 icon-emerald';
-            default: return 'bg-violet-50 border-violet-100 text-violet-600 icon-indigo';
+            default: return 'bg-primary-light border-violet-100 text-primary icon-indigo';
         }
     };
 
@@ -103,14 +103,14 @@ const MemberNotifications = () => {
             case 'danger': return 'bg-rose-600';
             case 'warning': return 'bg-amber-500';
             case 'success': return 'bg-emerald-600';
-            default: return 'bg-violet-600';
+            default: return 'bg-primary';
         }
     };
 
     return (
         <div className="saas-container p-4 sm:p-8 space-y-8 animate-fadeIn">
             <div className="flex items-center gap-4 mb-2">
-                <div className="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-100 text-white">
+                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-violet-100 text-white">
                     <Bell size={24} />
                 </div>
                 <div>
@@ -121,11 +121,11 @@ const MemberNotifications = () => {
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
-                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                     <p className="text-[10px] font-black uppercase tracking-widest">Checking for updates...</p>
                 </div>
             ) : notifications.length > 0 ? (
-                <div className="grid gap-4 max-w-4xl">
+                <div className="grid gap-4 max-w-full">
                     {notifications.map((notif) => (
                         <Card
                             key={notif.id}
@@ -163,10 +163,10 @@ const MemberNotifications = () => {
                     ))}
                 </div>
             ) : (
-                <div className="flex-1 flex flex-col items-center justify-center py-20 text-center space-y-6 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm mx-auto max-w-4xl">
+                <div className="flex-1 flex flex-col items-center justify-center py-20 text-center space-y-6 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm mx-auto max-w-full">
                     <div className="w-24 h-24 bg-slate-50 rounded-[3rem] border border-slate-100 flex items-center justify-center text-slate-200 relative group cursor-default">
                         <AlertCircle size={44} strokeWidth={1.5} className="group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute -inset-4 bg-violet-500/5 rounded-full blur-3xl animate-pulse"></div>
+                        <div className="absolute -inset-4 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
                     </div>
                     <div className="space-y-2">
                         <h4 className="text-slate-400 text-sm font-black uppercase tracking-[0.2em]">All Caught Up!</h4>

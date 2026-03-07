@@ -21,7 +21,7 @@ const AddEquipmentModal = ({ onClose, onAdd }) => {
         onAdd(formData);
     };
 
-    const inputClasses = "w-full px-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-bold text-slate-700 text-sm";
+    const inputClasses = "w-full px-4 py-2.5 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700 text-sm";
     const labelClasses = "text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-1";
 
     return (
@@ -149,7 +149,7 @@ const AddEquipmentModal = ({ onClose, onAdd }) => {
                 </button>
                 <button
                     type="submit"
-                    className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+                    className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
                 >
                     Add Equipment
                 </button>

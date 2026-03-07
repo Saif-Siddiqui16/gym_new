@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Filter, Search, Calendar, CreditCard, DollarSign, Eye, FileText, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
-import '../../styles/GlobalDesign.css';
 import { getPaymentHistory } from '../../api/staff/paymentApi';
 
 const PaymentHistory = () => {
@@ -99,10 +98,10 @@ const PaymentHistory = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <button onClick={handleExportPDF} className="h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-                        <Download size={16} className="text-violet-500" />
+                        <Download size={16} className="text-primary" />
                         Export PDF
                     </button>
-                    <button onClick={handleExportCSV} className="h-10 px-4 bg-violet-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-violet-600 transition-all shadow-md">
+                    <button onClick={handleExportCSV} className="h-10 px-4 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary transition-all shadow-md">
                         <FileText size={16} />
                         Export CSV
                     </button>
@@ -117,7 +116,7 @@ const PaymentHistory = () => {
                         <input
                             type="text"
                             placeholder="Search by Payment ID or Member Name..."
-                            className="saas-input pl-10 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-violet-500"
+                            className="saas-input pl-10 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-primary"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -167,8 +166,8 @@ const PaymentHistory = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="7" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Fetching history...</span>
                                         </div>
                                     </td>
@@ -176,7 +175,7 @@ const PaymentHistory = () => {
                             ) : paginatedPayments.length > 0 ? (
                                 paginatedPayments.map((p) => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition-all duration-200 group">
-                                        <td data-label="Trans ID" className="text-xs font-bold text-violet-600">{p.id}</td>
+                                        <td data-label="Trans ID" className="text-xs font-bold text-primary">{p.id}</td>
                                         <td data-label="Member">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-bold text-gray-800 tracking-tight">{p.member}</span>
@@ -187,7 +186,7 @@ const PaymentHistory = () => {
                                             <span className="text-sm font-black text-gray-900">₹{p.amount}</span>
                                         </td>
                                         <td data-label="Mode" className="text-center">
-                                            <span className="text-[10px] font-black px-2 py-0.5 rounded bg-violet-50 text-violet-700 uppercase">
+                                            <span className="text-[10px] font-black px-2 py-0.5 rounded bg-primary-light text-primary-hover uppercase">
                                                 {p.mode}
                                             </span>
                                         </td>
@@ -206,7 +205,7 @@ const PaymentHistory = () => {
                                                 className="p-2 hover:bg-white hover:shadow-md rounded-lg transition-all"
                                                 title="View Details"
                                             >
-                                                <ArrowUpRight size={16} className="text-gray-400 group-hover:text-violet-500" />
+                                                <ArrowUpRight size={16} className="text-gray-400 group-hover:text-primary" />
                                             </button>
                                         </td>
                                     </tr>
@@ -240,7 +239,7 @@ const PaymentHistory = () => {
                         <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-1 border rounded transition-all ${currentPage === page ? 'border-violet-600 bg-violet-600 text-white' : 'border-gray-200 hover:bg-white'}`}
+                            className={`px-3 py-1 border rounded transition-all ${currentPage === page ? 'border-primary bg-primary text-white' : 'border-gray-200 hover:bg-white'}`}
                         >
                             {page}
                         </button>

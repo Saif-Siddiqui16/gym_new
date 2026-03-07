@@ -43,7 +43,7 @@ const Revenue = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Total Revenue Card */}
-                <div className="bg-violet-500 text-white shadow-lg rounded-lg p-6 transform transition hover:scale-105">
+                <div className="bg-primary text-white shadow-lg rounded-lg p-6 transform transition hover:scale-105">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-semibold opacity-90">Total Revenue</h3>
                         <DollarSign className="w-8 h-8 opacity-80" />
@@ -76,7 +76,7 @@ const Revenue = () => {
             {/* Chart Placeholder */}
             <div className="superadmindashboard-revenue-chart bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Revenue Trend</h2>
-                <div className="h-64 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                <div className="h-64 bg-gradient-to-br from-primary-light to-purple-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
                     <div className="text-center">
                         <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-3" />
                         <p className="text-gray-500 font-medium">Chart Placeholder</p>

@@ -185,7 +185,7 @@ const Payments = () => {
                             paginatedPayments.map((payment) => (
                                 <tr key={payment.paymentId}>
                                     <td data-label="Payment ID">
-                                        <span className="text-sm font-semibold text-violet-600">
+                                        <span className="text-sm font-semibold text-primary">
                                             {payment.paymentId}
                                         </span>
                                     </td>
@@ -247,7 +247,7 @@ const Payments = () => {
                         {[...Array(totalPages)].map((_, index) => (
                             <button
                                 key={index + 1}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === index + 1 ? 'bg-violet-500 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === index + 1 ? 'bg-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                                 onClick={() => handlePageClick(index + 1)}
                             >
                                 {index + 1}

@@ -64,7 +64,7 @@ const Announcements = () => {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar space-y-4">
+            <div className="flex-1  px-8 pb-8 custom-scrollbar space-y-4">
                 {filteredList.map(item => (
                     <div key={item.id} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
                         <div className={`absolute top-0 left-0 w-1.5 h-full ${item.status === 'Posted' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
@@ -88,7 +88,7 @@ const Announcements = () => {
                             </div>
 
                             <div className="flex items-center gap-2 md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all">
+                                <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all">
                                     <Edit2 size={18} />
                                 </button>
                                 <button className="p-3 text-slate-400 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all">

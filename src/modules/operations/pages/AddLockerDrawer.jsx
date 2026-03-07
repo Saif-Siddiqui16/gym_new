@@ -40,7 +40,7 @@ const AddLockerDrawer = ({ onClose, onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white">
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            <div className="flex-1  p-6 space-y-5">
                 <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">Locker Number</label>
                     <input
@@ -89,7 +89,7 @@ const AddLockerDrawer = ({ onClose, onSuccess }) => {
 
                 <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center text-violet-600">
+                        <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" /></svg>
                         </div>
                         <div>
@@ -104,7 +104,7 @@ const AddLockerDrawer = ({ onClose, onSuccess }) => {
                             checked={formData.isChargeable}
                             onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
                         />
-                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600"></div>
+                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                 </div>
 
@@ -118,7 +118,7 @@ const AddLockerDrawer = ({ onClose, onSuccess }) => {
                                 placeholder="0.00"
                                 value={formData.price}
                                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                className="w-full pl-8 pr-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 font-bold focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                                className="w-full pl-8 pr-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                             />
                         </div>
                     </div>

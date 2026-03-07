@@ -48,7 +48,7 @@ const LeaveRequests = () => {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-slate-500 font-medium">Loading leave requests...</p>
         </div>
     );
@@ -59,7 +59,7 @@ const LeaveRequests = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                        <Calendar className="text-violet-500" size={28} />
+                        <Calendar className="text-primary" size={28} />
                         Leave Requests
                     </h1>
                     <p className="text-slate-500 font-medium mt-1 text-sm">Review and manage staff leave applications</p>

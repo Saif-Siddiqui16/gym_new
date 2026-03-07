@@ -41,7 +41,7 @@ const Notifications = () => {
             setLoading(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-            
+
             const res = await apiClient.get('/admin/settings/notifications', { headers });
             if (res.data) {
                 setEmailSettings({
@@ -84,12 +84,12 @@ const Notifications = () => {
             setSaving(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-            
+
             await apiClient.patch('/admin/settings/notifications', {
                 ...emailSettings,
                 ...systemSettings
             }, { headers });
-            
+
             toast.success('Notification settings saved successfully!');
         } catch (error) {
             console.error('Error saving settings:', error);
@@ -105,11 +105,11 @@ const Notifications = () => {
             setRunningReminders(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-            
+
             const res = await apiClient.post('/admin/settings/reminders/run', {
                 type: selectedReminderType
             }, { headers });
-            
+
             toast.success(res.data.message || `Triggered ${selectedReminderType} reminders`);
         } catch (error) {
             console.error('Error running reminders:', error);
@@ -122,7 +122,7 @@ const Notifications = () => {
     const Toggle = ({ active, onToggle }) => (
         <button
             onClick={onToggle}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${active ? 'bg-violet-600' : 'bg-slate-200'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${active ? 'bg-primary' : 'bg-slate-200'}`}
         >
             <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${active ? 'translate-x-6' : 'translate-x-1'}`}
@@ -148,9 +148,9 @@ const Notifications = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Email Notifications */}
-                <div className="bg-white rounded-[24px] border border-slate-100 p-8 shadow-sm">
+                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 sm:p-8">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-violet-50 text-violet-600 rounded-2xl">
+                        <div className="p-3 bg-primary-light text-primary rounded-2xl">
                             <Mail size={24} />
                         </div>
                         <div>
@@ -178,9 +178,9 @@ const Notifications = () => {
                 </div>
 
                 {/* System Alerts */}
-                <div className="bg-white rounded-[24px] border border-slate-100 p-8 shadow-sm">
+                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 sm:p-8">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-violet-50 text-violet-600 rounded-2xl">
+                        <div className="p-3 bg-primary-light text-primary rounded-2xl">
                             <Bell size={24} />
                         </div>
                         <div>
@@ -240,7 +240,7 @@ const Notifications = () => {
                         ))}
                     </div>
 
-                    <button 
+                    <button
                         onClick={handleRunReminders}
                         disabled={runningReminders || isReadOnly}
                         className="w-full sm:w-auto px-6 py-3.5 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -256,7 +256,7 @@ const Notifications = () => {
                 <button
                     onClick={handleSave}
                     disabled={saving || isReadOnly}
-                    className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black rounded-xl shadow-xl shadow-violet-500/30/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary to-primary text-white font-black rounded-xl shadow-xl shadow-primary/30/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                     {saving ? <Loader size={20} className="animate-spin" /> : <Save size={20} />}
                     {saving ? 'Saving Changes...' : 'Save All Changes'}

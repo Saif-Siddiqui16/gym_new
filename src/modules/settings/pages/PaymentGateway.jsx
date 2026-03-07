@@ -20,7 +20,7 @@ const PaymentGateway = () => {
     };
 
     return (
-        <div className="fade-in max-w-4xl mx-auto space-y-4 sm:space-y-6 p-4 sm:p-6">
+        <div className="fade-in max-w-full mx-auto space-y-4 sm:space-y-6 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-2">
@@ -49,7 +49,7 @@ const PaymentGateway = () => {
                         onClick={() => !isReadOnly && setProvider('razorpay')}
                         disabled={isReadOnly}
                         className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 rounded-lg sm:rounded-xl border-2 font-bold text-base sm:text-lg transition-all flex items-center justify-center gap-2 sm:gap-3 ${provider === 'razorpay'
-                            ? 'border-violet-600 bg-violet-50 text-violet-700'
+                            ? 'border-primary bg-primary-light text-primary-hover'
                             : 'border-gray-100 text-gray-400 hover:border-gray-200'
                             } ${isReadOnly ? 'cursor-not-allowed opacity-75' : ''}`}
                     >
@@ -60,11 +60,11 @@ const PaymentGateway = () => {
                         onClick={() => !isReadOnly && setProvider('stripe')}
                         disabled={isReadOnly}
                         className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 rounded-lg sm:rounded-xl border-2 font-bold text-base sm:text-lg transition-all flex items-center justify-center gap-2 sm:gap-3 ${provider === 'stripe'
-                            ? 'border-violet-600 bg-violet-50 text-violet-700'
+                            ? 'border-primary bg-primary-light text-primary-hover'
                             : 'border-gray-100 text-gray-400 hover:border-gray-200'
                             } ${isReadOnly ? 'cursor-not-allowed opacity-75' : ''}`}
                     >
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-violet-600"></div>
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary"></div>
                         Stripe
                     </button>
                 </div>
@@ -103,7 +103,7 @@ const PaymentGateway = () => {
                     <div className="flex items-center gap-2 sm:gap-3">
                         <input
                             type="checkbox"
-                            className="w-4 h-4 sm:w-5 sm:h-5 rounded text-violet-600 focus:ring-violet-200 border-gray-300 disabled:opacity-50"
+                            className="w-4 h-4 sm:w-5 sm:h-5 rounded text-primary focus:ring-violet-200 border-gray-300 disabled:opacity-50"
                             id="sandbox"
                             defaultChecked
                             disabled={isReadOnly}

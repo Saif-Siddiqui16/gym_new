@@ -15,15 +15,15 @@ const Commissions = () => {
     const totalSessions = COMMISSIONS.reduce((sum, c) => sum + c.sessions, 0);
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
             {/* Premium Header with Gradient */}
             <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col gap-4">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                                <Trophy className="text-violet-600" size={24} />
+                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
+                                <Trophy className="text-primary" size={24} />
                                 Trainer Commissions
                             </h1>
                             <p className="text-slate-600 text-xs sm:text-sm">Monthly performance and payout reports</p>
@@ -33,7 +33,7 @@ const Commissions = () => {
                             <select
                                 value={selectedMonth}
                                 onChange={(e) => setSelectedMonth(e.target.value)}
-                                className="w-full sm:w-auto pl-8 sm:pl-9 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 appearance-none cursor-pointer shadow-sm hover:shadow-md"
+                                className="w-full sm:w-auto pl-8 sm:pl-9 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 appearance-none cursor-pointer shadow-sm hover:shadow-md"
                             >
                                 <option>February 2025</option>
                                 <option>January 2025</option>
@@ -49,11 +49,11 @@ const Commissions = () => {
                 <div className="group bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-center justify-between mb-2">
                         <div className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Total Commissions</div>
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                             <DollarSign size={16} className="sm:w-5 sm:h-5" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-black text-violet-600">₹{totalCommissions.toLocaleString()}</div>
+                    <div className="text-2xl sm:text-3xl font-black text-primary">₹{totalCommissions.toLocaleString()}</div>
                 </div>
 
                 <div className="group bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300">
@@ -69,7 +69,7 @@ const Commissions = () => {
                 <div className="group bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-center justify-between mb-2">
                         <div className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Total Sessions</div>
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                             <Target size={16} className="sm:w-5 sm:h-5" />
                         </div>
                     </div>
@@ -87,10 +87,10 @@ const Commissions = () => {
                         <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full -mr-8 sm:-mr-12 -mt-8 sm:-mt-12 group-hover:from-violet-200 group-hover:to-purple-200 transition-colors duration-300"></div>
 
                         <div className="relative z-10 p-4 sm:p-6 flex flex-col items-center text-center">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white mb-3 sm:mb-4 border-4 border-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-primary rounded-full flex items-center justify-center text-white mb-3 sm:mb-4 border-4 border-white shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                                 <User size={32} className="sm:w-10 sm:h-10" />
                             </div>
-                            <h3 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-violet-600 transition-colors">{comm.trainer}</h3>
+                            <h3 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-primary transition-colors">{comm.trainer}</h3>
                             <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 rounded-full text-[10px] sm:text-xs font-bold mt-2 border border-amber-200 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
                                 <Award size={10} className="sm:w-3 sm:h-3" />
                                 {comm.tier}

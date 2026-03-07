@@ -3,7 +3,6 @@ import { Calendar, Clock, MapPin, User, MoreVertical, Search, Filter, CheckCircl
 import CustomDropdown from '../../components/common/CustomDropdown';
 import MobileCard from '../../components/common/MobileCard';
 import { getBookings, getBookingStats, updateBookingStatus } from '../../api/manager/managerApi';
-import '../../styles/GlobalDesign.css';
 
 const TodaysBookings = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,8 +35,8 @@ const TodaysBookings = () => {
 
         if (statData) {
             setStats([
-                { title: "Today's Total", value: (statData.total || 0).toString(), icon: Calendar, color: "text-violet-600", bg: "bg-violet-50" },
-                { title: "Upcoming", value: (statData.upcoming || 0).toString(), icon: Clock, color: "text-violet-600", bg: "bg-violet-50" },
+                { title: "Today's Total", value: (statData.total || 0).toString(), icon: Calendar, color: "text-primary", bg: "bg-primary-light" },
+                { title: "Upcoming", value: (statData.upcoming || 0).toString(), icon: Clock, color: "text-primary", bg: "bg-primary-light" },
                 { title: "Completed", value: (statData.completed || 0).toString(), icon: CheckCircle, color: "text-green-600", bg: "bg-green-50" },
                 { title: "Cancelled", value: (statData.cancelled || 0).toString(), icon: XCircle, color: "text-red-600", bg: "bg-red-50" }
             ]);
@@ -65,17 +64,17 @@ const TodaysBookings = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 ">
             {/* Premium Header with Gradient */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                             <Calendar size={28} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                 Today's Bookings
                             </h1>
                             <p className="text-slate-600 text-sm mt-1">Real-time overview of today's classes and appointments</p>
@@ -101,13 +100,13 @@ const TodaysBookings = () => {
 
             {/* Table Section */}
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-300">
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-center hover:bg-violet-50/20 transition-colors duration-300">
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-center hover:bg-primary-light/20 transition-colors duration-300">
                     <div className="relative w-full md:w-80 group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-violet-500 group-hover:scale-110 transition-all duration-300" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary group-hover:scale-110 transition-all duration-300" size={18} />
                         <input
                             type="text"
                             placeholder="Search members..."
-                            className="pl-10 h-10 w-full rounded-lg border-2 border-slate-200 focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 hover:shadow-sm transition-all"
+                            className="pl-10 h-10 w-full rounded-lg border-2 border-slate-200 focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 hover:shadow-sm transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -125,9 +124,9 @@ const TodaysBookings = () => {
                         </div>
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`saas-btn p-2 border rounded-lg hover:bg-gray-50 transition-all hover:scale-110 hover:shadow-md ${showFilters ? 'bg-violet-50 border-violet-200 ring-2 ring-violet-100' : 'saas-btn-secondary'}`}
+                            className={`saas-btn p-2 border rounded-lg hover:bg-gray-50 transition-all hover:scale-110 hover:shadow-md ${showFilters ? 'bg-primary-light border-violet-200 ring-2 ring-violet-100' : 'saas-btn-secondary'}`}
                         >
-                            <Filter size={18} className={`${showFilters ? 'text-violet-600 rotate-12' : 'text-gray-500'} transition-transform duration-300`} />
+                            <Filter size={18} className={`${showFilters ? 'text-primary rotate-12' : 'text-gray-500'} transition-transform duration-300`} />
                         </button>
                     </div>
                 </div>
@@ -144,8 +143,8 @@ const TodaysBookings = () => {
             <div className="grid grid-cols-1 gap-4 md:hidden mt-6">
                 {loading ? (
                     <div className="py-12 text-center bg-white rounded-2xl border border-slate-100 shadow-xl">
-                        <div className="flex flex-col items-center gap-3 text-violet-600">
-                            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="flex flex-col items-center gap-3 text-primary">
+                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                             <span className="text-sm font-black uppercase tracking-widest">Loading...</span>
                         </div>
                     </div>
@@ -179,46 +178,46 @@ const TodaysBookings = () => {
             <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-300 mt-8">
                 <div className="saas-table-wrapper">
                     <table className="saas-table saas-table-responsive">
-                        <thead className="bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
+                        <thead className="bg-gradient-to-r from-primary-light via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
                             <tr>
-                                <th className="hover:text-purple-700 transition-colors duration-300 cursor-pointer">Member Name</th>
-                                <th className="hover:text-purple-700 transition-colors duration-300 cursor-pointer">Booking Type</th>
-                                <th className="hover:text-purple-700 transition-colors duration-300 cursor-pointer">Trainer</th>
-                                <th className="hover:text-purple-700 transition-colors duration-300 cursor-pointer">Time Slot</th>
-                                <th className="hover:text-purple-700 transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="text-right hover:text-purple-700 transition-colors duration-300 cursor-pointer">Actions</th>
+                                <th className="hover:text-primary-hover transition-colors duration-300 cursor-pointer">Member Name</th>
+                                <th className="hover:text-primary-hover transition-colors duration-300 cursor-pointer">Booking Type</th>
+                                <th className="hover:text-primary-hover transition-colors duration-300 cursor-pointer">Trainer</th>
+                                <th className="hover:text-primary-hover transition-colors duration-300 cursor-pointer">Time Slot</th>
+                                <th className="hover:text-primary-hover transition-colors duration-300 cursor-pointer">Status</th>
+                                <th className="text-right hover:text-primary-hover transition-colors duration-300 cursor-pointer">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
                             {loading ? (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-violet-600"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
                                             <span>Loading bookings...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : bookings.length > 0 ? (
                                 bookings.map((booking) => (
-                                    <tr key={booking.id} className="hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/30 transition-all duration-300 group cursor-pointer hover:shadow-md hover:scale-[1.002] transform">
+                                    <tr key={booking.id} className="hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/30 transition-all duration-300 group cursor-pointer hover:shadow-md hover:scale-[1.002] transform">
                                         <td data-label="Member Name">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 text-violet-700 flex items-center justify-center font-bold text-xs group-hover:scale-125 group-hover:rotate-6 group-hover:shadow-lg transition-all duration-500 border-2 border-violet-200">
+                                                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 text-primary-hover flex items-center justify-center font-bold text-xs group-hover:scale-125 group-hover:rotate-6 group-hover:shadow-lg transition-all duration-500 border-2 border-violet-200">
                                                     {(booking.member?.name || '?').charAt(0)}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-900 group-hover:text-violet-700 group-hover:translate-x-1 transition-all duration-300">{booking.member?.name}</span>
+                                                <span className="text-sm font-medium text-gray-900 group-hover:text-primary-hover group-hover:translate-x-1 transition-all duration-300">{booking.member?.name}</span>
                                             </div>
                                         </td>
                                         <td data-label="Booking Type">
-                                            <span className="text-sm text-gray-700 font-medium group-hover:text-violet-700 group-hover:scale-105 inline-block transition-all duration-300">{booking.class?.name}</span>
+                                            <span className="text-sm text-gray-700 font-medium group-hover:text-primary-hover group-hover:scale-105 inline-block transition-all duration-300">{booking.class?.name}</span>
                                         </td>
                                         <td data-label="Trainer">
-                                            <span className="text-sm text-gray-500 group-hover:text-violet-600 transition-colors duration-300">{booking.class?.trainer?.name || 'Staff'}</span>
+                                            <span className="text-sm text-gray-500 group-hover:text-primary transition-colors duration-300">{booking.class?.trainer?.name || 'Staff'}</span>
                                         </td>
                                         <td data-label="Time Slot">
-                                            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-violet-600 transition-colors duration-300">
-                                                <Clock size={14} className="text-gray-400 group-hover:text-violet-500 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
+                                            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-primary transition-colors duration-300">
+                                                <Clock size={14} className="text-gray-400 group-hover:text-primary group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
                                                 {booking.class?.startTime || '-'}
                                             </div>
                                         </td>
@@ -264,7 +263,7 @@ const TodaysBookings = () => {
 
                 {/* Pagination */}
                 {!loading && totalItems > 0 && (
-                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 hover:bg-violet-50/20 transition-colors duration-300">
+                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 hover:bg-primary-light/20 transition-colors duration-300">
                         <span className="text-sm text-gray-600 text-center sm:text-left">
                             Showing <span className="font-semibold text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="font-semibold text-gray-900">{totalItems}</span>
                         </span>

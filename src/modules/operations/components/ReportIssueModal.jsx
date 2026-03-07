@@ -31,7 +31,7 @@ const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
                     <div className="space-y-1.5">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Select Equipment</label>
                         <select
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-bold text-slate-700"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700"
                             value={formData.equipmentId}
                             onChange={(e) => setFormData({ ...formData, equipmentId: e.target.value })}
                             required
@@ -45,7 +45,7 @@ const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
                 <div className="space-y-1.5">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Issue Type</label>
                     <select
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-bold text-slate-700"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700"
                         value={formData.issueType}
                         onChange={(e) => setFormData({ ...formData, issueType: e.target.value })}
                         required
@@ -94,7 +94,7 @@ const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
                 <div className="space-y-1.5">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Description</label>
                     <textarea
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-bold text-slate-700 min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700 min-h-[100px] resize-none"
                         placeholder="Explain what's wrong with the machine..."
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}

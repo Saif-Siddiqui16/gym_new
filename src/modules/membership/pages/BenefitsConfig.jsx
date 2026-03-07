@@ -87,7 +87,7 @@ const BenefitsConfig = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="hidden lg:flex flex-col items-end mr-6">
-                        <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest flex items-center gap-1">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1">
                             <Infinity size={12} /> SaaS Sync Active
                         </span>
                         <span className="text-[8px] font-bold text-slate-400 uppercase">Controlled by Plan Limits</span>
@@ -106,12 +106,12 @@ const BenefitsConfig = () => {
                         <div key={benefit.id} className="bg-white p-6 rounded-[24px] shadow-xl shadow-gray-100/50 border border-gray-50 hover:border-violet-100 transition-all group relative overflow-hidden">
                             <div className="relative z-10">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-primary-light text-primary rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                         <IconComp size={24} strokeWidth={2.5} />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                            <button onClick={() => handleEdit(benefit)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-violet-600">
+                                            <button onClick={() => handleEdit(benefit)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-primary">
                                                 <Edit2 size={16} />
                                             </button>
                                             <button onClick={() => handleDelete(benefit.id)} className="p-2 hover:bg-red-50 rounded-lg text-gray-500 hover:text-red-500">
@@ -123,8 +123,8 @@ const BenefitsConfig = () => {
 
                                 <h3 className="text-xl font-black text-gray-900 mb-1">{benefit.name}</h3>
                                 <div className="flex items-center gap-1.5 mb-3">
-                                    <div className="w-1 h-3 bg-violet-500 rounded-full"></div>
-                                    <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">SaaS Sync Logic</span>
+                                    <div className="w-1 h-3 bg-primary rounded-full"></div>
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">SaaS Sync Logic</span>
                                 </div>
                                 <p className="text-gray-500 text-sm font-medium mb-4 min-h-[40px] italic line-clamp-2">"{benefit.description}"</p>
 
@@ -138,7 +138,7 @@ const BenefitsConfig = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-violet-50/50 transition-colors pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-primary-light/50 transition-colors pointer-events-none"></div>
                         </div>
                     );
                 })}
@@ -154,7 +154,7 @@ const BenefitsConfig = () => {
                                     <h3 className="text-xl font-black text-gray-900">
                                         {editingBenefit ? 'Refine Benefit' : 'Establish Benefit'}
                                     </h3>
-                                    <p className="text-[10px] font-bold text-violet-600 uppercase tracking-widest flex items-center gap-1 mt-1">
+                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-1 mt-1">
                                         <Sparkles size={12} /> Managed by SaaS Subscription
                                     </p>
                                 </div>
@@ -165,11 +165,11 @@ const BenefitsConfig = () => {
                         </div>
 
                         <form onSubmit={handleSave} className="p-6 space-y-5">
-                            <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 mb-2">
-                                <h4 className="text-[10px] font-black text-violet-700 uppercase tracking-widest mb-1 flex items-center gap-2">
+                            <div className="p-4 bg-primary-light rounded-2xl border border-violet-100 mb-2">
+                                <h4 className="text-[10px] font-black text-primary-hover uppercase tracking-widest mb-1 flex items-center gap-2">
                                     <Info size={14} /> Usage Logic Reminder
                                 </h4>
-                                <p className="text-[11px] font-bold text-violet-600/70 leading-relaxed">
+                                <p className="text-[11px] font-bold text-primary/70 leading-relaxed">
                                     Individual member usage for this benefit will be capped based on their plan's quota set in Plan Management.
                                 </p>
                             </div>
@@ -220,7 +220,7 @@ const BenefitsConfig = () => {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, icon: iconName })}
                                                 className={`p-3 rounded-xl flex items-center justify-center transition-all ${formData.icon === iconName
-                                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 scale-110'
+                                                    ? 'bg-primary text-white shadow-lg shadow-violet-200 scale-110'
                                                     : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                                                     }`}
                                             >

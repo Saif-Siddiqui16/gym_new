@@ -58,7 +58,7 @@ const LockerDetailDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
         >
             {selectedLocker && (
                 <div className="flex flex-col h-full bg-slate-50">
-                    <div className="flex-1 overflow-y-auto pr-2 space-y-8 custom-scrollbar">
+                    <div className="flex-1  pr-2 space-y-8 custom-scrollbar">
                         {/* Status Banner */}
                         <div className="bg-rose-50 border border-rose-100 rounded-3xl p-6 flex flex-col items-center text-center">
                             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-rose-500 shadow-xl mb-4 relative">
@@ -74,7 +74,7 @@ const LockerDetailDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Occupant Information</h4>
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 text-violet-600 flex items-center justify-center font-black">
+                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center font-black">
                                         {selectedLocker.assignedTo?.name?.charAt(0) || '?'}
                                     </div>
                                     <div>

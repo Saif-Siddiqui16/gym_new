@@ -24,12 +24,13 @@ import {
 import { fetchAuditLogsAPI } from '../../../api/admin/adminApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
+import StatsCard from '../../dashboard/components/StatsCard';
 
 const ACTION_ICONS = {
     CREATE: { icon: Plus, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
-    UPDATE: { icon: Edit, color: 'text-violet-600 bg-violet-50 border-violet-100' },
+    UPDATE: { icon: Edit, color: 'text-primary bg-primary-light border-violet-100' },
     DELETE: { icon: Trash2, color: 'text-rose-600 bg-rose-50 border-rose-100' },
-    LOGIN: { icon: CheckCircle, color: 'text-violet-600 bg-violet-50 border-violet-100' },
+    LOGIN: { icon: CheckCircle, color: 'text-primary bg-primary-light border-violet-100' },
     LOGOUT: { icon: XCircle, color: 'text-slate-600 bg-slate-50 border-slate-100' },
     VIEW: { icon: Eye, color: 'text-amber-600 bg-amber-50 border-amber-100' },
 };
@@ -39,7 +40,7 @@ const getActionStyle = (action) => {
     for (const key of Object.keys(ACTION_ICONS)) {
         if (normalized.includes(key)) return ACTION_ICONS[key];
     }
-    return { icon: Activity, color: 'text-violet-600 bg-violet-50 border-violet-100' };
+    return { icon: Activity, color: 'text-primary bg-primary-light border-violet-100' };
 };
 
 const formatDate = (dt) => {
@@ -178,42 +179,33 @@ const AuditLogs = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 min-h-screen p-6 md:p-8 font-sans pb-24 text-slate-800">
+        <div className="p-4 sm:p-8 bg-gradient-to-br from-gray-50 via-white to-primary-light/30 min-h-screen font-sans pb-24 text-slate-800 animate-fadeIn space-y-8">
             {/* Stats Cards */}
-            <div className="max-w-7xl mx-auto mb-10">
+            <div className="max-w-full mx-auto mb-10">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                        <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center">
-                            <Shield size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Logs</p>
-                            <h3 className="text-2xl font-black text-slate-800">{loading ? '—' : stats.total.toLocaleString()}</h3>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                        <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
-                            <Activity size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Today's Activity</p>
-                            <h3 className="text-2xl font-black text-slate-800">{loading ? '—' : stats.today}</h3>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                        <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
-                            <User size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Most Active</p>
-                            <h3 className="text-base font-black text-slate-800 truncate max-w-[160px]">{loading ? '—' : stats.mostActive}</h3>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Total Logs"
+                        value={loading ? '—' : stats.total.toString()}
+                        icon={Shield}
+                        color="primary"
+                    />
+                    <StatsCard
+                        title="Today's Activity"
+                        value={loading ? '—' : stats.today.toString()}
+                        icon={Activity}
+                        color="success"
+                    />
+                    <StatsCard
+                        title="Most Active"
+                        value={loading ? '—' : stats.mostActive}
+                        icon={User}
+                        color="info"
+                    />
                 </div>
             </div>
 
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-3xl font-black text-slate-800 tracking-tight">Audit Logs</h1>
@@ -231,7 +223,7 @@ const AuditLogs = () => {
                         <button
                             onClick={handleExport}
                             disabled={exporting || logs.length === 0}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
                         >
                             {exporting ? <Loader size={18} className="animate-spin" /> : <Download size={18} />}
                             Export CSV
@@ -241,7 +233,7 @@ const AuditLogs = () => {
             </div>
 
             {/* Filters */}
-            <div className="max-w-7xl mx-auto mb-10">
+            <div className="max-w-full mx-auto mb-10">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                     <div className="flex items-center gap-2 mb-6">
                         <Filter size={18} className="text-slate-800" />
@@ -252,13 +244,13 @@ const AuditLogs = () => {
                         <div className="space-y-2">
                             <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">Search</label>
                             <div className="relative group">
-                                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors pointer-events-none" />
+                                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors pointer-events-none" />
                                 <input
                                     type="text"
                                     value={filters.search}
                                     onChange={(e) => handleFilterChange('search', e.target.value)}
                                     placeholder="Actor, entity, details..."
-                                    className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/5 transition-all outline-none"
+                                    className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-primary/5 transition-all outline-none"
                                 />
                             </div>
                         </div>
@@ -270,7 +262,7 @@ const AuditLogs = () => {
                                 <select
                                     value={filters.action}
                                     onChange={(e) => handleFilterChange('action', e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 appearance-none focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/5 outline-none transition-all cursor-pointer"
+                                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 appearance-none focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-primary/5 outline-none transition-all cursor-pointer"
                                 >
                                     <option value="">All Actions</option>
                                     {filterActions.map(a => <option key={a} value={a}>{a}</option>)}
@@ -288,7 +280,7 @@ const AuditLogs = () => {
                                 <select
                                     value={filters.module}
                                     onChange={(e) => handleFilterChange('module', e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 appearance-none focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/5 outline-none transition-all cursor-pointer"
+                                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 appearance-none focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-primary/5 outline-none transition-all cursor-pointer"
                                 >
                                     <option value="">All Modules</option>
                                     {filterModules.map(m => <option key={m} value={m}>{m}</option>)}
@@ -306,7 +298,7 @@ const AuditLogs = () => {
                                 type="date"
                                 value={filters.from}
                                 onChange={(e) => handleFilterChange('from', e.target.value)}
-                                className="w-full pl-4 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/5 transition-all outline-none cursor-pointer"
+                                className="w-full pl-4 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-primary/5 transition-all outline-none cursor-pointer"
                             />
                         </div>
 
@@ -317,7 +309,7 @@ const AuditLogs = () => {
                                 type="date"
                                 value={filters.to}
                                 onChange={(e) => handleFilterChange('to', e.target.value)}
-                                className="w-full pl-4 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-violet-500/5 transition-all outline-none cursor-pointer"
+                                className="w-full pl-4 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 focus:bg-white focus:border-violet-200 focus:ring-4 focus:ring-primary/5 transition-all outline-none cursor-pointer"
                             />
                         </div>
                     </div>
@@ -325,7 +317,7 @@ const AuditLogs = () => {
             </div>
 
             {/* Activity Timeline */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="flex flex-col mb-6">
                     <h2 className="text-2xl font-black text-slate-800 tracking-tight">
                         Activity Timeline {!loading && `(${total.toLocaleString()} records)`}
@@ -334,7 +326,7 @@ const AuditLogs = () => {
 
                 {loading ? (
                     <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm py-32 flex flex-col items-center justify-center gap-4">
-                        <Loader size={40} className="animate-spin text-violet-500" />
+                        <Loader size={40} className="animate-spin text-primary" />
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Loading audit data...</p>
                     </div>
                 ) : logs.length === 0 ? (
@@ -381,7 +373,7 @@ const AuditLogs = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className="text-[10px] font-black text-violet-600 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
+                                                        <span className="text-[10px] font-black text-primary bg-primary-light border border-violet-100 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
                                                             {log.user?.branch || 'Main'}
                                                         </span>
                                                     </td>
@@ -427,7 +419,7 @@ const AuditLogs = () => {
                                                 </span>
                                             </div>
                                             <div className="flex gap-2 flex-wrap mt-2">
-                                                <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded">{log.user?.branch || 'Main'}</span>
+                                                <span className="text-[10px] font-black text-primary bg-primary-light px-2 py-0.5 rounded">{log.user?.branch || 'Main'}</span>
                                                 <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{log.module}</span>
                                                 {log.affectedEntity && <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{log.affectedEntity}</span>}
                                             </div>
@@ -452,7 +444,7 @@ const AuditLogs = () => {
                                     >
                                         <ChevronLeft size={18} />
                                     </button>
-                                    <span className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-black">{page}</span>
+                                    <span className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-black">{page}</span>
                                     <button
                                         onClick={() => handlePageChange(page + 1)}
                                         disabled={page >= totalPages}

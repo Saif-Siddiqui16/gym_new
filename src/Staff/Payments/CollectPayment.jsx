@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, User, Wallet, FileText, CheckCircle, AlertCircle, IndianRupee, Hash, ReceiptText } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import { collectPayment } from '../../api/staff/paymentApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { INVOICES } from '../../modules/finance/data/mockFinance';
@@ -105,11 +104,11 @@ const CollectPayment = () => {
     };
 
     return (
-        <div className="p-0 md:p-8 bg-gradient-to-br from-slate-50 via-white to-violet-50/30 min-h-screen font-sans">
-            <div className="max-w-4xl mx-auto">
+        <div className="p-0 md:p-8 bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen font-sans">
+            <div className="max-w-full mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                        <IndianRupee size={32} className="text-violet-600" />
+                        <IndianRupee size={32} className="text-primary" />
                         Collect Payment
                     </h1>
                     <p className="text-gray-500 font-medium mt-1.5 flex items-center gap-2 text-sm">
@@ -125,7 +124,7 @@ const CollectPayment = () => {
                                 {/* Invoice Selection */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-black text-slate-700 flex items-center gap-2 uppercase tracking-wider">
-                                        <ReceiptText size={16} className="text-violet-500" />
+                                        <ReceiptText size={16} className="text-primary" />
                                         Select Invoice
                                     </label>
                                     <CustomDropdown
@@ -142,7 +141,7 @@ const CollectPayment = () => {
                                     {/* Invoice Number (Read-only) */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-black text-slate-700 flex items-center gap-2 uppercase tracking-wider">
-                                            <Hash size={16} className="text-violet-500" />
+                                            <Hash size={16} className="text-primary" />
                                             Invoice Number
                                         </label>
                                         <input
@@ -156,7 +155,7 @@ const CollectPayment = () => {
                                     {/* Member Name (Read-only) */}
                                     <div className="space-y-2">
                                         <label className="text-sm font-black text-slate-700 flex items-center gap-2 uppercase tracking-wider">
-                                            <User size={16} className="text-violet-500" />
+                                            <User size={16} className="text-primary" />
                                             Member Name
                                         </label>
                                         <input
@@ -169,11 +168,11 @@ const CollectPayment = () => {
                                 </div>
 
                                 {/* Payment Details Section */}
-                                <div className="p-4 sm:p-6 bg-violet-50/50 rounded-2xl border border-violet-100 space-y-6">
+                                <div className="p-4 sm:p-6 bg-primary-light/50 rounded-2xl border border-violet-100 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {/* Payment Amount */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-black text-violet-700 flex items-center gap-2 uppercase tracking-wider">
+                                            <label className="text-sm font-black text-primary-hover flex items-center gap-2 uppercase tracking-wider">
                                                 <IndianRupee size={16} />
                                                 Payment Amount
                                             </label>
@@ -182,7 +181,7 @@ const CollectPayment = () => {
                                                     type="text"
                                                     name="paymentAmount"
                                                     placeholder="0.00"
-                                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border-2 transition-all text-sm font-black ${errors.paymentAmount ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20'
+                                                    className={`w-full h-12 pl-4 pr-12 rounded-xl border-2 transition-all text-sm font-black ${errors.paymentAmount ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/20'
                                                         }`}
                                                     value={formData.paymentAmount}
                                                     onChange={handleChange}
@@ -194,7 +193,7 @@ const CollectPayment = () => {
 
                                         {/* Payment Mode */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-black text-violet-700 flex items-center gap-2 uppercase tracking-wider">
+                                            <label className="text-sm font-black text-primary-hover flex items-center gap-2 uppercase tracking-wider">
                                                 <Wallet size={16} />
                                                 Payment Method
                                             </label>
@@ -229,14 +228,14 @@ const CollectPayment = () => {
                                 {/* Notes */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-black text-slate-700 flex items-center gap-2 uppercase tracking-wider">
-                                        <FileText size={16} className="text-violet-500" />
+                                        <FileText size={16} className="text-primary" />
                                         Transaction Notes (Optional)
                                     </label>
                                     <textarea
                                         name="notes"
                                         placeholder="Reference number, discount details, etc..."
                                         rows="3"
-                                        className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all text-sm font-bold bg-slate-50/50 resize-none"
+                                        className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all text-sm font-bold bg-slate-50/50 resize-none"
                                         value={formData.notes}
                                         onChange={handleChange}
                                     ></textarea>
@@ -245,7 +244,7 @@ const CollectPayment = () => {
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-2xl shadow-xl shadow-violet-200 font-black text-sm transition-all flex items-center justify-center gap-3 active:scale-[0.98] uppercase tracking-widest"
+                                    className="w-full h-14 bg-gradient-to-r from-primary to-primary hover:from-primary-hover hover:to-primary-hover text-white rounded-2xl shadow-xl shadow-violet-200 font-black text-sm transition-all flex items-center justify-center gap-3 active:scale-[0.98] uppercase tracking-widest"
                                 >
                                     <CheckCircle size={20} />
                                     Complete Payment
@@ -290,14 +289,14 @@ const CollectPayment = () => {
                             )}
                         </div>
 
-                        <div className="bg-violet-50 border border-violet-100 rounded-3xl p-6">
+                        <div className="bg-primary-light border border-violet-100 rounded-3xl p-6">
                             <h4 className="text-sm font-black text-violet-900 uppercase tracking-widest mb-3">Quick Help</h4>
                             <ul className="space-y-3">
-                                <li className="flex gap-2 text-xs font-bold text-violet-700/70">
+                                <li className="flex gap-2 text-xs font-bold text-primary-hover/70">
                                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1 shrink-0" />
                                     Partial payments will keep the invoice status as 'Partial'.
                                 </li>
-                                <li className="flex gap-2 text-xs font-bold text-violet-700/70">
+                                <li className="flex gap-2 text-xs font-bold text-primary-hover/70">
                                     <div className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1 shrink-0" />
                                     Once full balance is cleared, status updates to 'Paid'.
                                 </li>

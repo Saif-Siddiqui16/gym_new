@@ -65,11 +65,11 @@ const CashierMode = () => {
     const [isSuccess, setIsSuccess] = useState(false);
 
     const paymentTypes = [
-        { id: 'membership', label: 'New Membership', icon: Building, color: 'text-violet-500' },
+        { id: 'membership', label: 'New Membership', icon: Building, color: 'text-primary' },
         { id: 'renewal', label: 'Renewal', icon: History, color: 'text-amber-500' },
         { id: 'pt', label: 'Personal Training', icon: Zap, color: 'text-rose-500' },
         { id: 'diet', label: 'Diet Plan', icon: Tag, color: 'text-emerald-500' },
-        { id: 'addon', label: 'Add-On', icon: Plus, color: 'text-violet-500' },
+        { id: 'addon', label: 'Add-On', icon: Plus, color: 'text-primary' },
         { id: 'other', label: 'Other', icon: Calculator, color: 'text-slate-500' }
     ];
 
@@ -157,8 +157,8 @@ const CashierMode = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                     <div className="flex items-center gap-5">
@@ -192,7 +192,7 @@ const CashierMode = () => {
                         {/* Lef Column: Form */}
                         <div className="lg:col-span-8 space-y-8">
                             {/* Member Selection */}
-                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 p-8">
+                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                     Step 1: Select Member
@@ -236,7 +236,7 @@ const CashierMode = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="max-h-64 overflow-y-auto">
+                                            <div className="max-h-64 ">
                                                 {filteredMembers.length > 0 ? filteredMembers.map(member => (
                                                     <button
                                                         key={member.id}
@@ -266,7 +266,7 @@ const CashierMode = () => {
                             </div>
 
                             {/* Payment Configuration */}
-                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 p-8">
+                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                     Step 2: Payment Details
@@ -366,7 +366,7 @@ const CashierMode = () => {
 
                         {/* Right Column: Calculations & Actions */}
                         <div className="lg:col-span-4 h-fit sticky top-8">
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-slate-900 relative overflow-hidden group">
+                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 text-slate-900 relative overflow-hidden group">
                                 {/* Decorative elements */}
                                 <div className="absolute top-0 right-0 p-12 opacity-[0.03] text-slate-900 translate-x-1/2 -translate-y-1/4 group-hover:scale-125 transition-transform duration-1000">
                                     <Receipt size={240} strokeWidth={1} />
@@ -420,7 +420,7 @@ const CashierMode = () => {
                                         <p className="text-xs font-bold text-slate-700">{loggedInUser.name}</p>
                                     </div>
                                 </div>
-                                <div className="px-3 py-1 bg-violet-50 text-violet-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                <div className="px-3 py-1 bg-primary-light text-primary rounded-lg text-[10px] font-black uppercase tracking-widest">
                                     {loggedInUser.role}
                                 </div>
                             </div>

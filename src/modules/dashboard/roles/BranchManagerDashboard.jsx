@@ -15,7 +15,9 @@ import {
     ShieldAlert,
     Zap,
     XOctagon,
-    History
+    History,
+    UserPlus,
+    Calendar
 } from 'lucide-react';
 import { DASHBOARD_DATA } from '../data/mockDashboardData';
 import TodayFollowUps from '../../crm/pages/TodayFollowUps';
@@ -23,6 +25,7 @@ import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget
 import { useNavigate } from 'react-router-dom';
 import LiveAccessControl from '../components/LiveAccessControl';
 import FacilityStatusOverview from '../../operations/components/widgets/FacilityStatusOverview';
+import StatsCard from '../components/StatsCard';
 import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import { fetchDashboardStats, fetchRecentActivities, fetchTrainerAvailability, fetchFinancialStats } from '../../../api/branchAdmin/branchAdminApi';
 import { useBranchContext } from '../../../context/BranchContext';
@@ -91,9 +94,9 @@ const BranchManagerDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+            <div className="flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Synchronizing Branch Data...</p>
                 </div>
             </div>
@@ -101,17 +104,17 @@ const BranchManagerDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-6">
+        <div className="saas-page pb-page animate-fadeIn">
             {/* Premium Header with Gradient */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-transform duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300">
                             <Activity size={28} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                 {welcomeTitle}
                             </h1>
                             <p className="text-slate-600 text-sm mt-1">Here's what's happening at your gym today</p>
@@ -128,65 +131,56 @@ const BranchManagerDashboard = () => {
 
             {/* Top Statistic Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {stats.slice(0, 3).map((stat, i) => {
-                    const Icon = stat.icon || Users;
-                    
-                    // Assigning different gradients and colors based on index for the 3 cards
-                    const styles = [
-                        { gradient: 'from-violet-500 to-purple-600', text: 'text-violet-600', trendColor: 'text-emerald-500' },
-                        { gradient: 'from-emerald-500 to-emerald-600', text: 'text-emerald-600', trendColor: 'text-emerald-500' },
-                        { gradient: 'from-fuchsia-500 to-fuchsia-600', text: 'text-fuchsia-600', trendColor: 'text-amber-500' }
-                    ][i] || { gradient: 'from-violet-500 to-purple-600', text: 'text-violet-600', trendColor: 'text-emerald-500' };
-
-                    return (
-                        <div key={stat.id || i} className="group relative bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5 overflow-hidden">
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-600 mb-2">{stat.title}</p>
-                                    <h3 className="text-3xl font-black text-slate-900 mb-2">{stat.value}</h3>
-                                    <p className={`text-xs font-semibold flex items-center gap-1 ${styles.trendColor}`}>
-                                        <TrendingUp size={14} />
-                                        {stat.trend}
-                                    </p>
-                                </div>
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${styles.gradient} flex items-center justify-center text-white shadow-lg transition-transform duration-300`}>
-                                    <Icon size={24} />
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                {stats.slice(0, 3).map((stat, i) => (
+                    <StatsCard
+                        key={stat.id || i}
+                        title={stat.title}
+                        value={stat.value}
+                        icon={stat.icon || Users}
+                        trend={stat.trend}
+                        trendDirection={stat.trend?.includes('+') || stat.trend?.includes('up') ? 'up' : 'down'}
+                        color={['primary', 'success', 'warning'][i] || 'primary'}
+                    />
+                ))}
             </div>
 
             {/* Secondary KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all duration-200 md:hover:shadow-md md:hover:-translate-y-0.5">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">New Leads</p>
-                    <h4 className="text-xl font-black text-slate-800">0</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">This month</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all duration-200 md:hover:shadow-md md:hover:-translate-y-0.5">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Trainers</p>
-                    <h4 className="text-xl font-black text-slate-800">{trainers.length || 0}</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">Available today</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all duration-200 md:hover:shadow-md md:hover:-translate-y-0.5">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Today's Classes</p>
-                    <h4 className="text-xl font-black text-slate-800">0</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">Scheduled</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all duration-200 md:hover:shadow-md md:hover:-translate-y-0.5">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Approvals</p>
-                    <h4 className="text-xl font-black text-slate-800">0</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">Review pending</p>
-                </div>
+                <StatsCard
+                    title="New Leads"
+                    value="0"
+                    subtitle="This month"
+                    icon={UserPlus}
+                    color="primary"
+                />
+                <StatsCard
+                    title="Active Trainers"
+                    value={(trainers.length || 0).toString()}
+                    subtitle="Available today"
+                    icon={Users}
+                    color="success"
+                />
+                <StatsCard
+                    title="Today's Classes"
+                    value="0"
+                    subtitle="Scheduled"
+                    icon={Calendar}
+                    color="warning"
+                />
+                <StatsCard
+                    title="Pending Approvals"
+                    value="0"
+                    subtitle="Review pending"
+                    icon={ShieldAlert}
+                    color="danger"
+                />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Revenue Overview Chart */}
                 <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                        <Activity className="text-violet-600" size={18} />
+                        <Activity className="text-primary" size={18} />
                         Revenue Overview
                     </h3>
                     <div className="h-48 flex items-end justify-between gap-2 px-4 pb-4 border-b border-slate-100">
@@ -194,9 +188,9 @@ const BranchManagerDashboard = () => {
                             const maxValue = Math.max(...revenueOverview.map(r => r.value), 1000);
                             const h = (item.value / maxValue) * 100;
                             return (
-                                <div key={i} className="w-full bg-violet-50 rounded-t-lg relative group/bar">
+                                <div key={i} className="w-full bg-primary-light rounded-t-lg relative group/bar">
                                     <div
-                                        className="absolute bottom-0 w-full bg-gradient-to-t from-violet-600 to-purple-500 rounded-t-lg transition-all duration-500 hover:from-violet-700 hover:to-purple-600 cursor-pointer"
+                                        className="absolute bottom-0 w-full bg-gradient-to-t from-primary to-purple-500 rounded-t-lg transition-all duration-500 hover:from-primary-hover hover:to-primary cursor-pointer"
                                         style={{ height: `${Math.max(h, 2)}%` }}
                                     >
                                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
@@ -250,21 +244,21 @@ const BranchManagerDashboard = () => {
                 {/* Live Occupancy */}
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
                             <Users size={20} />
                         </div>
                         <h3 className="text-lg font-bold text-slate-900">Live Occupancy</h3>
                     </div>
-                    <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-100 rounded-2xl">
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-2xl">
                         <h4 className="text-4xl font-black text-slate-900 mb-2">{liveOccupancy.current} of {liveOccupancy.capacity}</h4>
                         <p className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest">Capacity</p>
                         <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mb-2">
-                            <div 
-                                className="bg-violet-600 h-full transition-all duration-500"
+                            <div
+                                className="bg-primary h-full transition-all duration-500"
                                 style={{ width: `${Math.min((liveOccupancy.current / liveOccupancy.capacity) * 100, 100)}%` }}
                             ></div>
                         </div>
-                        <p className="text-lg font-black text-violet-600">{Math.round((liveOccupancy.current / liveOccupancy.capacity) * 100)}% Full</p>
+                        <p className="text-lg font-black text-primary">{Math.round((liveOccupancy.current / liveOccupancy.capacity) * 100)}% Full</p>
                     </div>
                 </div>
 
@@ -337,7 +331,7 @@ const BranchManagerDashboard = () => {
                 {/* Membership Distribution */}
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
                             <TrendingUp size={20} />
                         </div>
                         <h3 className="text-lg font-bold text-slate-900">Membership Status</h3>
@@ -361,7 +355,7 @@ const BranchManagerDashboard = () => {
                 {/* Live Access Feed */}
                 <div className="lg:col-span-2 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
                             <Smartphone size={20} />
                         </div>
                         <div>
@@ -373,7 +367,7 @@ const BranchManagerDashboard = () => {
                         {recentActivities.length > 0 ? recentActivities.map((act) => (
                             <div key={act.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-md hover:border-violet-200 group">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                                    <div className="w-10 h-10 rounded-lg bg-primary-light text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                                         <User size={18} />
                                     </div>
                                     <div>
@@ -386,7 +380,7 @@ const BranchManagerDashboard = () => {
                                 </div>
                             </div>
                         )) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-100">
+                            <div className="flex-1 flex flex-col items-center justify-center text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-100">
                                 <p className="text-slate-500 font-black text-base mb-2 italic">No access events yet</p>
                                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Events will appear here in real-time</p>
                             </div>
@@ -398,12 +392,12 @@ const BranchManagerDashboard = () => {
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
                                 <Users size={20} />
                             </div>
                             <h3 className="text-lg font-bold text-slate-900">Member Voice</h3>
                         </div>
-                        <button onClick={() => navigate('/operations/feedback')} className="text-[10px] font-black uppercase tracking-widest text-violet-600 hover:text-violet-700 transition-colors bg-violet-50 px-3 py-1.5 rounded-lg">
+                        <button onClick={() => navigate('/operations/feedback')} className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary-hover transition-colors bg-primary-light px-3 py-1.5 rounded-lg">
                             View All
                         </button>
                     </div>
@@ -430,7 +424,7 @@ const BranchManagerDashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-[24px] p-4 md:p-6 border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
+                    <div className="bg-white rounded-[24px]  border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
                         <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center transition-transform">
                             <Banknote size={28} />
                         </div>
@@ -440,8 +434,8 @@ const BranchManagerDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-[24px] p-4 md:p-6 border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
-                        <div className="w-14 h-14 rounded-2xl bg-violet-50 text-violet-500 flex items-center justify-center transition-transform">
+                    <div className="bg-white rounded-[24px]  border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
+                        <div className="w-14 h-14 rounded-2xl bg-primary-light text-primary flex items-center justify-center transition-transform">
                             <Smartphone size={28} />
                         </div>
                         <div>
@@ -450,8 +444,8 @@ const BranchManagerDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-[24px] p-4 md:p-6 border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
-                        <div className="w-14 h-14 rounded-2xl bg-violet-50 text-violet-500 flex items-center justify-center transition-transform">
+                    <div className="bg-white rounded-[24px]  border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
+                        <div className="w-14 h-14 rounded-2xl bg-primary-light text-primary flex items-center justify-center transition-transform">
                             <CreditCard size={28} />
                         </div>
                         <div>
@@ -460,7 +454,7 @@ const BranchManagerDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-slate-900 rounded-[24px] p-4 md:p-6 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group text-white border-2 border-slate-800">
+                    <div className="bg-slate-900 rounded-[24px]  shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group text-white border-2 border-slate-800">
                         <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center transition-transform">
                             <IndianRupee size={28} />
                         </div>

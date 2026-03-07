@@ -191,12 +191,12 @@ const Payroll = () => {
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 min-h-screen p-6 md:p-8 font-sans pb-24">
+        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 min-h-screen font-sans pb-24">
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-primary via-primary to-emerald-600 bg-clip-text text-transparent">
                             {activeTab === 'Attendance' ? 'Staff Attendance' : 'Human Resources'}
                         </h1>
                         <p className="text-slate-500 mt-2 font-medium">
@@ -205,7 +205,7 @@ const Payroll = () => {
                     </div>
                     <button
                         onClick={() => navigate('/hr/staff/create')}
-                        className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-violet-500/30/30 hover:scale-105 active:scale-95 transition-all shadow-xl"
+                        className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-primary/30/30 hover:scale-105 active:scale-95 transition-all shadow-xl"
                     >
                         <Plus size={20} strokeWidth={3} />
                         Add Employee
@@ -214,7 +214,7 @@ const Payroll = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {activeTab === 'Attendance' ? (
                         <>
@@ -235,14 +235,14 @@ const Payroll = () => {
             </div>
 
             {/* Tabs */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-px">
                     {['Employees', 'Contracts', 'Attendance', 'Payroll'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === tab
-                                ? 'border-violet-600 text-violet-600'
+                                ? 'border-primary text-primary'
                                 : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}`}
                         >
                             {tab}
@@ -253,7 +253,7 @@ const Payroll = () => {
 
             {/* ─── EMPLOYEES TAB ──────────────────────────────────────────────── */}
             {activeTab === 'Employees' && (
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-full mx-auto">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <h2 className="text-xl font-black text-slate-800">All Employees</h2>
                         <div className="relative w-full md:w-72">
@@ -263,7 +263,7 @@ const Payroll = () => {
                                 placeholder="Search employees..."
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 shadow-sm transition-all font-medium"
+                                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary shadow-sm transition-all font-medium"
                             />
                         </div>
                     </div>
@@ -279,7 +279,7 @@ const Payroll = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-100/50">
                                 {loading ? (
-                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-violet-500" size={32} /></td></tr>
+                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={32} /></td></tr>
                                 ) : filteredStaff.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="py-24 text-center">
@@ -295,7 +295,7 @@ const Payroll = () => {
                                         <tr key={staff.id || idx} className="group hover:bg-white transition-all duration-300">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
+                                                    <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shadow-sm">
                                                         {(staff.name || '?').charAt(0)}
                                                     </div>
                                                     <div>
@@ -324,16 +324,16 @@ const Payroll = () => {
                                             <td className="px-6 py-4 text-right relative">
                                                 <button
                                                     onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === staff.id ? null : staff.id); }}
-                                                    className="p-2 text-slate-400 hover:text-violet-600 rounded-lg hover:bg-violet-50 transition-colors"
+                                                    className="p-2 text-slate-400 hover:text-primary rounded-lg hover:bg-primary-light transition-colors"
                                                 >
                                                     <MoreHorizontal size={18} />
                                                 </button>
                                                 {openMenuId === staff.id && (
                                                     <div className="absolute right-8 top-12 w-48 bg-white border border-slate-100 rounded-xl shadow-xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-600 transition-colors">
+                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
                                                             <Eye size={16} /> View Profile
                                                         </button>
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-600 transition-colors">
+                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
                                                             <Edit2 size={16} /> Edit Profile
                                                         </button>
                                                         <button onClick={() => handleDeleteStaff(staff.id)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
@@ -353,7 +353,7 @@ const Payroll = () => {
 
             {/* ─── CONTRACTS TAB ──────────────────────────────────────────────── */}
             {activeTab === 'Contracts' && (
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-full mx-auto">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-black text-slate-800">All Contracts</h2>
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{activeContractsCount} active contracts</span>
@@ -370,7 +370,7 @@ const Payroll = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-100/50">
                                 {loading ? (
-                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-violet-500" size={32} /></td></tr>
+                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={32} /></td></tr>
                                 ) : staffList.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="py-24 text-center">
@@ -386,7 +386,7 @@ const Payroll = () => {
                                         <tr key={staff.id} className="hover:bg-white transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
+                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm">
                                                         {(staff.name || '?').charAt(0)}
                                                     </div>
                                                     <div>
@@ -413,7 +413,7 @@ const Payroll = () => {
                                                 <StatusBadge status={staff.status || 'Active'} />
                                             </td>
                                             <td className="px-6 py-4">
-                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="text-violet-600 hover:text-violet-700 text-xs font-bold flex items-center gap-1 hover:underline">
+                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="text-primary hover:text-primary-hover text-xs font-bold flex items-center gap-1 hover:underline">
                                                     <Edit2 size={14} /> Edit
                                                 </button>
                                             </td>
@@ -428,13 +428,13 @@ const Payroll = () => {
 
             {/* ─── ATTENDANCE TAB ─────────────────────────────────────────────── */}
             {activeTab === 'Attendance' && (
-                <div className="max-w-7xl mx-auto space-y-8">
+                <div className="max-w-full mx-auto space-y-8">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-black text-slate-800">Staff Attendance — Today</h2>
                         <button
                             onClick={loadAttendance}
                             disabled={attendanceLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-violet-600 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-colors disabled:opacity-50"
                         >
                             <RefreshCw size={16} className={attendanceLoading ? 'animate-spin' : ''} />
                             Refresh
@@ -458,7 +458,7 @@ const Payroll = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100/50">
                                     {attendanceLoading ? (
-                                        <tr><td colSpan="5" className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-violet-500" size={28} /></td></tr>
+                                        <tr><td colSpan="5" className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={28} /></td></tr>
                                     ) : liveAttendance.length === 0 ? (
                                         <tr>
                                             <td colSpan="5" className="py-16 text-center">
@@ -503,7 +503,7 @@ const Payroll = () => {
                     {/* Today's Full Log */}
                     <div>
                         <h3 className="text-base font-black text-slate-700 mb-4 flex items-center gap-2">
-                            <CalendarDays size={18} className="text-violet-500" />
+                            <CalendarDays size={18} className="text-primary" />
                             Today's Full Log ({todayAttendance.length})
                         </h3>
                         <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 overflow-hidden">
@@ -517,7 +517,7 @@ const Payroll = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100/50">
                                     {attendanceLoading ? (
-                                        <tr><td colSpan="5" className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-violet-500" size={28} /></td></tr>
+                                        <tr><td colSpan="5" className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={28} /></td></tr>
                                     ) : todayAttendance.length === 0 ? (
                                         <tr>
                                             <td colSpan="5" className="py-16 text-center">
@@ -568,7 +568,7 @@ const Payroll = () => {
 
             {/* ─── PAYROLL TAB ────────────────────────────────────────────────── */}
             {activeTab === 'Payroll' && (
-                <div className="max-w-7xl mx-auto space-y-6">
+                <div className="max-w-full mx-auto space-y-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h2 className="text-2xl font-black text-slate-800 tracking-tight">Payroll Processing</h2>
@@ -579,7 +579,7 @@ const Payroll = () => {
                                 type="month"
                                 value={selectedMonth}
                                 onChange={e => setSelectedMonth(e.target.value)}
-                                className="h-10 pl-4 pr-3 rounded-lg border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-violet-50 text-sm font-medium text-slate-700 bg-white outline-none transition-all"
+                                className="h-10 pl-4 pr-3 rounded-lg border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-primary-light text-sm font-medium text-slate-700 bg-white outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -596,7 +596,7 @@ const Payroll = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {payrollLoading ? (
-                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-violet-500" size={28} /></td></tr>
+                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={28} /></td></tr>
                                 ) : staffList.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="py-20 text-center">
@@ -619,7 +619,7 @@ const Payroll = () => {
                                             <tr key={staff.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
+                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm">
                                                             {(staff.name || '?').charAt(0)}
                                                         </div>
                                                         <div>
@@ -664,7 +664,7 @@ const Payroll = () => {
                                 { label: 'Total Base Pay', val: `₹${totalMonthlyPayroll.toLocaleString('en-IN')}`, color: 'text-slate-800' },
                                 { label: 'Total PF (12%)', val: `₹${(totalMonthlyPayroll * 0.12).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-rose-500' },
                                 { label: 'Net Payable', val: `₹${(totalMonthlyPayroll * 0.88).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-emerald-600' },
-                                { label: 'Staff Count', val: staffList.length, color: 'text-violet-600' },
+                                { label: 'Staff Count', val: staffList.length, color: 'text-primary' },
                             ].map(({ label, val, color }) => (
                                 <div key={label}>
                                     <p className="text-xs font-medium text-slate-400 mb-1">{label}</p>
@@ -682,11 +682,11 @@ const Payroll = () => {
 // ── Reusable Stat Card ────────────────────────────────────────────────────────
 const StatCard = ({ icon: Icon, label, value, color, isText }) => {
     const colorMap = {
-        indigo: 'bg-violet-50 text-violet-600',
+        indigo: 'bg-primary-light text-primary',
         emerald: 'bg-emerald-50 text-emerald-600',
         amber: 'bg-amber-50 text-amber-600',
-        purple: 'bg-purple-50 text-purple-600',
-        blue: 'bg-violet-50 text-violet-600',
+        purple: 'bg-purple-50 text-primary',
+        blue: 'bg-primary-light text-primary',
         rose: 'bg-rose-50 text-rose-600',
     };
     return (

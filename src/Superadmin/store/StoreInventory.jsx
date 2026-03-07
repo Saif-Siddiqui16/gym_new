@@ -81,7 +81,7 @@ const StoreInventory = () => {
     const lowStockCount = inventory.filter(i => i.stock <= 10).length;
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
             {/* Header */}
             <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -92,10 +92,10 @@ const StoreInventory = () => {
                     <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1">Monitor stock levels and warehouse locations</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <button onClick={() => { setSelectedProduct(null); setDrawerMode('add'); setIsAddDrawerOpen(true); }} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl text-sm font-black shadow-md shadow-violet-200 hover:scale-105 hover:bg-violet-700 transition-all">
+                    <button onClick={() => { setSelectedProduct(null); setDrawerMode('add'); setIsAddDrawerOpen(true); }} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-sm font-black shadow-md shadow-violet-200 hover:scale-105 hover:bg-primary-hover transition-all">
                         <Plus size={18} /> Add New Product
                     </button>
-                    <button onClick={fetchInventory} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl text-sm font-black shadow-xl shadow-violet-200 hover:scale-105 transition-all">
+                    <button onClick={fetchInventory} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-sm font-black shadow-xl shadow-violet-200 hover:scale-105 transition-all">
                         <RefreshCcw size={18} className={loading ? "animate-spin" : ""} /> Sync Inventory
                     </button>
                 </div>
@@ -131,7 +131,7 @@ const StoreInventory = () => {
                 {filteredInventory.map(item => (
                     <div key={item.id} className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 hover:shadow-2xl transition-all group">
                         <div className="flex justify-between items-start mb-6">
-                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-500 transition-colors overflow-hidden">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400 group-hover:bg-primary-light group-hover:text-primary transition-colors overflow-hidden">
                                 {item.image ? (
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -164,10 +164,10 @@ const StoreInventory = () => {
                         </div>
 
                         <div className="mt-6 flex gap-2">
-                            <button onClick={() => handleUpdateStock(item.id, item.stock)} className="flex-1 py-3 bg-violet-600 text-white rounded-xl font-black text-xs hover:bg-violet-700 shadow-md shadow-violet-200 transition-all">
+                            <button onClick={() => handleUpdateStock(item.id, item.stock)} className="flex-1 py-3 bg-primary text-white rounded-xl font-black text-xs hover:bg-primary-hover shadow-md shadow-violet-200 transition-all">
                                 Update Stock
                             </button>
-                            <button onClick={() => handleEditProduct(item)} className="p-3 bg-violet-50 text-violet-600 rounded-xl hover:bg-violet-100 transition-all" title="Edit">
+                            <button onClick={() => handleEditProduct(item)} className="p-3 bg-primary-light text-primary rounded-xl hover:bg-violet-100 transition-all" title="Edit">
                                 <Edit2 size={16} />
                             </button>
                             <button onClick={() => handleDeleteProduct(item.id)} className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all" title="Delete">

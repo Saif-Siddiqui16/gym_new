@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Mail, MessageSquare, Plus, Tag, Trash2, Loader, X, Phone, Search, FileText, CheckCircle } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 import { toast } from 'react-hot-toast';
+import RightDrawer from '../../../components/common/RightDrawer';
 
 const CHANNELS = [
-    { key: 'SMS', label: 'SMS Templates', icon: Phone, color: 'blue', bg: 'bg-violet-50', text: 'text-violet-600' },
-    { key: 'Email', label: 'Email Templates', icon: Mail, color: 'indigo', bg: 'bg-violet-50', text: 'text-violet-600' },
+    { key: 'SMS', label: 'SMS Templates', icon: Phone, color: 'blue', bg: 'bg-primary-light', text: 'text-primary' },
+    { key: 'Email', label: 'Email Templates', icon: Mail, color: 'indigo', bg: 'bg-primary-light', text: 'text-primary' },
     { key: 'WhatsApp', label: 'WhatsApp Templates', icon: MessageSquare, color: 'emerald', bg: 'bg-emerald-50', text: 'text-emerald-600' },
 ];
 
@@ -86,10 +87,10 @@ const MessageTemplates = () => {
         <div className="space-y-6 p-0 md:p-6 animate-fadeIn">
             {/* Header */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/30/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-fuchsia-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-primary/30/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent font-black tracking-tighter">
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent font-black tracking-tighter">
                             Communication Templates
                         </h1>
                         <p className="text-slate-400 text-[10px] sm:text-xs mt-1 uppercase tracking-widest font-bold">
@@ -98,7 +99,7 @@ const MessageTemplates = () => {
                     </div>
                     <button
                         onClick={() => setShowForm(true)}
-                        className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest"
+                        className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-primary/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest"
                     >
                         <Plus size={18} strokeWidth={3} /> Add Template
                     </button>
@@ -118,105 +119,98 @@ const MessageTemplates = () => {
             </div>
 
             {/* Add Template Drawer */}
-            {showForm && (
-                <div className="fixed inset-0 z-[100] overflow-hidden">
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowForm(false)} />
-                    <div className="absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                                    <FileText size={20} className="text-violet-500" /> Create Template
-                                </h2>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Define a reusable message template</p>
-                            </div>
-                            <button onClick={() => setShowForm(false)} className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-all">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-                            {/* Channel Selection */}
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Channel</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {CHANNELS.map(ch => (
-                                        <button
-                                            key={ch.key}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, channel: ch.key })}
-                                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${formData.channel === ch.key
-                                                ? `border-violet-500 ${ch.bg}`
-                                                : 'border-slate-100 bg-slate-50 hover:border-slate-200'
-                                                }`}
-                                        >
-                                            <ch.icon size={18} className={formData.channel === ch.key ? ch.text : 'text-slate-400'} />
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${formData.channel === ch.key ? ch.text : 'text-slate-400'}`}>{ch.key}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Title */}
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Template Name *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="e.g. Membership Renewal Reminder"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all"
-                                />
-                            </div>
-
-                            {/* Category */}
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Category</label>
-                                <select
-                                    value={formData.tag}
-                                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all appearance-none"
+            <RightDrawer
+                isOpen={showForm}
+                onClose={() => setShowForm(false)}
+                title={
+                    <span className="flex items-center gap-2">
+                        <FileText size={20} className="text-primary shrink-0" /> Create Template
+                    </span>
+                }
+                subtitle="Define a reusable message template"
+                footer={
+                    <div className="flex gap-3">
+                        <button onClick={() => setShowForm(false)} className="flex-1 py-3.5 bg-white border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-black hover:bg-slate-50 transition-all">
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={submitting}
+                            className="flex-[2] py-3.5 bg-primary text-white rounded-xl text-sm font-black shadow-md shadow-violet-200 hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                        >
+                            {submitting ? <Loader className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                            {submitting ? 'Creating...' : 'Create Template'}
+                        </button>
+                    </div>
+                }
+            >
+                <form id="template-form" onSubmit={handleSubmit} className="space-y-5">
+                    {/* Channel Selection */}
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Channel</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {CHANNELS.map(ch => (
+                                <button
+                                    key={ch.key}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, channel: ch.key })}
+                                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${formData.channel === ch.key
+                                        ? `border-primary ${ch.bg}`
+                                        : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                                        }`}
                                 >
-                                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                                </select>
-                            </div>
-
-                            {/* Body */}
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Message Body *</label>
-                                <textarea
-                                    required
-                                    rows={6}
-                                    placeholder="Hi {name}, your membership expires on {date}. Renew now to continue enjoying our services!"
-                                    value={formData.body}
-                                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all resize-none"
-                                />
-                                <p className="text-[10px] text-slate-400 font-bold mt-1">Use: {'{name}'}, {'{date}'}, {'{amount}'} as variables</p>
-                            </div>
-                        </form>
-
-                        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
-                            <button onClick={() => setShowForm(false)} className="flex-1 py-3.5 bg-white border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-black hover:bg-slate-50 transition-all">
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={submitting}
-                                className="flex-[2] py-3.5 bg-violet-600 text-white rounded-xl text-sm font-black shadow-md shadow-violet-200 hover:bg-violet-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                            >
-                                {submitting ? <Loader className="animate-spin" size={16} /> : <CheckCircle size={16} />}
-                                {submitting ? 'Creating...' : 'Create Template'}
-                            </button>
+                                    <ch.icon size={18} className={formData.channel === ch.key ? ch.text : 'text-slate-400'} />
+                                    <span className={`text-[10px] font-black uppercase tracking-widest ${formData.channel === ch.key ? ch.text : 'text-slate-400'}`}>{ch.key}</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                </div>
-            )}
+
+                    {/* Title */}
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Template Name *</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="e.g. Membership Renewal Reminder"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all"
+                        />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Category</label>
+                        <select
+                            value={formData.tag}
+                            onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                            className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all appearance-none"
+                        >
+                            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Body */}
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Message Body *</label>
+                        <textarea
+                            required
+                            rows={6}
+                            placeholder="Hi {name}, your membership expires on {date}. Renew now to continue enjoying our services!"
+                            value={formData.body}
+                            onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                            className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all resize-none"
+                        />
+                        <p className="text-[10px] text-slate-400 font-bold mt-1">Use: {'{name}'}, {'{date}'}, {'{amount}'} as variables</p>
+                    </div>
+                </form>
+            </RightDrawer>
 
             {/* Template Sections by Channel */}
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader className="animate-spin text-violet-500" size={36} />
+                    <Loader className="animate-spin text-primary" size={36} />
                 </div>
             ) : (
                 <div className="space-y-6">

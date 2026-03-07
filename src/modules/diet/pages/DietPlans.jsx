@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { ROLES } from '../../../config/roles';
 import Card from '../../../components/ui/Card';
-import '../../../styles/GlobalDesign.css';
 import { toast } from 'react-hot-toast';
 import apiClient from '../../../api/apiClient';
 
@@ -89,11 +88,11 @@ const DietPlans = ({ role }) => {
         }
 
         return (
-            <div className="saas-container h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b-2 border-slate-100">
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
+                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
                             <UtensilsCrossed size={32} strokeWidth={2.5} />
                         </div>
                         <div className="min-w-0">
@@ -104,7 +103,7 @@ const DietPlans = ({ role }) => {
                                 <span className="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest shrink-0">
                                     Target:
                                 </span>
-                                <span className="px-3 py-1 bg-violet-50 text-violet-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-violet-100 truncate">
+                                <span className="px-3 py-1 bg-primary-light text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-violet-100 truncate">
                                     {activePlan ? activePlan.target : 'Your personalized nutrition guide'}
                                 </span>
                             </div>
@@ -113,12 +112,12 @@ const DietPlans = ({ role }) => {
                     <button
                         onClick={handleRequestPlan}
                         disabled={requesting}
-                        className="w-full sm:w-auto px-8 h-12 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed">
+                        className="w-full sm:w-auto px-8 h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed">
                         <RefreshCcw size={16} strokeWidth={3} className={`transition-transform duration-500 ${requesting ? 'animate-spin' : 'group-hover:rotate-180'}`} /> Request New Plan
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-full">
                     {/* Main Section */}
                     <div className="md:col-span-2 space-y-6">
                         {loadingPlans ? (
@@ -133,7 +132,7 @@ const DietPlans = ({ role }) => {
                                         <p className="text-lg font-black text-slate-900">{activePlan.calories || '0'} kcal</p>
                                     </div>
                                     <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col items-center justify-center text-center">
-                                        <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center mb-2"><Droplets size={16} /></div>
+                                        <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center mb-2"><Droplets size={16} /></div>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protein</p>
                                         <p className="text-lg font-black text-slate-900">{macrosObj.protein || '0g'}</p>
                                     </div>
@@ -155,7 +154,7 @@ const DietPlans = ({ role }) => {
                                         <Card key={idx} className="p-5 border border-slate-100 hover:border-violet-100 bg-[#FCFCFE] rounded-2xl transition-all">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-[12px] font-black text-violet-600">
+                                                    <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-[12px] font-black text-primary">
                                                         <UtensilsCrossed size={14} />
                                                     </span>
                                                     <div>
@@ -191,7 +190,7 @@ const DietPlans = ({ role }) => {
                                     )}
                                 </div>
                                 {activePlan.notes && (
-                                    <div className="p-5 bg-violet-50/50 rounded-2xl border border-violet-100 text-sm font-bold text-slate-700 italic">
+                                    <div className="p-5 bg-primary-light/50 rounded-2xl border border-violet-100 text-sm font-bold text-slate-700 italic">
                                         " {activePlan.notes} "
                                     </div>
                                 )}
@@ -213,7 +212,7 @@ const DietPlans = ({ role }) => {
                                     <button
                                         onClick={handleRequestPlan}
                                         disabled={requesting}
-                                        className="px-10 h-14 bg-violet-600 text-white rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-violet-900/10 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                        className="px-10 h-14 bg-primary text-white rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-violet-900/10 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                                         {requesting ? 'Requesting...' : 'Request Diet Plan'}
                                     </button>
                                 </div>
@@ -240,8 +239,8 @@ const DietPlans = ({ role }) => {
                                     "Eat your last meal 2-3 hours before sleeping"
                                 ].map((tip, idx) => (
                                     <li key={idx} className="flex items-start gap-3 group">
-                                        <div className="mt-1 w-5 h-5 rounded-full bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-600 transition-colors">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-600 group-hover:bg-white transition-colors" />
+                                        <div className="mt-1 w-5 h-5 rounded-full bg-primary-light flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary group-hover:bg-white transition-colors" />
                                         </div>
                                         <p className="text-[11px] font-bold text-slate-600 leading-relaxed uppercase tracking-wide">
                                             {tip}
@@ -269,8 +268,8 @@ const DietPlans = ({ role }) => {
     }
 
     return (
-        <div className="p-4 md:p-8 bg-[#FBFBFE] min-h-screen font-sans">
-            <div className="max-w-7xl mx-auto">
+        <div className=" bg-[#FBFBFE] min-h-screen font-sans">
+            <div className="max-w-full mx-auto">
                 {/* Header with Switcher */}
                 <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                     <div className="flex items-center gap-2 p-1 md:p-1.5 bg-white border border-gray-100 rounded-2xl w-full md:w-fit shadow-sm overflow-x-auto no-scrollbar scrollbar-hide">
@@ -421,7 +420,7 @@ const TrainerDietBuilder = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Templates List */}
-            <div className="saas-card p-6 md:p-8 rounded-2xl md:rounded-[32px] bg-white border border-gray-100 shadow-sm">
+            <div className="saas-card  rounded-2xl md:rounded-[32px] bg-white border border-gray-100 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tight">Saved Templates</h2>
@@ -465,7 +464,7 @@ const TrainerDietBuilder = () => {
                                 </button>
                                 <button
                                     onClick={() => navigate('/trainer/members/assigned')}
-                                    className="px-4 py-1.5 bg-violet-50 text-violet-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white transition-all"
+                                    className="px-4 py-1.5 bg-primary-light text-primary rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
                                 >
                                     Assign
                                 </button>
@@ -476,7 +475,7 @@ const TrainerDietBuilder = () => {
             </div>
 
             {/* Plan Info Card */}
-            <div className="saas-card p-6 md:p-8 rounded-2xl md:rounded-[32px] bg-white border border-gray-100 shadow-sm space-y-6">
+            <div className="saas-card  rounded-2xl md:rounded-[32px] bg-white border border-gray-100 shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-6">
                     <div>
                         <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tight">Diet Plan Builder</h2>
@@ -486,7 +485,7 @@ const TrainerDietBuilder = () => {
                         <button
                             onClick={handleSaveTemplate}
                             disabled={saving}
-                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all disabled:opacity-50"
                         >
                             {saving ? 'Saving...' : 'Save Template'}
                         </button>
@@ -533,7 +532,7 @@ const TrainerDietBuilder = () => {
                             placeholder="150g"
                             value={macros.protein}
                             onChange={(e) => setMacros({ ...macros, protein: e.target.value })}
-                            className="w-full h-11 px-4 bg-violet-50/50 border border-violet-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
+                            className="w-full h-11 px-4 bg-primary-light/50 border border-violet-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -581,37 +580,37 @@ const TrainerDietBuilder = () => {
 
             {/* Meals Section */}
             <div className="saas-card rounded-[32px] bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 md:p-8 border-b border-gray-50 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between  border-b border-gray-50 gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600">
+                        <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
                             <UtensilsCrossed size={24} />
                         </div>
                         <div>
                             <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight leading-tight">
                                 Meal Schedule
                             </h3>
-                            <p className="text-[10px] font-black text-violet-500 uppercase tracking-widest mt-0.5">
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5">
                                 Add daily consumption targets
                             </p>
                         </div>
                     </div>
                     <button
                         onClick={addMeal}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-violet-50 text-violet-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-100 transition-all w-full sm:w-auto justify-center"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-primary-light text-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-100 transition-all w-full sm:w-auto justify-center"
                     >
                         <Plus size={16} strokeWidth={3} />
                         Add Meal
                     </button>
                 </div>
 
-                <div className="p-6 md:p-8 space-y-6 bg-[#FCFCFE]">
+                <div className=" space-y-6 bg-[#FCFCFE]">
                     {meals.length === 0 ? (
                         <div className="py-12 md:py-20 flex flex-col items-center justify-center text-gray-400 bg-gray-50/30 rounded-3xl border-2 border-dashed border-gray-100">
                             <UtensilsCrossed size={48} strokeWidth={1} className="mb-4 opacity-20" />
                             <p className="text-sm font-bold text-center px-4 uppercase tracking-widest">No meals defined yet.</p>
                             <button
                                 onClick={addMeal}
-                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-violet-600 hover:underline"
+                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
                             >
                                 Add your first meal
                             </button>
@@ -672,8 +671,8 @@ const TrainerDietBuilder = () => {
                                         </div>
 
                                         <div className="grid grid-cols-3 gap-3">
-                                            <div className="flex items-center gap-2 bg-violet-50/50 p-2 rounded-lg border border-violet-100/50">
-                                                <span className="text-[9px] font-black text-violet-600 uppercase w-10">Pro</span>
+                                            <div className="flex items-center gap-2 bg-primary-light/50 p-2 rounded-lg border border-violet-100/50">
+                                                <span className="text-[9px] font-black text-primary uppercase w-10">Pro</span>
                                                 <input
                                                     type="text"
                                                     placeholder="0g"

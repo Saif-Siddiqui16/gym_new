@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Phone, CreditCard, Activity, Calendar, LogOut, Lock } from 'lucide-react';
 import { getMemberById } from '../../api/staff/memberApi';
-import '../../styles/GlobalDesign.css';
 
 const MemberProfile = () => {
     const { state } = useLocation();
@@ -44,10 +43,10 @@ const MemberProfile = () => {
 
     if (loading) {
         return (
-            <div className="p-6 md:p-8 flex items-center justify-center min-h-screen">
+            <div className=" flex items-center justify-center min-h-screen">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-violet-600 font-bold">Loading Profile...</p>
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-primary font-bold">Loading Profile...</p>
                 </div>
             </div>
         );
@@ -55,11 +54,11 @@ const MemberProfile = () => {
 
     if (!member) {
         return (
-            <div className="p-6 md:p-8 flex flex-col items-center justify-center min-h-screen bg-gray-50">
+            <div className=" flex flex-col items-center justify-center min-h-screen bg-gray-50">
                 <h2 className="text-xl font-bold text-gray-800">Member Not Found</h2>
                 <button
                     onClick={() => navigate('/staff/members/lookup')}
-                    className="mt-4 bg-violet-600 text-white px-6 py-2 rounded-xl font-bold shadow-md">
+                    className="mt-4 bg-primary text-white px-6 py-2 rounded-xl font-bold shadow-md">
                     Back to Lookup
                 </button>
             </div>
@@ -67,7 +66,7 @@ const MemberProfile = () => {
     }
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans">
+        <div className=" bg-gray-50 min-h-screen font-sans">
             <div className="mb-6">
                 <button
                     onClick={() => navigate(-1)}
@@ -77,10 +76,10 @@ const MemberProfile = () => {
                 </button>
             </div>
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-8 text-white">
+                    <div className="bg-gradient-to-r from-primary to-primary text-white">
                         <div className="flex items-center gap-6">
                             <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl font-bold">
                                 {(member.name || '?').charAt(0)}
@@ -115,7 +114,7 @@ const MemberProfile = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                <div className="p-3 bg-violet-100 text-violet-600 rounded-lg">
+                                <div className="p-3 bg-violet-100 text-primary rounded-lg">
                                     <Phone size={20} />
                                 </div>
                                 <div>
@@ -135,7 +134,7 @@ const MemberProfile = () => {
                             </div>
 
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                <div className="p-3 bg-violet-100 text-violet-600 rounded-lg">
+                                <div className="p-3 bg-violet-100 text-primary rounded-lg">
                                     <Activity size={20} />
                                 </div>
                                 <div>
@@ -145,7 +144,7 @@ const MemberProfile = () => {
                             </div>
 
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
+                                <div className="p-3 bg-purple-100 text-primary rounded-lg">
                                     <Calendar size={20} />
                                 </div>
                                 <div>
@@ -159,7 +158,7 @@ const MemberProfile = () => {
                                 <h3 className="text-sm font-bold text-gray-900 mb-3 ml-1">Biometric Access</h3>
                                 <div
                                     onClick={handleUploadClick}
-                                    className="border-2 border-dashed border-violet-200 bg-violet-50/50 rounded-xl p-6 flex items-center justify-between group cursor-pointer hover:bg-violet-50 transition-colors"
+                                    className="border-2 border-dashed border-violet-200 bg-primary-light/50 rounded-xl p-6 flex items-center justify-between group cursor-pointer hover:bg-primary-light transition-colors"
                                 >
                                     <input
                                         type="file"
@@ -169,25 +168,25 @@ const MemberProfile = () => {
                                         accept="image/*"
                                     />
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-violet-600 shadow-sm group-hover:scale-110 transition-transform">
+                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
                                             <Activity size={24} />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-violet-900 group-hover:text-violet-600 transition-colors">Face ID Avatar</h4>
-                                            <p className="text-xs text-violet-600/80">
+                                            <h4 className="font-bold text-violet-900 group-hover:text-primary transition-colors">Face ID Avatar</h4>
+                                            <p className="text-xs text-primary/80">
                                                 {member.hasFaceId ? 'Registered & Active' : 'Not setup yet'}
                                             </p>
                                         </div>
                                     </div>
-                                    <button className="px-4 py-2 bg-white text-violet-600 text-sm font-bold rounded-lg shadow-sm hover:shadow-md transition-all">
+                                    <button className="px-4 py-2 bg-white text-primary text-sm font-bold rounded-lg shadow-sm hover:shadow-md transition-all">
                                         {member.hasFaceId ? 'Update Photo' : 'Upload Photo'}
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-8 p-4 bg-violet-50 border border-violet-100 rounded-xl">
-                            <p className="text-xs text-violet-700 font-medium">
+                        <div className="mt-8 p-4 bg-primary-light border border-violet-100 rounded-xl">
+                            <p className="text-xs text-primary-hover font-medium">
                                 <strong>Note:</strong> This is a premium member profile view. All information is fetched in real-time.
                             </p>
                         </div>

@@ -52,13 +52,13 @@ const ApiKeySettings = () => {
         <div className="space-y-3 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Icon size={18} className="text-violet-600" />
+                    <Icon size={18} className="text-primary" />
                     <label className="text-sm font-bold text-gray-700 uppercase tracking-tight">{label}</label>
                 </div>
                 <button
                     type="button"
                     onClick={() => toggleShow(id)}
-                    className="text-slate-400 hover:text-violet-600 transition-colors"
+                    className="text-slate-400 hover:text-primary transition-colors"
                 >
                     {showKeys[id] ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -68,16 +68,16 @@ const ApiKeySettings = () => {
                 value={value || ''}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:border-violet-500 focus:ring-2 focus:ring-violet-100 outline-none transition-all"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:border-primary focus:ring-2 focus:ring-violet-100 outline-none transition-all"
             />
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto space-y-6">
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
                         <Key size={24} />
                     </div>
                     <div>
@@ -127,13 +127,13 @@ const ApiKeySettings = () => {
                     />
                 </div>
 
-                <div className="bg-violet-50 p-6 rounded-2xl border border-violet-100 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm shrink-0">
+                <div className="bg-primary-light p-6 rounded-2xl border border-violet-100 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm shrink-0">
                         <ShieldCheck size={20} />
                     </div>
                     <div>
                         <h3 className="text-sm font-bold text-violet-900">Security Note</h3>
-                        <p className="text-xs text-violet-700/70 mt-1">
+                        <p className="text-xs text-primary-hover/70 mt-1">
                             Keys are encrypted at rest with AES-256. Never share your API keys or secrets in public repositories.
                         </p>
                     </div>
@@ -143,7 +143,7 @@ const ApiKeySettings = () => {
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="flex items-center gap-2 px-10 py-4 bg-violet-600 text-white rounded-xl font-bold shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95"
+                        className="flex items-center gap-2 px-10 py-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95"
                     >
                         <Save size={18} />
                         {loading ? 'Securing...' : 'Propagate API Keys'}

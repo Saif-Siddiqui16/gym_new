@@ -61,28 +61,28 @@ const BookingSettings = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
-            <div className="w-full max-w-4xl mb-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+            <div className="w-full max-w-full mb-6">
                 <button
                     onClick={() => navigate('/superadmin/general-settings/general')}
-                    className="group flex items-center text-slate-500 hover:text-violet-600 transition-all duration-300 hover:scale-105"
+                    className="group flex items-center text-slate-500 hover:text-primary transition-all duration-300 hover:scale-105"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-violet-50 transition-all duration-300 mr-2 group-hover:scale-110">
+                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-all duration-300 mr-2 group-hover:scale-110">
                         <ArrowLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-1" />
                     </div>
                     <span className="font-semibold">Back to Dashboard</span>
                 </button>
             </div>
 
-            <div className="w-full max-w-4xl mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="w-full max-w-full mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                             <Calendar size={28} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                 Booking Rules
                             </h1>
                             <p className="text-slate-600 text-sm mt-1">Configure specific windows for classes and premium benefits</p>
@@ -91,13 +91,13 @@ const BookingSettings = () => {
                 </div>
             </div>
 
-            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <div className="w-full max-w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
                 <div className="p-8 sm:p-10 space-y-10">
 
                     {/* Class Rules */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-violet-50 rounded-lg text-violet-600">
+                            <div className="p-2 bg-primary-light rounded-lg text-primary">
                                 <Dumbbell size={20} />
                             </div>
                             <h3 className="text-lg font-bold text-slate-800">Group Class Rules</h3>
@@ -115,7 +115,7 @@ const BookingSettings = () => {
                                         name="classCancellationWindow"
                                         value={settings.classCancellationWindow}
                                         onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all font-semibold"
                                     />
                                     <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Hours Before</span>
                                 </div>
@@ -132,7 +132,7 @@ const BookingSettings = () => {
                                         name="classAdvanceBookingDays"
                                         value={settings.classAdvanceBookingDays}
                                         onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all font-semibold"
+                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all font-semibold"
                                     />
                                     <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Days Out</span>
                                 </div>
@@ -205,7 +205,7 @@ const BookingSettings = () => {
                                     <span className="text-sm font-bold text-slate-700">Late Cancellation Penalty</span>
                                     <label className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="penaltyEnabled" checked={settings.penaltyEnabled} onChange={handleChange} className="sr-only peer" />
-                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                     </label>
                                 </div>
 
@@ -217,7 +217,7 @@ const BookingSettings = () => {
                                             name="penaltyCredits"
                                             value={settings.penaltyCredits}
                                             onChange={handleChange}
-                                            className="block w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all"
+                                            className="block w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 text-sm focus:border-primary focus:ring-2 focus:ring-violet-200 transition-all"
                                         />
                                     </div>
                                 )}
@@ -231,9 +231,9 @@ const BookingSettings = () => {
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className="group relative flex items-center justify-center px-8 py-4 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
+                            className="group relative flex items-center justify-center px-8 py-4 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <Save size={20} className="mr-2 relative transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
                             <span className="relative">{loading ? 'Saving...' : 'Save Configuration'}</span>
                         </button>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Download, Users, TrendingUp, IndianRupee, BarChart3, ShoppingBag, Package, ArrowUpRight, Clock, ShieldAlert } from 'lucide-react';
-import '../../../styles/GlobalDesign.css';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 
@@ -78,17 +77,17 @@ const BranchPerformanceReport = () => {
         }
     };
 
-    useEffect(() => { 
-        fetchReport(); 
+    useEffect(() => {
+        fetchReport();
     }, [selectedBranch]);
 
     const orderTabs = ['New', 'Processing', 'Completed'];
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[calc(100vh-6rem)]">
+            <div className="flex items-center justify-center min-">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Generating Performance Report...</p>
                 </div>
             </div>
@@ -96,25 +95,25 @@ const BranchPerformanceReport = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-6">
+        <div className="min-h-screen ">
 
             {/* ── Header ── */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-emerald-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-emerald-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-transform duration-300">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white shadow-lg transition-transform duration-300">
                                 <BarChart3 size={28} />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-emerald-600 bg-clip-text text-transparent">
                                     {welcomeTitle}
                                 </h1>
                                 <p className="text-slate-600 text-sm mt-1">Complete performance insights for {activeBranch ? activeBranch.branchName : 'all branches'}</p>
                             </div>
                         </div>
-                        <button onClick={handleExport} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-purple-500/30 self-start sm:self-auto relative z-10">
+                        <button onClick={handleExport} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-purple-500/30 self-start sm:self-auto relative z-10">
                             <Download size={18} />
                             Export Data
                         </button>
@@ -125,23 +124,29 @@ const BranchPerformanceReport = () => {
             {/* ── Top KPI Cards ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                 {[
-                    { label: 'Total Members', value: statsData.totalMembers.toString(), icon: Users, from: 'from-violet-500', to: 'to-purple-600' },
+                    { label: 'Total Members', value: statsData.totalMembers.toString(), icon: Users, from: 'from-blue-600', to: 'to-indigo-600' },
                     { label: 'Total Revenue', value: `₹${(statsData.revenueThisMonth / 1000).toFixed(1)}k`, icon: IndianRupee, from: 'from-emerald-500', to: 'to-emerald-600' },
-                    { label: 'Collection Rate', value: `${statsData.collectionRate}%`, icon: TrendingUp, from: 'from-violet-500', to: 'to-purple-600' },
+                    { label: 'Collection Rate', value: `${statsData.collectionRate}%`, icon: TrendingUp, from: 'from-blue-400', to: 'to-blue-600' },
                     { label: 'Pending Dues', value: `₹${(statsData.pendingDues / 1000).toFixed(1)}k`, icon: Activity, from: 'from-fuchsia-500', to: 'to-fuchsia-600' },
                 ].map((kpi, i) => (
-                    <div key={i} className="group bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div className="w-full">
-                                <p className="text-sm font-semibold text-slate-600 mb-2">{kpi.label}</p>
-                                <h3 className="text-3xl font-black text-slate-900 mb-2">{kpi.value}</h3>
-                                <p className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                                    <ArrowUpRight size={14} className="text-emerald-500" />
-                                    Live Data
-                                </p>
+                    <div key={i} className="group bg-white rounded-2xl shadow-lg border border-slate-100 p-4 sm:p-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 overflow-hidden relative">
+                        {/* Subtle background glow */}
+                        <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-0 group-hover:opacity-5 transition-opacity duration-300 bg-gradient-to-br ${kpi.from} ${kpi.to}`}></div>
+
+                        <div className="flex items-center justify-between gap-4 relative z-10">
+                            <div className="min-w-0">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{kpi.label}</p>
+                                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight truncate">{kpi.value}</h3>
+                                <div className="mt-2 flex items-center gap-1.5">
+                                    <div className="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                        <ArrowUpRight size={10} className="text-emerald-500" />
+                                        <span className="text-[10px] font-black text-emerald-600 uppercase">Live</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-400 truncate">Real-time Data</span>
+                                </div>
                             </div>
-                            <div className={`w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-xl bg-gradient-to-br ${kpi.from} ${kpi.to} flex items-center justify-center text-white shadow-lg transition-transform duration-300`}>
-                                <kpi.icon size={20} className="sm:w-6 sm:h-6" />
+                            <div className={`w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br ${kpi.from} ${kpi.to} flex items-center justify-center text-white shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6`}>
+                                <kpi.icon size={24} className="transition-transform group-hover:scale-115" strokeWidth={2.5} />
                             </div>
                         </div>
                     </div>
@@ -153,7 +158,7 @@ const BranchPerformanceReport = () => {
                 <div className="lg:col-span-2 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="mb-2">
                         <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <BarChart3 className="text-violet-600" size={18} />
+                            <BarChart3 className="text-primary" size={18} />
                             Earning Reports
                         </h3>
                         <p className="text-xs text-slate-500 font-semibold">Revenue trends over the last 12 months</p>
@@ -163,9 +168,9 @@ const BranchPerformanceReport = () => {
                             const maxValue = Math.max(...earningsData.revenue, 1);
                             const h = (earningsData.revenue[i] / maxValue) * 100;
                             return (
-                                <div key={month} className="flex-1 bg-violet-50 rounded-t-lg relative group/bar">
+                                <div key={month} className="flex-1 bg-primary-light rounded-t-lg relative group/bar">
                                     <div
-                                        className="absolute bottom-0 w-full bg-gradient-to-t from-violet-600 to-purple-500 rounded-t-lg transition-all duration-500 cursor-pointer"
+                                        className="absolute bottom-0 w-full bg-gradient-to-t from-primary to-purple-500 rounded-t-lg transition-all duration-500 cursor-pointer"
                                         style={{ height: `${h || 2}%` }}
                                     >
                                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
@@ -183,7 +188,7 @@ const BranchPerformanceReport = () => {
                     {/* Earnings Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
                         {[
-                            { label: 'Earnings', value: `₹${(earningsData.totalIncome / 1000).toFixed(1)}k`, color: 'text-violet-600', bg: 'bg-violet-50' },
+                            { label: 'Earnings', value: `₹${(earningsData.totalIncome / 1000).toFixed(1)}k`, color: 'text-primary', bg: 'bg-primary-light' },
                             { label: 'Profit', value: `₹${((earningsData.totalIncome - earningsData.totalExpenses) / 1000).toFixed(1)}k`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                             { label: 'Expenses', value: `₹${(earningsData.totalExpenses / 1000).toFixed(1)}k`, color: 'text-rose-600', bg: 'bg-rose-50' },
                         ].map((item) => (
@@ -199,7 +204,7 @@ const BranchPerformanceReport = () => {
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="mb-4">
                         <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <Users className="text-violet-600" size={18} />
+                            <Users className="text-primary" size={18} />
                             Member Retention
                         </h3>
                         <p className="text-xs text-slate-500 font-semibold">Membership status distribution</p>
@@ -262,7 +267,7 @@ const BranchPerformanceReport = () => {
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="mb-4">
                         <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <Activity className="text-violet-600" size={18} />
+                            <Activity className="text-primary" size={18} />
                             Net Profit
                         </h3>
                         <p className="text-xs text-slate-500 font-semibold">Weekly income - expenses</p>
@@ -333,7 +338,7 @@ const BranchPerformanceReport = () => {
                                 key={tab}
                                 onClick={() => setActiveOrderTab(tab)}
                                 className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeOrderTab === tab
-                                    ? 'bg-violet-600 text-white shadow-md'
+                                    ? 'bg-primary text-white shadow-md'
                                     : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                     }`}
                             >
@@ -362,10 +367,9 @@ const BranchPerformanceReport = () => {
                                         <td className="px-6 py-4 text-xs text-slate-500 font-medium">{order.itemsCount} Items</td>
                                         <td className="px-6 py-4 text-xs font-black text-slate-900">₹{Number(order.total).toLocaleString()}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.15em] ${
-                                                order.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' :
+                                            <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.15em] ${order.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' :
                                                 order.status === 'Processing' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'
-                                            }`}>
+                                                }`}>
                                                 {order.status}
                                             </span>
                                         </td>
@@ -391,7 +395,7 @@ const BranchPerformanceReport = () => {
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="mb-4">
                         <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <TrendingUp className="text-violet-600" size={18} />
+                            <TrendingUp className="text-primary" size={18} />
                             Membership Growth
                         </h3>
                         <p className="text-xs text-slate-500 font-semibold">New members per month</p>
@@ -401,9 +405,9 @@ const BranchPerformanceReport = () => {
                             const maxValue = Math.max(...membershipGrowth.values, 1);
                             const h = (membershipGrowth.values[i] / maxValue) * 100;
                             return (
-                                <div key={i} className="w-full bg-violet-50 rounded-t-lg relative group/bar">
+                                <div key={i} className="w-full bg-primary-light rounded-t-lg relative group/bar">
                                     <div
-                                        className="absolute bottom-0 w-full bg-violet-500 rounded-t-lg transition-all duration-500"
+                                        className="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all duration-500"
                                         style={{ height: `${Math.max(h, 5)}%` }}
                                     ></div>
                                     <div className="absolute -bottom-6 w-full text-center text-[8px] font-bold text-slate-400">

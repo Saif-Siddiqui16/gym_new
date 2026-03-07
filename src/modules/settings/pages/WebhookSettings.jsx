@@ -18,6 +18,7 @@ import {
 import { fetchSystemHealthAPI } from '../../../api/admin/adminApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import StatsCard from '../../dashboard/components/StatsCard';
 
 const WebhookSettings = () => {
     const { selectedBranch } = useBranchContext();
@@ -57,12 +58,12 @@ const WebhookSettings = () => {
     const tabs = ['All', 'Open', 'Resolved'];
 
     return (
-        <div className="bg-gradient-to-br from-[#f8fafc] via-white to-violet-50/20 min-h-screen p-6 md:p-10 pb-24 font-sans text-slate-800">
-            <div className="max-w-7xl mx-auto space-y-10">
+        <div className="p-4 sm:p-8 bg-gradient-to-br from-[#f8fafc] via-white to-primary-light/20 min-h-screen pb-24 font-sans text-slate-800">
+            <div className="max-w-full mx-auto space-y-10">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-[2rem] bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 ring-4 ring-violet-50">
+                        <div className="w-16 h-16 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 ring-4 ring-primary-light">
                             <Activity size={32} />
                         </div>
                         <div>
@@ -72,7 +73,7 @@ const WebhookSettings = () => {
                     </div>
                     <button
                         onClick={loadData}
-                        className="h-14 px-8 bg-white text-slate-600 border-2 border-slate-100 rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-sm hover:border-violet-100 hover:text-violet-600 transition-all active:scale-95 group"
+                        className="h-14 px-8 bg-white text-slate-600 border-2 border-slate-100 rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-sm hover:border-violet-100 hover:text-primary transition-all active:scale-95 group"
                     >
                         <RefreshCcw size={18} className="group-hover:rotate-180 transition-transform duration-500" /> Refresh Diagnostics
                     </button>
@@ -81,17 +82,14 @@ const WebhookSettings = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {statsCards.map((card, idx) => (
-                        <div key={idx} className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex items-center justify-between group hover:border-violet-100 transition-all relative overflow-hidden">
-                            <div className="relative z-10">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{card.label}</p>
-                                <h3 className="text-3xl font-black text-slate-900 mb-1">{card.value}</h3>
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{card.subtitle}</p>
-                            </div>
-                            <div className={`w-14 h-14 bg-${card.color}-50 text-${card.color}-600 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-sm`}>
-                                <card.icon size={24} strokeWidth={2.5} />
-                            </div>
-                            <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${card.color}-50/30 rounded-full blur-2xl group-hover:scale-150 transition-transform animate-pulse`} />
-                        </div>
+                        <StatsCard
+                            key={idx}
+                            title={card.label}
+                            value={card.value.toString()}
+                            subtitle={card.subtitle}
+                            icon={card.icon}
+                            color={card.color === 'emerald' ? 'success' : card.color === 'rose' ? 'danger' : card.color === 'indigo' ? 'primary' : 'info'}
+                        />
                     ))}
                 </div>
 
@@ -105,7 +103,7 @@ const WebhookSettings = () => {
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === tab
-                                        ? 'bg-white text-violet-600 shadow-sm ring-1 ring-slate-100'
+                                        ? 'bg-white text-primary shadow-sm ring-1 ring-slate-100'
                                         : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
@@ -125,7 +123,7 @@ const WebhookSettings = () => {
                     <div className="p-8 min-h-[400px]">
                         {loading ? (
                             <div className="py-32 flex flex-col items-center justify-center opacity-30">
-                                <Loader2 className="animate-spin text-violet-600 mb-6" size={48} />
+                                <Loader2 className="animate-spin text-primary mb-6" size={48} />
                                 <p className="text-sm font-black text-slate-900 uppercase tracking-widest animate-pulse">Synchronizing Core Engine...</p>
                             </div>
                         ) : data.logs.length === 0 ? (
@@ -141,13 +139,13 @@ const WebhookSettings = () => {
                                 {data.logs.map(log => (
                                     <div
                                         key={log.id}
-                                        className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100/80 flex flex-col gap-6 hover:bg-white hover:border-violet-100 hover:shadow-lg hover:shadow-violet-50/50 transition-all group overflow-hidden relative"
+                                        className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100/80 flex flex-col gap-6 hover:bg-white hover:border-violet-100 hover:shadow-lg hover:shadow-primary-light/50 transition-all group overflow-hidden relative"
                                     >
                                         <div className="flex flex-wrap items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
                                                 <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${log.status === 'Open'
-                                                        ? 'bg-rose-50 text-rose-600 border-rose-100'
-                                                        : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                    ? 'bg-rose-50 text-rose-600 border-rose-100'
+                                                    : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                                     }`}>
                                                     {log.status}
                                                 </div>
@@ -156,7 +154,7 @@ const WebhookSettings = () => {
                                                     {new Date(log.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-violet-600 uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-violet-100 shadow-sm">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-violet-100 shadow-sm">
                                                 <Terminal size={14} className="text-violet-400" />
                                                 Action: {log.action || 'UNDEFINED'}
                                             </div>
@@ -190,11 +188,11 @@ const WebhookSettings = () => {
                                                 </div>
                                             </div>
 
-                                            <button className="h-10 px-6 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-violet-600 transition-all shadow-xl shadow-slate-200 flex items-center gap-2 group/btn active:scale-95">
+                                            <button className="h-10 px-6 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary transition-all shadow-xl shadow-slate-200 flex items-center gap-2 group/btn active:scale-95">
                                                 Generate AI Fix <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                                             </button>
                                         </div>
-                                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-violet-50/20 rounded-full blur-3xl group-hover:bg-violet-100/30 transition-all pointer-events-none" />
+                                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary-light/20 rounded-full blur-3xl group-hover:bg-violet-100/30 transition-all pointer-events-none" />
                                     </div>
                                 ))}
                             </div>

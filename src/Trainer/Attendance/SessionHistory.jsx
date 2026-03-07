@@ -69,7 +69,7 @@ const SessionHistory = () => {
                     <input
                         type="text"
                         placeholder="Search sessions..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-violet-500 focus:bg-white focus:shadow-md transition-all duration-300 outline-none"
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-white focus:shadow-md transition-all duration-300 outline-none"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -91,7 +91,7 @@ const SessionHistory = () => {
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
-                        <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                         <p className="mt-4 text-gray-500 font-medium">Loading history...</p>
                     </div>
                 ) : history.length > 0 ? (
@@ -109,20 +109,20 @@ const SessionHistory = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {history.map((session) => (
-                                        <tr key={session.id} className="hover:bg-violet-50/30 hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer hover:shadow-md">
+                                        <tr key={session.id} className="hover:bg-primary-light/30 hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer hover:shadow-md">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:scale-110 group-hover:bg-violet-100 transition-all duration-300">
+                                                    <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-violet-100 transition-all duration-300">
                                                         <Calendar size={20} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-gray-900 group-hover:text-violet-600 transition-colors uppercase">{session.workout}</p>
+                                                        <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors uppercase">{session.workout}</p>
                                                         <p className="text-xs text-gray-500">{session.date} • {session.time}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${session.type === 'Personal Training' || session.type === 'One-on-One' ? 'bg-purple-50 text-purple-600' : 'bg-violet-50 text-violet-600'
+                                                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${session.type === 'Personal Training' || session.type === 'One-on-One' ? 'bg-purple-50 text-primary' : 'bg-primary-light text-primary'
                                                     }`}>
                                                     {session.type}
                                                 </span>
@@ -142,7 +142,7 @@ const SessionHistory = () => {
                                             <td className="px-6 py-4 text-right">
                                                 <button
                                                     onClick={() => setShowDetails(session)}
-                                                    className="inline-flex items-center gap-2 px-4 py-1.5 text-violet-600 hover:bg-violet-50 hover:scale-105 hover:shadow-md rounded-lg text-sm font-bold transition-all duration-200"
+                                                    className="inline-flex items-center gap-2 px-4 py-1.5 text-primary hover:bg-primary-light hover:scale-105 hover:shadow-md rounded-lg text-sm font-bold transition-all duration-200"
                                                 >
                                                     <Eye size={16} />
                                                     Details
@@ -160,7 +160,7 @@ const SessionHistory = () => {
                                 <div key={session.id} className="p-4 flex flex-col gap-4 active:bg-gray-50 transition-colors">
                                     <div className="flex justify-between items-start">
                                         <div className="flex gap-3">
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md">
                                                 <Calendar size={22} />
                                             </div>
                                             <div>
@@ -168,7 +168,7 @@ const SessionHistory = () => {
                                                 <p className="text-xs text-gray-500">{session.date} • {session.time}</p>
                                             </div>
                                         </div>
-                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-tight ${session.type === 'Personal Training' || session.type === 'One-on-One' ? 'bg-purple-100 text-purple-700' : 'bg-violet-100 text-violet-700'
+                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-tight ${session.type === 'Personal Training' || session.type === 'One-on-One' ? 'bg-purple-100 text-primary-hover' : 'bg-violet-100 text-primary-hover'
                                             }`}>
                                             {session.type === 'Personal Training' || session.type === 'One-on-One' ? 'PT' : 'Group'}
                                         </span>
@@ -241,7 +241,7 @@ const SessionHistory = () => {
                                 ].map((m, i) => (
                                     <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-xs font-bold">
+                                            <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-primary text-xs font-bold">
                                                 {(m.name || '?').charAt(0)}
                                             </div>
                                             <span className="text-sm font-medium text-gray-700">{m.name}</span>
@@ -263,7 +263,7 @@ const SessionHistory = () => {
                             <button className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-2xl transition-colors" onClick={() => setShowDetails(null)}>
                                 Close
                             </button>
-                            <button className="flex-1 py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/30/20 transition-all">
+                            <button className="flex-1 py-3 bg-primary hover:bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/30/20 transition-all">
                                 Edit Record
                             </button>
                         </div>

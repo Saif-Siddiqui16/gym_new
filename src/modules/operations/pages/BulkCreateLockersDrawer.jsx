@@ -54,7 +54,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white font-sans animate-in slide-in-from-right-4">
-            <div className="flex-1 overflow-y-auto p-8 space-y-10">
+            <div className="flex-1  space-y-10">
                 {/* Prefix & Range */}
                 <div className="space-y-6">
                     <div className="space-y-2.5">
@@ -63,7 +63,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                             type="text"
                             value={formData.prefix}
                             onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}
-                            className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                            className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                         />
                     </div>
 
@@ -74,7 +74,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                                 type="number"
                                 value={formData.startNumber}
                                 onChange={(e) => setFormData({ ...formData, startNumber: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                 min="1"
                             />
                         </div>
@@ -84,7 +84,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                                 type="number"
                                 value={formData.endNumber}
                                 onChange={(e) => setFormData({ ...formData, endNumber: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                 min="1"
                             />
                         </div>
@@ -99,7 +99,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                             <select
                                 value={formData.size}
                                 onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat shadow-sm"
+                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat shadow-sm"
                             >
                                 <option value="Small">Small</option>
                                 <option value="Medium">Medium</option>
@@ -110,7 +110,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
 
                     <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-300">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-violet-50 border border-violet-100 rounded-xl flex items-center justify-center text-violet-500 group-hover:scale-110 transition-transform">
+                            <div className="w-10 h-10 bg-primary-light border border-violet-100 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                                 <CreditCard size={18} />
                             </div>
                             <div>
@@ -125,24 +125,24 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                                 checked={formData.isChargeable}
                                 onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
                             />
-                            <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600 shadow-inner"></div>
+                            <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shadow-inner"></div>
                         </label>
                     </div>
 
                     {formData.isChargeable && (
                         <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 italic flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                                 Monthly Rental Fee (per branch)
                             </label>
                             <div className="relative group">
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors font-black text-sm">₹</div>
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors font-black text-sm">₹</div>
                                 <input
                                     type="number"
                                     value={formData.price}
                                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     placeholder="0.00"
-                                    className="w-full h-14 pl-10 pr-5 bg-white border-2 border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                                    className="w-full h-14 pl-10 pr-5 bg-white border-2 border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                 />
                             </div>
                         </div>
@@ -196,7 +196,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                 <button
                     type="submit"
                     disabled={loading || isNaN(previewCount) || previewCount <= 0}
-                    className="flex-[1.5] h-12 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-violet-700 hover:scale-105 transition-all disabled:opacity-50"
+                    className="flex-[1.5] h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-primary-hover hover:scale-105 transition-all disabled:opacity-50"
                 >
                     {loading ? 'Creating...' : `Create ${isNaN(previewCount) ? 0 : previewCount} Lockers`}
                 </button>

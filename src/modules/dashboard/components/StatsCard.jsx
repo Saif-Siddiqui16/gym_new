@@ -5,11 +5,11 @@ import Card from '../../../components/ui/Card';
 const StatsCard = ({ title, value, icon: Icon, trend, trendDirection, subtitle, color = 'primary' }) => {
 
     const colorClasses = {
-        primary: { bg: 'bg-violet-50', text: 'text-violet-600', iconBg: 'group-hover:bg-violet-600 group-hover:text-white' },
+        primary: { bg: 'bg-primary-light', text: 'text-primary', iconBg: 'group-hover:bg-primary group-hover:text-white' },
         success: { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'group-hover:bg-emerald-600 group-hover:text-white' },
         warning: { bg: 'bg-amber-50', text: 'text-amber-600', iconBg: 'group-hover:bg-amber-600 group-hover:text-white' },
         danger: { bg: 'bg-red-50', text: 'text-red-600', iconBg: 'group-hover:bg-red-600 group-hover:text-white' },
-        info: { bg: 'bg-violet-50', text: 'text-violet-600', iconBg: 'group-hover:bg-violet-600 group-hover:text-white' },
+        info: { bg: 'bg-primary-light', text: 'text-primary', iconBg: 'group-hover:bg-primary group-hover:text-white' },
     };
 
     const trendColors = {
@@ -22,34 +22,41 @@ const StatsCard = ({ title, value, icon: Icon, trend, trendDirection, subtitle, 
     const trendStyle = trendColors[trendDirection] || trendColors.stable;
 
     return (
-        <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md border border-transparent hover:border-slate-200 cursor-pointer p-3 sm:p-6 h-full min-h-[120px] flex flex-col justify-center !rounded-2xl">
-            <div className="flex justify-between items-start relative z-10 w-full gap-3">
+        <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 border border-slate-100 hover:border-primary/20 cursor-pointer p-8 h-full min-h-[140px] flex flex-col justify-center !rounded-[2.5rem] bg-white">
+            <div className="flex items-center justify-between gap-4 relative z-10 w-full">
                 <div className="flex flex-col flex-1 min-w-0">
-                    <div className="text-slate-400 font-bold text-[10px] md:text-xs mb-1.5 uppercase tracking-widest truncate">
+                    <p className="saas-label !mb-2 truncate font-bold text-slate-400 uppercase tracking-widest text-[10px]">
                         {title}
-                    </div>
-                    <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight truncate mb-1">
+                    </p>
+                    <div className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight leading-none truncate">
                         {value}
                     </div>
+                </div>
+                <div className={`shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 transform group-hover:rotate-6 group-hover:scale-110 shadow-lg shadow-black/5 ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
+                    {Icon && <Icon size={26} strokeWidth={2.5} className="transition-colors duration-300" />}
+                </div>
+            </div>
+
+            {(subtitle || trend) && (
+                <div className="flex items-center justify-between gap-2 mt-5 pt-5 border-t border-slate-50/50 relative z-10">
                     {subtitle && (
-                        <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wide truncate">
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">
                             {subtitle}
                         </div>
                     )}
-                </div>
-                <div className={`shrink-0 w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
-                    {Icon && <Icon size={20} className="md:w-6 md:h-6 transition-colors duration-300" strokeWidth={2.5} />}
-                </div>
-            </div>
-            {trend && (
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-50">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${trendStyle.bg} ${trendStyle.text}`}>
-                        {trend}
-                    </span>
+                    {trend && (
+                        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${trendStyle.bg} ${trendStyle.text}`}>
+                            {trend}
+                        </span>
+                    )}
                 </div>
             )}
 
-            <div className={`absolute -bottom-4 -right-4 w-24 h-24 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${currentStyle.bg}`}></div>
+            {/* Background Decoration - Subtle and Clean */}
+            <div className={`absolute -bottom-6 -right-6 w-32 h-32 rounded-full opacity-0 group-hover:opacity-15 blur-3xl transition-opacity duration-500 pointer-events-none ${currentStyle.bg}`}></div>
+            {Icon && (
+                <Icon size={90} className={`absolute -bottom-6 -right-6 opacity-0 group-hover:opacity-[0.03] transition-all duration-500 transform group-hover:-rotate-12 group-hover:scale-110 pointer-events-none ${currentStyle.text}`} />
+            )}
         </Card>
     );
 };

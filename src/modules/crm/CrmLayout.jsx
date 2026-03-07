@@ -15,19 +15,19 @@ const CrmLayout = () => {
     const isTrainerLeads = location.pathname === '/crm/my-leads';
 
     return (
-        <div className="saas-container p-0 md:p-8 bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
-            <div className="max-w-[1400px] mx-auto">
+        <div className="saas-container p-0 bg-gradient-to-br from-slate-50 via-white to-primary-light/30">
+            <div className="w-full">
                 {/* SAFELY COMMENTED OUT: CRM & Sales Header with tabs
                 <header className="mb-8 relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-5 animate-pulse"></div>
-                    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 md:p-6">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-5 animate-pulse"></div>
+                    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 ">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                                     <Search size={28} />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent tracking-tight">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent tracking-tight">
                                         {isTrainerLeads ? 'My Leads' : 'CRM & Sales'}
                                     </h1>
                                     <p className="text-slate-600 text-sm mt-1 font-medium">
@@ -47,8 +47,8 @@ const CrmLayout = () => {
                                                 className={`
                                                     flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap
                                                     ${isActive
-                                                        ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-200'
-                                                        : 'text-slate-400 hover:text-violet-600 hover:bg-white'
+                                                        ? 'bg-gradient-to-r from-primary to-primary text-white shadow-lg shadow-violet-200'
+                                                        : 'text-slate-400 hover:text-primary hover:bg-white'
                                                     }
                                                 `}
                                             >

@@ -193,7 +193,7 @@ const WebsiteSettings = () => {
 
             {/* Content Area */}
             {activeTab === 'General' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="mb-10">
                         <h2 className="text-card-title">General Settings</h2>
                         <p className="text-muted text-sm mt-0.5">Basic information about your gym displayed on the website</p>
@@ -282,7 +282,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Hero' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="mb-10">
                         <h2 className="text-card-title">Hero Section</h2>
                         <p className="text-muted text-sm mt-0.5">The main banner visitors see first</p>
@@ -338,7 +338,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Features' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h2 className="text-card-title">Features</h2>
@@ -430,7 +430,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Pricing' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h2 className="text-card-title">Pricing Plans</h2>
@@ -534,7 +534,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Reviews' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h2 className="text-card-title">Member Testimonials</h2>
@@ -622,7 +622,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Social' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="mb-10">
                         <h2 className="text-card-title">Social Media Links</h2>
                         <p className="text-muted text-sm mt-0.5">Connect your social media profiles</p>
@@ -647,7 +647,7 @@ const WebsiteSettings = () => {
 
                         <div className="space-y-3">
                             <label className="form-label flex items-center gap-2">
-                                <Facebook size={16} className="text-violet-600" />
+                                <Facebook size={16} className="text-primary" />
                                 Facebook
                             </label>
                             <input
@@ -697,7 +697,7 @@ const WebsiteSettings = () => {
             )}
 
             {activeTab === 'Theme' && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
                     <div className="mb-10">
                         <h2 className="text-card-title">Theme Colors</h2>
                         <p className="text-muted text-sm mt-0.5">Customize your website's color scheme</p>

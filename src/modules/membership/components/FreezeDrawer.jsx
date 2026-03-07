@@ -31,7 +31,7 @@ const FreezeDrawer = ({ isOpen, onClose, onFreeze, memberName }) => {
             }
         >
             <form id="freeze-form" onSubmit={handleSubmit} className="flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                <div className="flex-1  pr-2 space-y-6">
                     <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex gap-3 text-orange-800 text-sm font-bold">
                         <AlertTriangle className="shrink-0" size={20} />
                         <p>Freezing membership for {memberName} will pause their access and extend their expiry date.</p>

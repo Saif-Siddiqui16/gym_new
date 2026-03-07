@@ -73,10 +73,10 @@ const InquiryForm = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-full mx-auto">
             <div className="saas-card animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-center gap-4 mb-6 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg">
                         <UserPlus size={24} className="md:w-[28px] md:h-[28px]" />
                     </div>
                     <div>
@@ -156,7 +156,7 @@ const InquiryForm = () => {
                                         type="button"
                                         onClick={() => handleInterestToggle(interest)}
                                         className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border transition-all ${formData.interests.includes(interest)
-                                            ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-100 scale-105'
+                                            ? 'bg-primary border-primary text-white shadow-md shadow-violet-100 scale-105'
                                             : 'bg-white border-slate-200 text-slate-500 hover:border-violet-300'
                                             }`}
                                     >
@@ -274,7 +274,7 @@ const InquiryForm = () => {
                         <button
                             disabled={loading}
                             className={`
-                                w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-violet-200/50 
+                                w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-violet-200/50 
                                 hover:shadow-xl hover:shadow-violet-300/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-3
                                 ${loading ? 'opacity-70 cursor-not-allowed' : ''}
                             `}

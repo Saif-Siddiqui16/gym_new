@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { QrCode, ShieldCheck, Clock, Zap, Loader } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import { getMemberQrProfile } from '../../api/member/memberApi';
 
 const MemberCheckIn = () => {
@@ -26,13 +25,13 @@ const MemberCheckIn = () => {
     if (loading || !profile) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <Loader className="animate-spin text-violet-600" size={40} />
+                <Loader className="animate-spin text-primary" size={40} />
             </div>
         );
     }
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans">
+        <div className=" bg-gray-50 min-h-screen font-sans">
             <div className="max-w-2xl mx-auto space-y-8">
                 <div className="text-center">
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">Quick Check-In</h1>
@@ -41,10 +40,10 @@ const MemberCheckIn = () => {
 
                 <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50 flex flex-col items-center">
                     {/* Mock QR Code */}
-                    <div className="w-64 h-64 bg-gray-50 rounded-[32px] p-8 border-2 border-dashed border-gray-200 flex items-center justify-center relative group">
+                    <div className="w-64 h-64 bg-gray-50 rounded-[32px] border-2 border-dashed border-gray-200 flex items-center justify-center relative group">
                         <QrCode size={160} className="text-gray-800" strokeWidth={1.5} />
                         <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[32px]">
-                            <button onClick={loadProfile} className="bg-violet-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg">Refresh Code</button>
+                            <button onClick={loadProfile} className="bg-primary text-white px-6 py-3 rounded-2xl font-black shadow-lg">Refresh Code</button>
                         </div>
                     </div>
 
@@ -61,23 +60,23 @@ const MemberCheckIn = () => {
                                 <p className="text-sm font-black text-green-900">{profile.status || 'Active'}</p>
                             </div>
                         </div>
-                        <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 flex items-center gap-3">
-                            <Clock className="text-violet-600" size={24} />
+                        <div className="p-4 bg-primary-light rounded-2xl border border-violet-100 flex items-center gap-3">
+                            <Clock className="text-primary" size={24} />
                             <div>
-                                <p className="text-xs font-bold text-violet-700 uppercase">Late Entry</p>
+                                <p className="text-xs font-bold text-primary-hover uppercase">Late Entry</p>
                                 <p className="text-sm font-black text-violet-900">Allowed</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-violet-50 p-6 rounded-[28px] flex items-start gap-4 border border-violet-100">
-                    <div className="p-2 bg-white rounded-xl text-violet-600 shadow-sm">
+                <div className="bg-primary-light p-6 rounded-[28px] flex items-start gap-4 border border-violet-100">
+                    <div className="p-2 bg-white rounded-xl text-primary shadow-sm">
                         <Zap size={20} fill="currentColor" />
                     </div>
                     <div>
                         <p className="text-sm font-bold text-violet-900">Pro Tip</p>
-                        <p className="text-xs text-violet-700 mt-1 leading-relaxed">Checking in consistently helps you maintain your <strong>Consistency Badge</strong> and earn extra reward points!</p>
+                        <p className="text-xs text-primary-hover mt-1 leading-relaxed">Checking in consistently helps you maintain your <strong>Consistency Badge</strong> and earn extra reward points!</p>
                     </div>
                 </div>
             </div>

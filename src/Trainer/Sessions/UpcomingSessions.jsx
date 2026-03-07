@@ -91,17 +91,17 @@ const UpcomingSessions = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="transform hover:translate-x-1 transition-transform duration-300">
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text hover:from-violet-600 hover:to-purple-600 transition-all duration-500">Upcoming Sessions</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text hover:from-primary hover:to-primary transition-all duration-500">Upcoming Sessions</h1>
                     <p className="text-gray-500 text-sm mt-1 hover:text-gray-700 transition-colors duration-300">Review your schedule for the next 7 days</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="relative p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-violet-600 hover:bg-violet-50 transition-all shadow-sm hover:scale-110 hover:shadow-lg hover:border-violet-300 group">
+                    <button className="relative p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-primary hover:bg-primary-light transition-all shadow-sm hover:scale-110 hover:shadow-lg hover:border-violet-300 group">
                         <Bell size={20} className="group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
                         <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
                     </button>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-violet-600 !text-white rounded-xl text-sm font-bold hover:bg-violet-500 transition-all shadow-lg shadow-violet-200 active:scale-95 hover:scale-105 hover:shadow-xl"
+                        className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-primary !text-white rounded-xl text-sm font-bold hover:bg-primary transition-all shadow-lg shadow-violet-200 active:scale-95 hover:scale-105 hover:shadow-xl"
                     >
                         <span className="hidden sm:inline">Create New Slot</span><span className="sm:hidden">+ New</span>
                     </button>
@@ -111,11 +111,11 @@ const UpcomingSessions = () => {
             {/* Filters Bar */}
             <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center hover:shadow-xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
                 <div className="relative flex-1 w-full group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-violet-500 group-hover:scale-110 transition-all duration-300" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary group-hover:scale-110 transition-all duration-300" size={18} />
                     <input
                         type="text"
                         placeholder="Search by session title or member name..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-violet-500 transition-all outline-none hover:bg-white hover:shadow-sm"
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary transition-all outline-none hover:bg-white hover:shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -143,7 +143,7 @@ const UpcomingSessions = () => {
             {/* Sessions List */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                    <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-4 text-gray-500 font-medium">Loading sessions...</p>
                 </div>
             ) : sessions.length > 0 ? (
@@ -151,14 +151,14 @@ const UpcomingSessions = () => {
                     {sessions.map((session) => (
                         <div key={session.id} className="group bg-white rounded-[32px] border border-gray-100 shadow-sm hover:shadow-2xl hover:border-violet-200 transition-all duration-500 overflow-hidden flex flex-col md:flex-row hover:scale-[1.02] transform">
                             {/* Date Badge Side */}
-                            <div className="md:w-36 bg-slate-50 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-violet-50 transition-colors duration-500">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-violet-600 transition-colors duration-300">
+                            <div className="md:w-36 bg-slate-50 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-100 group-hover:bg-primary-light transition-colors duration-500">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors duration-300">
                                     {new Date(session.date).toLocaleDateString('en-US', { weekday: 'short' })}
                                 </p>
-                                <p className="text-3xl font-black text-slate-900 group-hover:text-violet-600 group-hover:scale-110 transition-all duration-500">
+                                <p className="text-3xl font-black text-slate-900 group-hover:text-primary group-hover:scale-110 transition-all duration-500">
                                     {new Date(session.date).getDate()}
                                 </p>
-                                <p className="text-[10px] font-black text-slate-500 group-hover:text-violet-600 transition-colors duration-300 uppercase tracking-tighter">
+                                <p className="text-[10px] font-black text-slate-500 group-hover:text-primary transition-colors duration-300 uppercase tracking-tighter">
                                     {new Date(session.date).toLocaleDateString('en-US', { month: 'short' })}
                                 </p>
                             </div>
@@ -178,7 +178,7 @@ const UpcomingSessions = () => {
                                                 e.stopPropagation();
                                                 setActiveDropdown(activeDropdown === session.id ? null : session.id);
                                             }}
-                                            className={`p-1.5 rounded-lg transition-all hover:scale-110 ${activeDropdown === session.id ? 'bg-violet-50 text-violet-600 rotate-90' : 'hover:bg-gray-50 text-gray-300'}`}
+                                            className={`p-1.5 rounded-lg transition-all hover:scale-110 ${activeDropdown === session.id ? 'bg-primary-light text-primary rotate-90' : 'hover:bg-gray-50 text-gray-300'}`}
                                         >
                                             <MoreVertical size={18} />
                                         </button>
@@ -188,7 +188,7 @@ const UpcomingSessions = () => {
                                                 <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
                                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-20 animate-in zoom-in-95 duration-200 origin-top-right">
                                                     <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors group/item">
-                                                        <Edit size={16} className="text-violet-500 group-hover/item:scale-125 group-hover/item:rotate-12 transition-all duration-300" /> Edit Slot
+                                                        <Edit size={16} className="text-primary group-hover/item:scale-125 group-hover/item:rotate-12 transition-all duration-300" /> Edit Slot
                                                     </button>
                                                     <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors group/item">
                                                         <Download size={16} className="text-purple-500 group-hover/item:scale-125 group-hover/item:-translate-y-0.5 transition-all duration-300" /> Export Roster
@@ -205,17 +205,17 @@ const UpcomingSessions = () => {
 
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:scale-110 transition-transform duration-300 inline-block border ${session.type === 'One-on-One' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-violet-50 text-violet-600 border-violet-100'
+                                        <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest group-hover:scale-110 transition-transform duration-300 inline-block border ${session.type === 'One-on-One' ? 'bg-purple-50 text-primary border-purple-100' : 'bg-primary-light text-primary border-violet-100'
                                             }`}>
                                             {session.type}
                                         </span>
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-800 group-hover:text-violet-600 group-hover:translate-x-1 transition-all duration-300 mb-4 tracking-tight leading-tight">{session.title}</h3>
+                                    <h3 className="text-xl font-black text-slate-800 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 mb-4 tracking-tight leading-tight">{session.title}</h3>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
-                                        <div className="flex items-center gap-3 text-slate-500 group-hover:text-violet-600 transition-colors duration-300">
+                                        <div className="flex items-center gap-3 text-slate-500 group-hover:text-primary transition-colors duration-300">
                                             <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-white group-hover:shadow-md group-hover:scale-110 transition-all duration-300">
-                                                <Clock size={16} className="text-violet-500 group-hover:rotate-12 transition-transform duration-300" />
+                                                <Clock size={16} className="text-primary group-hover:rotate-12 transition-transform duration-300" />
                                             </div>
                                             <span className="text-[11px] font-black uppercase tracking-widest">{session.time}</span>
                                         </div>
@@ -237,7 +237,7 @@ const UpcomingSessions = () => {
                                 <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                     <div className="flex -space-x-3">
                                         {[1, 2, 3].map((i) => (
-                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-violet-50 flex items-center justify-center text-[10px] font-black text-violet-600 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:z-10 shadow-sm">
+                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-primary-light flex items-center justify-center text-[10px] font-black text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 hover:z-10 shadow-sm">
                                                 {String.fromCharCode(64 + i)}
                                             </div>
                                         ))}
@@ -252,7 +252,7 @@ const UpcomingSessions = () => {
                                             setSelectedSession(session);
                                             setIsDetailsModalOpen(true);
                                         }}
-                                        className="flex items-center gap-2 py-2 px-4 bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-widest text-violet-600 hover:bg-violet-600 hover:text-white transition-all hover:scale-105 active:scale-95 group/btn shadow-sm hover:shadow-violet-100"
+                                        className="flex items-center gap-2 py-2 px-4 bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all hover:scale-105 active:scale-95 group/btn shadow-sm hover:shadow-violet-100"
                                     >
                                         View Details <ArrowUpRight size={14} className="group-hover/btn:rotate-45 group-hover/btn:scale-125 transition-all duration-300" />
                                     </button>
@@ -283,7 +283,7 @@ const UpcomingSessions = () => {
                         <button className="flex-1 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-black text-gray-700 hover:bg-gray-100 hover:border-gray-300 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
                             <CalendarDays size={18} /> Reschedule
                         </button>
-                        <button className="flex-1 py-4 bg-violet-600 !text-white rounded-2xl text-sm font-black hover:bg-violet-700 shadow-xl shadow-violet-200 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <button className="flex-1 py-4 bg-primary !text-white rounded-2xl text-sm font-black hover:bg-primary-hover shadow-xl shadow-violet-200 active:scale-95 transition-all flex items-center justify-center gap-2">
                             <Download size={18} /> Download Roster
                         </button>
                     </div>
@@ -295,7 +295,7 @@ const UpcomingSessions = () => {
                         <div className="p-8 border-b border-gray-100 bg-gray-50/30 flex items-start justify-between">
                             <div className="flex gap-6">
                                 <div className="w-20 h-20 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-                                    <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest leading-none mb-1">
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">
                                         {new Date(selectedSession.date).toLocaleDateString('en-US', { month: 'short' })}
                                     </p>
                                     <p className="text-2xl font-black text-gray-900 leading-none">
@@ -318,10 +318,10 @@ const UpcomingSessions = () => {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-8 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8 overflow-y-auto custom-scrollbar">
+                        <div className="p-8 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8  custom-scrollbar">
                             {/* Stats Column */}
                             <div className="md:col-span-1 space-y-4">
-                                <div className="p-5 bg-violet-50 rounded-3xl border border-violet-100/50">
+                                <div className="p-5 bg-primary-light rounded-3xl border border-violet-100/50">
                                     <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-3">Capacity</p>
                                     <div className="flex items-end gap-2">
                                         <p className="text-3xl font-black text-violet-900">{selectedSession.members}</p>
@@ -329,7 +329,7 @@ const UpcomingSessions = () => {
                                     </div>
                                     <div className="mt-4 w-full h-2 bg-white rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-violet-600 rounded-full transition-all duration-1000"
+                                            className="h-full bg-primary rounded-full transition-all duration-1000"
                                             style={{ width: `${(selectedSession.members / selectedSession.maxMembers) * 100}%` }}
                                         />
                                     </div>
@@ -337,7 +337,7 @@ const UpcomingSessions = () => {
 
                                 <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors group">
                                     <div className="flex items-center gap-3">
-                                        <FileText size={18} className="text-gray-400 group-hover:text-violet-600 transition-colors" />
+                                        <FileText size={18} className="text-gray-400 group-hover:text-primary transition-colors" />
                                         <span className="text-sm font-bold text-gray-600">Session Plan</span>
                                     </div>
                                     <ArrowUpRight size={16} className="text-gray-300" />
@@ -348,7 +348,7 @@ const UpcomingSessions = () => {
                             <div className="md:col-span-2">
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                                     Enrolled Members
-                                    <span className="text-violet-600">View All</span>
+                                    <span className="text-primary">View All</span>
                                 </h3>
                                 <div className="space-y-3">
                                     {[
@@ -358,7 +358,7 @@ const UpcomingSessions = () => {
                                     ].map((m, idx) => (
                                         <div key={idx} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl hover:border-violet-200 hover:shadow-md transition-all group cursor-pointer">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-black text-sm group-hover:from-violet-600 group-hover:to-violet-700 group-hover:text-white transition-all">
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-black text-sm group-hover:from-primary group-hover:to-primary-hover group-hover:text-white transition-all">
                                                     {m.name.charAt(0)}
                                                 </div>
                                                 <div>
@@ -392,7 +392,7 @@ const UpcomingSessions = () => {
                         <button
                             onClick={handleCreateSlot}
                             disabled={isSaving}
-                            className={`flex-1 py-4 bg-violet-600 !text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70' : 'hover:bg-violet-700 active:scale-95'}`}
+                            className={`flex-1 py-4 bg-primary !text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-70' : 'hover:bg-primary-hover active:scale-95'}`}
                         >
                             {isSaving ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
                             {isSaving ? 'Saving...' : 'Create Slot'}
@@ -406,7 +406,7 @@ const UpcomingSessions = () => {
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Title</label>
                             <input
                                 type="text"
-                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 placeholder="e.g. Morning Yoga"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -417,7 +417,7 @@ const UpcomingSessions = () => {
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Date</label>
                                 <input
                                     type="date"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                     value={formData.date}
                                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                 />
@@ -426,7 +426,7 @@ const UpcomingSessions = () => {
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Time</label>
                                 <input
                                     type="time"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                     value={formData.time}
                                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                                 />
@@ -437,7 +437,7 @@ const UpcomingSessions = () => {
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Duration</label>
                                 <input
                                     type="text"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                     placeholder="60 min"
                                     value={formData.duration}
                                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
@@ -447,7 +447,7 @@ const UpcomingSessions = () => {
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Capacity</label>
                                 <input
                                     type="number"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                     placeholder="20"
                                     value={formData.maxMembers}
                                     onChange={(e) => setFormData({ ...formData, maxMembers: e.target.value })}
@@ -458,7 +458,7 @@ const UpcomingSessions = () => {
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Location</label>
                             <input
                                 type="text"
-                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 placeholder="Studio A"
                                 value={formData.location}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -467,7 +467,7 @@ const UpcomingSessions = () => {
                         <div>
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Type</label>
                             <select
-                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             >

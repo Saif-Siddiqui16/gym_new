@@ -156,7 +156,7 @@ const TrainerEarnings = () => {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-20 min-h-screen bg-slate-50">
-            <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-slate-500 font-medium tracking-tight">Loading your earnings...</p>
         </div>
     );
@@ -168,7 +168,7 @@ const TrainerEarnings = () => {
     };
 
     return (
-        <div className="saas-container space-y-8 fade-in h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent relative">
+        <div className="saas-container space-y-8 fade-in   scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent relative">
 
             {/* Printable Payslip Structure */}
             <PrintablePayslip data={earningsData} activeMonthData={activeMonthData} />
@@ -180,7 +180,7 @@ const TrainerEarnings = () => {
                         My Earnings
                     </h1>
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-violet-50 text-violet-600 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Trainer Portal</span>
+                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-primary-light text-primary rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Trainer Portal</span>
                         <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-200" />
                         <p className="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest">
                             Track your sessions and earnings
@@ -196,7 +196,7 @@ const TrainerEarnings = () => {
                         key={item.month}
                         onClick={() => setActiveMonth(item.month)}
                         className={`flex-1 sm:flex-none px-4 md:px-6 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeMonth === item.month
-                            ? 'bg-white text-violet-600 shadow-lg shadow-violet-100'
+                            ? 'bg-white text-primary shadow-lg shadow-violet-100'
                             : 'text-slate-400 hover:text-slate-600'
                             }`}
                     >
@@ -241,7 +241,7 @@ const TrainerEarnings = () => {
 
             {/* Total Section & Payslip */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start print:hidden">
-                <Card className="lg:col-span-2 p-6 md:p-8 space-y-6 md:space-y-8 border-2 border-slate-100 shadow-xl shadow-slate-100/20">
+                <Card className="lg:col-span-2  space-y-6 md:space-y-8 border-2 border-slate-100 shadow-xl shadow-slate-100/20">
                     <div className="text-left">
                         <div className="space-y-2">
                             <h3 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
@@ -263,15 +263,15 @@ const TrainerEarnings = () => {
                     </div>
                 </Card>
 
-                <Card className="flex flex-col items-center text-center p-6 md:p-8 border-2 border-violet-100 shadow-xl shadow-violet-100/20 bg-gradient-to-br from-white to-violet-50/10">
-                    <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl md:rounded-3xl flex items-center justify-center text-violet-600 shadow-lg border border-violet-50 mb-4 md:mb-6 transform hover:scale-110 transition-transform">
+                <Card className="flex flex-col items-center text-center  border-2 border-violet-100 shadow-xl shadow-violet-100/20 bg-gradient-to-br from-white to-primary-light/10">
+                    <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-2xl md:rounded-3xl flex items-center justify-center text-primary shadow-lg border border-primary-light mb-4 md:mb-6 transform hover:scale-110 transition-transform">
                         <FileText size={28} className="md:w-8 md:h-8" />
                     </div>
                     <h3 className="text-[11px] md:text-sm font-black text-slate-900 uppercase tracking-widest mb-1 md:mb-2">Payslip</h3>
                     <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 md:mb-8 px-2 md:px-4">Detailed breakdown of your monthly payouts</p>
                     <button
                         onClick={handlePrint}
-                        className="w-full h-11 md:h-12 bg-violet-600 !text-white rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-1 transition-all"
+                        className="w-full h-11 md:h-12 bg-primary !text-white rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all"
                     >
                         Download Payslip
                     </button>
@@ -281,7 +281,7 @@ const TrainerEarnings = () => {
             {/* Completed Sessions Section */}
             <div className="space-y-4 md:space-y-6 print:hidden">
                 <div className="flex items-center gap-3 px-1 text-left">
-                    <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                    <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                         <Clock size={16} />
                     </div>
                     <h2 className="text-[11px] md:text-sm font-black text-slate-900 uppercase tracking-widest">Completed Sessions — {activeMonthData?.month}</h2>
@@ -301,14 +301,14 @@ const TrainerEarnings = () => {
             </div>
 
             {/* Information Card */}
-            <div className="p-6 md:p-8 bg-violet-50 rounded-2xl md:rounded-[2rem] border border-violet-100 text-left print:hidden shadow-sm">
+            <div className=" bg-primary-light rounded-2xl md:rounded-[2rem] border border-violet-100 text-left print:hidden shadow-sm">
                 <div className="relative z-10 flex flex-col md:flex-row items-start gap-4 md:gap-6">
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center text-violet-600 shadow-sm border border-violet-100 shrink-0">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm border border-violet-100 shrink-0">
                         <Info size={20} className="md:w-6 md:h-6" />
                     </div>
                     <div>
                         <h3 className="text-sm md:text-lg font-black text-violet-900 tracking-tight mb-1 md:mb-2 uppercase">Earnings Calculation</h3>
-                        <p className="text-[9px] md:text-xs text-violet-600/80 font-bold leading-relaxed max-w-4xl uppercase tracking-widest">
+                        <p className="text-[9px] md:text-xs text-primary/80 font-bold leading-relaxed max-w-full uppercase tracking-widest">
                             Earnings shown are estimates based on completed sessions and base salary. Final payment may vary based on commission structure, deductions, and company policies. Download your payslip for detailed breakdown.
                         </p>
                     </div>

@@ -17,7 +17,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-violet-600 uppercase tracking-widest shadow-sm">
+                    <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-primary uppercase tracking-widest shadow-sm">
                         {product.category}
                     </span>
                     {product.price < product.originalPrice && (
@@ -31,13 +31,13 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
                     <button
                         onClick={() => onViewDetails(product)}
-                        className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-800 shadow-xl hover:bg-violet-600 hover:text-white transition-all transform hover:scale-110 active:scale-95"
+                        className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-800 shadow-xl hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95"
                     >
                         <Eye size={20} />
                     </button>
                     <button
                         onClick={() => onAddToCart(product)}
-                        className="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:bg-slate-900 transition-all transform hover:scale-110 active:scale-95"
+                        className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl hover:bg-slate-900 transition-all transform hover:scale-110 active:scale-95"
                     >
                         <ShoppingBag size={20} />
                     </button>
@@ -47,7 +47,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
             {/* Content Section */}
             <div className="p-7">
                 <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-slate-800 leading-tight group-hover:text-violet-600 transition-colors duration-300">
+                    <h3 className="text-xl font-bold text-slate-800 leading-tight group-hover:text-primary transition-colors duration-300">
                         {product.name}
                     </h3>
                     <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-lg">
@@ -65,17 +65,17 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
                         <span className="block text-[10px] text-slate-400 line-through mb-1 font-bold tracking-wider">
                             ₹{product.originalPrice.toLocaleString()}
                         </span>
-                        <span className="text-2xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                        <span className="text-2xl font-black bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                             ₹{product.price.toLocaleString()}
                         </span>
                     </div>
 
                     <button
                         onClick={() => onAddToCart(product)}
-                        className="relative overflow-hidden group/btn px-6 py-3 bg-slate-900 rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.1em] transition-all hover:bg-violet-600 active:scale-95"
+                        className="relative overflow-hidden group/btn px-6 py-3 bg-slate-900 rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.1em] transition-all hover:bg-primary active:scale-95"
                     >
                         <span className="relative z-10">Add To Cart</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 scale-x-0 group-hover/btn:scale-x-100 origin-left transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 scale-x-0 group-hover/btn:scale-x-100 origin-left transition-transform duration-500" />
                     </button>
                 </div>
             </div>

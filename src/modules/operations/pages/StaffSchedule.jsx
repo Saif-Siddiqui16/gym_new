@@ -66,20 +66,20 @@ const StaffSchedule = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
             {/* Premium Header with Gradient */}
             <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-2 sm:gap-3">
-                            <Users className="text-violet-600 flex-shrink-0" size={24} />
+                            <Users className="text-primary flex-shrink-0" size={24} />
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Staff Schedule
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
+                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
                                         PREMIUM ✨
                                     </span>
                                 </div>
@@ -96,26 +96,26 @@ const StaffSchedule = () => {
                     <div className="relative group">
                         <Search
                             size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 group-focus-within:scale-110 transition-all duration-300"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300"
                         />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search by name or role..."
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 focus:bg-white transition-all duration-300 hover:border-slate-300"
+                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300"
                         />
                     </div>
 
                     <div className="relative group">
                         <Filter
                             size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
                         />
                         <select
                             value={filterRole}
                             onChange={(e) => setFilterRole(e.target.value)}
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
+                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
                         >
                             <option value="">All Roles</option>
                             <option value="Trainer">Trainer</option>
@@ -127,12 +127,12 @@ const StaffSchedule = () => {
                     <div className="relative group">
                         <Shield
                             size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
                         />
                         <select
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
+                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
                         >
                             <option value="">All Status</option>
                             <option value="On Duty">On Duty</option>
@@ -175,15 +175,15 @@ const StaffSchedule = () => {
                             {filteredStaff.map((staff) => (
                                 <tr
                                     key={staff.id}
-                                    className="group hover:bg-gradient-to-r hover:from-violet-50/50 hover:via-purple-50/30 hover:to-transparent transition-all duration-300 cursor-pointer"
+                                    className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:via-purple-50/30 hover:to-transparent transition-all duration-300 cursor-pointer"
                                 >
                                     <td className="px-6 py-4" data-label="Staff Member">
                                         <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                                                 {(staff.name || '?').charAt(0)}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-semibold text-slate-900 group-hover:text-violet-600 transition-colors duration-300">
+                                                <div className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors duration-300">
                                                     {staff.name}
                                                 </div>
                                             </div>
@@ -191,7 +191,7 @@ const StaffSchedule = () => {
                                     </td>
                                     <td className="px-6 py-4" data-label="Role">
                                         <div className="flex justify-end sm:justify-start">
-                                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border border-slate-200 shadow-sm group-hover:scale-110 group-hover:shadow-md group-hover:from-violet-50 group-hover:to-purple-50 group-hover:text-violet-700 group-hover:border-violet-200 transition-all duration-300">
+                                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border border-slate-200 shadow-sm group-hover:scale-110 group-hover:shadow-md group-hover:from-primary-light group-hover:to-purple-50 group-hover:text-primary-hover group-hover:border-violet-200 transition-all duration-300">
                                                 {staff.role}
                                             </span>
                                         </div>
@@ -216,7 +216,7 @@ const StaffSchedule = () => {
                 {filteredStaff.length === 0 && (
                     <div className="p-12 sm:p-16 text-center">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
-                            <Users size={32} className="sm:w-10 sm:h-10 text-violet-600" />
+                            <Users size={32} className="sm:w-10 sm:h-10 text-primary" />
                         </div>
                         <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Staff Found</h3>
                         <p className="text-slate-600 text-sm">Try adjusting your search or filter criteria</p>
@@ -228,7 +228,7 @@ const StaffSchedule = () => {
             {filteredStaff.length === 0 && (
                 <div className="md:hidden bg-white rounded-xl shadow-xl border border-slate-100 p-12 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
-                        <Users size={32} className="text-violet-600" />
+                        <Users size={32} className="text-primary" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">No Staff Found</h3>
                     <p className="text-slate-600 text-sm">Try adjusting your search or filter criteria</p>

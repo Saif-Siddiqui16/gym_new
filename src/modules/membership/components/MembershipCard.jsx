@@ -20,7 +20,7 @@ const MembershipCard = ({ membership }) => {
     return (
         <div className="group relative bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col">
             {/* Gradient Background on Hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br from-violet-50/0 via-purple-50/0 to-pink-50/0 group-hover:from-violet-50/50 group-hover:via-purple-50/30 group-hover:to-pink-50/50 transition-all duration-500 rounded-2xl`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-br from-primary-light/0 via-purple-50/0 to-pink-50/0 group-hover:from-primary-light/50 group-hover:via-purple-50/30 group-hover:to-pink-50/50 transition-all duration-500 rounded-2xl`}></div>
 
             {/* Content */}
             <div className="relative z-10">
@@ -28,11 +28,11 @@ const MembershipCard = ({ membership }) => {
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                         {/* Avatar with Gradient */}
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                             {getInitials(membership.memberName)}
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-violet-600 transition-colors duration-300">
+                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary transition-colors duration-300">
                                 {membership.memberName}
                             </h3>
                             <div className="flex items-center gap-1 text-gray-500 text-sm">
@@ -45,12 +45,12 @@ const MembershipCard = ({ membership }) => {
                 </div>
 
                 {/* Plan Info Section */}
-                <div className="py-4 px-4 mb-4 bg-gradient-to-br from-gray-50 to-violet-50/30 rounded-xl border-2 border-gray-100 group-hover:border-violet-200 transition-all duration-300">
-                    <div className="font-bold text-base bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                <div className="py-4 px-4 mb-4 bg-gradient-to-br from-gray-50 to-primary-light/30 rounded-xl border-2 border-gray-100 group-hover:border-violet-200 transition-all duration-300">
+                    <div className="font-bold text-base bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent mb-2">
                         {membership.planName}
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <Calendar size={14} className="text-violet-500" />
+                        <Calendar size={14} className="text-primary" />
                         <span>{membership.startDate} — {membership.endDate}</span>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ const MembershipCard = ({ membership }) => {
                 {/* View Details Button */}
                 <button
                     onClick={() => navigate(`/memberships/${membership.id}`)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 group/btn"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 group/btn"
                 >
                     <span>View Details</span>
                     <ArrowRight size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1" />

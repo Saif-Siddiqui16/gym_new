@@ -39,6 +39,8 @@ import {
     Pie
 } from 'recharts';
 import { useBranchContext } from '../../../context/BranchContext';
+import Button from '../../../components/ui/Button';
+import RightDrawer from '../../../components/common/RightDrawer';
 
 const PTSessions = () => {
     const { selectedBranch } = useBranchContext();
@@ -235,18 +237,26 @@ const PTSessions = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="saas-container p-4 md:p-6 space-y-6">
+        <div className="saas-container  space-y-6">
             {/* Header Area */}
-            <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-center md:text-left">
-                <div>
-                    <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">PT Sessions</h1>
-                    <p className="text-slate-500 text-[10px] md:text-sm font-medium uppercase tracking-widest mt-1">Manage personal training packages and sessions</p>
+            <div className="saas-card !p-8 mb-8 relative overflow-hidden group">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
+                            <Dumbbell size={28} />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">PT Sessions</h1>
+                            <p className="text-slate-500 text-sm font-medium mt-2">Manage personal training packages and sessions</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -343,12 +353,12 @@ const PTSessions = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm font-bold transition-all relative whitespace-nowrap flex items-center justify-center ${activeTab === tab.id ? 'text-violet-600' : 'text-slate-500 hover:text-slate-700'
+                                className={`px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm font-bold transition-all relative whitespace-nowrap flex items-center justify-center ${activeTab === tab.id ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 {tab.label}
                                 {activeTab === tab.id && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-primary rounded-full" />
                                 )}
                             </button>
                         ))}
@@ -358,7 +368,7 @@ const PTSessions = () => {
                         <div className="py-2 xs:py-0 w-full xs:w-auto flex justify-center xs:justify-end">
                             <button
                                 onClick={() => setIsSessionDrawerOpen(true)}
-                                className="w-full xs:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
+                                className="w-full xs:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
                             >
                                 <Calendar size={16} strokeWidth={2.5} />
                                 Schedule Session
@@ -375,7 +385,7 @@ const PTSessions = () => {
                             <input
                                 type="text"
                                 placeholder={`Search ${activeTab}...`}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 outline-none transition-all text-[11px] md:text-sm font-semibold"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all text-[11px] md:text-sm font-semibold"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -386,7 +396,7 @@ const PTSessions = () => {
                         {activeTab === 'packages' && (
                             <div className="flex items-center gap-3">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${showInactive ? 'bg-violet-600' : 'bg-slate-200'}`}>
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${showInactive ? 'bg-primary' : 'bg-slate-200'}`}>
                                         <input
                                             type="checkbox"
                                             className="sr-only"
@@ -399,7 +409,7 @@ const PTSessions = () => {
                                 </label>
                             </div>
                         )}
-                        <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors">
                             <Filter size={18} />
                         </button>
                     </div>
@@ -449,7 +459,7 @@ const PTSessions = () => {
                                                 <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => handleEdit(pkg)}
-                                                        className="p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                                                        className="p-1.5 text-primary hover:bg-primary-light rounded-lg transition-colors"
                                                     >
                                                         <Edit2 size={16} />
                                                     </button>
@@ -504,7 +514,7 @@ const PTSessions = () => {
                                                     {acc.remainingSessions} / {acc.totalSessions}
                                                     <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                         <div
-                                                            className="h-full bg-violet-500 rounded-full"
+                                                            className="h-full bg-primary rounded-full"
                                                             style={{ width: `${(acc.remainingSessions / acc.totalSessions) * 100}%` }}
                                                         />
                                                     </div>
@@ -559,7 +569,7 @@ const PTSessions = () => {
                                             </td>
                                             <td className="px-6 py-4" data-label="Status">
                                                 <div className="flex justify-end sm:justify-start">
-                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sess.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600'
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sess.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-primary-light text-primary'
                                                         }`}>
                                                         {sess.status}
                                                     </span>
@@ -581,259 +591,254 @@ const PTSessions = () => {
             {/* No FAB content - button moved to tabs area */}
 
             {/* Side Panel Drawer for Creating/Editing Package */}
-            {isSidebarOpen && (
-                <div className="fixed inset-0 z-[100] overflow-hidden">
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
-                    <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-300">
-                        {/* Drawer Header */}
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-lg font-bold text-slate-800">{editingPackage ? 'Edit PT Package' : 'Add PT Package'}</h2>
-                                <p className="text-xs text-slate-500">Define a new personal training package</p>
-                            </div>
-                            <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
-                                <X size={20} />
-                            </button>
+            <RightDrawer
+                isOpen={isSidebarOpen}
+                onClose={() => !isSubmitting && setIsSidebarOpen(false)}
+                title={editingPackage ? 'Edit PT Package' : 'New PT Package'}
+                subtitle={editingPackage ? 'Update existing package details' : 'Define a new personal training offering'}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end">
+                        <Button
+                            variant="outline"
+                            disabled={isSubmitting}
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            loading={isSubmitting}
+                            onClick={handleCreatePackage}
+                        >
+                            {editingPackage ? 'Update Package' : 'Create Package'}
+                        </Button>
+                    </div>
+                }
+            >
+                <form onSubmit={handleCreatePackage} className="space-y-6">
+                    <div className="saas-form-group">
+                        <label className="saas-label">Package Name *</label>
+                        <input
+                            required
+                            placeholder="e.g. 10 Sessions Platinum"
+                            className="saas-input"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Type *</label>
+                        <select
+                            className="saas-input cursor-pointer"
+                            value={formData.sessionType}
+                            onChange={(e) => setFormData({ ...formData, sessionType: e.target.value })}
+                        >
+                            <option value="Fixed Sessions">Fixed Sessions</option>
+                            <option value="Monthly">Monthly Unlimited</option>
+                            <option value="Pay Per Session">Pay Per Session</option>
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="saas-form-group">
+                            <label className="saas-label">Sessions *</label>
+                            <input
+                                type="number"
+                                required
+                                className="saas-input"
+                                value={formData.totalSessions}
+                                onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
+                            />
                         </div>
-
-                        {/* Drawer Form */}
-                        <form onSubmit={handleCreatePackage} className="flex-1 overflow-y-auto p-6 space-y-6">
-                            <div className="space-y-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Package Name *</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="e.g. 10 Sessions Package"
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Session Type *</label>
-                                    <select
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all bg-white"
-                                        value={formData.sessionType}
-                                        onChange={(e) => setFormData({ ...formData, sessionType: e.target.value })}
-                                    >
-                                        <option value="Fixed Sessions">Per Session (Fixed sessions)</option>
-                                        <option value="Monthly">Monthly Unlimited</option>
-                                        <option value="Pay Per Session">Pay Per Session</option>
-                                    </select>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sessions *</label>
-                                        <input
-                                            required
-                                            type="number"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                                            value={formData.totalSessions}
-                                            onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Price (₹) *</label>
-                                        <input
-                                            required
-                                            type="number"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                                            value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">GST %</label>
-                                        <input
-                                            type="number"
-                                            className="w-20 px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-violet-500"
-                                            value={formData.gstPercent}
-                                            onChange={(e) => setFormData({ ...formData, gstPercent: e.target.value })}
-                                        />
-                                    </div>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">GST Inclusive</span>
-                                        <div className={`w-12 h-6 rounded-full relative transition-colors ${formData.gstInclusive ? 'bg-violet-600' : 'bg-slate-200'}`}>
-                                            <input
-                                                type="checkbox"
-                                                className="sr-only"
-                                                checked={formData.gstInclusive}
-                                                onChange={() => setFormData({ ...formData, gstInclusive: !formData.gstInclusive })}
-                                            />
-                                            <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${formData.gstInclusive ? 'translate-x-6' : ''}`} />
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Validity (days)</label>
-                                    <input
-                                        type="number"
-                                        placeholder="e.g. 90"
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                                        value={formData.validityDays}
-                                        onChange={(e) => setFormData({ ...formData, validityDays: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Description</label>
-                                    <textarea
-                                        placeholder="Package details..."
-                                        rows={3}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all resize-none"
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                        </form>
-
-                        {/* Drawer Footer */}
-                        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-4">
-                            <button
-                                onClick={() => setIsSidebarOpen(false)}
-                                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-white transition-all"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleCreatePackage}
-                                disabled={isSubmitting}
-                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 transition-all"
-                            >
-                                {isSubmitting ? 'Processing...' : (editingPackage ? 'Update Package' : 'Add Package')}
-                            </button>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Price (₹) *</label>
+                            <input
+                                type="number"
+                                required
+                                className="saas-input"
+                                value={formData.price}
+                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            />
                         </div>
                     </div>
-                </div>
-            )}
 
-            {/* Side Panel Drawer for Scheduling Session */}
-            {isSessionDrawerOpen && (
-                <div className="fixed inset-0 z-[100] overflow-hidden">
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsSessionDrawerOpen(false)} />
-                    <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-300">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-lg font-bold text-slate-800">Schedule PT Session</h2>
-                                <p className="text-xs text-slate-500">Book a personal training session</p>
-                            </div>
-                            <button onClick={() => setIsSessionDrawerOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleLogSession} className="flex-1 overflow-y-auto p-6 space-y-6">
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Member Package *</label>
-                                <select
-                                    required
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all bg-white"
-                                    value={sessionData.ptAccountId}
-                                    onChange={(e) => {
-                                        const aid = e.target.value;
-                                        const account = activeAccounts.find(acc => acc.id === parseInt(aid));
-                                        setSessionData({
-                                            ...sessionData,
-                                            ptAccountId: aid,
-                                            memberId: account ? account.memberId : '',
-                                            trainerId: sessionData.trainerId || (account?.trainerId || trainers[0]?.id || '')
-                                        });
-                                    }}
-                                >
-                                    <option value="">Select member package</option>
-                                    {activeAccounts.map(acc => (
-                                        <option key={acc.id} value={acc.id}>
-                                            {acc.member?.name} - {acc.package?.name} ({acc.remainingSessions} Left)
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time *</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input
-                                        type="date"
-                                        required
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
-                                        value={sessionData.date}
-                                        onChange={(e) => setSessionData({ ...sessionData, date: e.target.value })}
-                                    />
-                                    <input
-                                        type="time"
-                                        required
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
-                                        value={sessionData.time}
-                                        onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
-                                    />
-                                </div>
-                                <p className="text-[10px] text-slate-400 mt-1 italic pl-1">dd-mm-yyyy --:--</p>
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Duration (minutes)</label>
+                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+                        <div>
+                            <label className="saas-label !mb-1">Tax Management</label>
+                            <div className="flex items-center gap-2">
                                 <input
                                     type="number"
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
-                                    value={sessionData.duration}
-                                    onChange={(e) => setSessionData({ ...sessionData, duration: e.target.value })}
+                                    className="w-16 px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none"
+                                    value={formData.gstPercent}
+                                    onChange={(e) => setFormData({ ...formData, gstPercent: e.target.value })}
                                 />
+                                <span className="text-[10px] font-bold text-slate-400">% GST</span>
                             </div>
-                        </form>
+                        </div>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inclusive</span>
+                            <div className={`w-10 h-5 rounded-full relative transition-colors ${formData.gstInclusive ? 'bg-primary' : 'bg-slate-200'}`}>
+                                <input
+                                    type="checkbox"
+                                    className="sr-only"
+                                    checked={formData.gstInclusive}
+                                    onChange={() => setFormData({ ...formData, gstInclusive: !formData.gstInclusive })}
+                                />
+                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${formData.gstInclusive ? 'translate-x-5' : ''}`} />
+                            </div>
+                        </label>
+                    </div>
 
-                        <div className="p-6 border-t border-slate-100 bg-slate-50/10 flex gap-4">
-                            <button
-                                onClick={() => setIsSessionDrawerOpen(false)}
-                                className="flex-1 px-4 py-3 rounded-xl border-2 border-slate-100 font-bold text-slate-500 hover:bg-slate-50 transition-all text-sm"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleLogSession}
-                                disabled={isSubmitting}
-                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 transition-all text-sm shadow-md"
-                            >
-                                {isSubmitting ? 'Processing...' : 'Schedule'}
-                            </button>
+                    <div className="saas-form-group">
+                        <label className="saas-label">Validity (Days)</label>
+                        <input
+                            type="number"
+                            className="saas-input"
+                            value={formData.validityDays}
+                            onChange={(e) => setFormData({ ...formData, validityDays: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Description</label>
+                        <textarea
+                            rows={3}
+                            className="saas-input resize-none"
+                            placeholder="Package details and benefits..."
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        />
+                    </div>
+                </form>
+            </RightDrawer>
+
+            {/* Side Panel Drawer for Scheduling Session */}
+            <RightDrawer
+                isOpen={isSessionDrawerOpen}
+                onClose={() => !isSubmitting && setIsSessionDrawerOpen(false)}
+                title="Schedule PT Session"
+                subtitle="Assign a session to a member's package"
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end">
+                        <Button
+                            variant="outline"
+                            disabled={isSubmitting}
+                            onClick={() => setIsSessionDrawerOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            loading={isSubmitting}
+                            onClick={handleLogSession}
+                        >
+                            Schedule Session
+                        </Button>
+                    </div>
+                }
+            >
+                <form onSubmit={handleLogSession} className="space-y-6">
+                    <div className="saas-form-group">
+                        <label className="saas-label">Member Package *</label>
+                        <select
+                            required
+                            className="saas-input cursor-pointer"
+                            value={sessionData.ptAccountId}
+                            onChange={(e) => {
+                                const aid = e.target.value;
+                                const account = activeAccounts.find(acc => acc.id === parseInt(aid));
+                                setSessionData({
+                                    ...sessionData,
+                                    ptAccountId: aid,
+                                    memberId: account ? account.memberId : '',
+                                    trainerId: sessionData.trainerId || (account?.trainerId || trainers[0]?.id || '')
+                                });
+                            }}
+                        >
+                            <option value="">Select active package</option>
+                            {activeAccounts.map(acc => (
+                                <option key={acc.id} value={acc.id}>
+                                    {acc.member?.name} - {acc.package?.name} ({acc.remainingSessions} Left)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="saas-form-group">
+                            <label className="saas-label">Date *</label>
+                            <input
+                                type="date"
+                                required
+                                className="saas-input"
+                                value={sessionData.date}
+                                onChange={(e) => setSessionData({ ...sessionData, date: e.target.value })}
+                            />
+                        </div>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Time *</label>
+                            <input
+                                type="time"
+                                required
+                                className="saas-input"
+                                value={sessionData.time}
+                                onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
+                            />
                         </div>
                     </div>
-                </div>
-            )}
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Duration (min)</label>
+                        <input
+                            type="number"
+                            className="saas-input"
+                            value={sessionData.duration}
+                            onChange={(e) => setSessionData({ ...sessionData, duration: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Trainer Notes</label>
+                        <textarea
+                            rows={3}
+                            className="saas-input resize-none"
+                            placeholder="Workout focus, observations..."
+                            value={sessionData.notes}
+                            onChange={(e) => setSessionData({ ...sessionData, notes: e.target.value })}
+                        />
+                    </div>
+                </form>
+            </RightDrawer>
         </div>
     );
 };
 
 const KPICard = ({ title, value, icon: Icon, color = 'blue' }) => {
     const colorClasses = {
-        blue: 'bg-violet-50 text-violet-600',
-        indigo: 'bg-violet-50 text-violet-600',
+        blue: 'bg-primary-light text-primary',
+        indigo: 'bg-primary-light text-primary',
         emerald: 'bg-emerald-50 text-emerald-600',
         amber: 'bg-amber-50 text-amber-600',
         rose: 'bg-rose-50 text-rose-600'
     };
 
     return (
-        <div className="bg-white p-4 md:p-6 rounded-2xl md:rounded-[24px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative flex flex-col justify-center min-h-[100px] md:min-h-[130px]">
-            <div className="flex items-center justify-center md:justify-start gap-3 md:gap-4 relative z-10">
-                <div className={`p-2.5 md:p-3 rounded-lg md:rounded-2xl ${colorClasses[color]} group-hover:scale-110 transition-transform shrink-0`}>
-                    <Icon size={20} className="md:w-6 md:h-6" strokeWidth={2.5} />
+        <div className="saas-card !p-5 md:!p-8 hover:-translate-y-1 transition-all group overflow-hidden relative flex flex-col justify-center min-h-[110px] md:min-h-[140px]">
+            <div className="flex items-center gap-4 md:gap-6 relative z-10">
+                <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl ${colorClasses[color]} flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 shadow-sm shadow-black/5`}>
+                    <Icon size={24} className="md:w-8 md:h-8" strokeWidth={2} />
                 </div>
-                <div className="min-w-0 text-center md:text-left">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{title}</h3>
-                    <p className="text-xl md:text-2xl font-black text-slate-800 group-hover:text-violet-600 transition-colors truncate">{value}</p>
+                <div className="min-w-0">
+                    <h3 className="saas-label !mb-1 truncate">{title}</h3>
+                    <p className="text-xl md:text-3xl font-black text-slate-900 group-hover:text-primary transition-colors truncate tracking-tight">{value}</p>
                 </div>
             </div>
 
-            {/* Background Accent */}
-            <div className={`absolute -right-4 -bottom-4 w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-50 flex items-center justify-center opacity-50 group-hover:scale-125 transition-transform ${colorClasses[color].split(' ')[0]}`} />
+            {/* Background Decorative Element */}
+            <div className="absolute top-1/2 -right-4 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 bg-slate-50/50 rounded-full group-hover:scale-125 transition-all duration-700 ease-out" />
         </div>
     );
 };

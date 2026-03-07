@@ -329,7 +329,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-md px-4 py-8 overflow-y-auto">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-md px-4 py-8 ">
             <div className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col my-auto">
                 {/* Close Button */}
                 <button
@@ -371,7 +371,7 @@ const ReceiptModal = ({ isOpen, onClose, payment }) => {
                     {/* Member & Plan Info */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-500">
+                            <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
                                 <User size={24} />
                             </div>
                             <div>

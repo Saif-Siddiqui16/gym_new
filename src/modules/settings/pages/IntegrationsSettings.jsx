@@ -243,7 +243,7 @@ const IntegrationsSettings = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto font-sans animate-in fade-in duration-500 space-y-8">
+        <div className="p-4 sm: max-w-full mx-auto font-sans animate-in fade-in duration-500 space-y-8">
             {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Integrations</h1>
@@ -258,7 +258,7 @@ const IntegrationsSettings = () => {
                         <div key={idx} className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col justify-between group hover:shadow-md transition-all h-[130px]">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="text-slate-500 text-xs font-bold leading-tight max-w-[80px]">{stat.label}</span>
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors border border-slate-100/50">
+                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary-light group-hover:text-primary transition-colors border border-slate-100/50">
                                     <Icon size={20} />
                                 </div>
                             </div>
@@ -301,13 +301,13 @@ const IntegrationsSettings = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {gateways.map((gw, idx) => (
-                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 p-8 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
+                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
                                         <div className="flex items-start justify-between mb-8">
                                             <div className="flex items-center gap-6">
                                                 <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2.5 shadow-inner`}>
                                                     <div className={`w-full h-full rounded-full bg-gradient-to-br transition-transform group-hover:scale-110
-                                                        ${gw.color === 'blue' ? 'from-violet-400 to-purple-600' :
-                                                            gw.color === 'purple' ? 'from-purple-400 to-purple-600' :
+                                                        ${gw.color === 'blue' ? 'from-violet-400 to-primary' :
+                                                            gw.color === 'purple' ? 'from-purple-400 to-primary' :
                                                                 gw.color === 'emerald' ? 'from-emerald-400 to-emerald-600' :
                                                                     'from-amber-400 to-amber-600'
                                                         } shadow-lg`} />
@@ -329,7 +329,7 @@ const IntegrationsSettings = () => {
                                                 if (gw.name === 'CCAvenue') setIsCCAvenueDrawerOpen(true);
                                                 if (gw.name === 'PayU') setIsPayUDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-primary-hover hover:to-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Setup
@@ -354,7 +354,7 @@ const IntegrationsSettings = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {smsProviders.map((provider, idx) => (
-                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 p-8 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
+                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
                                         <div className="flex items-start justify-between mb-8">
                                             <div className="flex items-center gap-6">
                                                 <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2.5 shadow-inner`}>
@@ -363,7 +363,7 @@ const IntegrationsSettings = () => {
                                                     ) : (
                                                         <div className={`w-full h-full rounded-full bg-gradient-to-br transition-transform group-hover:scale-110
                                                             ${provider.color === 'rose' ? 'from-rose-400 to-rose-600' :
-                                                                provider.color === 'blue' ? 'from-violet-400 to-purple-600' :
+                                                                provider.color === 'blue' ? 'from-violet-400 to-primary' :
                                                                     provider.color === 'red' ? 'from-red-400 to-red-600' :
                                                                         'from-slate-400 to-slate-600'
                                                             } shadow-lg`} />
@@ -386,7 +386,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Twilio') setIsTwilioDrawerOpen(true);
                                                 if (provider.name === 'Custom API') setIsCustomSMSDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-primary-hover hover:to-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -411,7 +411,7 @@ const IntegrationsSettings = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {emailProviders.map((provider, idx) => (
-                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 p-8 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
+                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
                                         <div className="flex items-start justify-between mb-8">
                                             <div className="flex items-center gap-6">
                                                 <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2.5 shadow-inner`}>
@@ -434,7 +434,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Amazon SES') setIsSESDrawerOpen(true);
                                                 if (provider.name === 'Mailgun') setIsMailgunDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-primary-hover hover:to-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -459,7 +459,7 @@ const IntegrationsSettings = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {whatsappProviders.map((provider, idx) => (
-                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 p-8 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
+                                    <div key={idx} className="bg-white rounded-[24px] border border-slate-100 hover:shadow-lg transition-all group relative overflow-hidden flex flex-col h-full">
                                         <div className="flex items-start justify-between mb-8">
                                             <div className="flex items-center gap-6">
                                                 <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2.5 shadow-inner`}>
@@ -482,7 +482,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Gupshup') setIsGupshupWhatsappDrawerOpen(true);
                                                 if (provider.name === 'Custom API') setIsCustomWhatsappDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-primary-hover hover:to-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -496,7 +496,7 @@ const IntegrationsSettings = () => {
                     {activeTab === 'Google' && (
                         <div className="space-y-10">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-violet-50 rounded-xl text-violet-600">
+                                <div className="p-3 bg-primary-light rounded-xl text-primary">
                                     <Globe size={24} />
                                 </div>
                                 <div>
@@ -530,7 +530,7 @@ const IntegrationsSettings = () => {
 
                                 <button
                                     onClick={() => setIsGoogleBusinessDrawerOpen(true)}
-                                    className="w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-2xl shadow-violet-100 active:scale-95 flex items-center justify-center gap-3"
+                                    className="w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-primary-hover hover:to-primary-hover transition-all shadow-2xl shadow-violet-100 active:scale-95 flex items-center justify-center gap-3"
                                 >
                                     <Share2 size={18} />
                                     Setup
@@ -545,7 +545,7 @@ const IntegrationsSettings = () => {
                                     { title: 'Approved Only', desc: 'Control which reviews show', icon: Settings }
                                 ].map((feature, i) => (
                                     <div key={i} className="p-6 rounded-2xl bg-white border border-slate-50 group hover:border-violet-100 transition-all">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-primary-light group-hover:text-primary transition-colors">
                                             <feature.icon size={20} />
                                         </div>
                                         <h4 className="text-sm font-bold text-slate-900 mb-1">{feature.title}</h4>
@@ -574,7 +574,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setRazorpayConfig({ ...razorpayConfig, enabled: !razorpayConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${razorpayConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${razorpayConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${razorpayConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -642,7 +642,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={handleSaveRazorpay}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -667,7 +667,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setPhonepeConfig({ ...phonepeConfig, enabled: !phonepeConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${phonepeConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${phonepeConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${phonepeConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -735,7 +735,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsPhonePeDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -760,7 +760,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCcavenueConfig({ ...ccavenueConfig, enabled: !ccavenueConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${ccavenueConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${ccavenueConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${ccavenueConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -828,7 +828,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCCAvenueDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -853,7 +853,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setPayuConfig({ ...payuConfig, enabled: !payuConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${payuConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${payuConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${payuConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -921,7 +921,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsPayUDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -946,7 +946,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setMsg91Config({ ...msg91Config, enabled: !msg91Config.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${msg91Config.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${msg91Config.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${msg91Config.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1038,7 +1038,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsMSG91DrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1063,7 +1063,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGupshupConfig({ ...gupshupConfig, enabled: !gupshupConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${gupshupConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1155,7 +1155,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsGupshupDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1180,7 +1180,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setTwilioConfig({ ...twilioConfig, enabled: !twilioConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${twilioConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${twilioConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${twilioConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1272,7 +1272,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsTwilioDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1297,7 +1297,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCustomSMSConfig({ ...customSMSConfig, enabled: !customSMSConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${customSMSConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${customSMSConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${customSMSConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1389,7 +1389,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCustomSMSDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1414,7 +1414,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSmtpConfig({ ...smtpConfig, enabled: !smtpConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${smtpConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${smtpConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${smtpConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1506,7 +1506,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSMTPDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1531,7 +1531,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSendGridConfig({ ...sendGridConfig, enabled: !sendGridConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${sendGridConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${sendGridConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${sendGridConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1590,7 +1590,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSendGridDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1615,7 +1615,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSesConfig({ ...sesConfig, enabled: !sesConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${sesConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${sesConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${sesConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1674,7 +1674,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSESDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1699,7 +1699,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setMailgunConfig({ ...mailgunConfig, enabled: !mailgunConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${mailgunConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${mailgunConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${mailgunConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1758,7 +1758,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsMailgunDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1783,7 +1783,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setWatiConfig({ ...watiConfig, enabled: !watiConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${watiConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${watiConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${watiConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1864,7 +1864,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsWATIDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1889,7 +1889,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setInteraktConfig({ ...interaktConfig, enabled: !interaktConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${interaktConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${interaktConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${interaktConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1970,7 +1970,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsInteraktDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1995,7 +1995,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, enabled: !gupshupWhatsappConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupWhatsappConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupWhatsappConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${gupshupWhatsappConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -2076,7 +2076,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsGupshupWhatsappDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -2101,7 +2101,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCustomWhatsappConfig({ ...customWhatsappConfig, enabled: !customWhatsappConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${customWhatsappConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${customWhatsappConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${customWhatsappConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -2182,7 +2182,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCustomWhatsappDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -2207,7 +2207,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGoogleBusinessConfig({ ...googleBusinessConfig, enabled: !googleBusinessConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${googleBusinessConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${googleBusinessConfig.enabled ? 'bg-primary shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${googleBusinessConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -2231,7 +2231,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={handleSaveGoogle}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-primary text-white rounded-[16px] text-base font-bold hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration

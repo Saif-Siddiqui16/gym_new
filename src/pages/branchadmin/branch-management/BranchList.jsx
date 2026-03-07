@@ -217,15 +217,15 @@ const BranchList = () => {
         <div className="saas-container font-black overflow-x-hidden">
             {/* Premium Header */}
             <div className="relative mb-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl blur-3xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/30/10 border border-white/50 p-6 sm:p-10">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-fuchsia-600 rounded-3xl blur-3xl opacity-10 animate-pulse"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-primary/30/10 border border-white/50 p-6 sm:p-10">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                         <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-xl shadow-violet-500/30/40 transition-all duration-500 hover:scale-110 hover:rotate-6">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-xl shadow-primary/30/40 transition-all duration-500 hover:scale-110 hover:rotate-6">
                                 <Building2 size={32} strokeWidth={3} />
                             </div>
                             <div>
-                                <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent tracking-tighter">
+                                <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent tracking-tighter">
                                     Branch Management
                                 </h1>
                                 <p className="text-slate-400 text-[10px] sm:text-xs mt-1 uppercase tracking-widest opacity-80 leading-none font-bold">
@@ -235,7 +235,7 @@ const BranchList = () => {
                         </div>
                         <button
                             onClick={() => { resetForm(); setIsAddDrawerOpen(true); }}
-                            className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full lg:w-auto"
+                            className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-primary/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full lg:w-auto"
                         >
                             <Plus size={20} strokeWidth={3} />
                             Add Branch
@@ -248,7 +248,7 @@ const BranchList = () => {
             <div className="bg-white/80 backdrop-blur-md rounded-[32px] sm:rounded-[40px] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
                 <div className="p-6 sm:p-10 border-b border-slate-100 flex flex-col xl:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group hover:text-violet-600 transition-colors">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group hover:text-primary transition-colors">
                             <MapPin size={24} strokeWidth={3} />
                         </div>
                         <div>
@@ -257,11 +257,11 @@ const BranchList = () => {
                         </div>
                     </div>
                     <div className="relative w-full xl:w-96 group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={20} strokeWidth={3} />
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} strokeWidth={3} />
                         <input
                             type="text"
                             placeholder="Search by branch name or code..."
-                            className="w-full pl-14 pr-6 py-3.5 sm:py-4 bg-slate-50/50 border-2 border-slate-100 rounded-[20px] text-sm text-slate-800 focus:bg-white focus:border-violet-500 focus:ring-8 focus:ring-violet-500/5 transition-all outline-none font-bold"
+                            className="w-full pl-14 pr-6 py-3.5 sm:py-4 bg-slate-50/50 border-2 border-slate-100 rounded-[20px] text-sm text-slate-800 focus:bg-white focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none font-bold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -287,7 +287,7 @@ const BranchList = () => {
                                 <tr>
                                     <td colSpan="7" className="text-center py-20 text-slate-400 font-bold">
                                         <div className="flex flex-col items-center gap-4">
-                                            <Loader className="animate-spin text-violet-500" size={40} strokeWidth={3} />
+                                            <Loader className="animate-spin text-primary" size={40} strokeWidth={3} />
                                             <span className="text-[10px] uppercase tracking-widest opacity-50">Syncing locations...</span>
                                         </div>
                                     </td>
@@ -308,7 +308,7 @@ const BranchList = () => {
                                 <tr key={branch.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
+                                            <div className="w-12 h-12 rounded-2xl bg-primary-light text-primary flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
                                                 <MapPin size={20} strokeWidth={3} />
                                             </div>
                                             <div className="min-w-0">
@@ -361,7 +361,7 @@ const BranchList = () => {
                                         <div className="flex items-center justify-end gap-2 text-right">
                                             <button
                                                 onClick={() => handleViewBranch(branch)}
-                                                className="p-3 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
+                                                className="p-3 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all"
                                                 title="View Details"
                                             >
                                                 <Eye size={18} strokeWidth={3} />
@@ -391,7 +391,7 @@ const BranchList = () => {
                     <div className="md:hidden divide-y divide-slate-100">
                         {loading ? (
                             <div className="text-center py-20 text-slate-400 font-bold">
-                                <Loader className="animate-spin text-violet-500 mx-auto mb-4" size={40} strokeWidth={3} />
+                                <Loader className="animate-spin text-primary mx-auto mb-4" size={40} strokeWidth={3} />
                                 <span className="text-[10px] uppercase tracking-widest opacity-50">Syncing locations...</span>
                             </div>
                         ) : branches.length === 0 ? (
@@ -403,7 +403,7 @@ const BranchList = () => {
                             <div key={branch.id} className="p-6 space-y-4 hover:bg-slate-50/50 transition-colors">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink-0">
+                                        <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center flex-shrink-0">
                                             <MapPin size={20} strokeWidth={3} />
                                         </div>
                                         <div>
@@ -433,7 +433,7 @@ const BranchList = () => {
                                 </div>
 
                                 <div className="flex items-center justify-end gap-2 pt-4">
-                                    <button onClick={() => handleViewBranch(branch)} className="p-2.5 text-slate-400 hover:text-violet-600 border border-slate-100 rounded-xl transition-all"><Eye size={18} strokeWidth={3} /></button>
+                                    <button onClick={() => handleViewBranch(branch)} className="p-2.5 text-slate-400 hover:text-primary border border-slate-100 rounded-xl transition-all"><Eye size={18} strokeWidth={3} /></button>
                                     <button onClick={() => handleEditBranch(branch)} className="p-2.5 text-slate-400 hover:text-emerald-600 border border-slate-100 rounded-xl transition-all"><Edit2 size={18} strokeWidth={3} /></button>
                                     <button onClick={() => handleDeleteBranch(branch.id)} className="p-2.5 text-slate-400 hover:text-rose-600 border border-slate-100 rounded-xl transition-all"><Trash2 size={18} strokeWidth={3} /></button>
                                 </div>
@@ -461,7 +461,7 @@ const BranchList = () => {
                         </button>
                         <button
                             onClick={handleSaveBranch}
-                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all font-black uppercase tracking-widest text-[10px]"
+                            className="px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/30/30 transition-all font-black uppercase tracking-widest text-[10px]"
                         >
                             Create Branch
                         </button>
@@ -472,7 +472,7 @@ const BranchList = () => {
                     {/* Section 1: Basic Information */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">1</span>
                             Basic Information
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -485,7 +485,7 @@ const BranchList = () => {
                                     placeholder="e.g., Downtown Branch"
                                     value={formData.branchName}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                 />
                             </div>
                             <div>
@@ -497,7 +497,7 @@ const BranchList = () => {
                                     placeholder="e.g., DT01"
                                     value={formData.branchCode}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                 />
                             </div>
                         </div>
@@ -506,7 +506,7 @@ const BranchList = () => {
                     {/* Section 2: Location Details */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">2</span>
                             Location Details
                         </h3>
                         <div className="space-y-4 text-left">
@@ -518,7 +518,7 @@ const BranchList = () => {
                                     placeholder="Street address"
                                     value={formData.address}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all resize-none font-bold placeholder:font-bold"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all resize-none font-bold placeholder:font-bold"
                                 />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -530,7 +530,7 @@ const BranchList = () => {
                                         placeholder="e.g., Mumbai"
                                         value={formData.city}
                                         onChange={handleInputChange}
-                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                     />
                                 </div>
                                 <div>
@@ -541,7 +541,7 @@ const BranchList = () => {
                                         placeholder="e.g., Maharashtra"
                                         value={formData.state}
                                         onChange={handleInputChange}
-                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                     />
                                 </div>
                             </div>
@@ -554,7 +554,7 @@ const BranchList = () => {
                                         placeholder="e.g., 400001"
                                         value={formData.postalCode}
                                         onChange={handleInputChange}
-                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                     />
                                 </div>
                                 <div>
@@ -565,7 +565,7 @@ const BranchList = () => {
                                         placeholder="India"
                                         value={formData.country}
                                         onChange={handleInputChange}
-                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                     />
                                 </div>
                             </div>
@@ -575,7 +575,7 @@ const BranchList = () => {
                     {/* Section 3: Manager Configuration */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">3</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">3</span>
                             Manager Configuration
                         </h3>
                         <div className="bg-slate-50 rounded-2xl p-5 space-y-4 border border-slate-100">
@@ -615,7 +615,7 @@ const BranchList = () => {
                                             }
                                         }
                                     }}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-bold shadow-sm"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-bold shadow-sm"
                                 >
                                     <option value="No manager">No manager (Draft)</option>
                                     <optgroup label="Direct Assignment">
@@ -667,8 +667,8 @@ const BranchList = () => {
                                         />
                                     </div>
                                     {formData.managerId === 'new' && (
-                                        <div className="sm:col-span-2 bg-violet-50 p-3 rounded-xl border border-violet-100">
-                                            <p className="text-[10px] text-violet-600 font-bold leading-relaxed tracking-tight">
+                                        <div className="sm:col-span-2 bg-primary-light p-3 rounded-xl border border-violet-100">
+                                            <p className="text-[10px] text-primary font-bold leading-relaxed tracking-tight">
                                                 Note: A new manager account will be created with default password 123456
                                             </p>
                                         </div>
@@ -681,7 +681,7 @@ const BranchList = () => {
                     {/* Section 4: Contact & Operations */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">4</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">4</span>
                             Branch Contact & Ops
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
@@ -693,7 +693,7 @@ const BranchList = () => {
                                     placeholder="+91 9876543210"
                                     value={formData.branchPhone}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                 />
                             </div>
                             <div>
@@ -704,7 +704,7 @@ const BranchList = () => {
                                     placeholder="contact@branch.com"
                                     value={formData.branchEmail}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold placeholder:font-bold"
                                 />
                             </div>
                             <div>
@@ -714,7 +714,7 @@ const BranchList = () => {
                                     name="openingTime"
                                     value={formData.openingTime}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold"
                                 />
                             </div>
                             <div>
@@ -724,7 +724,7 @@ const BranchList = () => {
                                     name="closingTime"
                                     value={formData.closingTime}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-bold"
                                 />
                             </div>
                         </div>
@@ -750,12 +750,12 @@ const BranchList = () => {
                     <div className="px-6 py-6 space-y-6 font-black leading-tight text-left">
                         {/* Avatar + Name */}
                         <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 text-violet-700 flex items-center justify-center text-2xl font-black border-2 border-violet-200 flex-shrink-0">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary-hover flex items-center justify-center text-2xl font-black border-2 border-violet-200 flex-shrink-0">
                                 <Building2 size={24} strokeWidth={3} />
                             </div>
                             <div>
                                 <h3 className="text-xl font-black text-slate-900 leading-tight">{selectedBranch.gymName || selectedBranch.branchName}</h3>
-                                <p className="text-xs font-mono text-violet-500 mt-0.5">ID: {selectedBranch.id}</p>
+                                <p className="text-xs font-mono text-primary mt-0.5">ID: {selectedBranch.id}</p>
                                 <div className="mt-2">
                                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedBranch.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
                                         {selectedBranch.status}
@@ -767,7 +767,7 @@ const BranchList = () => {
                         {/* Details Grid */}
                         <div>
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span></span>
+                                <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span></span>
                                 Location Insight
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -806,7 +806,7 @@ const BranchList = () => {
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <button type="button" onClick={() => setIsEditDrawerOpen(false)} className="px-6 h-11 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all font-black uppercase tracking-widest text-[10px]">Discard</button>
-                        <button onClick={handleUpdateBranch} className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all font-black uppercase tracking-widest text-[10px]">Save Changes</button>
+                        <button onClick={handleUpdateBranch} className="px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/30/30 transition-all font-black uppercase tracking-widest text-[10px]">Save Changes</button>
                     </div>
                 }
             >
@@ -814,7 +814,7 @@ const BranchList = () => {
                     {/* Section 1: Core Information */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">1</span>
                             Core Information
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -826,7 +826,7 @@ const BranchList = () => {
                                     placeholder="Enter branch name"
                                     value={formData.branchName}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                             <div>
@@ -837,7 +837,7 @@ const BranchList = () => {
                                     placeholder="e.g., BR01"
                                     value={formData.branchCode}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                         </div>
@@ -846,7 +846,7 @@ const BranchList = () => {
                     {/* Section 2: Address */}
                     <div className="space-y-4">
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">2</span>
                             Location Details
                         </h3>
                         <div>
@@ -857,7 +857,7 @@ const BranchList = () => {
                                 placeholder="Address details"
                                 value={formData.address}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all resize-none font-black"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all resize-none font-black"
                             />
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -869,7 +869,7 @@ const BranchList = () => {
                                     placeholder="City"
                                     value={formData.city}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                             <div>
@@ -880,7 +880,7 @@ const BranchList = () => {
                                     placeholder="State"
                                     value={formData.state}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                         </div>
@@ -893,7 +893,7 @@ const BranchList = () => {
                                     placeholder="ZIP/Postal Code"
                                     value={formData.postalCode}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                             <div>
@@ -904,7 +904,7 @@ const BranchList = () => {
                                     placeholder="Country"
                                     value={formData.country}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                         </div>
@@ -913,7 +913,7 @@ const BranchList = () => {
                     {/* Section 3: Manager Configuration */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">3</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">3</span>
                             Manager Configuration
                         </h3>
                         <div className="bg-slate-50 rounded-2xl p-5 space-y-4 border border-slate-100">
@@ -953,7 +953,7 @@ const BranchList = () => {
                                             }
                                         }
                                     }}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-black shadow-sm"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-black shadow-sm"
                                 >
                                     <option value="No manager">No manager (Draft)</option>
                                     <optgroup label="Direct Assignment">
@@ -1012,7 +1012,7 @@ const BranchList = () => {
                     {/* Section 4: Operations */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 leading-none">
-                            <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">4</span>
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">4</span>
                             Operations & Status
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1023,7 +1023,7 @@ const BranchList = () => {
                                     name="openingTime"
                                     value={formData.openingTime}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                             <div>
@@ -1033,7 +1033,7 @@ const BranchList = () => {
                                     name="closingTime"
                                     value={formData.closingTime}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-black"
                                 />
                             </div>
                             <div className="sm:col-span-2">
@@ -1042,7 +1042,7 @@ const BranchList = () => {
                                     name="status"
                                     value={formData.status}
                                     onChange={handleInputChange}
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-black"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all appearance-none cursor-pointer font-black"
                                 >
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>

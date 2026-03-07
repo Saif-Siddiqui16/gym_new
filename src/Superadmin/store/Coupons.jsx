@@ -71,19 +71,19 @@ const Coupons = () => {
     };
 
     const statsCards = [
-        { label: 'Total Coupons', value: stats.totalCoupons, icon: Ticket, color: 'text-violet-500', bg: 'bg-violet-50' },
+        { label: 'Total Coupons', value: stats.totalCoupons, icon: Ticket, color: 'text-primary', bg: 'bg-primary-light' },
         { label: 'Active Codes', value: stats.activeCoupons, icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
         { label: 'Expired', value: stats.expiredCoupons, icon: Timer, color: 'text-red-500', bg: 'bg-red-50' },
         { label: 'Total Redemptions', value: stats.totalRedemptions, icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50' },
     ];
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/20 p-4 sm:p-8 min-h-screen">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/20 p-4 sm:p-8 min-h-screen">
             {/* Header */}
             <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h1 className="text-3xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent flex items-center gap-3">
-                        <div className="p-2 bg-violet-600 rounded-xl shadow-lg shadow-violet-200">
+                        <div className="p-2 bg-primary rounded-xl shadow-lg shadow-violet-200">
                             <Percent size={24} className="text-white" />
                         </div>
                         Discount Coupons
@@ -94,7 +94,7 @@ const Coupons = () => {
                 </div>
                 <button
                     onClick={handleAdd}
-                    className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-violet-600 text-white rounded-2xl text-sm font-black shadow-md shadow-violet-200 hover:bg-violet-700 hover:scale-105 active:scale-95 transition-all duration-300 group"
+                    className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-md shadow-violet-200 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all duration-300 group"
                 >
                     <Plus size={20} className="group-hover:rotate-90 transition-transform" />
                     Create New Coupon
@@ -176,7 +176,7 @@ const Coupons = () => {
                                     <tr key={c.id} className="group hover:bg-slate-50/50 transition-all duration-300 cursor-pointer">
                                         <td className="px-8 py-6" data-label="Coupon">
                                             <div className="flex items-center gap-4 justify-end sm:justify-start">
-                                                <div className="w-14 h-14 bg-gradient-to-br from-slate-50 to-violet-50 rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform duration-300 border border-slate-100 shadow-sm flex-shrink-0">
+                                                <div className="w-14 h-14 bg-gradient-to-br from-slate-50 to-primary-light rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform duration-300 border border-slate-100 shadow-sm flex-shrink-0">
                                                     <Ticket size={24} />
                                                 </div>
                                                 <div>
@@ -184,7 +184,7 @@ const Coupons = () => {
                                                         <div className="w-1 h-1 rounded-full bg-[#7c3aed]"></div>
                                                         <span className="text-[9px] font-black text-[#7c3aed] uppercase tracking-widest">{c.tenant?.name || 'Main Branch'}</span>
                                                     </div>
-                                                    <p className="text-base font-black text-slate-900 group-hover:text-violet-600 transition-colors">{c.code}</p>
+                                                    <p className="text-base font-black text-slate-900 group-hover:text-primary transition-colors">{c.code}</p>
                                                     <p className="text-xs text-slate-400 font-bold truncate max-w-[180px] mt-0.5">{c.description || 'No description provided'}</p>
                                                 </div>
                                             </div>
@@ -207,7 +207,7 @@ const Coupons = () => {
                                                 </div>
                                                 <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-violet-600 rounded-full transition-all duration-700"
+                                                        className="h-full bg-primary rounded-full transition-all duration-700"
                                                         style={{ width: `${c.maxUses === 0 ? 100 : Math.min((c.usedCount / c.maxUses) * 100, 100)}%` }}
                                                     />
                                                 </div>
@@ -248,7 +248,7 @@ const Coupons = () => {
                                             <div className="flex items-center justify-end gap-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleEdit(c); }}
-                                                    className="p-3 bg-white text-slate-400 hover:text-violet-600 border border-slate-100 rounded-2xl hover:shadow-xl hover:shadow-violet-50 transition-all"
+                                                    className="p-3 bg-white text-slate-400 hover:text-primary border border-slate-100 rounded-2xl hover:shadow-xl hover:shadow-primary-light transition-all"
                                                     title="Edit Coupon"
                                                 >
                                                     <Edit2 size={16} />
@@ -280,7 +280,7 @@ const Coupons = () => {
                                             </div>
                                             <button
                                                 onClick={handleAdd}
-                                                className="mt-4 px-6 py-3 bg-violet-600 text-white rounded-xl text-xs font-black hover:bg-violet-700 shadow-md shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+                                                className="mt-4 px-6 py-3 bg-primary text-white rounded-xl text-xs font-black hover:bg-primary-hover shadow-md shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
                                             >
                                                 Start Creating
                                             </button>

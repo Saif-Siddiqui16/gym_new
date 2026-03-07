@@ -91,22 +91,22 @@ const EquipmentMaintenance = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6">
+        <div className="min-h-screen ">
             {/* Premium Header */}
             <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
                                 <Wrench size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Equipment Maintenance
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
+                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
                                         PREMIUM ✨
                                     </span>
                                 </div>
@@ -115,7 +115,7 @@ const EquipmentMaintenance = () => {
                         </div>
                         <button
                             onClick={() => setIsDrawerOpen(true)}
-                            className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all w-full sm:w-auto"
+                            className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all w-full sm:w-auto"
                         >
                             <Plus size={16} strokeWidth={2.5} className="sm:w-[18px] sm:h-[18px] transition-all duration-300 group-hover:scale-110 group-hover:rotate-90" />
                             Add Equipment
@@ -159,28 +159,28 @@ const EquipmentMaintenance = () => {
 
             {/* Desktop Table View */}
             <div className="hidden md:block group relative bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <div className="relative z-10 overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50/50 border-b border-slate-100">
                             <tr>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Equipment</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Last Maintenance</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Next Maintenance</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs text-right hover:text-violet-600 transition-colors duration-300 cursor-pointer">Actions</th>
+                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Equipment</th>
+                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
+                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Last Maintenance</th>
+                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Next Maintenance</th>
+                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs text-right hover:text-primary transition-colors duration-300 cursor-pointer">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {equipment.map((item) => (
-                                <tr key={item.id} className="group/row hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md">
+                                <tr key={item.id} className="group/row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-violet-600 flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-violet-500 group-hover/row:to-purple-600 group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
                                                 <Wrench size={18} strokeWidth={2.5} />
                                             </div>
-                                            <span className="font-bold text-slate-800 group-hover/row:text-violet-700 group-hover/row:translate-x-1 transition-all duration-300">
+                                            <span className="font-bold text-slate-800 group-hover/row:text-primary-hover group-hover/row:translate-x-1 transition-all duration-300">
                                                 {item.name}
                                             </span>
                                         </div>
@@ -202,7 +202,7 @@ const EquipmentMaintenance = () => {
                                         <select
                                             value={item.status}
                                             onChange={(e) => handleInternalStatusUpdate(item.id, e.target.value)}
-                                            className="px-3 py-2 text-xs font-bold border-2 border-slate-200 rounded-lg bg-white hover:border-violet-300 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-300 cursor-pointer"
+                                            className="px-3 py-2 text-xs font-bold border-2 border-slate-200 rounded-lg bg-white hover:border-violet-300 focus:border-primary focus:ring-2 focus:ring-violet-200 transition-all duration-300 cursor-pointer"
                                         >
                                             <option value="Working">Working</option>
                                             <option value="Under Maintenance">Maintenance</option>

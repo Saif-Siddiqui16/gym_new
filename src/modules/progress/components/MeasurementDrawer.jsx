@@ -13,13 +13,13 @@ const MetricInput = ({ label, value, onChange, unit, icon: Icon }) => (
     <div className="space-y-2">
         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">{label}</label>
         <div className="relative group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors duration-300">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-300">
                 <Icon size={18} />
             </div>
             <input
                 type="number"
                 step="0.1"
-                className="w-full h-14 pl-12 pr-12 bg-white border-2 border-slate-200 rounded-2xl text-lg font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all shadow-sm group-hover:border-violet-200"
+                className="w-full h-14 pl-12 pr-12 bg-white border-2 border-slate-200 rounded-2xl text-lg font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm group-hover:border-violet-200"
                 value={value}
                 onChange={e => onChange(e.target.value)}
             />
@@ -65,7 +65,7 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="group relative px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 hover:shadow-2xl hover:shadow-violet-500/30/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3 overflow-hidden"
+                        className="group relative px-10 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 hover:shadow-2xl hover:shadow-primary/30/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3 overflow-hidden"
                     >
                         <span className="relative z-10 flex items-center gap-2">
                             INTEGRATE DATA <Save size={18} />
@@ -75,7 +75,7 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
                 </div>
             }
         >
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="flex-1  p-6 custom-scrollbar">
                 <div className="space-y-10">
                     {/* Primary Metrics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -97,8 +97,8 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
                         </div>
                     </div>
 
-                    <div className="bg-violet-50 p-6 rounded-[32px] border border-violet-100 flex items-start gap-4 shadow-sm">
-                        <div className="p-2 bg-white rounded-full text-violet-600 shadow-sm shrink-0">
+                    <div className="bg-primary-light p-6 rounded-[32px] border border-violet-100 flex items-start gap-4 shadow-sm">
+                        <div className="p-2 bg-white rounded-full text-primary shadow-sm shrink-0">
                             <Target size={18} />
                         </div>
                         <p className="text-sm font-medium text-violet-900 leading-relaxed">

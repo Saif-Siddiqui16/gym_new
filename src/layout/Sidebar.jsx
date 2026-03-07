@@ -64,7 +64,7 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
     };
 
     return (
-        <aside className={`sidebar ${collapsed ? 'collapsed' : ''} `}>
+        <aside className={`sidebar ${collapsed ? 'collapsed' : 'show'} `}>
             {/* Logo Area */}
             <div className="sidebar-header">
                 <div className="sidebar-logo">G</div>
@@ -76,8 +76,8 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
             </div>
 
             {/* Menu Items */}
-            <nav style={{ flex: 1, overflowY: 'auto' }}>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <nav className="flex-1 overflow-y-auto scrollbar-hide">
+                <ul className="list-none p-0 m-0">
                     {visibleItems.map((item) => (
                         <li key={item.label}>
                             {/* Menu item with children (submenu) */}
@@ -85,20 +85,10 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                                 <>
                                     <button
                                         onClick={() => toggleSubmenu(item.label)}
-                                        className="sidebar-item"
+                                        className={`sidebar-item ${isMenuActive(item) ? 'active' : ''}`}
                                         title={collapsed ? item.label : ''}
-                                        style={{
-                                            width: '100%',
-                                            border: 'none',
-                                            background: 'none',
-                                            cursor: 'pointer',
-                                            textAlign: 'left',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between'
-                                        }}
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div className="flex items-center gap-3">
                                             <item.icon size={20} />
                                             {!collapsed && <span>{item.label}</span>}
                                         </div>
@@ -143,13 +133,13 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                 </ul>
             </nav>
 
-            {/* Role Debugger (Optional but helpful for verification) */}
+            {/* Role Display */}
             {!collapsed && (
-                <div style={{ padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '4px' }}>
-                        Current Role:
+                <div className="p-4 border-t border-slate-100">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        System Role
                     </div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--primary)' }}>
+                    <div className="text-xs font-bold text-primary">
                         {role}
                     </div>
                 </div>

@@ -101,7 +101,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             required
                             type="text"
                             placeholder="Announcement title"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
@@ -114,7 +114,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             required
                             rows={5}
                             placeholder="Announcement content..."
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         />
@@ -125,7 +125,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Audience</label>
                         <div className="relative group">
                             <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
                                 value={formData.targetAudience}
                                 onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
                             >
@@ -135,7 +135,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 <option>Staff Only</option>
                                 <option>Trainers Only</option>
                             </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
                     </div>
 
@@ -146,7 +146,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             type="number"
                             min="0"
                             max="10"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
                         />

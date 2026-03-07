@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Receipt, Download, Filter, Search, Calendar, CreditCard, ShoppingBag, Zap, PieChart, Loader2 } from 'lucide-react';
-import '../../../styles/GlobalDesign.css';
 import apiClient from '../../../api/apiClient';
 
 const ExpenseReport = () => {
@@ -17,7 +16,7 @@ const ExpenseReport = () => {
 
     const [stats, setStats] = useState([
         { label: 'Total Expenses', value: '₹0', icon: CreditCard, bg: 'bg-rose-50', color: 'text-rose-600' },
-        { label: 'Operational Costs', value: '₹0', icon: Zap, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'Operational Costs', value: '₹0', icon: Zap, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Supplies/Inventory', value: '₹0', icon: ShoppingBag, bg: 'bg-amber-50', color: 'text-amber-600' },
     ]);
 
@@ -83,7 +82,7 @@ const ExpenseReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">

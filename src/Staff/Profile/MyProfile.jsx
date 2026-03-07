@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save, AlertTriangle } from 'lucide-react';
 import { fetchStaffProfile, updateStaffProfile } from '../../api/staff/staffApi';
 import NotificationsList from '../../components/notifications/NotificationsList';
-import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -65,8 +64,8 @@ const MyProfile = () => {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <div className="w-16 h-16 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-violet-600 font-bold bg-violet-50 px-4 py-2 rounded-xl animate-pulse">Loading profile...</p>
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-primary font-bold bg-primary-light px-4 py-2 rounded-xl animate-pulse">Loading profile...</p>
             </div>
         );
     }
@@ -83,7 +82,7 @@ const MyProfile = () => {
                 </p>
                 <button
                     onClick={loadProfile}
-                    className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-all"
+                    className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all"
                 >
                     Retry
                 </button>
@@ -98,23 +97,23 @@ const MyProfile = () => {
     ];
 
     return (
-        <div className="p-0 md:p-8 bg-gradient-to-br from-slate-50 via-white to-violet-50/30 min-h-screen font-sans animate-fadeIn">
-            <div className="max-w-5xl mx-auto space-y-8">
+        <div className="p-0 md:p-8 bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen font-sans animate-fadeIn">
+            <div className="max-w-full mx-auto space-y-8">
 
                 {/* Profile Header Card */}
                 <div className="group relative bg-white rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 opacity-95"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-fuchsia-600 opacity-95"></div>
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
 
                     <div className="relative px-4 sm:px-8 pb-8 pt-32">
                         <div className="flex flex-col md:flex-row md:items-end gap-8 -mt-20">
                             <div className="relative group/avatar">
                                 <div className="w-40 h-40 rounded-[32px] bg-white p-2 shadow-2xl transform group-hover/avatar:scale-105 transition-transform duration-300 rotate-3 group-hover/avatar:rotate-0">
-                                    <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-violet-600 text-6xl font-black shadow-inner">
+                                    <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary text-6xl font-black shadow-inner">
                                         {profile.avatar}
                                     </div>
                                 </div>
-                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-2xl shadow-lg border border-slate-100 text-violet-600 hover:bg-violet-50 hover:scale-110 active:scale-95 transition-all">
+                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-2xl shadow-lg border border-slate-100 text-primary hover:bg-primary-light hover:scale-110 active:scale-95 transition-all">
                                     <Camera size={20} strokeWidth={2.5} />
                                 </button>
                             </div>
@@ -153,8 +152,8 @@ const MyProfile = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-xl shadow-violet-200 transform scale-105'
-                                    : 'bg-white text-slate-500 hover:bg-violet-50 hover:text-violet-700 shadow-sm border border-slate-100'
+                                    ? 'bg-gradient-to-r from-primary to-primary text-white shadow-xl shadow-violet-200 transform scale-105'
+                                    : 'bg-white text-slate-500 hover:bg-primary-light hover:text-primary-hover shadow-sm border border-slate-100'
                                     }`}
                             >
                                 <tab.icon size={20} strokeWidth={2.5} />
@@ -166,7 +165,7 @@ const MyProfile = () => {
                     {/* Form Area */}
                     <div className="lg:col-span-3">
                         <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl p-4 sm:p-10 animate-in slide-in-from-right duration-500 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-violet-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50 pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-light rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50 pointer-events-none"></div>
 
                             {message.text && (
                                 <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in slide-in-from-top duration-300 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'
@@ -180,57 +179,57 @@ const MyProfile = () => {
                                 <form onSubmit={handleSave} className="space-y-8 relative z-10">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-3 group">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-violet-500 transition-colors">Full Name</label>
+                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">Full Name</label>
                                             <div className="relative">
-                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                                                 <input
                                                     type="text"
                                                     name="name"
                                                     value={formData.name}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                                     placeholder="Enter your name"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-3 group">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-violet-500 transition-colors">Email Address</label>
+                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">Email Address</label>
                                             <div className="relative">
-                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                                                 <input
                                                     type="email"
                                                     name="email"
                                                     value={formData.email}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                                     placeholder="Enter your email"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-3 group">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-violet-500 transition-colors">Phone Number</label>
+                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">Phone Number</label>
                                             <div className="relative">
-                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                                                 <input
                                                     type="text"
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                                     placeholder="Enter phone number"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-3 group">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-violet-500 transition-colors">Location</label>
+                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">Location</label>
                                             <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
                                                 <input
                                                     type="text"
                                                     name="address"
                                                     value={formData.address}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                                                    className="w-full pl-12 pr-4 h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                                     placeholder="Enter city, country"
                                                 />
                                             </div>
@@ -241,7 +240,7 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/30 hover:shadow-2xl hover:shadow-violet-500/30/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-8 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-primary/30/30 hover:shadow-2xl hover:shadow-primary/30/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSaving ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

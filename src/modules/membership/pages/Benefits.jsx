@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { ROLES } from '../../../config/roles';
 import Card from '../../../components/ui/Card';
-import '../../../styles/GlobalDesign.css';
 
 const Benefits = ({ role }) => {
     const navigate = useNavigate();
@@ -24,11 +23,11 @@ const Benefits = ({ role }) => {
 
     if (isMember) {
         return (
-            <div className="saas-container h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b-2 border-slate-100">
                     <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
+                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
                             <Star size={32} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -40,21 +39,21 @@ const Benefits = ({ role }) => {
                             </p>
                         </div>
                     </div>
-                    <button className="px-8 h-12 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-1 transition-all flex items-center gap-2 group">
+                    <button className="px-8 h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center gap-2 group">
                         <Calendar size={16} strokeWidth={3} /> Book a Slot
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 max-w-4xl">
+                <div className="grid grid-cols-1 gap-8 max-w-full">
                     {/* Plan Summary Section */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                                 <Crown size={16} />
                             </div>
                             <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Plan Summary</h2>
                         </div>
-                        <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden relative border-l-8 border-l-violet-600">
+                        <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden relative border-l-8 border-l-primary">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                                 <div className="space-y-3">
                                     <h3 className="text-2xl font-black text-slate-900 tracking-tight">Premium Gold Plan</h3>
@@ -67,12 +66,12 @@ const Benefits = ({ role }) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-2 bg-violet-50 text-violet-600 rounded-xl font-black text-[10px] uppercase tracking-widest border border-violet-100">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-primary-light text-primary rounded-xl font-black text-[10px] uppercase tracking-widest border border-violet-100">
                                     Primary Plan
                                 </div>
                             </div>
                             {/* Decorative background element */}
-                            <div className="absolute top-0 right-0 p-8 text-black/[0.02]">
+                            <div className="absolute top-0 right-0 text-black/[0.02]">
                                 <Star size={120} strokeWidth={1} />
                             </div>
                         </Card>
@@ -99,7 +98,7 @@ const Benefits = ({ role }) => {
                                         Your membership plan may include various benefits. Check with staff for details!
                                     </p>
                                 </div>
-                                <button className="px-10 h-14 border-2 border-violet-600 text-violet-600 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-100/20 hover:bg-violet-50 transition-all flex items-center gap-3">
+                                <button className="px-10 h-14 border-2 border-primary text-primary rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-100/20 hover:bg-primary-light transition-all flex items-center gap-3">
                                     <Package size={16} /> Browse Add-on Packages
                                 </button>
                             </div>
@@ -111,13 +110,13 @@ const Benefits = ({ role }) => {
     }
 
     return (
-        <div className="p-4 md:p-8 bg-[#FBFBFE] min-h-screen font-sans">
-            <div className="max-w-7xl mx-auto text-center py-20">
+        <div className=" bg-[#FBFBFE] min-h-screen font-sans">
+            <div className="max-w-full mx-auto text-center py-20">
                 <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4">Benefits Configuration</h1>
                 <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Admin configuration view.</p>
                 <button
                     onClick={() => navigate('/workout-plans')}
-                    className="mt-8 px-8 py-3 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-0.5 transition-all"
+                    className="mt-8 px-8 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all"
                 >
                     Back to Workouts
                 </button>

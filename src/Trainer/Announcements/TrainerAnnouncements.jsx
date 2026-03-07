@@ -62,14 +62,14 @@ const TrainerAnnouncements = () => {
 
     const StatItem = ({ title, value, subtitle, icon: Icon, color = 'primary' }) => {
         const colorClasses = {
-            primary: { bg: 'bg-violet-50', text: 'text-violet-600', iconBg: 'group-hover:bg-violet-600 group-hover:text-white' },
+            primary: { bg: 'bg-primary-light', text: 'text-primary', iconBg: 'group-hover:bg-primary group-hover:text-white' },
             success: { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'group-hover:bg-emerald-600 group-hover:text-white' },
             warning: { bg: 'bg-amber-50', text: 'text-amber-600', iconBg: 'group-hover:bg-amber-600 group-hover:text-white' },
         };
         const currentStyle = colorClasses[color] || colorClasses.primary;
 
         return (
-            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/30/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 md:p-5 h-full">
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 md:p-5 h-full">
                 <div className="flex justify-between items-start mb-2 relative z-10">
                     <div className="min-w-0">
                         <div className="text-gray-400 font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-1 truncate">{title}</div>
@@ -92,7 +92,7 @@ const TrainerAnnouncements = () => {
     };
 
     return (
-        <div className="saas-container h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 md:pb-8 border-b-2 border-slate-100 px-1">
                 <div className="space-y-2">
@@ -100,7 +100,7 @@ const TrainerAnnouncements = () => {
                         Communication Hub
                     </h1>
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-violet-50 text-violet-600 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Broadcasting System</span>
+                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-primary-light text-primary rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Broadcasting System</span>
                         <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-200" />
                         <p className="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest leading-relaxed">
                             Manage member engagement and updates
@@ -122,7 +122,7 @@ const TrainerAnnouncements = () => {
                     </button>
                     <button
                         onClick={() => setIsCreateDrawerOpen(true)}
-                        className="flex-1 lg:flex-none h-10 md:h-11 px-3 md:px-8 bg-violet-600 !text-white rounded-xl md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
+                        className="flex-1 lg:flex-none h-10 md:h-11 px-3 md:px-8 bg-primary !text-white rounded-xl md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
                     >
                         <Plus size={14} strokeWidth={3} className="shrink-0" /> New Announcement
                     </button>
@@ -145,13 +145,13 @@ const TrainerAnnouncements = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${activeTab === tab
-                                ? 'text-violet-600'
+                                ? 'text-primary'
                                 : 'text-slate-400 hover:text-slate-600'
                                 }`}
                         >
                             {tab}
                             {activeTab === tab && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-600 rounded-t-full shadow-[0_-4px_12px_rgba(79,70,229,0.4)]" />
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-4px_12px_rgba(79,70,229,0.4)]" />
                             )}
                         </button>
                     ))}
@@ -172,11 +172,11 @@ const TrainerAnnouncements = () => {
                                                 {ann.status}
                                             </span>
                                         </div>
-                                        <h3 className="font-black text-slate-900 mb-2 group-hover:text-violet-600 transition-colors uppercase tracking-tight">{ann.title}</h3>
+                                        <h3 className="font-black text-slate-900 mb-2 group-hover:text-primary transition-colors uppercase tracking-tight">{ann.title}</h3>
                                         <p className="text-xs text-slate-500 font-medium mb-4 line-clamp-3">{ann.content}</p>
                                         <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-violet-50 flex items-center justify-center text-violet-600">
+                                                <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center text-primary">
                                                     <Users size={12} />
                                                 </div>
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ann.targetRole}</span>
@@ -223,7 +223,7 @@ const TrainerAnnouncements = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <MessageSquare size={14} className="text-violet-500" />
+                                                        <MessageSquare size={14} className="text-primary" />
                                                         <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">{log.channel}</span>
                                                     </div>
                                                 </td>

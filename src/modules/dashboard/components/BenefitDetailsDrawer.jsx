@@ -17,7 +17,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
             subtitle="Benefit utilization & history"
         >
             <div className="flex flex-col h-full">
-                <div className="p-6 md:p-8 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
+                <div className=" space-y-8  flex-1 custom-scrollbar">
 
                     {/* Summary Card */}
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
@@ -30,7 +30,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                             </div>
                             <div className="text-right">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Remaining</h4>
-                                <div className="text-xl font-black text-violet-600">
+                                <div className="text-xl font-black text-primary">
                                     {remaining}
                                 </div>
                             </div>
@@ -40,7 +40,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                             <div className="space-y-2">
                                 <div className="h-3 bg-white rounded-full overflow-hidden border border-slate-100">
                                     <div
-                                        className="h-full bg-violet-600 rounded-full shadow-sm shadow-violet-100 transition-all duration-1000"
+                                        className="h-full bg-primary rounded-full shadow-sm shadow-violet-100 transition-all duration-1000"
                                         style={{ width: `${progress}%` }}
                                     />
                                 </div>
@@ -64,7 +64,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                             </div>
                         </div>
                         <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3">
-                            <div className="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-primary-light text-primary rounded-xl flex items-center justify-center shrink-0">
                                 <CheckCircle2 size={20} />
                             </div>
                             <div>
@@ -86,7 +86,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                                 benefit.history.map((log, i) => (
                                     <div key={i} className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-violet-100 transition-colors group">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-2 h-2 rounded-full bg-violet-600 opacity-20 group-hover:opacity-100 transition-opacity" />
+                                            <div className="w-2 h-2 rounded-full bg-primary opacity-20 group-hover:opacity-100 transition-opacity" />
                                             <div>
                                                 <div className="text-sm font-bold text-slate-900">
                                                     {log.trainer || log.class || log.service || log.guest || 'Activity Logged'}
@@ -122,10 +122,10 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                     </div>
                 </div>
 
-                <div className="p-6 md:p-8 bg-white border-t border-slate-100 mt-auto">
+                <div className=" bg-white border-t border-slate-100 mt-auto">
                     <button
                         onClick={onClose}
-                        className="w-full h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-100 hover:bg-violet-600 transition-all flex items-center justify-center gap-2"
+                        className="w-full h-12 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-100 hover:bg-primary transition-all flex items-center justify-center gap-2"
                     >
                         CLOSE DETAILS
                     </button>

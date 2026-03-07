@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Users, Clock, Search, Maximize, ArrowUpRight, ArrowDownLeft, UserCircle, CheckCircle, XCircle, Loader2, Scan, ChevronRight, Camera, CameraOff, X } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import '../../styles/GlobalDesign.css';
 import { getTodaysCheckIns, searchMember, checkInMember, checkOutMember, getMemberSuggestions } from '../../api/staff/memberCheckInApi';
 import toast from 'react-hot-toast';
 
@@ -161,12 +160,12 @@ const TodaysCheckIns = () => {
                 attendanceData.history;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-0 md:p-8 space-y-6 animate-fadeIn">
+        <div className="min-h-screen space-y-6 animate-fadeIn">
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-violet-600">
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-primary">
                         <Scan size={24} />
                     </div>
                     <div>
@@ -202,7 +201,7 @@ const TodaysCheckIns = () => {
             {/* Search Bar Section */}
             <div className="flex flex-col gap-4">
                 {isScanning && (
-                    <div className="relative bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-violet-500/20 max-w-lg mx-auto w-full animate-in zoom-in-95 duration-300">
+                    <div className="relative bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-primary/20 max-w-lg mx-auto w-full animate-in zoom-in-95 duration-300">
                         <div id="reader" className="w-full"></div>
                         <button
                             onClick={() => setIsScanning(false)}
@@ -219,7 +218,7 @@ const TodaysCheckIns = () => {
                 )}
 
                 <div className="relative group w-full" ref={searchRef}>
-                    <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-300 group-focus-within:text-violet-500 transition-colors">
+                    <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-300 group-focus-within:text-primary transition-colors">
                         <Search size={22} />
                     </div>
                     <form onSubmit={handleSearchSubmit}>
@@ -228,7 +227,7 @@ const TodaysCheckIns = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Scan barcode or type member code / name / phone..."
-                            className="w-full h-16 pl-14 pr-48 rounded-[1.25rem] bg-white border-2 border-slate-100 text-sm font-semibold placeholder:text-slate-300 focus:border-violet-500 focus:ring-8 focus:ring-violet-500/5 transition-all outline-none shadow-sm"
+                            className="w-full h-16 pl-14 pr-48 rounded-[1.25rem] bg-white border-2 border-slate-100 text-sm font-semibold placeholder:text-slate-300 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none shadow-sm"
                             autoFocus
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -242,7 +241,7 @@ const TodaysCheckIns = () => {
                             </button>
                             <button
                                 type="submit"
-                                className="h-10 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                className="h-10 px-6 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                             >
                                 <Search size={14} /> <span className="hidden sm:inline">Search</span>
                             </button>
@@ -260,7 +259,7 @@ const TodaysCheckIns = () => {
                                     className="w-full px-6 py-4 text-left hover:bg-slate-50 transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
+                                        <div className="h-10 w-10 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
                                             {member.name.charAt(0)}
                                         </div>
                                         <div>
@@ -272,7 +271,7 @@ const TodaysCheckIns = () => {
                                         <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${member.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                                             {member.status}
                                         </span>
-                                        {processingId === member.id ? <Loader2 size={16} className="animate-spin text-slate-400" /> : <ChevronRight size={16} className="text-slate-300 group-hover:text-violet-500 transition-colors" />}
+                                        {processingId === member.id ? <Loader2 size={16} className="animate-spin text-slate-400" /> : <ChevronRight size={16} className="text-slate-300 group-hover:text-primary transition-colors" />}
                                     </div>
                                 </button>
                             ))}
@@ -286,19 +285,19 @@ const TodaysCheckIns = () => {
                     <div className="p-2 border-b border-slate-50 flex items-center gap-2 bg-slate-50/50">
                         <button
                             onClick={() => setActiveTab('currentlyIn')}
-                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'currentlyIn' ? 'bg-white text-violet-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'currentlyIn' ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <Users size={16} /> Currently In ({attendanceData.stats.inside})
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-white text-violet-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <Clock size={16} /> Today's Log ({attendanceData.stats.total})
                         </button>
                         <button
                             onClick={() => setActiveTab('absent')}
-                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'absent' ? 'bg-white text-violet-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'absent' ? 'bg-white text-primary shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <XCircle size={16} /> Absent ({attendanceData.stats.absent || 0})
                         </button>
@@ -306,7 +305,7 @@ const TodaysCheckIns = () => {
 
                     {loading ? (
                         <div className="min-h-[400px] flex items-center justify-center">
-                            <Loader2 className="w-10 h-10 animate-spin text-violet-500" />
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
                         </div>
                     ) : displayList.length > 0 ? (
                         <div className="overflow-x-auto">

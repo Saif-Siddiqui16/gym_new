@@ -53,9 +53,9 @@ const SuperAdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+            <div className="flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Authorizing System Access...</p>
                 </div>
             </div>
@@ -64,8 +64,8 @@ const SuperAdminDashboard = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center max-w-md">
+            <div className="flex items-center justify-center ">
+                <div className="bg-red-50 border border-red-200 rounded-xl text-center max-w-md">
                     <AlertTriangle size={48} className="text-red-500 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-red-900 mb-2">Oops!</h2>
                     <p className="text-red-700 mb-6">{error}</p>
@@ -78,7 +78,7 @@ const SuperAdminDashboard = () => {
     }
 
     return (
-        <div className="h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="  space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Enhanced Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b-2 border-gray-100">
                 <div>
@@ -95,7 +95,7 @@ const SuperAdminDashboard = () => {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <TrendingUp size={20} className="text-violet-600" />
+                        <TrendingUp size={20} className="text-primary" />
                         <h2 className="text-lg font-bold text-gray-800">Key Metrics</h2>
                     </div>
                     <span className="text-xs text-gray-500 flex items-center gap-1">
@@ -120,7 +120,7 @@ const SuperAdminDashboard = () => {
                         <Button
                             variant="outline"
                             size="small"
-                            className="group hover:bg-violet-600 hover:text-white hover:border-violet-600 text-violet-600 border-violet-200 font-semibold transition-all duration-300"
+                            className="group hover:bg-primary hover:text-white hover:border-primary text-primary border-violet-200 font-semibold transition-all duration-300"
                         >
                             View All
                             <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -140,13 +140,13 @@ const SuperAdminDashboard = () => {
                                 <tbody className="divide-y divide-gray-100">
                                     {recentRegistrations.length > 0 ? (
                                         recentRegistrations.map(gym => (
-                                            <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-transparent transition-all duration-200 cursor-pointer">
+                                            <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-transparent transition-all duration-200 cursor-pointer">
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-9 h-9 flex-shrink-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
+                                                        <div className="w-9 h-9 flex-shrink-0 bg-gradient-to-br from-primary to-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
                                                             {gym.gymName?.charAt(0) || 'G'}
                                                         </div>
-                                                        <span className="font-semibold text-gray-900 group-hover:text-violet-600 transition-colors truncate">
+                                                        <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors truncate">
                                                             {gym.gymName}
                                                         </span>
                                                     </div>
@@ -154,7 +154,7 @@ const SuperAdminDashboard = () => {
                                                 <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
                                                     <div className="flex items-center gap-2 min-w-0">
                                                         <div className="w-7 h-7 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-violet-100 transition-colors">
-                                                            <MapPin size={13} className="text-violet-500" />
+                                                            <MapPin size={13} className="text-primary" />
                                                         </div>
                                                         <span className="font-medium truncate">{gym.location || 'N/A'}</span>
                                                     </div>
@@ -188,7 +188,7 @@ const SuperAdminDashboard = () => {
                 {/* System Alerts / Sidebar */}
                 <div className="lg:col-span-1 space-y-4 min-w-0">
                     <h2 className="text-lg font-bold text-gray-800">System Alerts</h2>
-                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="space-y-4 max-h-[600px]  pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         {alerts.length > 0 ? (
                             alerts.map(alert => (
                                 <div key={alert.id} className={`bg-white rounded-xl border-l-4 ${alert.type === 'danger' ? 'border-red-500 bg-gradient-to-r from-red-50/80 to-white' : 'border-amber-500 bg-gradient-to-r from-amber-50/80 to-white'} shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group`}>

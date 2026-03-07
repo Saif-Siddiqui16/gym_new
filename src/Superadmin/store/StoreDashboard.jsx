@@ -34,7 +34,7 @@ const StoreDashboard = () => {
     if (loading || !data) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8fafc]">
-                <div className="w-12 h-12 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-violet-100 border-t-primary rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-400 font-bold animate-pulse tracking-widest text-xs uppercase">Initializing Store...</p>
             </div>
         );
@@ -45,7 +45,7 @@ const StoreDashboard = () => {
     const basePath = role === 'SUPER_ADMIN' ? '/superadmin/store' : '/branchadmin/store';
 
     return (
-        <div className="bg-[#f8fafc] min-h-screen p-4 sm:p-8">
+        <div className="bg-[#f8fafc] min-h-screen ">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
@@ -69,8 +69,8 @@ const StoreDashboard = () => {
             </div>
 
             {/* Store Overview Banner */}
-            <div className="bg-white rounded-[2rem] p-8 mb-8 text-slate-900 relative overflow-hidden shadow-sm border border-slate-200">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+            <div className="bg-white rounded-[2rem] mb-8 text-slate-900 relative overflow-hidden shadow-sm border border-slate-200">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-light rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                     <div>
                         <h2 className="text-2xl font-black mb-1 text-slate-900">Store Overview</h2>
@@ -115,7 +115,7 @@ const StoreDashboard = () => {
             {/* Primary Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Profit */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
+                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-slate-500 text-sm font-bold">Profit</h3>
                         <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
@@ -133,10 +133,10 @@ const StoreDashboard = () => {
                 </div>
 
                 {/* Stock Value */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
+                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-slate-500 text-sm font-bold">Stock Value</h3>
-                        <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center">
                             <Layers size={16} />
                         </div>
                     </div>
@@ -144,11 +144,11 @@ const StoreDashboard = () => {
                         <p className="text-3xl font-black text-slate-900">₹{stats.stockValue.toLocaleString()}</p>
                         <p className="text-slate-400 text-xs font-bold mb-1.5">{stats.productsCount} items in stock</p>
                     </div>
-                    <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border-4 border-slate-50 border-t-violet-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border-4 border-slate-50 border-t-primary opacity-20 group-hover:opacity-100 transition-opacity"></div>
                 </div>
 
                 {/* Low Stock Alert */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
+                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-slate-500 text-sm font-bold">Low Stock Alert</h3>
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stats.lowStockCount > 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'}`}>
@@ -160,7 +160,7 @@ const StoreDashboard = () => {
                         <p className="text-slate-400 text-xs font-bold mb-1.5">{stats.lowStockCount === 0 ? 'All stock levels are healthy' : 'Items need restocking'}</p>
                     </div>
                     <div className="flex gap-2 mt-4">
-                        <span className="px-2.5 py-1 bg-violet-50 text-violet-600 text-[9px] font-black uppercase tracking-tighter rounded-full">{stats.pendingOrders} pending orders</span>
+                        <span className="px-2.5 py-1 bg-primary-light text-primary text-[9px] font-black uppercase tracking-tighter rounded-full">{stats.pendingOrders} pending orders</span>
                         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-tighter rounded-full">{stats.todaySalesCount} sales today</span>
                     </div>
                 </div>
@@ -170,14 +170,14 @@ const StoreDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                 {/* Recent Transactions */}
                 <div className="lg:col-span-2">
-                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 min-h-[400px]">
+                    <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[400px]">
                         <h3 className="text-lg font-black text-slate-900 mb-6 px-2">Recent Transactions</h3>
                         {recentTransactions.length > 0 ? (
                             <div className="space-y-4">
                                 {recentTransactions.map((tx, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-violet-600 transition-colors">
+                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
                                                 <ReceiptText size={20} />
                                             </div>
                                             <div>
@@ -275,7 +275,7 @@ const StoreDashboard = () => {
                                 <div className="flex flex-col items-center justify-center py-10">
                                     <button
                                         onClick={() => navigate(`${basePath}/products`)}
-                                        className="bg-violet-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md shadow-violet-200 hover:bg-violet-700 transition-all"
+                                        className="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md shadow-violet-200 hover:bg-primary-hover transition-all"
                                     >
                                         View Product List
                                     </button>

@@ -239,7 +239,7 @@ const Invoices = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-8 space-y-8 animate-fadeIn">
+        <div className="min-h-screen space-y-8 animate-fadeIn">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
@@ -293,14 +293,14 @@ const Invoices = () => {
                 {/* Table Filter Bar */}
                 <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="relative w-full md:w-96 group">
-                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
+                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDown={handleSearch}
                             placeholder="Search by invoice # or member name..."
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 focus:bg-white transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white transition-all"
                         />
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
@@ -339,14 +339,14 @@ const Invoices = () => {
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-6" data-label="Invoice Number">
                                         <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                            <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center text-violet-600">
+                                            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center text-primary">
                                                 <FileText size={16} />
                                             </div>
                                             <span className="text-sm font-black text-slate-900">{inv.invoiceNumber}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="text-[10px] font-black text-[#7c3aed] bg-violet-50 px-2 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
+                                        <span className="text-[10px] font-black text-[#7c3aed] bg-primary-light px-2 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
                                             {inv.tenant?.name || 'Main'}
                                         </span>
                                     </td>
@@ -386,7 +386,7 @@ const Invoices = () => {
                                         <div className="flex justify-end gap-2">
                                             <button
                                                 onClick={() => handleViewInvoice(inv.id)}
-                                                className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
+                                                className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all"
                                                 title="View Details"
                                             >
                                                 <Eye size={18} />
@@ -416,7 +416,7 @@ const Invoices = () => {
 
                     {loading && (
                         <div className="p-24 flex flex-col items-center justify-center opacity-40">
-                            <div className="w-12 h-12 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                            <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
                             <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Filtering Financial Records...</p>
                         </div>
                     )}
@@ -448,7 +448,7 @@ const Invoices = () => {
                                 required
                                 value={invoiceForm.branchId}
                                 onChange={(e) => setInvoiceForm({ ...invoiceForm, branchId: e.target.value, memberId: '' })}
-                                className="w-full h-14 px-5 bg-violet-50/50 border border-violet-100 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%237c3aed%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat"
+                                className="w-full h-14 px-5 bg-primary-light/50 border border-violet-100 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%237c3aed%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat"
                             >
                                 <option value="all">Select Branch</option>
                                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -464,7 +464,7 @@ const Invoices = () => {
                                     value={invoiceForm.memberId}
                                     disabled={fetchingMembers}
                                     onChange={(e) => setInvoiceForm({ ...invoiceForm, memberId: e.target.value })}
-                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat disabled:opacity-50"
+                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat disabled:opacity-50"
                                 >
                                     <option value="">{fetchingMembers ? 'Loading members...' : 'Walk-in Customer'}</option>
                                     {members.map(m => (
@@ -478,13 +478,13 @@ const Invoices = () => {
                         <div className="space-y-2.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Due Date</label>
                             <div className="relative group">
-                                <Calendar size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors pointer-events-none" />
+                                <Calendar size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors pointer-events-none" />
                                 <input
                                     type="date"
                                     required
                                     value={invoiceForm.dueDate}
                                     onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
-                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all font-sans"
+                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-sans"
                                 />
                             </div>
                         </div>
@@ -500,7 +500,7 @@ const Invoices = () => {
                             <button
                                 type="button"
                                 onClick={handleAddItem}
-                                className="flex items-center gap-2 text-[10px] font-black text-violet-600 bg-violet-50 px-4 py-2 rounded-xl hover:bg-violet-100 transition-all uppercase tracking-[0.1em] border border-violet-100 shadow-sm shadow-violet-100/50"
+                                className="flex items-center gap-2 text-[10px] font-black text-primary bg-primary-light px-4 py-2 rounded-xl hover:bg-violet-100 transition-all uppercase tracking-[0.1em] border border-violet-100 shadow-sm shadow-violet-100/50"
                             >
                                 <PlusCircle size={14} /> Add Item
                             </button>
@@ -525,7 +525,7 @@ const Invoices = () => {
                                             required
                                             value={item.description}
                                             onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                                            className="w-full bg-white border border-slate-200 rounded-xl px-5 py-3 text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all font-sans placeholder:text-slate-200"
+                                            className="w-full bg-white border border-slate-200 rounded-xl px-5 py-3 text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary transition-all font-sans placeholder:text-slate-200"
                                         />
                                     </div>
                                     <div className="grid grid-cols-3 gap-4">
@@ -601,14 +601,14 @@ const Invoices = () => {
                     </div>
 
                     {/* Summary Section - Refined Light Styling */}
-                    <div className="mx-2 p-7 bg-violet-50/80 rounded-[2rem] space-y-4 border border-violet-100 shadow-sm relative overflow-hidden">
+                    <div className="mx-2 p-7 bg-primary-light/80 rounded-[2rem] space-y-4 border border-violet-100 shadow-sm relative overflow-hidden">
                         <div className="flex justify-between items-center px-2">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
                             <span className="text-sm font-black text-slate-700">₹{subtotal.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center px-2">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">GST ({invoiceForm.taxRate}%)</span>
-                            <span className="text-sm font-black text-violet-600">₹{taxAmount.toLocaleString()}</span>
+                            <span className="text-sm font-black text-primary">₹{taxAmount.toLocaleString()}</span>
                         </div>
                         <div className="h-px bg-violet-200/50 mx-2"></div>
                         <div className="flex justify-between items-center px-2 pt-1">
@@ -650,7 +650,7 @@ const Invoices = () => {
                 {
                     fetchingInvoice ? (
                         <div className="p-24 flex flex-col items-center justify-center opacity-40 h-full" >
-                            <div className="w-12 h-12 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                            <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
                             <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Fetching Details...</p>
                         </div>
                     ) : selectedInvoice && (
@@ -658,7 +658,7 @@ const Invoices = () => {
                             {/* Header Info */}
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-3 py-1 rounded-lg uppercase tracking-widest">
+                                    <span className="text-[10px] font-black text-primary bg-primary-light px-3 py-1 rounded-lg uppercase tracking-widest">
                                         {selectedInvoice.status}
                                     </span>
                                     <h3 className="text-2xl font-black text-slate-900 mt-3">{selectedInvoice.invoiceNumber}</h3>
@@ -773,9 +773,9 @@ const Invoices = () => {
                             <div className="pt-8">
                                 <button
                                     onClick={() => window.print()}
-                                    className="w-full h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-sm font-black text-slate-900 hover:border-violet-200 hover:bg-violet-50/30 transition-all active:scale-[0.98]"
+                                    className="w-full h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-sm font-black text-slate-900 hover:border-violet-200 hover:bg-primary-light/30 transition-all active:scale-[0.98]"
                                 >
-                                    <Download size={18} className="text-violet-600" />
+                                    <Download size={18} className="text-primary" />
                                     Download PDF Invoice
                                 </button>
                             </div>
@@ -809,7 +809,7 @@ const Invoices = () => {
                                         key={m}
                                         type="button"
                                         onClick={() => setSettlementData({ ...settlementData, method: m })}
-                                        className={`px-4 py-3 rounded-xl border-2 transition-all text-[10px] font-black uppercase tracking-widest ${settlementData.method === m ? 'border-violet-600 bg-violet-600 text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
+                                        className={`px-4 py-3 rounded-xl border-2 transition-all text-[10px] font-black uppercase tracking-widest ${settlementData.method === m ? 'border-primary bg-primary text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
                                     >
                                         {m}
                                     </button>
@@ -826,7 +826,7 @@ const Invoices = () => {
                                     value={settlementData.referenceNumber}
                                     onChange={(e) => setSettlementData({ ...settlementData, referenceNumber: e.target.value })}
                                     placeholder="Enter TNX ID..."
-                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all font-sans"
+                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary transition-all font-sans"
                                 />
                             </div>
                         )}
@@ -838,7 +838,7 @@ const Invoices = () => {
                                 required
                                 value={settlementData.date}
                                 onChange={(e) => setSettlementData({ ...settlementData, date: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all font-sans"
+                                className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary transition-all font-sans"
                             />
                         </div>
                     </div>

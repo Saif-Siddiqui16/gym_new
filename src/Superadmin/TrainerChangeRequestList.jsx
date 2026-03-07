@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, Eye, CheckCircle, XCircle, User, ChevronLeft, ChevronRight, MessageSquare, Calendar } from 'lucide-react';
-import '../styles/GlobalDesign.css';
 import CustomDropdown from '../components/common/CustomDropdown';
 import MobileCard from '../components/common/MobileCard';
 import RightDrawer from '../components/common/RightDrawer';
@@ -69,11 +68,11 @@ const TrainerChangeRequestList = ({ role }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             {/* Header */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                         Trainer Change Requests
                     </h1>
                     <p className="text-slate-600 text-sm mt-1">Review and manage member requests for trainer reassignment</p>
@@ -84,10 +83,10 @@ const TrainerChangeRequestList = ({ role }) => {
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 mb-6">
                 <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div className="relative w-full md:w-96 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-violet-500" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-primary" size={18} />
                         <input
                             type="text"
-                            className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-sm"
+                            className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                             placeholder="Search by member name or ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -126,11 +125,11 @@ const TrainerChangeRequestList = ({ role }) => {
                                     <tr key={req.id} className="group hover:bg-slate-50/50 transition-all">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+                                                <div className="w-8 h-8 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-xs uppercase shadow-sm">
                                                     {req.memberName.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-slate-900 group-hover:text-violet-600 transition-colors">{req.memberName}</div>
+                                                    <div className="font-bold text-slate-900 group-hover:text-primary transition-colors">{req.memberName}</div>
                                                     <div className="text-[10px] font-mono text-slate-400 tracking-tight">{req.memberId}</div>
                                                 </div>
                                             </div>
@@ -143,7 +142,7 @@ const TrainerChangeRequestList = ({ role }) => {
                                                 </div>
                                                 <div className="flex items-center gap-2 text-xs">
                                                     <span className="text-slate-400">To:</span>
-                                                    <span className="font-bold text-violet-600">{req.newTrainer}</span>
+                                                    <span className="font-bold text-primary">{req.newTrainer}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -180,7 +179,7 @@ const TrainerChangeRequestList = ({ role }) => {
                                                 )}
                                                 <button
                                                     onClick={() => handleViewDetails(req)}
-                                                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-all"
+                                                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all"
                                                 >
                                                     <Eye size={18} />
                                                 </button>
@@ -210,7 +209,7 @@ const TrainerChangeRequestList = ({ role }) => {
                                 status={req.status}
                                 statusColor={req.status === 'Approved' ? 'emerald' : req.status === 'Rejected' ? 'rose' : 'amber'}
                                 icon={User}
-                                iconColor="bg-violet-100 text-violet-600"
+                                iconColor="bg-violet-100 text-primary"
                                 fields={[
                                     { label: 'Current Trainer', value: req.currentTrainer },
                                     { label: 'Requested Trainer', value: req.newTrainer, highlight: true },
@@ -300,9 +299,9 @@ const TrainerChangeRequestList = ({ role }) => {
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Current Trainer</p>
                                 <p className="font-bold text-slate-700">{selectedRequest.currentTrainer}</p>
                             </div>
-                            <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100">
+                            <div className="p-4 bg-primary-light rounded-2xl border border-violet-100">
                                 <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-2">Requested Trainer</p>
-                                <p className="font-black text-violet-600">{selectedRequest.newTrainer}</p>
+                                <p className="font-black text-primary">{selectedRequest.newTrainer}</p>
                             </div>
                         </div>
 
@@ -334,7 +333,7 @@ const TrainerChangeRequestList = ({ role }) => {
                                 </button>
                                 <button
                                     onClick={() => { handleAction(selectedRequest.id, 'Approved'); setIsDrawerOpen(false); }}
-                                    className="py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-violet-200 hover:scale-105 transition-all"
+                                    className="py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-violet-200 hover:scale-105 transition-all"
                                 >
                                     Approve
                                 </button>

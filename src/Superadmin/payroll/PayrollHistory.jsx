@@ -45,15 +45,15 @@ const PayrollHistory = () => {
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 pb-12 min-h-screen font-sans">
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen font-sans">
             {/* Header section */}
-            <div className="mb-6 sm:mb-8 relative max-w-7xl mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="mb-6 sm:mb-8 relative max-w-full mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-1 flex items-center gap-2">
-                                <FileText className="text-violet-600" size={24} />
+                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-1 flex items-center gap-2">
+                                <FileText className="text-primary" size={24} />
                                 Payroll History
                             </h1>
                             <p className="text-slate-600 text-xs sm:text-sm">View and manage employee payment history</p>
@@ -63,25 +63,25 @@ const PayrollHistory = () => {
             </div>
 
             {/* Filters Bar */}
-            <div className="mb-6 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-4 sm:p-5 max-w-7xl mx-auto">
+            <div className="mb-6 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-4 sm:p-5 max-w-full mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2 relative group">
-                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-all duration-300" />
+                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all duration-300" />
                         <input
                             type="text"
                             placeholder="Search by name..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300 hover:border-slate-200 shadow-sm"
+                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 hover:border-slate-200 shadow-sm"
                         />
                     </div>
 
                     <div className="relative">
-                        <Filter size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 z-10" />
+                        <Filter size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary z-10" />
                         <select
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300 appearance-none cursor-pointer hover:border-slate-200 shadow-sm"
+                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer hover:border-slate-200 shadow-sm"
                         >
                             <option value="">All Status</option>
                             <option value="Paid">Paid</option>
@@ -96,7 +96,7 @@ const PayrollHistory = () => {
             </div>
 
             {/* Mobile Cards (md:hidden) */}
-            <div className="grid grid-cols-1 gap-4 md:hidden mb-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 gap-4 md:hidden mb-6 max-w-full mx-auto">
                 {loading ? (
                     <div className="text-center py-10 font-bold text-slate-400 tracking-widest uppercase">Loading History...</div>
                 ) : filteredRecords.length === 0 ? (
@@ -127,7 +127,7 @@ const PayrollHistory = () => {
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-w-7xl mx-auto">
+            <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-w-full mx-auto">
                 <table className="w-full">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-100">
@@ -151,7 +151,7 @@ const PayrollHistory = () => {
                             <tr key={record.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openDrawer(record)}>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 font-bold border border-violet-200">
+                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-bold border border-violet-200">
                                             {record.staffName?.charAt(0)}
                                         </div>
                                         <span className="text-sm font-black text-slate-900">{record.staffName}</span>
@@ -172,7 +172,7 @@ const PayrollHistory = () => {
                                 <td className="px-6 py-4 text-right">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); openDrawer(record); }}
-                                        className="p-2 bg-slate-50 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all duration-300"
+                                        className="p-2 bg-slate-50 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all duration-300"
                                     >
                                         <ChevronRight size={18} />
                                     </button>
@@ -193,7 +193,7 @@ const PayrollHistory = () => {
                 {selectedEmployee && (
                     <div className="space-y-8">
                         {/* Header Info */}
-                        <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-6 rounded-2xl text-white shadow-xl">
+                        <div className="bg-gradient-to-br from-primary via-primary to-fuchsia-600 p-6 rounded-2xl text-white shadow-xl">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-black border border-white/30">
                                     {selectedEmployee.staffName?.charAt(0)}
@@ -214,7 +214,7 @@ const PayrollHistory = () => {
                         <div className="space-y-4">
                             <div className="flex justify-between items-center pt-6">
                                 <span className="text-lg font-black text-slate-900 uppercase tracking-widest">Net Payout</span>
-                                <span className="text-3xl font-black text-violet-600">₹{Number(selectedEmployee.amount).toLocaleString()}</span>
+                                <span className="text-3xl font-black text-primary">₹{Number(selectedEmployee.amount).toLocaleString()}</span>
                             </div>
                         </div>
 

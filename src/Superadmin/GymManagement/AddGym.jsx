@@ -47,22 +47,22 @@ const AddGym = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen ">
             {/* Premium Header with Back Button */}
-            <div className="max-w-5xl mx-auto mb-6 sm:mb-8">
+            <div className="max-w-full mx-auto mb-6 sm:mb-8">
                 <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                     <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 sm:gap-4">
                                 <button
                                     onClick={() => navigate('/superadmin/gyms/all')}
-                                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 hover:from-violet-100 hover:to-purple-100 flex items-center justify-center text-slate-600 hover:text-violet-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 flex-shrink-0"
+                                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 hover:from-violet-100 hover:to-purple-100 flex items-center justify-center text-slate-600 hover:text-primary shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 flex-shrink-0"
                                 >
                                     <ArrowLeft size={18} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
                                 </button>
                                 <div className="min-w-0">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Add New Gym
                                     </h1>
                                     <p className="text-slate-600 text-xs sm:text-sm mt-1">Register a new gym branch in the system</p>
@@ -74,17 +74,17 @@ const AddGym = () => {
             </div>
 
             {/* Premium Form Card */}
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
                     {/* Gradient Accent Bar */}
-                    <div className="h-1.5 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"></div>
+                    <div className="h-1.5 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500"></div>
 
                     <form onSubmit={handleSubmit} className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
                         {/* Gym Information Section */}
                         <div className="space-y-4 sm:space-y-6">
                             <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0">
-                                    <Building2 size={16} className="sm:w-5 sm:h-5 text-violet-600" strokeWidth={2.5} />
+                                    <Building2 size={16} className="sm:w-5 sm:h-5 text-primary" strokeWidth={2.5} />
                                 </div>
                                 <h2 className="text-base sm:text-lg font-black text-slate-900">Gym Information</h2>
                             </div>
@@ -92,8 +92,8 @@ const AddGym = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 {/* Gym Name */}
                                 <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                                        <Building2 size={14} className="sm:w-4 sm:h-4 text-violet-500" />
+                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
+                                        <Building2 size={14} className="sm:w-4 sm:h-4 text-primary" />
                                         Gym Name
                                     </label>
                                     <input
@@ -102,15 +102,15 @@ const AddGym = () => {
                                         value={formData.gymName}
                                         onChange={handleChange}
                                         placeholder="e.g. FitPulse Elite"
-                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
                                         required
                                     />
                                 </div>
 
                                 {/* Branch Name */}
                                 <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-                                        <MapPin size={14} className="sm:w-4 sm:h-4 text-violet-500" />
+                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-cyan-600 bg-clip-text text-transparent">
+                                        <MapPin size={14} className="sm:w-4 sm:h-4 text-primary" />
                                         Branch Name
                                     </label>
                                     <input
@@ -119,7 +119,7 @@ const AddGym = () => {
                                         value={formData.branchName}
                                         onChange={handleChange}
                                         placeholder="e.g. Downtown Hub"
-                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
                                         required
                                     />
                                 </div>
@@ -193,7 +193,7 @@ const AddGym = () => {
                         <div className="space-y-4 sm:space-y-6">
                             <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center flex-shrink-0">
-                                    <Home size={16} className="sm:w-5 sm:h-5 text-violet-600" strokeWidth={2.5} />
+                                    <Home size={16} className="sm:w-5 sm:h-5 text-primary" strokeWidth={2.5} />
                                 </div>
                                 <h2 className="text-base sm:text-lg font-black text-slate-900">Location & Status</h2>
                             </div>
@@ -201,8 +201,8 @@ const AddGym = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 {/* Address */}
                                 <div className="md:col-span-2 space-y-2">
-                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                                        <MapPin size={14} className="sm:w-4 sm:h-4 text-violet-500" />
+                                    <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
+                                        <MapPin size={14} className="sm:w-4 sm:h-4 text-primary" />
                                         Physical Address
                                     </label>
                                     <textarea
@@ -211,7 +211,7 @@ const AddGym = () => {
                                         value={formData.address}
                                         onChange={handleChange}
                                         placeholder="Full street address, City, State, ZIP"
-                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-violet-300 transition-all duration-300 shadow-sm resize-none"
+                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm resize-none"
                                         required
                                     />
                                 </div>
@@ -238,16 +238,16 @@ const AddGym = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate('/superadmin/gyms/all')}
-                                className="group px-6 sm:px-8 py-2.5 sm:py-3 bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300 hover:text-violet-600 rounded-lg sm:rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+                                className="group px-6 sm:px-8 py-2.5 sm:py-3 bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300 hover:text-primary rounded-lg sm:rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group relative px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
+                                className="group relative px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-primary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <span className="relative flex items-center justify-center gap-2">
                                     {loading ? (
                                         <>

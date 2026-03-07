@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, History, CreditCard, Plus, ArrowUpRight, ArrowDownLeft, Star, X, Loader, FileText, Download, AlertCircle, Calendar, Receipt, Trash2 } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import { fetchWalletTransactions, addWalletCredit, getWalletBalance, getSavedCards, addSavedCard, deleteSavedCard, getRewardCatalog, redeemReward } from '../../api/member/memberApi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -110,7 +109,7 @@ const MemberWallet = () => {
                 head: [['Date', 'Description', 'Type', 'Amount']],
                 body: tableData,
                 theme: 'striped',
-                headStyles: { fillColor: [139, 92, 246] }, // Violet-600
+                headStyles: { fillColor: [139, 92, 246] }, // primary
                 styles: { fontSize: 9, cellPadding: 3 }
             });
 
@@ -191,8 +190,8 @@ const MemberWallet = () => {
     });
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans">
-            <div className="max-w-5xl mx-auto space-y-8">
+        <div className=" bg-gray-50 min-h-screen font-sans">
+            <div className="max-w-full mx-auto space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-black text-gray-900 tracking-tight">Benefit Wallet</h1>
@@ -200,7 +199,7 @@ const MemberWallet = () => {
                     </div>
                     <button
                         onClick={() => setIsAddOpen(true)}
-                        className="px-6 py-3 bg-violet-600 text-white rounded-2xl font-black shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all flex items-center gap-2"
+                        className="px-6 py-3 bg-primary text-white rounded-2xl font-black shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all flex items-center gap-2"
                     >
                         <Plus size={18} /> Add Credits
                     </button>
@@ -209,7 +208,7 @@ const MemberWallet = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Balance Card */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 md:p-8 rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800  rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden">
                             <div className="relative z-10 space-y-8">
                                 <div className="flex justify-between items-center">
                                     <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
@@ -237,11 +236,11 @@ const MemberWallet = () => {
                                 </div>
                             </div>
                             {/* Abstract background blobs */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl"></div>
-                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-violet-500/10 rounded-full blur-2xl"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
                         </div>
 
-                        <div className="bg-white p-6 md:p-8 rounded-[28px] md:rounded-[32px] border border-gray-100 shadow-sm">
+                        <div className="bg-white  rounded-[28px] md:rounded-[32px] border border-gray-100 shadow-sm">
                             <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
                             <div className="space-y-3">
                                 <ActionButton
@@ -274,14 +273,14 @@ const MemberWallet = () => {
                                     className={`text-lg font-black transition-all relative ${activeTab === 'transactions' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     Transactions
-                                    {activeTab === 'transactions' && <div className="absolute -bottom-[17px] left-0 right-0 h-1 bg-violet-600 rounded-full"></div>}
+                                    {activeTab === 'transactions' && <div className="absolute -bottom-[17px] left-0 right-0 h-1 bg-primary rounded-full"></div>}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('invoices')}
                                     className={`text-lg font-black transition-all relative ${activeTab === 'invoices' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     My Invoices
-                                    {activeTab === 'invoices' && <div className="absolute -bottom-[17px] left-0 right-0 h-1 bg-violet-600 rounded-full"></div>}
+                                    {activeTab === 'invoices' && <div className="absolute -bottom-[17px] left-0 right-0 h-1 bg-primary rounded-full"></div>}
                                 </button>
                             </div>
 
@@ -294,7 +293,7 @@ const MemberWallet = () => {
                                                 <button
                                                     key={f}
                                                     onClick={() => setFilter(f)}
-                                                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${filter === f ? 'bg-white text-violet-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${filter === f ? 'bg-white text-primary shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                                 >
                                                     {f}
                                                 </button>
@@ -302,7 +301,7 @@ const MemberWallet = () => {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
+                                    <div className="space-y-1 max-h-[400px]  pr-1 custom-scrollbar">
                                         {filteredTransactions.length > 0 ? (
                                             filteredTransactions.map(t => (
                                                 <TransactionItem
@@ -320,7 +319,7 @@ const MemberWallet = () => {
 
                                     <button
                                         onClick={() => setShowDetailedHistory(true)}
-                                        className="w-full mt-6 py-4 text-violet-600 font-black text-sm hover:bg-violet-50 rounded-2xl transition-all"
+                                        className="w-full mt-6 py-4 text-primary font-black text-sm hover:bg-primary-light rounded-2xl transition-all"
                                     >
                                         View Detailed History
                                     </button>
@@ -332,7 +331,7 @@ const MemberWallet = () => {
                                         <p className="font-medium">You have 1 pending invoice. Please pay to avoid membership suspension.</p>
                                     </div>
 
-                                    <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center">
+                                    <div className="flex-1 flex flex-col items-center justify-center space-y-6 text-center">
                                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
                                             <Receipt size={40} />
                                         </div>
@@ -362,7 +361,7 @@ const MemberWallet = () => {
                 isOpen={showDetailedHistory}
                 onClose={() => setShowDetailedHistory(false)}
                 title="Transaction History"
-                maxWidth="max-w-4xl"
+                maxWidth="max-w-full"
             >
                 <div className="p-8 h-full flex flex-col">
                     <div className="flex flex-col md:flex-row gap-8">
@@ -374,7 +373,7 @@ const MemberWallet = () => {
                                         <button
                                             key={f}
                                             onClick={() => setHistoryFilter(f)}
-                                            className={`w-full flex items-center justify-between p-3 rounded-2xl text-sm font-bold transition-all ${historyFilter === f ? 'bg-violet-600 text-white shadow-lg shadow-violet-100' : 'text-gray-500 hover:bg-gray-50'}`}
+                                            className={`w-full flex items-center justify-between p-3 rounded-2xl text-sm font-bold transition-all ${historyFilter === f ? 'bg-primary text-white shadow-lg shadow-violet-100' : 'text-gray-500 hover:bg-gray-50'}`}
                                         >
                                             {f}
                                             {historyFilter === f && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}
@@ -480,7 +479,7 @@ const MemberWallet = () => {
                                 autoFocus
                                 required
                                 min="1"
-                                className="w-full bg-gray-50 border-2 border-gray-100 focus:border-violet-500 rounded-[24px] py-5 pl-12 pr-6 text-2xl font-black text-gray-900 outline-none transition-all"
+                                className="w-full bg-gray-50 border-2 border-gray-100 focus:border-primary rounded-[24px] py-5 pl-12 pr-6 text-2xl font-black text-gray-900 outline-none transition-all"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                             />
@@ -492,7 +491,7 @@ const MemberWallet = () => {
                                 key={amt}
                                 type="button"
                                 onClick={() => setAmount(amt)}
-                                className="py-4 rounded-2xl bg-violet-50 text-violet-600 text-xs font-black shadow-sm hover:bg-violet-600 hover:text-white transition-all active:scale-95"
+                                className="py-4 rounded-2xl bg-primary-light text-primary text-xs font-black shadow-sm hover:bg-primary hover:text-white transition-all active:scale-95"
                             >
                                 + ₹{amt}
                             </button>
@@ -501,7 +500,7 @@ const MemberWallet = () => {
                     <button
                         type="submit"
                         disabled={loading || !amount}
-                        className="w-full py-5 bg-violet-600 text-white rounded-[24px] font-black shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 transform active:scale-[0.98]"
+                        className="w-full py-5 bg-primary text-white rounded-[24px] font-black shadow-xl shadow-violet-200 hover:bg-primary-hover transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 transform active:scale-[0.98]"
                     >
                         {loading ? <Loader className="animate-spin" size={20} /> : 'Proceed to Pay'}
                     </button>
@@ -524,9 +523,9 @@ const MemberWallet = () => {
                         <div className="space-y-6">
                             <div className="space-y-4">
                                 {savedCards.map((card, index) => (
-                                    <div key={card.id} className={`p-6 rounded-[32px] border-2 transition-all ${index === 0 ? 'border-violet-200 bg-violet-50/20' : 'border-gray-50 bg-white hover:border-violet-100'} flex items-center justify-between group`}>
+                                    <div key={card.id} className={`p-6 rounded-[32px] border-2 transition-all ${index === 0 ? 'border-violet-200 bg-primary-light/20' : 'border-gray-50 bg-white hover:border-violet-100'} flex items-center justify-between group`}>
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-8 ${card.brand === 'HDFC' ? 'bg-slate-900' : card.brand === 'ICICI' ? 'bg-violet-600' : 'bg-slate-500'} rounded-lg flex items-center justify-center text-[8px] text-white font-black shadow-lg`}>
+                                            <div className={`w-12 h-8 ${card.brand === 'HDFC' ? 'bg-slate-900' : card.brand === 'ICICI' ? 'bg-primary' : 'bg-slate-500'} rounded-lg flex items-center justify-center text-[8px] text-white font-black shadow-lg`}>
                                                 {card.brand}
                                             </div>
                                             <div>
@@ -536,7 +535,7 @@ const MemberWallet = () => {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             {index === 0 && (
-                                                <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                                                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-violet-200">
                                                     <Star size={12} className="text-white fill-white" />
                                                 </div>
                                             )}
@@ -549,7 +548,7 @@ const MemberWallet = () => {
                             </div>
                             <button
                                 onClick={() => setShowAddCardForm(true)}
-                                className="w-full py-5 border-2 border-dashed border-gray-200 rounded-[24px] text-gray-400 font-black text-sm hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-5 border-2 border-dashed border-gray-200 rounded-[24px] text-gray-400 font-black text-sm hover:border-violet-300 hover:text-primary hover:bg-primary-light transition-all flex items-center justify-center gap-2"
                             >
                                 <Plus size={20} /> Add New Method
                             </button>
@@ -561,7 +560,7 @@ const MemberWallet = () => {
                                 <input
                                     required
                                     type="text"
-                                    className="w-full bg-gray-50 border-2 border-gray-100 focus:border-violet-500 rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
+                                    className="w-full bg-gray-50 border-2 border-gray-100 focus:border-primary rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
                                     placeholder="Enter full name"
                                     value={newCard.name}
                                     onChange={e => setNewCard({ ...newCard, name: e.target.value })}
@@ -573,7 +572,7 @@ const MemberWallet = () => {
                                     required
                                     type="text"
                                     maxLength="16"
-                                    className="w-full bg-gray-50 border-2 border-gray-100 focus:border-violet-500 rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all tracking-[0.2em]"
+                                    className="w-full bg-gray-50 border-2 border-gray-100 focus:border-primary rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all tracking-[0.2em]"
                                     placeholder="0000 0000 0000 0000"
                                     value={newCard.number}
                                     onChange={e => setNewCard({ ...newCard, number: e.target.value.replace(/\D/g, '') })}
@@ -586,7 +585,7 @@ const MemberWallet = () => {
                                         required
                                         type="text"
                                         maxLength="5"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 focus:border-violet-500 rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 focus:border-primary rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
                                         placeholder="MM/YY"
                                         value={newCard.expiry}
                                         onChange={e => {
@@ -602,7 +601,7 @@ const MemberWallet = () => {
                                         required
                                         type="password"
                                         maxLength="3"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 focus:border-violet-500 rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 focus:border-primary rounded-2xl py-4 px-5 text-sm font-black outline-none transition-all"
                                         placeholder="•••"
                                     />
                                 </div>
@@ -617,7 +616,7 @@ const MemberWallet = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-[2] py-5 bg-violet-600 text-white rounded-[24px] font-black text-sm shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all uppercase tracking-widest"
+                                    className="flex-[2] py-5 bg-primary text-white rounded-[24px] font-black text-sm shadow-xl shadow-violet-200 hover:bg-primary-hover transition-all uppercase tracking-widest"
                                 >
                                     Save Method
                                 </button>
@@ -635,14 +634,14 @@ const MemberWallet = () => {
                 maxWidth="max-w-md"
             >
                 <div className="h-full flex flex-col">
-                    <div className="bg-gradient-to-br from-violet-600 to-violet-700 p-8 text-white">
+                    <div className="bg-gradient-to-br from-primary to-primary-hover text-white">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">Total Available</p>
                         <h2 className="text-4xl font-black flex items-center gap-2">
                             {loyaltyPts} <Star className="fill-white" size={24} />
                         </h2>
                     </div>
 
-                    <div className="p-8 space-y-6 flex-1 overflow-y-auto">
+                    <div className="p-8 space-y-6 flex-1 ">
                         {rewardCatalog.length === 0 ? (
                             <p className="text-center text-xs font-bold text-gray-400">Loading rewards store...</p>
                         ) : (
@@ -672,13 +671,13 @@ const ActionButton = ({ icon: Icon, label, onClick, isLoading }) => (
     <button
         onClick={onClick}
         disabled={isLoading}
-        className="w-full flex items-center justify-between p-3.5 md:p-4 bg-gray-50 hover:bg-violet-50 hover:text-violet-600 rounded-2xl transition-all group disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between p-3.5 md:p-4 bg-gray-50 hover:bg-primary-light hover:text-primary rounded-2xl transition-all group disabled:opacity-70 disabled:cursor-not-allowed"
     >
         <div className="flex items-center gap-3">
-            {isLoading ? <Loader size={18} className="animate-spin text-violet-500" /> : <Icon size={18} />}
+            {isLoading ? <Loader size={18} className="animate-spin text-primary" /> : <Icon size={18} />}
             <span className="text-sm font-bold">{label}</span>
         </div>
-        <ArrowUpRight size={16} className="text-gray-300 group-hover:text-violet-500" />
+        <ArrowUpRight size={16} className="text-gray-300 group-hover:text-primary" />
     </button>
 );
 
@@ -694,7 +693,7 @@ const RewardCard = ({ points, title, description, onRedeem, disabled }) => (
         <button
             onClick={onRedeem}
             disabled={disabled}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${disabled ? 'bg-gray-100 text-gray-400' : 'bg-gray-900 text-white hover:bg-violet-600'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${disabled ? 'bg-gray-100 text-gray-400' : 'bg-gray-900 text-white hover:bg-primary'}`}
         >
             Redeem
         </button>

@@ -39,7 +39,7 @@ const NotificationsList = () => {
 
     if (loading) return (
         <div className="py-20 text-center">
-            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
             <p className="mt-4 text-gray-500 font-medium tracking-widest uppercase text-[10px]">Syncing Notifications...</p>
         </div>
     );
@@ -56,9 +56,9 @@ const NotificationsList = () => {
                     {notifications.map(n => (
                         <div
                             key={n.id}
-                            className={`group relative p-6 rounded-[32px] border transition-all duration-300 flex gap-5 ${!n.read ? 'bg-violet-50/40 border-violet-100 shadow-sm' : 'bg-white border-slate-100 hover:border-slate-200'}`}
+                            className={`group relative p-6 rounded-[32px] border transition-all duration-300 flex gap-5 ${!n.read ? 'bg-primary-light/40 border-violet-100 shadow-sm' : 'bg-white border-slate-100 hover:border-slate-200'}`}
                         >
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 duration-300 ${!n.read ? 'bg-white shadow-md text-violet-600' : 'bg-slate-50 text-slate-400'}`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 duration-300 ${!n.read ? 'bg-white shadow-md text-primary' : 'bg-slate-50 text-slate-400'}`}>
                                 <Bell size={24} strokeWidth={2.5} />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -74,7 +74,7 @@ const NotificationsList = () => {
                                     {!n.read && (
                                         <button
                                             onClick={() => markRead(n.id)}
-                                            className="flex items-center gap-2 text-[10px] font-black text-violet-600 uppercase tracking-widest hover:text-violet-700 transition-colors"
+                                            className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-hover transition-colors"
                                         >
                                             <CheckCircle size={14} strokeWidth={2.5} /> Mark as read
                                         </button>
@@ -82,7 +82,7 @@ const NotificationsList = () => {
                                     {n.link && (
                                         <a
                                             href={n.link}
-                                            className="flex items-center gap-2 text-[10px] font-black text-violet-600 uppercase tracking-widest hover:text-violet-700 transition-colors"
+                                            className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-hover transition-colors"
                                         >
                                             <ExternalLink size={14} strokeWidth={2.5} /> View Details
                                         </a>

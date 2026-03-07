@@ -176,15 +176,15 @@ const POS = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-8 space-y-8 animate-fadeIn">
+        <div className="saas-page pb-page animate-fadeIn space-y-12">
 
             {/* Premium Header Section */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-lg shadow-violet-200 ring-4 ring-white">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200 ring-4 ring-white">
                                 <Store size={32} />
                             </div>
                             <div>
@@ -211,20 +211,20 @@ const POS = () => {
                     {/* Search and Filters with premium styling */}
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="relative flex-1 group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-all pointer-events-none" size={22} />
+                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all pointer-events-none" size={22} />
                             <input
                                 type="text"
                                 placeholder="Search products by name or SKU..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full h-16 pl-14 pr-4 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-white font-sans placeholder:text-slate-300"
+                                className="w-full h-16 pl-14 pr-4 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white font-sans placeholder:text-slate-300"
                             />
                         </div>
                         <div className="relative min-w-[200px]">
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full h-16 px-6 appearance-none rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-14 font-sans text-slate-700"
+                                className="w-full h-16 px-6 appearance-none rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-14 font-sans text-slate-700"
                             >
                                 {categories.map(cat => <option key={cat}>{cat}</option>)}
                             </select>
@@ -234,7 +234,7 @@ const POS = () => {
 
                     {loadingProducts ? (
                         <div className="flex flex-col items-center justify-center p-20 gap-4 opacity-50">
-                            <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin"></div>
+                            <div className="w-12 h-12 border-4 border-violet-200 border-t-primary rounded-full animate-spin"></div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Inventory...</p>
                         </div>
                     ) : filteredProducts.length > 0 ? (
@@ -253,7 +253,7 @@ const POS = () => {
                                         </div>
                                     )}
 
-                                    <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 flex items-center justify-center relative group-hover:bg-violet-50 transition-colors">
+                                    <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 flex items-center justify-center relative group-hover:bg-primary-light transition-colors">
                                         {product.imageUrl ? (
                                             <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover rounded-2xl" />
                                         ) : (
@@ -261,14 +261,14 @@ const POS = () => {
                                         )}
                                     </div>
                                     <div className="flex flex-col flex-1">
-                                        {product.category && <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest mb-1">{product.category}</span>}
+                                        {product.category && <span className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">{product.category}</span>}
                                         <h4 className="text-sm font-bold text-slate-800 leading-tight mb-2 line-clamp-2">{product.name}</h4>
                                         <div className="mt-auto flex items-center justify-between">
                                             <span className="text-lg font-black text-slate-900">₹{product.price}</span>
                                             <button
                                                 onClick={() => handleAddToCart(product)}
                                                 disabled={product.stock === 0}
-                                                className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all disabled:opacity-50 disabled:hover:bg-slate-100 disabled:hover:text-slate-600"
+                                                className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all disabled:opacity-50 disabled:hover:bg-slate-100 disabled:hover:text-slate-600"
                                             >
                                                 <Plus size={18} />
                                             </button>
@@ -279,7 +279,7 @@ const POS = () => {
                         </div>
                     ) : (
                         <div className="bg-white/60 backdrop-blur-sm rounded-[3rem] shadow-sm border border-slate-100 p-10 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden w-full">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-purple-500 opacity-20"></div>
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-purple-500 to-purple-500 opacity-20"></div>
                             <div className="flex flex-col items-center gap-8 animate-pulse text-center max-w-sm">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-violet-100 rounded-[2.5rem] blur-xl opacity-50"></div>
@@ -304,12 +304,12 @@ const POS = () => {
                     {/* Customer Picker with Staff Dashboard aesthetic */}
                     <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-violet-600 text-white flex items-center justify-center shadow-lg shadow-violet-200">
+                            <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-violet-200">
                                 <User size={24} />
                             </div>
                             <div>
                                 <h3 className="text-base font-black text-slate-900 tracking-tight uppercase tracking-tight">Customer</h3>
-                                <p className="text-violet-500 text-[10px] font-black uppercase tracking-widest mt-0.5">Sale Assignment</p>
+                                <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-0.5">Sale Assignment</p>
                             </div>
                         </div>
 
@@ -322,7 +322,7 @@ const POS = () => {
                                         placeholder="Enter guest name *"
                                         value={guestInfo.name}
                                         onChange={(e) => setGuestInfo({ ...guestInfo, name: e.target.value })}
-                                        className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
+                                        className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
                                     />
                                 </div>
                                 <input
@@ -330,14 +330,14 @@ const POS = () => {
                                     placeholder="Phone number *"
                                     value={guestInfo.phone}
                                     onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
-                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
+                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
                                 />
                                 <input
                                     type="email"
                                     placeholder="Email address (optional)"
                                     value={guestInfo.email}
                                     onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
-                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
+                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
                                 />
                                 <button
                                     onClick={() => setShowGuestForm(false)}
@@ -347,7 +347,7 @@ const POS = () => {
                                 </button>
                             </div>
                         ) : selectedMember ? (
-                            <div className="bg-violet-50/50 rounded-2xl p-5 border border-violet-100 animate-in fade-in slide-in-from-top-2 relative">
+                            <div className="bg-primary-light/50 rounded-2xl p-5 border border-violet-100 animate-in fade-in slide-in-from-top-2 relative">
                                 <button onClick={() => setSelectedMember(null)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors">
                                     <X size={16} />
                                 </button>
@@ -361,16 +361,16 @@ const POS = () => {
                         ) : (
                             <div className="space-y-5">
                                 <div className="relative group">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={18} />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
                                     <input
                                         type="text"
                                         placeholder="Search members by code..."
                                         value={customerSearch}
                                         onChange={(e) => setCustomerSearch(e.target.value)}
-                                        className="w-full h-12 pl-12 pr-4 rounded-xl border border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans"
+                                        className="w-full h-12 pl-12 pr-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans"
                                     />
                                     {customerSearch && filteredMembers.length > 0 && (
-                                        <div className="absolute top-14 left-0 w-full bg-white border border-slate-100 rounded-xl shadow-xl max-h-48 overflow-y-auto z-10">
+                                        <div className="absolute top-14 left-0 w-full bg-white border border-slate-100 rounded-xl shadow-xl max-h-48  z-10">
                                             {filteredMembers.map(m => (
                                                 <div
                                                     key={m.id}
@@ -388,17 +388,17 @@ const POS = () => {
                                     onClick={() => setShowGuestForm(true)}
                                     className="w-full h-14 flex items-center justify-center gap-3 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:border-violet-200 transition-all border-2 border-dashed border-slate-100 group"
                                 >
-                                    <Plus size={16} className="text-slate-300 group-hover:text-violet-500" /> Walk-in Guest
+                                    <Plus size={16} className="text-slate-300 group-hover:text-primary" /> Walk-in Guest
                                 </button>
                             </div>
                         )}
                     </div>
 
                     {/* Cart Control with Premium Branding */}
-                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 flex flex-col min-h-[450px]">
+                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 flex flex-col min-h-[500px] p-8">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center border border-violet-100">
+                                <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center border border-violet-100">
                                     <ShoppingCart size={24} />
                                 </div>
                                 <div>
@@ -413,7 +413,7 @@ const POS = () => {
                             )}
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-4 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
+                        <div className="flex-1 flex flex-col gap-4  max-h-[350px] pr-2 custom-scrollbar">
                             {cart.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center opacity-30 py-10 scale-90">
                                     <div className="w-20 h-20 rounded-[2rem] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200 mb-6 shadow-inner">
@@ -429,7 +429,7 @@ const POS = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mb-1">{item.name}</h4>
-                                            <p className="text-[10px] font-black text-violet-600">₹{item.price}</p>
+                                            <p className="text-[10px] font-black text-primary">₹{item.price}</p>
                                         </div>
                                         <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl p-1 shadow-sm shrink-0">
                                             <button onClick={() => handleUpdateQuantity(item.id, -1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
@@ -456,7 +456,7 @@ const POS = () => {
                                         <button
                                             key={m}
                                             onClick={() => setPaymentMethod(m)}
-                                            className={`py-2.5 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${paymentMethod === m ? 'border-violet-600 bg-violet-600 text-white shadow-md' : 'border-slate-50 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
+                                            className={`py-2.5 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${paymentMethod === m ? 'border-primary bg-primary text-white shadow-md' : 'border-slate-50 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
                                         >
                                             {m}
                                         </button>
@@ -472,7 +472,7 @@ const POS = () => {
                                         placeholder="TNX-ID / Auth code"
                                         value={referenceNumber}
                                         onChange={(e) => setReferenceNumber(e.target.value)}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-violet-500 text-xs font-bold bg-slate-50/50 outline-none transition-all"
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary text-xs font-bold bg-slate-50/50 outline-none transition-all"
                                     />
                                 </div>
                             )}
@@ -484,7 +484,7 @@ const POS = () => {
                             <button
                                 onClick={handleCheckout}
                                 disabled={cart.length === 0 || isCheckingOut || (!selectedMember && !showGuestForm)}
-                                className="w-full h-14 bg-gradient-to-r from-violet-600 to-violet-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-200 flex items-center justify-center gap-3 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-500"
+                                className="w-full h-14 bg-gradient-to-r from-primary to-primary-hover text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-200 flex items-center justify-center gap-3 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-500"
                             >
                                 <CreditCard size={18} />
                                 {isCheckingOut ? 'Processing...' : 'Secure Checkout'}
@@ -498,7 +498,7 @@ const POS = () => {
                     {/* Recent Transactions with Glass Style */}
                     <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-lg border border-slate-100 p-8">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center border border-violet-100 shadow-sm">
+                            <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center border border-violet-100 shadow-sm">
                                 <Clock size={24} />
                             </div>
                             <div>
@@ -508,11 +508,11 @@ const POS = () => {
                         </div>
 
                         {recentTransactions.length > 0 ? (
-                            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                            <div className="space-y-3 max-h-[300px]  pr-1 custom-scrollbar">
                                 {recentTransactions.map((txn, idx) => (
                                     <div key={txn.id || idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-violet-200 transition-all">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
+                                            <div className="w-9 h-9 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
                                                 <ReceiptText size={16} />
                                             </div>
                                             <div>

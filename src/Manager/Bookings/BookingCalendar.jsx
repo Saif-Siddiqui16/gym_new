@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import RightDrawer from '../../components/common/RightDrawer';
 import BookingSettingsDrawer from './BookingSettingsDrawer';
 import AddBookingDrawer from './AddBookingDrawer';
-import '../../styles/GlobalDesign.css';
 
 const BookingCalendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -192,20 +191,20 @@ const BookingCalendar = () => {
         });
 
         return (
-            <div className="flex flex-col gap-1.5 mt-2 overflow-y-auto max-h-[105px] no-scrollbar pr-0.5">
+            <div className="flex flex-col gap-1.5 mt-2  max-h-[105px] no-scrollbar pr-0.5">
                 {dayBookings
                     .filter(b => filterType === 'All' || b.type === filterType)
                     .map((b) => (
                         <div
                             key={b.id}
                             className={`flex flex-col p-2 rounded-lg border shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer group/booking ${b.color === 'blue'
-                                ? 'bg-violet-50/60 text-violet-700 border-violet-100/50 hover:bg-violet-100/80 hover:border-violet-200'
+                                ? 'bg-primary-light/60 text-primary-hover border-violet-100/50 hover:bg-violet-100/80 hover:border-violet-200'
                                 : 'bg-green-50/60 text-green-700 border-green-100/50 hover:bg-green-100/80 hover:border-green-200'
                                 }`}
                             title={`${b.slot} - ${b.type} (${b.member})`}
                         >
                             <div className="flex items-center gap-1.5 mb-1 pointer-events-none">
-                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${b.color === 'blue' ? 'bg-violet-500' : 'bg-green-500'}`}></span>
+                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${b.color === 'blue' ? 'bg-primary' : 'bg-green-500'}`}></span>
                                 <span className="font-bold tracking-tight uppercase text-[8px] opacity-70 truncate">{b.slot}</span>
                             </div>
                             <div className="font-bold text-[10px] leading-tight truncate px-0.5 pointer-events-none text-gray-800">
@@ -219,7 +218,7 @@ const BookingCalendar = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans managerdashboard-bookingcalendar">
+        <div className=" bg-gray-50 min-h-screen font-sans managerdashboard-bookingcalendar">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
@@ -237,7 +236,7 @@ const BookingCalendar = () => {
                     />
                     <button
                         onClick={() => setIsSettingsOpen(true)}
-                        className="p-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-violet-600 transition-all shadow-sm"
+                        className="p-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-primary transition-all shadow-sm"
                         title="Booking Settings"
                     >
                         <Settings2 size={20} />
@@ -246,7 +245,7 @@ const BookingCalendar = () => {
                         onClick={() => {
                             setIsAddDrawerOpen(true);
                         }}
-                        className="saas-btn saas-btn-primary shadow-sm bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center"
+                        className="saas-btn saas-btn-primary shadow-sm bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center"
                     >
                         <Plus size={18} className="mr-1" /> New Booking
                     </button>
@@ -262,21 +261,21 @@ const BookingCalendar = () => {
                         <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-100">
                             <button
                                 onClick={handlePrev}
-                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-violet-600 group active:scale-95"
+                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-primary group active:scale-95"
                             >
                                 <ChevronLeft size={18} />
                             </button>
                             <div className="w-[1px] h-4 bg-gray-200 mx-1"></div>
                             <button
                                 onClick={handleNext}
-                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-violet-600 group active:scale-95"
+                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-primary group active:scale-95"
                             >
                                 <ChevronRight size={18} />
                             </button>
                         </div>
                         <button
                             onClick={handleToday}
-                            className="hidden sm:block px-4 py-2 text-sm font-bold text-violet-600 hover:bg-violet-50 rounded-xl transition-colors"
+                            className="hidden sm:block px-4 py-2 text-sm font-bold text-primary hover:bg-primary-light rounded-xl transition-colors"
                         >
                             Today
                         </button>
@@ -284,21 +283,21 @@ const BookingCalendar = () => {
                     <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 self-start sm:self-center">
                         <button
                             onClick={() => setCalendarView('Month')}
-                            className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${calendarView === 'Month' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${calendarView === 'Month' ? 'bg-white shadow-sm text-primary-hover border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Month
                         </button>
                         <button
                             onClick={() => setCalendarView('Week')}
-                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Week' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Week' ? 'bg-white shadow-sm text-primary-hover border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Week
                         </button>
                         <button
                             onClick={() => setCalendarView('Day')}
-                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Day' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Day' ? 'bg-white shadow-sm text-primary-hover border border-gray-100 ring-1 ring-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Day
@@ -317,21 +316,21 @@ const BookingCalendar = () => {
                         {calendarGrid.map((dayObj, idx) => (
                             <div
                                 key={idx}
-                                className={`bg-white min-h-[140px] p-4 transition-all duration-200 hover:bg-violet-50/30 flex flex-col group/cell relative ${dayObj && dayObj.date.toDateString() === new Date().toDateString() ? 'bg-violet-50/20' : ''
+                                className={`bg-white min-h-[140px] p-4 transition-all duration-200 hover:bg-primary-light/30 flex flex-col group/cell relative ${dayObj && dayObj.date.toDateString() === new Date().toDateString() ? 'bg-primary-light/20' : ''
                                     }`}
                             >
                                 {dayObj && dayObj.date.toDateString() === new Date().toDateString() && (
-                                    <div className="absolute inset-x-0 top-0 h-[2px] bg-violet-500 animate-pulse"></div>
+                                    <div className="absolute inset-x-0 top-0 h-[2px] bg-primary animate-pulse"></div>
                                 )}
                                 <span className={`text-sm font-bold flex items-center justify-center w-8 h-8 rounded-full mb-1 transition-all duration-300 ${dayObj && dayObj.date.toDateString() === new Date().toDateString()
-                                    ? 'bg-violet-600 text-white shadow-md shadow-violet-200 scale-110'
-                                    : 'text-gray-700 group-hover/cell:text-violet-600 group-hover/cell:scale-110'
+                                    ? 'bg-primary text-white shadow-md shadow-violet-200 scale-110'
+                                    : 'text-gray-700 group-hover/cell:text-primary group-hover/cell:scale-110'
                                     } ${!dayObj ? 'invisible' : ''}`}>
                                     {dayObj && dayObj.day}
                                 </span>
                                 {loading ? (
                                     <div className="flex-1 flex items-center justify-center">
-                                        <div className="w-4 h-4 border-2 border-violet-200 border-t-violet-500 rounded-full animate-spin"></div>
+                                        <div className="w-4 h-4 border-2 border-violet-200 border-t-primary rounded-full animate-spin"></div>
                                     </div>
                                 ) : getDayContent(dayObj)}
                             </div>
@@ -343,7 +342,7 @@ const BookingCalendar = () => {
             {/* Legend */}
             <div className="mt-6 flex gap-6 items-center px-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-violet-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
                     <span className="text-xs text-gray-600 font-medium">Group Class</span>
                 </div>
                 <div className="flex items-center gap-2">

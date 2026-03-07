@@ -146,7 +146,7 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     />
                     <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                        Use variables like <span className="text-violet-600">{"{{member_name}}"}</span>, <span className="text-violet-600">{"{{member_code}}"}</span>
+                        Use variables like <span className="text-primary">{"{{member_name}}"}</span>, <span className="text-primary">{"{{member_code}}"}</span>
                     </p>
                 </div>
 

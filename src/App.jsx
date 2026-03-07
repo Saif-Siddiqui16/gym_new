@@ -195,7 +195,6 @@ import ApiKeySettings from './modules/settings/pages/ApiKeySettings';
 import BranchAdminBenefits from './modules/settings/pages/BranchAdminBenefits';
 
 import { ROLES } from './config/roles';
-import './styles/GlobalDesign.css';
 
 import { BranchProvider } from './context/BranchContext';
 
@@ -293,21 +292,23 @@ export default function App() {
 
           {/* MODULE: SETTINGS (Isolated for Gym Admin/Manager) */}
           {(currentRole === ROLES.MANAGER || currentRole === ROLES.BRANCH_ADMIN) && (
-            <Route path="/settings" element={<SettingsLayout role={currentRole} />}>
-              <Route index element={<OrganizationSettings role={currentRole} />} />
-              <Route path="branches" element={<BranchManagement />} />
-              <Route path="roles" element={<RolesPermissions />} />
-              <Route path="billing" element={<BillingPlans />} />
-              <Route path="integrations" element={<Integrations />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="payment-gateway" element={<PaymentGateway />} />
-              <Route path="security" element={<SecuritySettings role={currentRole} />} />
-              <Route path="logs" element={<AuditLogs />} />
-              <Route path="webhooks" element={<WebhookSettings />} />
-              <Route path="api-keys" element={<ApiKeySettings />} />
-              <Route path="templates" element={<MessageTemplates />} />
-              <Route path="amenities" element={<AmenitySettings />} />
-            </Route>
+            <>
+              <Route path="/settings" element={<SettingsLayout role={currentRole} />}>
+                <Route index element={<OrganizationSettings role={currentRole} />} />
+                <Route path="branches" element={<BranchManagement />} />
+                <Route path="roles" element={<RolesPermissions />} />
+                <Route path="billing" element={<BillingPlans />} />
+                <Route path="integrations" element={<Integrations />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="payment-gateway" element={<PaymentGateway />} />
+                <Route path="security" element={<SecuritySettings role={currentRole} />} />
+                <Route path="api-keys" element={<ApiKeySettings />} />
+                <Route path="templates" element={<MessageTemplates />} />
+                <Route path="amenities" element={<AmenitySettings />} />
+              </Route>
+              <Route path="/settings/logs" element={<AuditLogs />} />
+              <Route path="/settings/webhooks" element={<WebhookSettings />} />
+            </>
           )}
 
           {/* MODULE: OPERATIONS (Manager/Global) */}

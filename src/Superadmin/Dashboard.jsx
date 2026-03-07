@@ -11,7 +11,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState([
-        { title: 'Total Gyms', value: '0', change: '+0%', icon: Building2, bg: 'bg-violet-50', color: 'text-violet-600', trend: 'stable', path: '/superadmin/gyms/all' },
+        { title: 'Total Gyms', value: '0', change: '+0%', icon: Building2, bg: 'bg-primary-light', color: 'text-primary', trend: 'stable', path: '/superadmin/gyms/all' },
         { title: 'Active Subs', value: '0', change: '+0%', icon: CreditCard, bg: 'bg-emerald-50', color: 'text-emerald-600', trend: 'stable', path: '/superadmin/subscriptions/active' },
         { title: 'Platform Rev', value: '₹0', change: '+0%', icon: DollarSign, bg: 'bg-fuchsia-50', color: 'text-fuchsia-600', trend: 'stable', path: '/superadmin/payments/revenue' },
         { title: 'Growth Rate', value: '0%', change: '+0%', icon: Users, bg: 'bg-orange-50', color: 'text-orange-600', trend: 'stable', path: '/superadmin/gyms/all' }
@@ -33,7 +33,7 @@ const Dashboard = () => {
                         title: 'Total Gyms',
                         value: cardsData.find(c => c.title === 'Total Gyms')?.value || '0',
                         change: cardsData.find(c => c.title === 'Total Gyms')?.trend || '+0%',
-                        icon: Building2, bg: 'bg-violet-50', color: 'text-violet-600', trend: 'up', path: '/superadmin/gyms/all'
+                        icon: Building2, bg: 'bg-primary-light', color: 'text-primary', trend: 'up', path: '/superadmin/gyms/all'
                     },
                     {
                         title: 'Active Subs',
@@ -80,14 +80,14 @@ const Dashboard = () => {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="relative">
-                    <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-violet-600 animate-spin"></div>
+                    <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-primary animate-spin"></div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 relative font-sans selection:bg-violet-100 selection:text-violet-700">
+        <div className="min-h-screen bg-slate-50 relative font-sans selection:bg-violet-100 selection:text-primary-hover">
             {/* Subtle Background Pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
@@ -97,12 +97,12 @@ const Dashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-end gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1 rounded-full bg-violet-100 text-violet-700 border border-violet-200 text-[10px] font-black uppercase tracking-widest">
+                            <span className="px-3 py-1 rounded-full bg-violet-100 text-primary-hover border border-violet-200 text-[10px] font-black uppercase tracking-widest">
                                 Super Admin
                             </span>
                         </div>
                         <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                            Platform <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">Overview</span>
+                            Platform <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-fuchsia-600">Overview</span>
                         </h1>
                         <p className="text-slate-500 font-medium mt-2 max-w-lg">
                             Global view of all gym branches, revenue streams, and system health.
@@ -153,9 +153,9 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Revenue Map / Chart Placeholder */}
-                    <div className="lg:col-span-2 bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col min-h-[400px]">
+                    <div className="lg:col-span-2 bg-slate-900 rounded-[40px] text-white relative overflow-hidden shadow-2xl flex flex-col min-h-[400px]">
                         {/* Decor */}
-                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
+                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
                         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-fuchsia-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
 
                         <div className="relative z-10 flex justify-between items-start mb-12">
@@ -178,25 +178,25 @@ const Dashboard = () => {
                         <div className="relative z-10 mt-auto flex items-end justify-between gap-2 h-40 px-4">
                             {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 50, 95].map((h, i) => (
                                 <div key={i} className="w-full bg-slate-800 rounded-t-lg relative group cursor-pointer hover:bg-slate-700 transition-colors" style={{ height: `${h}%` }}>
-                                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-violet-600 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity h-full rounded-t-lg"></div>
+                                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-primary to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity h-full rounded-t-lg"></div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Recent Gyms List */}
-                    <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 flex flex-col">
+                    <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-xl font-black text-slate-900">Recent Branches</h3>
                             <button
                                 onClick={() => navigate('/superadmin/gyms/all')}
-                                className="text-violet-600 hover:bg-violet-50 p-2 rounded-xl transition-colors"
+                                className="text-primary hover:bg-primary-light p-2 rounded-xl transition-colors"
                             >
                                 <ChevronRight size={20} />
                             </button>
                         </div>
 
-                        <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-6  pr-2 custom-scrollbar">
                             {recentGyms.map((gym, idx) => (
                                 <div key={idx} className="flex items-center justify-between group cursor-pointer">
                                     <div className="flex items-center gap-4">
@@ -206,12 +206,12 @@ const Dashboard = () => {
                                             {(gym.name || '?').charAt(0)}
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-bold text-slate-900 group-hover:text-violet-600 transition-colors">{gym.name}</h4>
+                                            <h4 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{gym.name}</h4>
                                             <p className="text-xs text-slate-400 font-medium mt-0.5">{gym.location}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${gym.plan === 'Premium' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500'
+                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${gym.plan === 'Premium' ? 'bg-violet-100 text-primary-hover' : 'bg-slate-100 text-slate-500'
                                             }`}>
                                             {gym.plan}
                                         </span>

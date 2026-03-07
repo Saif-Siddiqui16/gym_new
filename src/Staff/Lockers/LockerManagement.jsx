@@ -6,6 +6,7 @@ import LockerFormDrawer from './LockerFormDrawer';
 import LockerDetailDrawer from './LockerDetailDrawer';
 import CreateLockerDrawer from './CreateLockerDrawer';
 import BulkCreateLockersDrawer from '../../modules/operations/pages/BulkCreateLockersDrawer';
+import StatsCard from '../../modules/dashboard/components/StatsCard';
 
 import { useBranchContext } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthContext';
@@ -71,7 +72,7 @@ const LockerManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-0 sm:p-8 space-y-8 animate-fadeIn text-slate-900">
+        <div className="min-h-screen space-y-8 animate-fadeIn text-slate-900">
             {/* Premium Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div className="flex items-center gap-4">
@@ -92,7 +93,7 @@ const LockerManagement = () => {
                     </button>
                     <button
                         onClick={() => setIsCreateDrawerOpen(true)}
-                        className="flex items-center gap-2 px-5 py-3 bg-violet-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all shadow-xl shadow-violet-200"
+                        className="flex items-center gap-2 px-5 py-3 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-primary-hover transition-all shadow-xl shadow-violet-200"
                     >
                         <Plus size={16} /> Add Locker
                     </button>
@@ -101,35 +102,44 @@ const LockerManagement = () => {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { label: 'Total Lockers', value: stats.total, icon: Box, color: 'text-violet-500', bg: 'bg-violet-50/50' },
-                    { label: 'Available', value: stats.available, icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50/50' },
-                    { label: 'Assigned', value: stats.assigned, subValue: `${stats.occupancy} occupancy`, icon: User, color: 'text-slate-500', bg: 'bg-slate-50/50' },
-                    { label: 'Maintenance', value: stats.maintenance, icon: Key, color: 'text-amber-600', bg: 'bg-amber-100/50' }
-                ].map((item, idx) => (
-                    <div key={idx} className="bg-white rounded-[2.5rem] p-5 sm:p-7 shadow-sm border border-slate-100 flex justify-between items-center group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{item.label}</p>
-                            <div className="flex items-baseline gap-2">
-                                <h2 className="text-3xl font-black text-slate-900">{item.value}</h2>
-                                {item.subValue && <span className="text-[10px] font-bold text-slate-400">{item.subValue}</span>}
-                            </div>
-                        </div>
-                        <div className={`w-12 h-12 ${item.bg} rounded-2xl flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform`}>
-                            <item.icon size={22} />
-                        </div>
-                    </div>
-                ))}
+                <StatsCard
+                    title="Total Lockers"
+                    value={stats.total.toString()}
+                    icon={Box}
+                    color="primary"
+                    subtitle="Inventory capacity"
+                />
+                <StatsCard
+                    title="Available"
+                    value={stats.available.toString()}
+                    icon={Users}
+                    color="success"
+                    subtitle="Ready for assignment"
+                />
+                <StatsCard
+                    title="Assigned"
+                    value={stats.assigned.toString()}
+                    icon={User}
+                    color="info"
+                    subtitle={`${stats.occupancy} occupancy`}
+                />
+                <StatsCard
+                    title="Maintenance"
+                    value={stats.maintenance.toString()}
+                    icon={Key}
+                    color="warning"
+                    subtitle="Locked for repair"
+                />
             </div>
 
             {/* View Controls & Filters */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <div className="relative flex-1 sm:w-80 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
                         <input
                             placeholder="Search lockers..."
-                            className="w-full h-12 pl-11 pr-5 bg-white border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                            className="w-full h-12 pl-11 pr-5 bg-white border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -137,7 +147,7 @@ const LockerManagement = () => {
                     <select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="h-12 px-5 bg-white border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all cursor-pointer shadow-sm min-w-[160px] appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat"
+                        className="h-12 px-5 bg-white border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-primary transition-all cursor-pointer shadow-sm min-w-[160px] appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat"
                     >
                         <option>All Status</option>
                         <option>Available</option>
@@ -149,13 +159,13 @@ const LockerManagement = () => {
                 <div className="flex items-center p-1.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         <LayoutGrid size={18} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         <List size={18} />
                     </button>
@@ -171,7 +181,7 @@ const LockerManagement = () => {
                             <button
                                 key={label}
                                 onClick={() => setActiveTab(label)}
-                                className={`px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === label ? 'bg-violet-50 text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`px-6 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === label ? 'bg-primary-light text-primary' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 {tab}
                             </button>
@@ -191,7 +201,7 @@ const LockerManagement = () => {
                         <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 text-center space-y-4">
                             {loading ? (
                                 <div className="flex flex-col items-center gap-4">
-                                    <RefreshCw className="w-12 h-12 text-violet-500 animate-spin" />
+                                    <RefreshCw className="w-12 h-12 text-primary animate-spin" />
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading lockers...</p>
                                 </div>
                             ) : filteredLockers.length === 0 ? (
@@ -210,13 +220,13 @@ const LockerManagement = () => {
                                             className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer border-2 transition-all group scale-100 hover:scale-105 ${locker.status === 'Available' ? 'bg-emerald-50 border-emerald-100 hover:border-emerald-300' :
                                                 locker.status === 'Occupied' || locker.status === 'Assigned' ? 'bg-slate-50 border-slate-100 hover:border-slate-300' :
                                                     locker.status === 'Maintenance' ? 'bg-amber-50 border-amber-100 hover:border-amber-300' :
-                                                        'bg-violet-50 border-violet-100 hover:border-violet-300'
+                                                        'bg-primary-light border-violet-100 hover:border-violet-300'
                                                 }`}
                                         >
                                             <Lock size={20} className={`${locker.status === 'Available' ? 'text-emerald-500' :
                                                 locker.status === 'Occupied' || locker.status === 'Assigned' ? 'text-slate-400' :
                                                     locker.status === 'Maintenance' ? 'text-amber-500' :
-                                                        'text-violet-500'
+                                                        'text-primary'
                                                 }`} />
                                             <span className="text-xs font-black text-slate-700">{locker.number}</span>
                                         </div>
@@ -265,7 +275,7 @@ const LockerManagement = () => {
                                                 <td className="px-10 py-5 text-sm font-bold text-slate-700">Locker #{locker.number}</td>
                                                 <td className="px-10 py-5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-[10px] font-black">
+                                                        <div className="w-8 h-8 rounded-lg bg-violet-100 text-primary flex items-center justify-center text-[10px] font-black">
                                                             {locker.assignedTo?.name?.charAt(0) || '?'}
                                                         </div>
                                                         <div>
@@ -282,7 +292,7 @@ const LockerManagement = () => {
                                                 <td className="px-10 py-5 text-right">
                                                     <button
                                                         onClick={() => handleAction(locker)}
-                                                        className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"
+                                                        className="p-2.5 text-slate-400 hover:text-primary transition-colors"
                                                     >
                                                         <Info size={20} />
                                                     </button>
@@ -299,7 +309,7 @@ const LockerManagement = () => {
                                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] md:rounded-[3.5rem] bg-gradient-to-br from-slate-50 to-slate-100/50 flex items-center justify-center text-slate-200 rotation-slow">
                                         <Key size={48} className="md:w-16 md:h-16 text-slate-300" />
                                     </div>
-                                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-50 flex items-center justify-center text-violet-500 animate-bounce">
+                                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-50 flex items-center justify-center text-primary animate-bounce">
                                         <Lock size={20} />
                                     </div>
                                 </div>

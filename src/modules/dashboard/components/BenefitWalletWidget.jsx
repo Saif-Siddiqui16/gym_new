@@ -35,15 +35,15 @@ const BenefitWalletWidget = ({ walletData }) => {
             <Card className="bg-gradient-to-br from-slate-50/50 to-white p-5 border border-slate-100 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-[220px] flex flex-col group overflow-hidden">
                 <div className="flex items-center justify-between mb-3 shrink-0">
                     <div>
-                        <h3 className="text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] leading-none text-violet-600">My Benefits</h3>
+                        <h3 className="text-slate-900 text-[11px] font-black uppercase tracking-[0.2em] leading-none text-primary">My Benefits</h3>
                         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">{planName}</p>
                     </div>
-                    <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm group-hover:scale-110 transition-transform">
+                    <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
                         <ChevronRight size={16} strokeWidth={3} />
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                <div className="flex-1  pr-1 space-y-2 custom-scrollbar">
                     <div className="space-y-2">
                         {benefits.map((benefit) => {
                             const isUnlimited = benefit.total === 'Unlimited';
@@ -67,7 +67,7 @@ const BenefitWalletWidget = ({ walletData }) => {
 
                                     <div className="h-[2px] bg-slate-100 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-700"
+                                            className="h-full bg-gradient-to-r from-primary to-primary rounded-full transition-all duration-700"
                                             style={{ width: `${progress}%` }}
                                         />
                                     </div>
@@ -80,7 +80,7 @@ const BenefitWalletWidget = ({ walletData }) => {
                 <div className="pt-3 mt-auto border-t border-slate-50 shrink-0">
                     <button
                         onClick={() => openDetails(benefits[0])}
-                        className="text-[9px] font-black text-violet-600 uppercase tracking-[0.2em] hover:text-violet-700 transition-colors flex items-center gap-1"
+                        className="text-[9px] font-black text-primary uppercase tracking-[0.2em] hover:text-primary-hover transition-colors flex items-center gap-1"
                     >
                         VIEW ALL BENEFITS <ChevronRight size={10} strokeWidth={4} />
                     </button>

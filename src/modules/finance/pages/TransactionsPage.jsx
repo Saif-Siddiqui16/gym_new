@@ -23,6 +23,7 @@ import { fetchOrderById } from '../../../api/storeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import RightDrawer from '../../../components/common/RightDrawer';
+import StatsCard from '../../dashboard/components/StatsCard';
 
 const Payments = () => {
     const { selectedBranch } = useBranchContext();
@@ -148,7 +149,7 @@ const Payments = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 lg:p-10 pb-20">
+        <div className="min-h-screen pb-20">
             <div className="max-w-screen-2xl mx-auto space-y-10">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -165,42 +166,47 @@ const Payments = () => {
                 </div>
 
                 {/* Filters Bar */}
-                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 space-y-8">
-                    <div className="flex items-center gap-2 text-slate-400 font-black text-[10px] uppercase tracking-widest pl-1">
-                        <Filter size={14} /> Filters
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-6 md:p-8 space-y-6 relative overflow-hidden transition-all duration-300 hover:shadow-md">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none"></div>
+
+                    <div className="flex items-center gap-3 text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1">
+                        <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-primary shadow-sm border border-slate-100">
+                            <Filter size={14} strokeWidth={3} />
+                        </div>
+                        <span>Active Filters</span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 relative z-10">
                         {/* Search */}
-                        <div className="md:col-span-5 relative group">
-                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
+                        <div className="md:col-span-4 relative group">
+                            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onKeyDown={handleSearch}
                                 placeholder="Search member, code, or invoice..."
-                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                className="w-full h-14 pl-14 pr-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-300"
                             />
                         </div>
 
                         {/* Date Picker */}
-                        <div className="md:col-span-3 relative">
-                            <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <div className="md:col-span-3 relative group">
+                            <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-[10px] font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                className="w-full h-14 pl-14 pr-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-[10px] uppercase font-black tracking-widest focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer"
                             />
                         </div>
 
                         {/* Method Filter */}
-                        <div className="md:col-span-2 relative">
+                        <div className="md:col-span-2.5 relative group md:col-span-2">
                             <select
                                 value={methodFilter}
                                 onChange={(e) => setMethodFilter(e.target.value)}
-                                className="w-full pl-4 pr-10 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none appearance-none cursor-pointer"
+                                className="w-full h-14 pl-5 pr-12 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
                             >
                                 <option>All Methods</option>
                                 <option>Cash</option>
@@ -208,71 +214,52 @@ const Payments = () => {
                                 <option>Card</option>
                                 <option>Bank Transfer</option>
                             </select>
-                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
 
                         {/* Status Filter */}
-                        <div className="md:col-span-2 relative">
+                        <div className="md:col-span-2 relative group md:col-span-3">
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full pl-4 pr-10 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none appearance-none cursor-pointer"
+                                className="w-full h-14 pl-5 pr-12 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
                             >
                                 <option>All Status</option>
                                 <option>Paid</option>
                                 <option>Unpaid</option>
                                 <option>Partial</option>
                             </select>
-                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
                         </div>
                     </div>
                 </div>
 
                 {/* KPI Cards Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {/* Today's Collection */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-orange-50 transition-all duration-500">
-                        <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Today's Collection</p>
-                            <h2 className="text-3xl font-black text-orange-600">₹{data.stats.todayCollection.toLocaleString()}</h2>
-                        </div>
-                        <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform shadow-sm">
-                            <TrendingUp size={24} />
-                        </div>
-                    </div>
-
-                    {/* Filtered Total */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-emerald-50 transition-all duration-500">
-                        <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Filtered Total</p>
-                            <h2 className="text-3xl font-black text-emerald-600">₹{data.stats.filteredTotal.toLocaleString()}</h2>
-                        </div>
-                        <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform shadow-sm">
-                            <History size={24} />
-                        </div>
-                    </div>
-
-                    {/* Completed */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-violet-50 transition-all duration-500">
-                        <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Completed</p>
-                            <h2 className="text-3xl font-black text-slate-900 font-roboto">₹{data.stats.completed.toLocaleString()}</h2>
-                        </div>
-                        <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-sm">
-                            <CheckCircle2 size={24} />
-                        </div>
-                    </div>
-
-                    {/* Pending */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-violet-50 transition-all duration-500">
-                        <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Pending</p>
-                            <h2 className="text-3xl font-black text-violet-600">₹{data.stats.pending.toLocaleString()}</h2>
-                        </div>
-                        <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-500 group-hover:scale-110 transition-transform shadow-sm">
-                            <Clock size={24} />
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Today's Collection"
+                        value={`₹${data.stats.todayCollection.toLocaleString()}`}
+                        icon={TrendingUp}
+                        color="warning"
+                    />
+                    <StatsCard
+                        title="Filtered Total"
+                        value={`₹${data.stats.filteredTotal.toLocaleString()}`}
+                        icon={History}
+                        color="success"
+                    />
+                    <StatsCard
+                        title="Completed"
+                        value={`₹${data.stats.completed.toLocaleString()}`}
+                        icon={CheckCircle2}
+                        color="info"
+                    />
+                    <StatsCard
+                        title="Pending"
+                        value={`₹${data.stats.pending.toLocaleString()}`}
+                        icon={Clock}
+                        color="primary"
+                    />
                 </div>
 
                 {/* Transactions Table Panel */}
@@ -287,7 +274,7 @@ const Payments = () => {
                     <div className="overflow-x-auto scrollbar-hide">
                         {loading ? (
                             <div className="h-[300px] flex items-center justify-center opacity-30">
-                                <div className="w-10 h-10 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin"></div>
+                                <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
                             </div>
                         ) : data.transactions.length === 0 ? (
                             <div className="h-[300px] flex flex-col items-center justify-center text-center px-8 opacity-30">
@@ -317,14 +304,14 @@ const Payments = () => {
                                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
                                                     <td className="px-8 py-6">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 font-black text-xs">
+                                                            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-black text-xs">
                                                                 {txn.member ? txn.member[0] : 'G'}
                                                             </div>
                                                             <span className="text-sm font-black text-slate-900">{txn.member}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-6">
-                                                        <span className="text-[10px] font-black text-[#7c3aed] bg-violet-50 px-2 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
+                                                        <span className="text-[10px] font-black text-[#7c3aed] bg-primary-light px-2 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
                                                             {txn.branch}
                                                         </span>
                                                     </td>
@@ -357,7 +344,7 @@ const Payments = () => {
                                                     <td className="px-8 py-6 text-right">
                                                         <button
                                                             onClick={() => handleViewReceipt(txn.internalId || txn.id)}
-                                                            className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all shadow-sm"
+                                                            className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all shadow-sm"
                                                         >
                                                             <Receipt size={18} />
                                                         </button>
@@ -376,7 +363,7 @@ const Payments = () => {
                                             <div key={idx} className="p-6 space-y-4">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 font-black text-xs">
+                                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-black text-xs">
                                                             {txn.member ? txn.member[0] : 'G'}
                                                         </div>
                                                         <div>
@@ -431,7 +418,7 @@ const Payments = () => {
             >
                 {fetchingReceipt ? (
                     <div className="p-24 flex flex-col items-center justify-center opacity-40 h-full">
-                        <div className="w-12 h-12 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                        <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
                         <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Generating Receipt...</p>
                     </div>
                 ) : selectedReceipt && (

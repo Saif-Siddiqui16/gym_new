@@ -5,7 +5,6 @@ import apiClient from '../../api/apiClient';
 import { exportCSV } from '../../api/manager/managerExport';
 import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
-import '../../styles/GlobalDesign.css';
 
 // Reusable Custom Dropdown Component
 const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
@@ -26,13 +25,13 @@ const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) =
         <div className="relative min-w-[160px]" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full h-11 px-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isOpen ? 'border-violet-500 ring-2 ring-violet-100 bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                className={`w-full h-11 px-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isOpen ? 'border-primary ring-2 ring-violet-100 bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}
             >
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                     {Icon && <Icon size={16} className="text-gray-400" />}
                     <span className="font-medium truncate">{value === 'All' ? placeholder : value}</span>
                 </div>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-violet-500' : ''}`} />
+                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
             </button>
 
             <div className={`absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden transition-all duration-200 origin-top ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
@@ -41,7 +40,7 @@ const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) =
                         <button
                             key={option}
                             onClick={() => { onChange(option); setIsOpen(false); }}
-                            className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between transition-colors ${value === option ? 'bg-violet-50 text-violet-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+                            className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between transition-colors ${value === option ? 'bg-primary-light text-primary font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
                         >
                             {option === 'All' ? placeholder : option}
                             {value === option && <Check size={14} />}
@@ -231,17 +230,17 @@ const DailyAttendanceReport = () => {
 
     const stats = [
         { label: 'In', value: attendance.filter(a => a.status === 'checked-in').length, icon: Activity, color: 'from-emerald-500 to-emerald-600' },
-        { label: 'Today', value: attendanceStats.totalToday, icon: Users, color: 'from-violet-500 to-purple-600' },
+        { label: 'Today', value: attendanceStats.totalToday, icon: Users, color: 'from-primary to-primary' },
         { label: 'Out', value: attendanceStats.staffToday, icon: Clock, color: 'from-slate-400 to-slate-500' },
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             {/* Header Section */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">Attendance</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Attendance</h1>
                     <p className="text-slate-600 text-sm font-medium mt-1">Quick check-in / check-out</p>
                 </div>
             </div>
@@ -269,11 +268,11 @@ const DailyAttendanceReport = () => {
                 className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 mb-8 flex flex-col md:flex-row gap-3 items-center"
             >
                 <div className="relative flex-1 w-full group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="Search by name, member code or phone..."
-                        className="pl-10 pr-10 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm transition-all bg-white outline-none text-slate-800 font-medium"
+                        className="pl-10 pr-10 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm transition-all bg-white outline-none text-slate-800 font-medium"
                         value={searchTerm}
                         onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         autoComplete="off"
@@ -292,7 +291,7 @@ const DailyAttendanceReport = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:shadow-violet-300/50 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:shadow-violet-300/50 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                         Search
@@ -301,7 +300,7 @@ const DailyAttendanceReport = () => {
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input
                             type="date"
-                            className="w-full pl-9 h-11 px-6 rounded-xl border-2 border-slate-200 focus:border-violet-500 text-xs font-black uppercase transition-all bg-white outline-none min-w-[160px]"
+                            className="w-full pl-9 h-11 px-6 rounded-xl border-2 border-slate-200 focus:border-primary text-xs font-black uppercase transition-all bg-white outline-none min-w-[160px]"
                             value={selectedDate}
                             onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(1); }}
                         />
@@ -314,9 +313,9 @@ const DailyAttendanceReport = () => {
                 <div className="mb-10 animate-in slide-in-from-top-2 duration-300">
                     <div className="flex items-center justify-between mb-4 px-2">
                         <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <Search size={14} className="text-violet-500" />
+                            <Search size={14} className="text-primary" />
                             Member Search Results ({directoryResults.length})
-                            {isSearching && <Loader2 size={14} className="animate-spin text-violet-500 ml-2" />}
+                            {isSearching && <Loader2 size={14} className="animate-spin text-primary ml-2" />}
                         </h2>
                     </div>
 
@@ -324,9 +323,9 @@ const DailyAttendanceReport = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {directoryResults.map((member) => (
                                 <div key={member.id} className="bg-white p-5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-violet-200 transition-all group relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-violet-500/5 to-transparent rounded-bl-full"></div>
+                                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full"></div>
                                     <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-black text-lg group-hover:bg-violet-600 group-hover:text-white transition-all shadow-sm">
+                                        <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
                                             {member.name.charAt(0)}
                                         </div>
                                         <div className="min-w-0">
@@ -343,7 +342,7 @@ const DailyAttendanceReport = () => {
                                         </div>
                                         <button
                                             onClick={() => handleCheckIn(member.id)}
-                                            className="px-4 py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-violet-100 hover:bg-violet-700 hover:scale-105 active:scale-95 transition-all"
+                                            className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-violet-100 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all"
                                         >
                                             Check In
                                         </button>
@@ -373,7 +372,7 @@ const DailyAttendanceReport = () => {
                         {attendance.filter(a => a.status === 'checked-in').map((member) => (
                             <div key={member.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-violet-200 transition-all group">
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-lg group-hover:bg-violet-600 group-hover:text-white transition-all">
+                                    <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-white transition-all">
                                         {member.name.charAt(0)}
                                     </div>
                                     <div className="min-w-0">
@@ -421,7 +420,7 @@ const DailyAttendanceReport = () => {
                                     <tr>
                                         <td colSpan="5" className="px-6 py-12 text-center text-gray-400 font-medium lowercase">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
+                                                <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                                 Processing request...
                                             </div>
                                         </td>
@@ -432,7 +431,7 @@ const DailyAttendanceReport = () => {
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Member</span>
                                                 <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xs group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors">
+                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xs group-hover:bg-primary-light group-hover:text-primary transition-colors">
                                                         {(row.name || '?').charAt(0)}
                                                     </div>
                                                     <span className="text-sm font-medium text-gray-900">{row.name}</span>
@@ -453,7 +452,7 @@ const DailyAttendanceReport = () => {
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap sm:text-right mt-2 sm:mt-0 pt-3 sm:pt-4 border-t sm:border-0 border-dashed border-gray-100">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Action</span>
                                                 <div className="flex justify-end gap-2 opacity-100 transition-all">
-                                                    <button onClick={() => handleViewDetails(row)} className="p-2 sm:p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-all bg-gray-50 sm:bg-transparent">
+                                                    <button onClick={() => handleViewDetails(row)} className="p-2 sm:p-1.5 text-gray-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all bg-gray-50 sm:bg-transparent">
                                                         <Eye size={16} />
                                                     </button>
                                                     <button onClick={() => handleDelete(row.id)} className="p-2 sm:p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all bg-gray-50 sm:bg-transparent">
@@ -530,7 +529,7 @@ const DailyAttendanceReport = () => {
                         </div>
                         <button
                             onClick={() => setIsViewModalOpen(false)}
-                            className="w-full py-3.5 bg-violet-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-violet-700 transition-all active:scale-95 shadow-sm shadow-violet-100"
+                            className="w-full py-3.5 bg-primary text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 shadow-sm shadow-violet-100"
                         >
                             Close Details
                         </button>

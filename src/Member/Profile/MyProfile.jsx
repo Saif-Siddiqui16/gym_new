@@ -123,10 +123,17 @@ const MyProfile = () => {
         }
     };
 
+    const [activeTab, setActiveTab] = useState('personal');
+    const tabs = [
+        { id: 'personal', label: 'Personal Info', icon: User },
+        { id: 'security', label: 'Security', icon: Lock },
+        { id: 'notifications', label: 'Notifications', icon: Bell }
+    ];
+
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
-                <Loader2 className="w-12 h-12 text-violet-600 animate-spin" />
+            <div className="flex items-center justify-center ">
+                <Loader2 className="w-12 h-12 text-primary animate-spin" />
             </div>
         );
     }
@@ -142,21 +149,13 @@ const MyProfile = () => {
 
     const initials = profile.name ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase() : '??';
 
-    const [activeTab, setActiveTab] = useState('personal');
-
-    const tabs = [
-        { id: 'personal', label: 'Personal Info', icon: User },
-        { id: 'security', label: 'Security', icon: Lock },
-        { id: 'notifications', label: 'Notifications', icon: Bell }
-    ];
-
     return (
-        <div className="saas-container h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-20 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="saas-container   pr-2 pb-20 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 sm:py-6 px-1 sm:px-2 animate-in fade-in slide-in-from-top-4 duration-700">
                 <div className="flex items-center gap-3 sm:gap-4">
                     <div className="p-2 sm:p-3 bg-violet-100/50 rounded-xl sm:rounded-2xl shadow-inner border border-violet-100 flex items-center justify-center shrink-0">
-                        <User size={28} className="sm:w-9 sm:h-9 text-violet-600" />
+                        <User size={28} className="sm:w-9 sm:h-9 text-primary" />
                     </div>
                     <div>
                         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-none mb-1">
@@ -170,7 +169,7 @@ const MyProfile = () => {
                 <div className="flex items-center gap-2 sm:gap-3">
                     <button
                         onClick={() => setShowPasswordModal(true)}
-                        className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-slate-600 uppercase tracking-widest hover:border-violet-100 hover:text-violet-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-95 group whitespace-nowrap"
+                        className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-slate-600 uppercase tracking-widest hover:border-violet-100 hover:text-primary transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-95 group whitespace-nowrap"
                     >
                         <Key size={13} className="group-hover:rotate-12 transition-transform shrink-0" /> Reset Password
                     </button>
@@ -185,7 +184,7 @@ const MyProfile = () => {
                             <button
                                 onClick={handleSaveProfile}
                                 disabled={saving}
-                                className="h-10 sm:h-11 px-6 bg-violet-600 text-white rounded-xl sm:rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-violet-100 disabled:opacity-50"
+                                className="h-10 sm:h-11 px-6 bg-primary text-white rounded-xl sm:rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-violet-100 disabled:opacity-50"
                             >
                                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save Changes
                             </button>
@@ -193,7 +192,7 @@ const MyProfile = () => {
                     ) : (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-violet-600 border-2 border-violet-600 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-white uppercase tracking-widest hover:bg-violet-700 transition-all duration-300 shadow-lg shadow-violet-100 hover:shadow-violet-200 active:scale-95 whitespace-nowrap"
+                            className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-primary border-2 border-primary rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-white uppercase tracking-widest hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-violet-100 hover:shadow-violet-200 active:scale-95 whitespace-nowrap"
                         >
                             Edit Profile
                         </button>
@@ -208,8 +207,8 @@ const MyProfile = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap flex items-center gap-2 border-2 ${activeTab === tab.id
-                            ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-100'
-                            : 'bg-white border-slate-100 text-slate-400 hover:border-violet-100 hover:text-violet-600'
+                            ? 'bg-primary border-primary text-white shadow-lg shadow-violet-100'
+                            : 'bg-white border-slate-100 text-slate-400 hover:border-violet-100 hover:text-primary'
                             }`}
                     >
                         <tab.icon size={14} />
@@ -229,7 +228,7 @@ const MyProfile = () => {
                             </div>
                             <div className="relative z-10 flex items-center gap-5 sm:gap-10">
                                 <div className="relative shrink-0 group/avatar">
-                                    <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center text-white text-2xl sm:text-4xl font-black border-4 sm:border-[6px] border-white shadow-2xl shadow-violet-200 ring-4 sm:ring-8 ring-violet-100/30 overflow-hidden">
+                                    <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary to-violet-800 flex items-center justify-center text-white text-2xl sm:text-4xl font-black border-4 sm:border-[6px] border-white shadow-2xl shadow-violet-200 ring-4 sm:ring-8 ring-violet-100/30 overflow-hidden">
                                         {formData.avatar ? (
                                             <img src={formData.avatar} alt="Profile" className="w-full h-full object-cover" />
                                         ) : (profile.avatar ? (
@@ -239,7 +238,7 @@ const MyProfile = () => {
                                         ))}
                                     </div>
                                     {isEditing && (
-                                        <label className="absolute bottom-0 right-0 p-2 sm:p-3 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-violet-100 text-violet-600 hover:scale-110 hover:bg-violet-50 active:scale-95 transition-all duration-300 cursor-pointer group-hover/avatar:shadow-violet-200 flex items-center justify-center">
+                                        <label className="absolute bottom-0 right-0 p-2 sm:p-3 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-violet-100 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 cursor-pointer group-hover/avatar:shadow-violet-200 flex items-center justify-center">
                                             <Camera size={18} className="sm:w-5 sm:h-5" />
                                             <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                                         </label>
@@ -249,7 +248,7 @@ const MyProfile = () => {
                                     <div>
                                         <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none truncate">{profile.name || 'Demo Member'}</h2>
                                         <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 sm:mt-2 flex items-center gap-2">
-                                            Member ID: <span className="text-violet-600 font-black">{profile.memberId || 'MEM001'}</span>
+                                            Member ID: <span className="text-primary font-black">{profile.memberId || 'MEM001'}</span>
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1 flex-wrap">
@@ -278,7 +277,7 @@ const MyProfile = () => {
                                 {/* Full Name */}
                                 <div className="space-y-3 group/field">
                                     <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <User size={14} className="text-violet-500" />
+                                        <User size={14} className="text-primary" />
                                         <span>Full Name</span>
                                     </div>
                                     <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
@@ -290,7 +289,7 @@ const MyProfile = () => {
                                 {/* Email */}
                                 <div className="space-y-3 group/field">
                                     <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Mail size={14} className="text-violet-500" />
+                                        <Mail size={14} className="text-primary" />
                                         <span>Email Address</span>
                                     </div>
                                     <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
@@ -302,7 +301,7 @@ const MyProfile = () => {
                                 {/* Phone */}
                                 <div className="space-y-3 group/field">
                                     <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Phone size={14} className="text-violet-500" />
+                                        <Phone size={14} className="text-primary" />
                                         <span>Phone Number</span>
                                     </div>
                                     {isEditing ? (
@@ -310,7 +309,7 @@ const MyProfile = () => {
                                             type="text"
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-violet-600 transition-colors shadow-sm"
+                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
                                         />
                                     ) : (
                                         <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner group-hover/field:border-violet-100 transition-colors">
@@ -322,7 +321,7 @@ const MyProfile = () => {
                                 {/* Member Since */}
                                 <div className="space-y-3 group/field">
                                     <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Calendar size={14} className="text-violet-500" />
+                                        <Calendar size={14} className="text-primary" />
                                         <span>Member Since</span>
                                     </div>
                                     <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
@@ -333,7 +332,7 @@ const MyProfile = () => {
                                 {/* Status */}
                                 <div className="space-y-3 group/field">
                                     <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Activity size={14} className="text-violet-500" />
+                                        <Activity size={14} className="text-primary" />
                                         <span>Current Status</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-1">
@@ -369,7 +368,7 @@ const MyProfile = () => {
                                             value={formData.emergencyName}
                                             onChange={(e) => setFormData({ ...formData, emergencyName: e.target.value })}
                                             placeholder="Enter name"
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-violet-600 transition-colors shadow-sm"
+                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
                                         />
                                     ) : (
                                         <div className={`h-14 w-full bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center px-5 text-sm shadow-inner ${profile.emergencyName ? 'text-slate-900 font-bold' : 'text-slate-400 italic'}`}>
@@ -385,7 +384,7 @@ const MyProfile = () => {
                                             value={formData.emergencyPhone}
                                             onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
                                             placeholder="Enter phone"
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-violet-600 transition-colors shadow-sm"
+                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
                                         />
                                     ) : (
                                         <div className={`h-14 w-full bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center px-5 text-sm shadow-inner ${profile.emergencyPhone ? 'text-slate-900 font-bold' : 'text-slate-400 italic'}`}>
@@ -406,7 +405,7 @@ const MyProfile = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-5 sm:gap-y-8">
                                 <div className="space-y-2 group/val">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/val:text-violet-500 transition-colors">Plan</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/val:text-primary transition-colors">Plan</p>
                                     <p className="text-lg font-black text-slate-900 tracking-tight">{profile.plan?.name || 'No Active Plan'}</p>
                                     <div className="w-8 h-1 bg-violet-100 rounded-full" />
                                 </div>
@@ -428,14 +427,14 @@ const MyProfile = () => {
                     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500">
                         <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 group hover:shadow-violet-200/40 transition-all duration-500">
                             <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
-                                <div className="p-2.5 sm:p-3 bg-violet-50/50 rounded-xl sm:rounded-2xl text-violet-600 shadow-inner shrink-0">
+                                <div className="p-2.5 sm:p-3 bg-primary-light/50 rounded-xl sm:rounded-2xl text-primary shadow-inner shrink-0">
                                     <MapPin size={20} className="sm:w-6 sm:h-6" />
                                 </div>
                                 <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Branch Location</h3>
                             </div>
 
                             <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50/50 border border-slate-100 rounded-2xl sm:rounded-3xl group-hover:bg-white transition-colors duration-500">
-                                <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-white flex items-center justify-center text-violet-600 shadow-xl shadow-violet-100/50 border border-violet-50 sm:scale-110">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-white flex items-center justify-center text-primary shadow-xl shadow-violet-100/50 border border-primary-light sm:scale-110">
                                     <MapPin size={24} className="sm:w-8 sm:h-8" />
                                 </div>
                                 <div className="min-w-0">
@@ -492,7 +491,7 @@ const MyProfile = () => {
             {/* Password Modal */}
             {showPasswordModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <Card className="w-full max-w-md p-8 bg-white rounded-[32px] shadow-2xl relative animate-in zoom-in-95 duration-300">
+                    <Card className="w-full max-w-md bg-white rounded-[32px] shadow-2xl relative animate-in zoom-in-95 duration-300">
                         <button
                             onClick={() => setShowPasswordModal(false)}
                             className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 transition-colors"
@@ -501,7 +500,7 @@ const MyProfile = () => {
                         </button>
 
                         <div className="flex flex-col items-center text-center mb-8">
-                            <div className="w-16 h-16 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-600 mb-4 shadow-inner">
+                            <div className="w-16 h-16 bg-primary-light rounded-2xl flex items-center justify-center text-primary mb-4 shadow-inner">
                                 <Lock size={32} />
                             </div>
                             <h3 className="text-2xl font-black text-slate-900 tracking-tight">Change Password</h3>
@@ -516,7 +515,7 @@ const MyProfile = () => {
                                     required
                                     value={passwordData.currentPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-violet-600 outline-none transition-all"
+                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -527,7 +526,7 @@ const MyProfile = () => {
                                     required
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-violet-600 outline-none transition-all"
+                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -538,14 +537,14 @@ const MyProfile = () => {
                                     required
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-violet-600 outline-none transition-all"
+                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full h-14 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all mt-6"
+                                className="w-full h-14 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all mt-6"
                             >
                                 Update Password
                             </button>

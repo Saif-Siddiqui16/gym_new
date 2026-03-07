@@ -83,7 +83,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                         type="submit"
                         form="locker-assign-form"
                         disabled={isSubmitting}
-                        className="flex-[2] px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-[2] px-4 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/30/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         <CheckCircle size={18} />
                         {isSubmitting ? 'Processing...' : 'Save Assignment'}
@@ -92,7 +92,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
             }
         >
             <form id="locker-assign-form" onSubmit={handleSubmit} className="flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pr-2 space-y-8 custom-scrollbar">
+                <div className="flex-1  pr-2 space-y-8 custom-scrollbar">
                     {/* Locker Info Header */}
                     <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -112,7 +112,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                     {/* Member Selection */}
                     <div className="space-y-3">
                         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                            <User size={14} className="text-violet-500" />
+                            <User size={14} className="text-primary" />
                             Member Selection *
                         </label>
                         <CustomDropdown
@@ -133,7 +133,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                             <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, isPaid: !formData.isPaid })}
-                                className={`w-14 h-8 rounded-full p-1 transition-all duration-300 ${formData.isPaid ? 'bg-violet-600' : 'bg-slate-300'}`}
+                                className={`w-14 h-8 rounded-full p-1 transition-all duration-300 ${formData.isPaid ? 'bg-primary' : 'bg-slate-300'}`}
                             >
                                 <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${formData.isPaid ? 'translate-x-6' : 'translate-x-0'}`} />
                             </button>
@@ -141,7 +141,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
 
                         {formData.isPaid && (
                             <div className="pt-3 border-t border-slate-200 flex items-center justify-between animate-in fade-in duration-300">
-                                <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Monthly Rate</span>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Monthly Rate</span>
                                 <span className="text-sm font-black text-slate-800">₹{selectedLocker?.price || 500}</span>
                             </div>
                         )}
@@ -150,12 +150,12 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                     {/* Expiry Date */}
                     <div className="space-y-3">
                         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                            <Calendar size={14} className="text-violet-500" />
+                            <Calendar size={14} className="text-primary" />
                             Assignment Expiry *
                         </label>
                         <input
                             type="date"
-                            className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:bg-white focus:border-violet-500 transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:bg-white focus:border-primary transition-all"
                             value={formData.expiryDate}
                             onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
                             required
@@ -165,13 +165,13 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                     {/* Notes */}
                     <div className="space-y-3">
                         <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                            <FileText size={14} className="text-violet-500" />
+                            <FileText size={14} className="text-primary" />
                             Internal Notes
                         </label>
                         <textarea
                             rows="3"
                             placeholder="Notes about locker usage, items stored, or special requests..."
-                            className="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-medium text-slate-700 focus:bg-white focus:border-violet-500 transition-all resize-none"
+                            className="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-medium text-slate-700 focus:bg-white focus:border-primary transition-all resize-none"
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         />

@@ -123,30 +123,30 @@ const HardwareSettings = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 flex flex-col items-center">
+        <div className="min-h-screen flex flex-col items-center">
             {/* Page Header - Back Button */}
-            <div className="w-full max-w-7xl mb-6">
+            <div className="w-full max-w-full mb-6">
                 <button
                     onClick={() => navigate('/superadmin/general-settings/general')}
-                    className="group flex items-center text-slate-500 hover:text-violet-600 transition-all duration-300 hover:scale-105"
+                    className="group flex items-center text-slate-500 hover:text-primary transition-all duration-300 hover:scale-105"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-violet-50 transition-all duration-300 mr-2 group-hover:scale-110">
+                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-all duration-300 mr-2 group-hover:scale-110">
                         <ArrowLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-1" />
                     </div>
                     <span className="font-semibold">Back to Settings</span>
                 </button>
             </div>
             {/* Premium Header with Gradient */}
-            <div className="max-w-7xl mx-auto mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="max-w-full mx-auto mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                                 <Monitor size={28} />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                     Hardware Settings
                                 </h1>
                                 <p className="text-slate-600 text-sm mt-1">Manage connected devices and access points</p>
@@ -154,9 +154,9 @@ const HardwareSettings = () => {
                         </div>
                         <button
                             onClick={handleAddDevice}
-                            className="group relative px-6 py-3 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
+                            className="group relative px-6 py-3 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <Plus className="w-5 h-5 relative transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" />
                             <span className="relative">Add New Device</span>
                         </button>
@@ -165,7 +165,7 @@ const HardwareSettings = () => {
             </div>
 
             {/* Devices Table */}
-            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+            <div className="max-w-full mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
@@ -182,7 +182,7 @@ const HardwareSettings = () => {
                                 devices.map((device) => (
                                     <tr
                                         key={device.id}
-                                        className="group hover:bg-gradient-to-r hover:from-violet-50/50 hover:via-purple-50/30 hover:to-transparent transition-all duration-300"
+                                        className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:via-purple-50/30 hover:to-transparent transition-all duration-300"
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -193,7 +193,7 @@ const HardwareSettings = () => {
                                                     <Server size={20} />
                                                 </div>
                                                 <div>
-                                                    <span className="font-bold text-slate-900 block text-sm group-hover:text-violet-600 transition-colors">{device.name}</span>
+                                                    <span className="font-bold text-slate-900 block text-sm group-hover:text-primary transition-colors">{device.name}</span>
                                                     <span className="text-xs text-slate-500">ID: {device.id}</span>
                                                 </div>
                                             </div>
@@ -202,7 +202,7 @@ const HardwareSettings = () => {
                                             <span className="text-sm font-semibold text-slate-700">{device.type}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="inline-flex items-center gap-2 font-mono text-xs bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 transition-all duration-300 group-hover:bg-violet-50 group-hover:border-violet-200 group-hover:text-violet-700">
+                                            <div className="inline-flex items-center gap-2 font-mono text-xs bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 transition-all duration-300 group-hover:bg-primary-light group-hover:border-violet-200 group-hover:text-primary-hover">
                                                 <Wifi size={14} />
                                                 {device.ip}
                                             </div>
@@ -212,7 +212,7 @@ const HardwareSettings = () => {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleEdit(device)}
-                                                    className="group/btn p-2.5 text-violet-600 hover:bg-violet-50 rounded-xl transition-all duration-300 border border-transparent hover:border-violet-200 hover:scale-110 hover:shadow-md"
+                                                    className="group/btn p-2.5 text-primary hover:bg-primary-light rounded-xl transition-all duration-300 border border-transparent hover:border-violet-200 hover:scale-110 hover:shadow-md"
                                                     title="Edit"
                                                 >
                                                     <Edit2 size={16} className="transition-transform duration-300 group-hover/btn:rotate-12 group-hover/btn:scale-110" />
@@ -233,7 +233,7 @@ const HardwareSettings = () => {
                                     <td colSpan="5" className="px-6 py-16 text-center">
                                         <div className="flex flex-col items-center">
                                             <div className="w-16 h-16 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center mb-4">
-                                                <Server size={32} className="text-violet-600" />
+                                                <Server size={32} className="text-primary" />
                                             </div>
                                             <h3 className="text-lg font-bold text-slate-900 mb-2">No Devices Found</h3>
                                             <p className="text-slate-600 text-sm">Add your first hardware device to get started</p>
@@ -258,7 +258,7 @@ const HardwareSettings = () => {
                         <button
                             type="submit"
                             form="device-form"
-                            className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                            className="px-6 py-2.5 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                         >
                             {modalMode === 'add' ? 'Add Device' : 'Save Changes'}
                         </button>
@@ -279,7 +279,7 @@ const HardwareSettings = () => {
                         <input
                             type="text"
                             name="name"
-                            className="block w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                            className="block w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm"
                             value={formData.name}
                             onChange={handleInputChange}
                             placeholder="e.g. Reception Turnstile"
@@ -311,7 +311,7 @@ const HardwareSettings = () => {
                             <input
                                 type="text"
                                 name="ip"
-                                className="block w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                className="block w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm font-mono focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm"
                                 value={formData.ip}
                                 onChange={handleInputChange}
                                 placeholder="192.168.1.1"
@@ -331,7 +331,7 @@ const HardwareSettings = () => {
                                     value="active"
                                     checked={formData.status === 'active'}
                                     onChange={handleInputChange}
-                                    className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                                    className="w-4 h-4 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm font-semibold text-slate-700">Active</span>
                             </label>
@@ -342,7 +342,7 @@ const HardwareSettings = () => {
                                     value="offline"
                                     checked={formData.status === 'offline'}
                                     onChange={handleInputChange}
-                                    className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                                    className="w-4 h-4 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm font-semibold text-slate-700">Offline</span>
                             </label>

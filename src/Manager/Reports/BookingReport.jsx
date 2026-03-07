@@ -2,7 +2,6 @@ import { Calendar, Tag, ClipboardList, Download, Filter, Search, Clock, ChevronL
 import apiClient from '../../api/apiClient';
 import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
-import '../../styles/GlobalDesign.css';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useRef, useState } from 'react';
 import Button from '../../components/ui/Button';
@@ -26,13 +25,13 @@ const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) =
         <div className="relative min-w-[160px]" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full h-11 px-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isOpen ? 'border-violet-500 ring-2 ring-violet-100 bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                className={`w-full h-11 px-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${isOpen ? 'border-primary ring-2 ring-violet-100 bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}
             >
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                     {Icon && <Icon size={16} className="text-gray-400" />}
                     <span className="font-medium truncate">{value === 'All' ? placeholder : value}</span>
                 </div>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-violet-500' : ''}`} />
+                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
             </button>
 
             <div className={`absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden transition-all duration-200 origin-top ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
@@ -41,7 +40,7 @@ const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) =
                         <button
                             key={option}
                             onClick={() => { onChange(option); setIsOpen(false); }}
-                            className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between transition-colors ${value === option ? 'bg-violet-50 text-violet-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+                            className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between transition-colors ${value === option ? 'bg-primary-light text-primary font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
                         >
                             {option === 'All' ? placeholder : option}
                             {value === option && <Check size={14} />}
@@ -295,24 +294,24 @@ const BookingReport = () => {
     };
 
     const stats = [
-        { label: 'Total Bookings', value: bookingStats.total, icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600', border: 'border-violet-100' },
+        { label: 'Total Bookings', value: bookingStats.total, icon: ClipboardList, bg: 'bg-primary-light', color: 'text-primary', border: 'border-violet-100' },
         { label: 'Completed', value: bookingStats.completed, icon: ClipboardList, bg: 'bg-green-50', color: 'text-green-600', border: 'border-green-100' },
         { label: 'Cancelled', value: bookingStats.cancelled, icon: ClipboardList, bg: 'bg-red-50', color: 'text-red-600', border: 'border-red-100' },
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             {/* Premium Header with Gradient */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                                 <ClipboardList size={24} className="md:w-7 md:h-7" />
                             </div>
                             <div>
-                                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                     Booking Report
                                 </h1>
                                 <p className="text-slate-600 text-[10px] md:text-sm mt-0.5 md:mt-1 font-medium">Analyze class and PT booking performance</p>
@@ -333,7 +332,7 @@ const BookingReport = () => {
                             </button>
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`p-2 md:p-2.5 border rounded-xl hover:bg-gray-50 transition-all ${showFilters ? 'bg-violet-50 border-violet-200 ring-2 ring-violet-100 text-violet-600' : 'bg-white border-gray-200 text-gray-500'}`}
+                                className={`p-2 md:p-2.5 border rounded-xl hover:bg-gray-50 transition-all ${showFilters ? 'bg-primary-light border-violet-200 ring-2 ring-violet-100 text-primary' : 'bg-white border-gray-200 text-gray-500'}`}
                             >
                                 <Filter size={18} />
                             </button>
@@ -363,7 +362,7 @@ const BookingReport = () => {
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 hover:shadow-2xl hover:border-violet-200 transition-all duration-300" style={{ overflow: 'visible', zIndex: 10, position: 'relative' }}>
 
                 {showFilters && (
-                    <div className="p-6 border-b border-slate-100 hover:bg-violet-50/20 transition-colors duration-300">
+                    <div className="p-6 border-b border-slate-100 hover:bg-primary-light/20 transition-colors duration-300">
                         <div className="flex flex-col md:flex-row gap-4 justify-between">
                             <div className="flex flex-wrap gap-4 w-full md:w-auto">
                                 <div className="w-full md:w-48">
@@ -386,11 +385,11 @@ const BookingReport = () => {
                                 </div>
                             </div>
                             <div className="relative w-full md:w-72 group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-violet-500 group-hover:scale-110 transition-all duration-300" size={18} />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary group-hover:scale-110 transition-all duration-300" size={18} />
                                 <input
                                     type="text"
                                     placeholder="Search by member or class..."
-                                    className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 text-sm bg-white hover:border-slate-300 hover:shadow-sm transition-all"
+                                    className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:ring-4 focus:ring-primary/20 focus:border-primary text-sm bg-white hover:border-slate-300 hover:shadow-sm transition-all"
                                     value={searchTerm}
                                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                 />
@@ -401,38 +400,38 @@ const BookingReport = () => {
 
                 <div className="saas-table-wrapper">
                     <table className="saas-table saas-table-responsive w-full">
-                        <thead className="hidden sm:table-header-group bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
+                        <thead className="hidden sm:table-header-group bg-gradient-to-r from-primary-light via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
                             <tr>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Booking ID</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Member</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Booking Type</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Trainer</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Date / Time</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-violet-600 uppercase tracking-wider text-right">Actions</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Booking ID</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Member</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Booking Type</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Trainer</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Date / Time</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 flex flex-col sm:table-row-group">
                             {loading ? (
                                 <tr>
                                     <td colSpan="7" className="px-6 py-12 text-center flex items-center justify-center w-full">
-                                        <div className="flex items-center justify-center gap-2 text-violet-600">
-                                            <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-sm font-medium">Generating report...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : bookings.length > 0 ? (
                                 bookings.map((row) => (
-                                    <tr key={row.id} className="flex flex-col sm:table-row hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/30 transition-colors duration-200 group p-4 sm:p-0 border-b sm:border-0 border-slate-100">
+                                    <tr key={row.id} className="flex flex-col sm:table-row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/30 transition-colors duration-200 group p-4 sm:p-0 border-b sm:border-0 border-slate-100">
                                         <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Booking ID">
                                             <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking ID</span>
-                                            <span className="text-xs font-mono text-violet-600 font-bold bg-violet-50 px-2 py-1 rounded-md">#{row.id}</span>
+                                            <span className="text-xs font-mono text-primary font-bold bg-primary-light px-2 py-1 rounded-md">#{row.id}</span>
                                         </td>
                                         <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Member">
                                             <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Member</span>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-xs">
+                                                <div className="h-8 w-8 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-xs">
                                                     {(row.memberName || 'U').charAt(0).toUpperCase()}
                                                 </div>
                                                 <p className="text-sm font-bold text-gray-800">{row.memberName || 'Unknown'}</p>
@@ -467,7 +466,7 @@ const BookingReport = () => {
                                             <div className="flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 sm:transform sm:translate-x-2 sm:group-hover:translate-x-0">
                                                 <button
                                                     onClick={() => handleViewDetails(row)}
-                                                    className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-all md:hover:scale-110 duration-300"
+                                                    className="p-2 text-gray-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all md:hover:scale-110 duration-300"
                                                     title="View Details"
                                                 >
                                                     <Eye size={16} />
@@ -538,11 +537,11 @@ const BookingReport = () => {
                 {selectedBooking && (
                     <div className="space-y-6">
                         <div className="flex flex-col items-center py-6 bg-slate-50 rounded-2xl border border-slate-100 mx-2">
-                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-black text-xl md:text-2xl mb-3 shadow-lg ring-4 ring-violet-50 ring-offset-4">
+                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-violet-100 text-primary-hover flex items-center justify-center font-black text-xl md:text-2xl mb-3 shadow-lg ring-4 ring-primary-light ring-offset-4">
                                 {(selectedBooking.memberName || 'U').charAt(0).toUpperCase()}
                             </div>
                             <h4 className="text-lg md:text-xl font-bold text-gray-900">{selectedBooking.memberName || 'Unknown Member'}</h4>
-                            <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-violet-50 text-violet-600 border border-violet-100">
+                            <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-primary-light text-primary border border-violet-100">
                                 {selectedBooking.classType || 'Booking'}
                             </span>
                         </div>
@@ -572,13 +571,13 @@ const BookingReport = () => {
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                     <MapPin size={12} /> Booking ID
                                 </p>
-                                <p className="text-sm font-bold text-violet-600">#{selectedBooking.id}</p>
+                                <p className="text-sm font-bold text-primary">#{selectedBooking.id}</p>
                             </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-violet-50/50 rounded-xl border border-violet-100 flex gap-3 text-sm text-violet-900 mx-2">
+                        <div className="mt-6 p-4 bg-primary-light/50 rounded-xl border border-violet-100 flex gap-3 text-sm text-violet-900 mx-2">
                             <div className="p-1.5 bg-white rounded-lg h-fit border border-violet-200">
-                                <Calendar size={14} className="text-violet-600" />
+                                <Calendar size={14} className="text-primary" />
                             </div>
                             <p className="text-xs md:text-sm">Scheduled for <span className="font-bold">{selectedBooking.date || 'N/A'}</span> at <span className="font-bold">{selectedBooking.time || 'N/A'}</span>.</p>
                         </div>

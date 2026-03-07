@@ -62,7 +62,7 @@ const OpenEquipmentIssues = ({ tickets = [] }) => {
 
             <button
                 onClick={() => navigate('/facility/maintenance')}
-                className="w-full bg-violet-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-violet-700 transition-all shadow-md shadow-violet-200"
+                className="w-full bg-primary text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary-hover transition-all shadow-md shadow-violet-200"
             >
                 View Maintenance Board
                 <ArrowRight size={16} />

@@ -129,7 +129,7 @@ const AvailabilitySettingsPage = () => {
                 subtitle="Manage your time slots"
                 footer={
                     <div className="flex gap-3">
-                        <button onClick={handleSave} className="flex-1 py-2.5 bg-violet-600 !text-white rounded-lg text-sm font-bold shadow-md hover:bg-violet-700 transition-all">
+                        <button onClick={handleSave} className="flex-1 py-2.5 bg-primary !text-white rounded-lg text-sm font-bold shadow-md hover:bg-primary-hover transition-all">
                             Save Changes
                         </button>
                         <button
@@ -145,7 +145,7 @@ const AvailabilitySettingsPage = () => {
                     {localSlots.map((slot, idx) => (
                         <div key={idx} className="p-4 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-between group">
                             <div className="flex items-center gap-3">
-                                <Clock size={16} className="text-violet-500" />
+                                <Clock size={16} className="text-primary" />
                                 <span className="text-sm font-bold text-gray-800">{slot.start} – {slot.end}</span>
                             </div>
                             <button onClick={() => handleRemoveSlot(idx)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
@@ -159,14 +159,14 @@ const AvailabilitySettingsPage = () => {
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="text-xs font-bold text-gray-500 mb-1 block">Start Time</label>
-                                <input type="time" value={newStart} onChange={(e) => setNewStart(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg font-medium text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                                <input type="time" value={newStart} onChange={(e) => setNewStart(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg font-medium text-sm outline-none focus:ring-2 focus:ring-primary" />
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-gray-500 mb-1 block">End Time</label>
-                                <input type="time" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg font-medium text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                                <input type="time" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} className="w-full p-2 border border-gray-200 rounded-lg font-medium text-sm outline-none focus:ring-2 focus:ring-primary" />
                             </div>
                         </div>
-                        <button onClick={handleAddSlot} className="w-full py-2 bg-violet-50 text-violet-600 rounded-xl text-sm font-bold hover:bg-violet-100 transition-colors">
+                        <button onClick={handleAddSlot} className="w-full py-2 bg-primary-light text-primary rounded-xl text-sm font-bold hover:bg-violet-100 transition-colors">
                             + Add to Schedule
                         </button>
                     </div>
@@ -175,7 +175,7 @@ const AvailabilitySettingsPage = () => {
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Configuration</p>
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-gray-700">Slot Duration</label>
-                            <select className="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-violet-500 outline-none">
+                            <select className="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary outline-none">
                                 <option>30 Minutes</option>
                                 <option>60 Minutes</option>
                                 <option>90 Minutes</option>
@@ -211,7 +211,7 @@ const AvailabilitySettingsPage = () => {
                 title="Add Time Off"
                 subtitle="Block dates on your calendar"
                 footer={
-                    <button onClick={handleSave} className="w-full py-2.5 bg-violet-600 !text-white rounded-lg text-sm font-bold shadow-md hover:bg-violet-700 transition-all">
+                    <button onClick={handleSave} className="w-full py-2.5 bg-primary !text-white rounded-lg text-sm font-bold shadow-md hover:bg-primary-hover transition-all">
                         Block Dates
                     </button>
                 }
@@ -219,16 +219,16 @@ const AvailabilitySettingsPage = () => {
                 <div className="space-y-5">
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-gray-700">Reason</label>
-                        <input value={reason} onChange={e => setReason(e.target.value)} type="text" placeholder="e.g. Vacation, Sick Leave" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                        <input value={reason} onChange={e => setReason(e.target.value)} type="text" placeholder="e.g. Vacation, Sick Leave" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-gray-700">Start Date</label>
-                            <input value={start} onChange={e => setStart(e.target.value)} type="date" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                            <input value={start} onChange={e => setStart(e.target.value)} type="date" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-gray-700">End Date</label>
-                            <input value={end} onChange={e => setEnd(e.target.value)} type="date" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                            <input value={end} onChange={e => setEnd(e.target.value)} type="date" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary" />
                         </div>
                     </div>
                     <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3">
@@ -242,13 +242,13 @@ const AvailabilitySettingsPage = () => {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-20 min-h-screen bg-slate-50">
-            <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-slate-500 font-medium tracking-tight">Loading settings...</p>
         </div>
     );
 
     return (
-        <div className="h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="  space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b-2 border-gray-100">
                 <div>
@@ -264,7 +264,7 @@ const AvailabilitySettingsPage = () => {
                     {/* Weekly Availability */}
                     <section className="space-y-4">
                         <div className="flex items-center gap-2 px-1">
-                            <Clock size={18} className="text-violet-600" />
+                            <Clock size={18} className="text-primary" />
                             <h2 className="text-lg font-bold text-gray-800">Weekly Availability</h2>
                         </div>
                         <Card className="p-0 overflow-hidden border border-gray-200 shadow-md">
@@ -278,7 +278,7 @@ const AvailabilitySettingsPage = () => {
                                             {item.slots.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
                                                     {item.slots.map((slot, idx) => (
-                                                        <span key={idx} className="px-3 py-1 bg-violet-50 text-violet-700 rounded-full text-[11px] font-black border border-violet-100">
+                                                        <span key={idx} className="px-3 py-1 bg-primary-light text-primary-hover rounded-full text-[11px] font-black border border-violet-100">
                                                             {slot.start} – {slot.end}
                                                         </span>
                                                     ))}
@@ -289,7 +289,7 @@ const AvailabilitySettingsPage = () => {
                                         </div>
                                         <button
                                             onClick={() => handleEditDay(item.day)}
-                                            className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-violet-600 hover:shadow-sm transition-all shadow-sm"
+                                            className="p-2 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-primary hover:shadow-sm transition-all shadow-sm"
                                         >
                                             <Edit2 size={16} />
                                         </button>
@@ -308,7 +308,7 @@ const AvailabilitySettingsPage = () => {
                             </div>
                             <button
                                 onClick={() => setIsTimeOffDrawerOpen(true)}
-                                className="px-3 py-1.5 bg-violet-50 text-violet-700 rounded-lg text-xs font-black hover:bg-violet-100 transition-all flex items-center gap-1.5"
+                                className="px-3 py-1.5 bg-primary-light text-primary-hover rounded-lg text-xs font-black hover:bg-violet-100 transition-all flex items-center gap-1.5"
                             >
                                 <Plus size={14} />
                                 Add Time Off
@@ -359,7 +359,7 @@ const AvailabilitySettingsPage = () => {
                                     </div>
                                     <button
                                         onClick={() => togglePreference('instantBooking')}
-                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.instantBooking ? 'bg-violet-600' : 'bg-gray-300'}`}
+                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.instantBooking ? 'bg-primary' : 'bg-gray-300'}`}
                                     >
                                         <div className={`w-4 h-4 rounded-full bg-white transition-all transform ${preferences.instantBooking ? 'translate-x-4' : ''}`} />
                                     </button>
@@ -372,7 +372,7 @@ const AvailabilitySettingsPage = () => {
                                     </div>
                                     <button
                                         onClick={() => togglePreference('requireApproval')}
-                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.requireApproval ? 'bg-violet-600' : 'bg-gray-300'}`}
+                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.requireApproval ? 'bg-primary' : 'bg-gray-300'}`}
                                     >
                                         <div className={`w-4 h-4 rounded-full bg-white transition-all transform ${preferences.requireApproval ? 'translate-x-4' : ''}`} />
                                     </button>
@@ -385,7 +385,7 @@ const AvailabilitySettingsPage = () => {
                                     </div>
                                     <button
                                         onClick={() => togglePreference('autoAcceptReturning')}
-                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.autoAcceptReturning ? 'bg-violet-600' : 'bg-gray-300'}`}
+                                        className={`w-10 h-6 flex items-center rounded-full px-1 transition-all duration-300 ${preferences.autoAcceptReturning ? 'bg-primary' : 'bg-gray-300'}`}
                                     >
                                         <div className={`w-4 h-4 rounded-full bg-white transition-all transform ${preferences.autoAcceptReturning ? 'translate-x-4' : ''}`} />
                                     </button>
@@ -393,10 +393,10 @@ const AvailabilitySettingsPage = () => {
                             </div>
 
                             <div className="pt-5 border-t border-gray-100">
-                                <div className="bg-violet-50 p-4 rounded-2xl border border-violet-100 flex gap-3">
-                                    <CheckCircle2 size={18} className="text-violet-500 shrink-0" />
+                                <div className="bg-primary-light p-4 rounded-2xl border border-violet-100 flex gap-3">
+                                    <CheckCircle2 size={18} className="text-primary shrink-0" />
                                     <div>
-                                        <p className="text-[11px] font-black text-violet-700 uppercase">Pro Tip</p>
+                                        <p className="text-[11px] font-black text-primary-hover uppercase">Pro Tip</p>
                                         <p className="text-[10px] text-violet-900 font-medium leading-relaxed">Regularly updating your availability increases booking conversion by 40%.</p>
                                     </div>
                                 </div>

@@ -86,7 +86,7 @@ const EquipmentListPage = () => {
     };
 
     return (
-        <div className="bg-[#f8fafc] min-h-screen p-4 sm:p-8 custom-scrollbar">
+        <div className="saas-page pb-page animate-fadeIn">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
@@ -318,7 +318,7 @@ const EquipmentListPage = () => {
                                                 <td className="px-6 py-4" data-label="Priority">
                                                     <div className="flex justify-end sm:justify-start">
                                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${log.priority === 'High' || log.priority === 'Critical' ? 'bg-rose-50 text-rose-600' :
-                                                            log.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-violet-50 text-violet-600'
+                                                            log.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-primary-light text-primary'
                                                             }`}>
                                                             {log.priority}
                                                         </span>
@@ -364,17 +364,11 @@ const EquipmentListPage = () => {
             </div>
 
             {/* Right Drawer */}
-            <RightDrawer
+            <AddEquipmentDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                title="Add New Equipment"
-            >
-                <AddEquipmentDrawer
-                    isOpen={isDrawerOpen}
-                    onClose={() => setIsDrawerOpen(false)}
-                    onAdd={handleAddEquipment}
-                />
-            </RightDrawer>
+                onAdd={handleAddEquipment}
+            />
         </div>
     );
 };

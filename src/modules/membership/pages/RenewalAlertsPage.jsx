@@ -73,9 +73,9 @@ const RenewalAlertsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
+        <div className="min-h-screen ">
             {/* Header Area */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <button
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors mb-6 group"
@@ -121,7 +121,7 @@ const RenewalAlertsPage = () => {
             </div>
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 overflow-hidden">
                     {/* Search Bar */}
                     <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/30">
@@ -159,7 +159,7 @@ const RenewalAlertsPage = () => {
                                 {loading ? (
                                     <tr>
                                         <td colSpan="4" className="py-20 text-center">
-                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-500">
+                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                                                 <RefreshCw size={40} className="animate-spin" />
                                             </div>
                                             <h3 className="text-xl font-black text-slate-300 uppercase tracking-widest">Loading data...</h3>
@@ -170,7 +170,7 @@ const RenewalAlertsPage = () => {
                                         {/* ... member row content ... */}
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-lg group-hover:bg-violet-500 group-hover:text-white transition-all duration-500">
+                                                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-lg group-hover:bg-primary group-hover:text-white transition-all duration-500">
                                                     {member.memberName.charAt(0)}
                                                 </div>
                                                 <div>
@@ -180,7 +180,7 @@ const RenewalAlertsPage = () => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-50 text-violet-700 border border-violet-100">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary-light text-primary-hover border border-violet-100">
                                                 <Clock size={12} />
                                                 <span className="text-[10px] font-black uppercase tracking-widest">{member.planName}</span>
                                             </div>
@@ -208,7 +208,7 @@ const RenewalAlertsPage = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleCallMember(member)}
-                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-all border border-transparent hover:border-violet-200"
+                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-primary-light hover:text-primary transition-all border border-transparent hover:border-violet-200"
                                                     title="Call Member"
                                                 >
                                                     <Phone size={18} />
@@ -242,7 +242,7 @@ const RenewalAlertsPage = () => {
                         <div className="lg:hidden divide-y divide-slate-100">
                             {loading ? (
                                 <div className="p-10 text-center">
-                                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-violet-500">
+                                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                                         <RefreshCw size={24} className="animate-spin" />
                                     </div>
                                     <p className="text-sm font-black text-slate-300 uppercase tracking-widest">Loading...</p>

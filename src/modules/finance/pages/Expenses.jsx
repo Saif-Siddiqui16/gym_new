@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Filter, FileText, Calendar, DollarSign, Search, Receipt, TrendingDown, PieChart, Users, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import Button from '../../../components/ui/Button';
-import '../../../styles/GlobalDesign.css';
 import { fetchExpenses, addExpense, fetchExpenseCategories } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { ChevronDown } from 'lucide-react';
@@ -112,13 +111,13 @@ const Expenses = () => {
     };
 
     return (
-        <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 via-white to-violet-50/30 min-h-screen font-sans">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className=" bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen font-sans">
+            <div className="max-w-full mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                     <div>
                         <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                            <TrendingDown size={28} className="text-violet-600 sm:w-9 sm:h-9 shrink-0" />
+                            <TrendingDown size={28} className="text-primary sm:w-9 sm:h-9 shrink-0" />
                             Operations Expenses
                         </h1>
                         <p className="text-gray-500 font-medium mt-1.5 flex items-center gap-2 text-sm">
@@ -138,8 +137,8 @@ const Expenses = () => {
                 {/* Summary Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Monthly Summary Card */}
-                    <div className="bg-white rounded-2xl p-6 md:p-8 text-slate-900 border border-slate-200 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-slate-900 group-hover:scale-110 transition-transform duration-500">
+                    <div className="bg-white rounded-2xl  text-slate-900 border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 opacity-[0.03] text-slate-900 group-hover:scale-110 transition-transform duration-500">
                             <PieChart size={120} />
                         </div>
                         <div className="relative z-10">
@@ -157,7 +156,7 @@ const Expenses = () => {
                                             </div>
                                             <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                 <div
-                                                    className="h-full bg-violet-600 rounded-full transition-all duration-1000"
+                                                    className="h-full bg-primary rounded-full transition-all duration-1000"
                                                     style={{ width: `${item.percentage}%` }}
                                                 />
                                             </div>
@@ -206,16 +205,16 @@ const Expenses = () => {
                 </div>
 
                 {/* Filters & Search */}
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl p-4 md:p-6">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl ">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative group">
-                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-violet-500" />
+                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary" />
                             <input
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search by title or notes..."
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 focus:bg-white transition-all"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all"
                             />
                         </div>
                         <div className="relative group">
@@ -223,7 +222,7 @@ const Expenses = () => {
                             <select
                                 value={filterCategory}
                                 onChange={(e) => setFilterCategory(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 focus:bg-white transition-all appearance-none cursor-pointer"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all appearance-none cursor-pointer"
                             >
                                 <option value="">All Categories</option>
                                 {dynamicCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -242,7 +241,7 @@ const Expenses = () => {
                                     <div className="flex justify-between items-start mb-3">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-50 text-violet-700 border border-violet-100">
+                                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary-light text-primary-hover border border-violet-100">
                                                     {expense.category}
                                                 </span>
                                                 <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
@@ -276,7 +275,7 @@ const Expenses = () => {
                                             </div>
                                             <span>{expense.addedBy || 'System'}</span>
                                         </div>
-                                        <button className="text-violet-600 text-xs font-black uppercase tracking-wide">View Details</button>
+                                        <button className="text-primary text-xs font-black uppercase tracking-wide">View Details</button>
                                     </div>
                                 </div>
                             ))}
@@ -308,7 +307,7 @@ const Expenses = () => {
                                     <tr key={expense.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                                                <Calendar size={14} className="text-violet-500" />
+                                                <Calendar size={14} className="text-primary" />
                                                 {new Date(expense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </div>
                                         </td>
@@ -318,12 +317,12 @@ const Expenses = () => {
                                             </span>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <div className="text-sm font-black text-slate-900 group-hover:text-violet-600 transition-colors">
+                                            <div className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">
                                                 {expense.title}
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-50 text-violet-700 border border-violet-100">
+                                            <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary-light text-primary-hover border border-violet-100">
                                                 {expense.category}
                                             </span>
                                         </td>
@@ -375,7 +374,7 @@ const Expenses = () => {
                                 required
                                 value={newExpense.branchId}
                                 onChange={(e) => setNewExpense({ ...newExpense, branchId: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
                             >
                                 <option value="all">Select Branch</option>
                                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -391,7 +390,7 @@ const Expenses = () => {
                             value={newExpense.title}
                             onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
                             placeholder="e.g. Electricity Bill Jan 2024"
-                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all"
+                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all"
                         />
                     </div>
 
@@ -402,7 +401,7 @@ const Expenses = () => {
                                 required
                                 value={newExpense.category}
                                 onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
                             >
                                 <option value="">Select</option>
                                 {dynamicFormCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -416,7 +415,7 @@ const Expenses = () => {
                                 value={newExpense.amount}
                                 onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
                                 placeholder="0"
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all"
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all"
                             />
                         </div>
                     </div>
@@ -429,7 +428,7 @@ const Expenses = () => {
                                 type="date"
                                 value={newExpense.date}
                                 onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50"
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50"
                             />
                         </div>
                         <div className="space-y-2">
@@ -438,7 +437,7 @@ const Expenses = () => {
                                 required
                                 value={newExpense.status}
                                 onChange={(e) => setNewExpense({ ...newExpense, status: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
                             >
                                 <option value="Pending">Pending</option>
                                 <option value="Paid">Paid</option>
@@ -453,7 +452,7 @@ const Expenses = () => {
                             value={newExpense.notes}
                             onChange={(e) => setNewExpense({ ...newExpense, notes: e.target.value })}
                             placeholder="Mention utility month, invoice reference, etc..."
-                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-violet-500 outline-none font-bold text-gray-900 transition-all resize-none bg-slate-50/50"
+                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all resize-none bg-slate-50/50"
                         ></textarea>
                     </div>
 
@@ -467,7 +466,7 @@ const Expenses = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] px-8 py-4 bg-violet-600 text-white rounded-2xl font-black text-xs shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all uppercase tracking-widest flex items-center justify-center gap-2"
+                            className="flex-[2] px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-violet-200 hover:bg-primary-hover transition-all uppercase tracking-widest flex items-center justify-center gap-2"
                         >
                             <CheckCircle size={18} />
                             Save Expense

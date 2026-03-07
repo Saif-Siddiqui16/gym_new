@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save } from 'lucide-react';
 import { fetchAdminProfile, updateAdminProfile } from '../../api/superadmin/superAdminApi';
 import NotificationsList from '../../components/notifications/NotificationsList';
-import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -64,7 +63,7 @@ const MyProfile = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
                 <div className="flex flex-col items-center">
                     <div className="h-16 w-16 bg-gradient-to-br from-violet-200 to-purple-200 rounded-full mb-4 animate-spin"></div>
                     <p className="text-lg font-semibold text-slate-600">Loading profile...</p>
@@ -75,7 +74,7 @@ const MyProfile = () => {
 
     if (!profile) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4 text-center max-w-sm">
                     <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
                         <Shield size={32} className="text-red-400" />
@@ -86,7 +85,7 @@ const MyProfile = () => {
                     </p>
                     <button
                         onClick={loadProfile}
-                        className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-all"
+                        className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all"
                     >
                         Retry
                     </button>
@@ -102,13 +101,13 @@ const MyProfile = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
-            <div className="max-w-6xl mx-auto space-y-8">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto space-y-8">
 
                 {/* Profile Header Card */}
                 <div className="relative bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden">
                     {/* Gradient Background Banner */}
-                    <div className="h-40 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 relative">
+                    <div className="h-40 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10"></div>
                     </div>
 
@@ -117,22 +116,22 @@ const MyProfile = () => {
                             {/* Avatar */}
                             <div className="relative group">
                                 <div className="w-36 h-36 rounded-2xl bg-white p-2 shadow-2xl ring-4 ring-white">
-                                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-5xl font-black shadow-lg">
+                                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black shadow-lg">
                                         {profile.avatar}
                                     </div>
                                 </div>
-                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-xl shadow-lg border border-slate-200 text-violet-600 hover:scale-110 hover:bg-violet-50 active:scale-95 transition-all duration-300 group-hover:shadow-xl">
+                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-xl shadow-lg border border-slate-200 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 group-hover:shadow-xl">
                                     <Camera size={18} />
                                 </button>
                             </div>
 
                             {/* Profile Info */}
                             <div className="flex-1 pb-2">
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-2">
                                     {profile.name}
                                 </h1>
                                 <div className="flex flex-wrap gap-3 mt-3">
-                                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 text-xs font-bold border border-violet-200 shadow-sm">
+                                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-primary-light to-purple-50 text-primary-hover text-xs font-bold border border-violet-200 shadow-sm">
                                         {profile.role.replace('_', ' ')}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-sm">
@@ -165,7 +164,7 @@ const MyProfile = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
+                                    ? 'bg-gradient-to-r from-primary to-primary text-white shadow-lg hover:shadow-xl hover:scale-105'
                                     : 'text-slate-600 hover:bg-white border border-transparent hover:border-slate-200 hover:text-slate-900 hover:shadow-md'
                                     }`}
                             >
@@ -177,7 +176,7 @@ const MyProfile = () => {
 
                     {/* Form Area */}
                     <div className="lg:col-span-3">
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-8">
+                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-10">
 
                             {/* Success/Error Message */}
                             {message.text && (
@@ -203,7 +202,7 @@ const MyProfile = () => {
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
                                             <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-600 group-focus-within:scale-110 transition-all duration-300">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
                                                     <User size={20} />
                                                 </div>
                                                 <input
@@ -211,7 +210,7 @@ const MyProfile = () => {
                                                     name="name"
                                                     value={formData.name}
                                                     onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
                                                     placeholder="Enter your name"
                                                 />
                                             </div>
@@ -221,7 +220,7 @@ const MyProfile = () => {
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
                                             <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-600 group-focus-within:scale-110 transition-all duration-300">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
                                                     <Mail size={20} />
                                                 </div>
                                                 <input
@@ -229,7 +228,7 @@ const MyProfile = () => {
                                                     name="email"
                                                     value={formData.email}
                                                     onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
                                                     placeholder="Enter your email"
                                                 />
                                             </div>
@@ -239,7 +238,7 @@ const MyProfile = () => {
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-2">Phone Number</label>
                                             <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-600 group-focus-within:scale-110 transition-all duration-300">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
                                                     <Phone size={20} />
                                                 </div>
                                                 <input
@@ -247,7 +246,7 @@ const MyProfile = () => {
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
                                                     placeholder="Enter phone number"
                                                 />
                                             </div>
@@ -257,7 +256,7 @@ const MyProfile = () => {
                                         <div>
                                             <label className="block text-sm font-bold text-slate-700 mb-2">Location</label>
                                             <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-600 group-focus-within:scale-110 transition-all duration-300">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
                                                     <MapPin size={20} />
                                                 </div>
                                                 <input
@@ -265,7 +264,7 @@ const MyProfile = () => {
                                                     name="address"
                                                     value={formData.address}
                                                     onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
                                                     placeholder="Enter city, country"
                                                 />
                                             </div>
@@ -277,9 +276,9 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
+                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
                                         >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                             {isSaving ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative mr-2"></div>
                                             ) : (

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import { feedbackApi } from '../../../api/feedbackApi';
-
+import RightDrawer from '../../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
 
 const FeedbackSystem = ({ role }) => {
@@ -115,21 +115,21 @@ const FeedbackSystem = ({ role }) => {
         switch (status) {
             case 'Resolved': return 'bg-emerald-50 text-emerald-600';
             case 'Pending': return 'bg-amber-50 text-amber-600';
-            case 'Reviewed': return 'bg-violet-50 text-violet-600';
+            case 'Reviewed': return 'bg-primary-light text-primary';
             default: return 'bg-slate-50 text-slate-600';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 md:p-8 space-y-8 animate-fadeIn text-sans">
+        <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
 
             {/* Header Section */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-8">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-lg shadow-violet-200">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
                                 <MessageSquare size={32} />
                             </div>
                             <div>
@@ -143,7 +143,7 @@ const FeedbackSystem = ({ role }) => {
                         {role === 'MEMBER' && (
                             <button
                                 onClick={() => setIsSubmitModalOpen(true)}
-                                className="h-12 px-6 rounded-xl bg-violet-600 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-violet-700 hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                                className="h-12 px-6 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-primary-hover hover:-translate-y-0.5 transition-all flex items-center gap-2"
                             >
                                 <MessageSquare size={16} />
                                 Submit Feedback
@@ -165,7 +165,7 @@ const FeedbackSystem = ({ role }) => {
             <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                 <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/30">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
                             <BarChart3 size={20} />
                         </div>
                         <div>
@@ -182,7 +182,7 @@ const FeedbackSystem = ({ role }) => {
                                 placeholder="Search feedback..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-white font-sans"
+                                className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white font-sans"
                             />
                         </div>
 
@@ -190,7 +190,7 @@ const FeedbackSystem = ({ role }) => {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full h-12 px-4 appearance-none rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-10 font-sans"
+                                className="w-full h-12 px-4 appearance-none rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-10 font-sans"
                             >
                                 <option>All Status</option>
                                 <option>Pending</option>
@@ -218,7 +218,7 @@ const FeedbackSystem = ({ role }) => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="6" className="px-8 py-32 text-center">
-                                        <Loader2 className="w-12 h-12 animate-spin text-violet-500 mx-auto" />
+                                        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
                                     </td>
                                 </tr>
                             ) : filteredFeedback.length > 0 ? (
@@ -230,7 +230,7 @@ const FeedbackSystem = ({ role }) => {
                                                 <span className="text-sm font-bold text-slate-900">{item.rating}</span>
                                                 <Star size={14} className="text-amber-400 fill-amber-400" />
                                                 {item.isPublishedToGoogle && (
-                                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-violet-50 text-violet-600 rounded-md ml-2 border border-violet-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary-light text-primary rounded-md ml-2 border border-violet-100 shadow-sm animate-in fade-in zoom-in duration-300">
                                                         <ExternalLink size={10} className="animate-pulse" />
                                                         <span className="text-[8px] font-black uppercase tracking-tighter">Google</span>
                                                     </div>
@@ -254,7 +254,7 @@ const FeedbackSystem = ({ role }) => {
                                                         <>
                                                             <button
                                                                 onClick={() => handleStatusUpdate(item.id, 'Reviewed')}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-light text-primary-hover hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-colors"
                                                             >
                                                                 <Check size={14} />
                                                                 Review
@@ -280,7 +280,7 @@ const FeedbackSystem = ({ role }) => {
                                                             {item.rating >= 4 && !item.isPublishedToGoogle && googleConfig.enabled && (
                                                                 <button
                                                                     onClick={() => handlePublishToGoogle(item.id)}
-                                                                    className="flex items-center gap-1.5 px-4 py-1.5 bg-violet-600 text-white hover:bg-violet-700 rounded-lg text-xs font-bold transition-all shadow-md shadow-violet-100 active:scale-95"
+                                                                    className="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-white hover:bg-primary-hover rounded-lg text-xs font-bold transition-all shadow-md shadow-violet-100 active:scale-95"
                                                                     title="Mark as published to Google"
                                                                 >
                                                                     <Share2 size={14} className="animate-pulse" />
@@ -316,66 +316,53 @@ const FeedbackSystem = ({ role }) => {
             </div>
 
             {/* Submit Feedback Modal */}
-            {isSubmitModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-200">
-                        <button
-                            onClick={() => setIsSubmitModalOpen(false)}
-                            className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
-                        >
-                            <X size={18} />
-                        </button>
-
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
-                                <MessageSquare size={24} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900">Submit Feedback</h2>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Share your experience with us</p>
-                            </div>
+            <RightDrawer
+                isOpen={isSubmitModalOpen}
+                onClose={() => setIsSubmitModalOpen(false)}
+                title="Submit Feedback"
+                subtitle="Share your experience with us"
+                maxWidth="max-w-lg"
+                footer={
+                    <button
+                        form="feedback-form"
+                        type="submit"
+                        className="w-full h-12 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
+                    >
+                        <Check size={16} />
+                        Submit Request
+                    </button>
+                }
+            >
+                <form id="feedback-form" onSubmit={handleFeedbackSubmit} className="space-y-6">
+                    <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Rating</label>
+                        <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setNewFeedback({ ...newFeedback, rating: star })}
+                                    className={`p-3 rounded-xl transition-all ${newFeedback.rating >= star ? 'bg-amber-50 text-amber-400' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
+                                >
+                                    <Star size={24} className={newFeedback.rating >= star ? "fill-amber-400" : ""} />
+                                </button>
+                            ))}
                         </div>
-
-                        <form onSubmit={handleFeedbackSubmit} className="space-y-6">
-                            <div className="space-y-3">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Rating</label>
-                                <div className="flex gap-2">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            onClick={() => setNewFeedback({ ...newFeedback, rating: star })}
-                                            className={`p-3 rounded-xl transition-all ${newFeedback.rating >= star ? 'bg-amber-50 text-amber-400' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
-                                        >
-                                            <Star size={24} className={newFeedback.rating >= star ? "fill-amber-400" : ""} />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Your Feedback</label>
-                                <textarea
-                                    required
-                                    rows={4}
-                                    placeholder="Tell us what you loved or what we could improve..."
-                                    value={newFeedback.comment}
-                                    onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
-                                    className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-medium transition-all outline-none resize-none"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="w-full h-12 rounded-xl bg-violet-600 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-violet-700 transition-all flex items-center justify-center gap-2"
-                            >
-                                <Check size={16} />
-                                Submit Request
-                            </button>
-                        </form>
                     </div>
-                </div>
-            )}
+
+                    <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Your Feedback</label>
+                        <textarea
+                            required
+                            rows={6}
+                            placeholder="Tell us what you loved or what we could improve..."
+                            value={newFeedback.comment}
+                            onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
+                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-medium transition-all outline-none resize-none"
+                        />
+                    </div>
+                </form>
+            </RightDrawer>
 
             {/* Google Success Modal */}
             <GoogleSuccessModal
@@ -395,8 +382,8 @@ const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
                 {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full -mr-16 -mt-16 blur-2xl opacity-50"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-50 rounded-full -ml-16 -mb-16 blur-2xl opacity-50"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16 blur-2xl opacity-50"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary-light rounded-full -ml-16 -mb-16 blur-2xl opacity-50"></div>
 
                 <button
                     onClick={onClose}
@@ -408,7 +395,7 @@ const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
                 <div className="text-center space-y-8 relative">
                     <div className="flex justify-center">
                         <div className="relative">
-                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center text-white shadow-xl shadow-violet-200 animate-bounce-subtle">
+                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-xl shadow-violet-200 animate-bounce-subtle">
                                 <Star size={44} fill="white" />
                             </div>
                             <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-lg">
@@ -433,7 +420,7 @@ const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
                             className="w-full h-16 rounded-[1.25rem] bg-slate-900 text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-slate-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-95 group"
                         >
                             <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center shadow-sm group-hover:rotate-12 transition-transform">
-                                <MapPin size={14} className="text-violet-600" />
+                                <MapPin size={14} className="text-primary" />
                             </div>
                             Review us on Google Maps
                         </a>

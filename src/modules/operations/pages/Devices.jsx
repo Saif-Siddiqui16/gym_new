@@ -64,20 +64,20 @@ const Devices = () => {
     const totalEntries = devices.reduce((acc, d) => acc + (d.entriesToday || 0), 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6">
+        <div className="min-h-screen ">
             {/* Premium Header */}
-            <div className="mb-8 relative max-w-7xl mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+            <div className="mb-8 relative max-w-full mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-all duration-500 hover:scale-110 hover:rotate-3">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-all duration-500 hover:scale-110 hover:rotate-3">
                                 <Smartphone size={28} strokeWidth={2.5} />
                             </div>
                             <div>
                                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                                     Device Dashboard
-                                    <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-tighter">Live Monitor</span>
+                                    <span className="px-2 py-0.5 bg-violet-100 text-primary text-[10px] font-black rounded-lg uppercase tracking-tighter">Live Monitor</span>
                                 </h1>
                                 <p className="text-slate-500 font-medium text-sm mt-1">Monitor entry hardware and sync status</p>
                             </div>
@@ -85,7 +85,7 @@ const Devices = () => {
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing}
-                            className={`group flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-violet-300 hover:text-violet-600 transition-all duration-300 shadow-sm ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`group flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-violet-300 hover:text-primary transition-all duration-300 shadow-sm ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <RefreshCw size={18} strokeWidth={2.5} className={`${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
                             {isRefreshing ? 'Refreshing Hardware...' : 'Manual Refresh'}
@@ -94,11 +94,11 @@ const Devices = () => {
                     {/* Add Search Bar per requirement */}
                     <div className="mt-6 flex flex-col md:flex-row gap-4 items-center w-full max-w-lg">
                         <div className="relative flex-1 group w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-all" size={18} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search devices by name or type..."
-                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all"
+                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -108,7 +108,7 @@ const Devices = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-full mx-auto">
                 <SummaryCard
                     icon={<Smartphone size={24} />}
                     label="Total Devices"
@@ -135,15 +135,15 @@ const Devices = () => {
                 {filteredDevices.map((device) => (
                     <div key={device.id} className="group relative bg-white rounded-[2rem] shadow-lg border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
                         {/* Background Gradient Detail */}
-                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-primary/5 to-fuchsia-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
 
                         <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${device.status === 'Online' ? 'from-emerald-400 to-teal-500' : 'from-red-400 to-rose-500 animate-pulse'}`}></div>
 
                         <div className="p-6 sm:p-7 relative z-10">
                             <div className="flex justify-between items-start mb-6">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${device.type === 'Face ID'
-                                    ? 'bg-gradient-to-br from-violet-50 to-violet-50 text-violet-600 border border-violet-100'
-                                    : 'bg-gradient-to-br from-violet-50 to-cyan-50 text-violet-600 border border-violet-100'
+                                    ? 'bg-gradient-to-br from-primary-light to-primary-light text-primary border border-violet-100'
+                                    : 'bg-gradient-to-br from-primary-light to-cyan-50 text-primary border border-violet-100'
                                     }`}>
                                     {device.type === 'Face ID' ? <ShieldCheck size={28} /> : <Activity size={28} />}
                                 </div>
@@ -152,7 +152,7 @@ const Devices = () => {
 
                             <div className="space-y-5">
                                 <div>
-                                    <h3 className="text-xl font-black text-slate-900 group-hover:text-violet-600 transition-colors tracking-tight truncate w-full" title={device.name}>{device.name}</h3>
+                                    <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors tracking-tight truncate w-full" title={device.name}>{device.name}</h3>
                                     <div className="flex items-center gap-2 mt-1 truncate">
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] truncate">{device.type}</span>
                                         <div className="w-1 h-1 rounded-full bg-slate-200 shrink-0"></div>
@@ -171,7 +171,7 @@ const Devices = () => {
                                     <div>
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Last Sync</p>
                                         <div className="flex items-center gap-1.5 text-slate-600">
-                                            <RefreshCw size={12} className="text-violet-500" />
+                                            <RefreshCw size={12} className="text-primary" />
                                             <p className="text-xs font-black tracking-tight">{device.lastSync}</p>
                                         </div>
                                     </div>
@@ -182,7 +182,7 @@ const Devices = () => {
                             <div className="flex items-center justify-between pt-2 mt-4">
                                 <button
                                     onClick={() => handleMonitor(device)}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black hover:bg-violet-600 transition-all duration-300 shadow-lg shadow-slate-200 hover:shadow-violet-200 active:scale-95 shrink-0"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black hover:bg-primary transition-all duration-300 shadow-lg shadow-slate-200 hover:shadow-violet-200 active:scale-95 shrink-0"
                                 >
                                     Monitor Activity
                                 </button>
@@ -196,10 +196,10 @@ const Devices = () => {
             </div>
 
             {/* Sync Notice */}
-            <div className="mt-12 max-w-7xl mx-auto">
-                <div className="bg-violet-50/50 rounded-2xl border border-violet-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-12 max-w-full mx-auto">
+                <div className="bg-primary-light/50 rounded-2xl border border-violet-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4 text-center sm:text-left">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0">
                             <CheckCircle size={20} />
                         </div>
                         <div>
@@ -208,8 +208,8 @@ const Devices = () => {
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-white border border-violet-200 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest">Active</span>
-                        <span className="px-3 py-1 bg-violet-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest">Verified</span>
+                        <span className="px-3 py-1 bg-white border border-violet-200 text-primary text-[10px] font-black rounded-lg uppercase tracking-widest">Active</span>
+                        <span className="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-lg uppercase tracking-widest">Verified</span>
                     </div>
                 </div>
             </div>
@@ -219,9 +219,9 @@ const Devices = () => {
 
 const SummaryCard = ({ icon, label, value, color, trend }) => {
     const colorClasses = {
-        violet: 'from-violet-500 to-purple-600 shadow-violet-200 text-violet-600',
+        violet: 'from-primary to-primary shadow-violet-200 text-primary',
         emerald: 'from-emerald-500 to-teal-600 shadow-emerald-200 text-emerald-600',
-        blue: 'from-violet-500 to-purple-600 shadow-violet-200 text-violet-600'
+        blue: 'from-primary to-primary shadow-violet-200 text-primary'
     };
 
     return (

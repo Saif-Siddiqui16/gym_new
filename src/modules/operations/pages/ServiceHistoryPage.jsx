@@ -71,7 +71,7 @@ const ServiceHistoryPage = () => {
             case 'Completed': return <CheckCircle2 size={14} className="text-emerald-500" />;
             case 'In Progress': return <Clock size={14} className="text-amber-500" />;
             case 'Cancelled': return <XCircle size={14} className="text-red-500" />;
-            default: return <Clock size={14} className="text-violet-500" />;
+            default: return <Clock size={14} className="text-primary" />;
         }
     };
 
@@ -80,7 +80,7 @@ const ServiceHistoryPage = () => {
             case 'Completed': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
             case 'In Progress': return 'bg-amber-50 text-amber-700 border-amber-200';
             case 'Cancelled': return 'bg-red-50 text-red-700 border-red-200';
-            case 'Pending': return 'bg-violet-50 text-violet-700 border-violet-200';
+            case 'Pending': return 'bg-primary-light text-primary-hover border-violet-200';
             default: return 'bg-slate-50 text-slate-700 border-slate-200';
         }
     };
@@ -105,7 +105,7 @@ const ServiceHistoryPage = () => {
         <div className="min-h-screen bg-[#F8FAFC] pb-20">
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
@@ -133,9 +133,9 @@ const ServiceHistoryPage = () => {
                                 <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest">In Progress</p>
                                 <p className="text-2xl font-black text-amber-700 mt-1">{inProgress}</p>
                             </div>
-                            <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
-                                <p className="text-[10px] font-black text-violet-500 uppercase tracking-widest">Pending</p>
-                                <p className="text-2xl font-black text-violet-700 mt-1">{pending}</p>
+                            <div className="bg-primary-light rounded-xl p-3 border border-violet-100">
+                                <p className="text-[10px] font-black text-primary uppercase tracking-widest">Pending</p>
+                                <p className="text-2xl font-black text-primary-hover mt-1">{pending}</p>
                             </div>
                         </div>
 
@@ -173,7 +173,7 @@ const ServiceHistoryPage = () => {
             </div>
 
             {/* Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 mt-8">
                 {loading ? (
                     <div className="flex items-center justify-center p-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
@@ -349,7 +349,7 @@ const ServiceHistoryPage = () => {
                         ></div>
                         <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
                             <div className="relative w-screen sm:max-w-[440px] transform transition-transform duration-300 ease-in-out shadow-2xl">
-                                <div className="flex h-full flex-col bg-white overflow-y-auto shadow-2xl">
+                                <div className="flex h-full flex-col bg-white  shadow-2xl">
                                     {/* Drawer Header */}
                                     <div className="px-6 py-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative">
                                         <button

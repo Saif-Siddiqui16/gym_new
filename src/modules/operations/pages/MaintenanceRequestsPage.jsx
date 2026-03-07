@@ -75,7 +75,7 @@ const MaintenanceRequestsPage = () => {
         <div className="min-h-screen bg-[#F8FAFC] pb-20">
             {/* Header Area */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
@@ -120,7 +120,7 @@ const MaintenanceRequestsPage = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 mt-8">
                 {loading ? (
                     <div className="flex items-center justify-center p-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
@@ -327,9 +327,9 @@ const MaintenanceRequestsPage = () => {
                                 <User size={14} className="text-slate-400" /> Assignment & Progress
                             </h4>
                             <div className="space-y-3">
-                                <div className="flex items-center justify-between p-4 rounded-xl bg-violet-50 border border-violet-100">
+                                <div className="flex items-center justify-between p-4 rounded-xl bg-primary-light border border-violet-100">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-violet-600 shadow-sm font-bold uppercase text-xs">
+                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm font-bold uppercase text-xs">
                                             {selectedTicket.assignedTo.split('')[0]}
                                         </div>
                                         <div>
@@ -337,7 +337,7 @@ const MaintenanceRequestsPage = () => {
                                             <p className="text-sm font-bold text-violet-900">{selectedTicket.assignedTo}</p>
                                         </div>
                                     </div>
-                                    <button className="text-[10px] font-black uppercase text-violet-600 hover:underline">Reassign</button>
+                                    <button className="text-[10px] font-black uppercase text-primary hover:underline">Reassign</button>
                                 </div>
                             </div>
                         </section>

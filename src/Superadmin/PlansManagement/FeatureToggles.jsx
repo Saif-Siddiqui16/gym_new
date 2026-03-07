@@ -105,12 +105,12 @@ const FeatureToggles = () => {
     return (
         <div className="min-h-screen bg-gray-50/50 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
             {/* Page Header - Back Button */}
-            <div className="w-full max-w-5xl mb-6">
+            <div className="w-full max-w-full mb-6">
                 <button
                     onClick={() => navigate('/superadmin/plans/list')}
-                    className="group flex items-center text-gray-500 hover:text-violet-600 transition-colors duration-200"
+                    className="group flex items-center text-gray-500 hover:text-primary transition-colors duration-200"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-violet-50 transition-colors duration-200 mr-2">
+                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-colors duration-200 mr-2">
                         {/* ChevronLeft or ArrowLeft - keeping consistent with other pages if possible, using whatever was imported or standard icon */}
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>
                     </div>
@@ -118,12 +118,12 @@ const FeatureToggles = () => {
                 </button>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 w-full max-w-5xl items-start mb-2">
+            <div className="flex flex-col md:flex-row gap-6 w-full max-w-full items-start mb-2">
                 <h1 className="text-2xl font-bold text-gray-800 md:hidden mb-4">Feature Toggles</h1>
             </div>
 
             {/* Main Card */}
-            <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+            <div className="w-full max-w-full bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                 <div className="px-6 py-8 sm:px-10 border-b border-gray-100 bg-white">
                     <h2 className="text-xl font-bold text-gray-900 tracking-tight">Feature Toggles</h2>
                     <p className="text-sm text-gray-500 mt-2">Manage availability of features for specific subscription plans.</p>
@@ -158,7 +158,7 @@ const FeatureToggles = () => {
                                 {features.map((feature) => (
                                     <div
                                         key={feature.id}
-                                        className={`p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-4 ${feature.enabled ? 'bg-violet-50/30 border-violet-200' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}
+                                        className={`p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-4 ${feature.enabled ? 'bg-primary-light/30 border-violet-200' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}
                                     >
                                         <div className="flex-1">
                                             <h3 className={`text-sm font-bold ${feature.enabled ? 'text-violet-900' : 'text-gray-700'}`}>
@@ -177,7 +177,7 @@ const FeatureToggles = () => {
                                                     onChange={() => handleFeatureToggle(feature.id)}
                                                     className="sr-only peer"
                                                 />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                             </label>
                                         </div>
                                     </div>
@@ -196,7 +196,7 @@ const FeatureToggles = () => {
                                 <button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="w-full md:w-auto flex items-center justify-center px-8 py-2.5 bg-gradient-to-r from-violet-600 to-violet-700 border border-transparent rounded-xl text-sm font-semibold text-white hover:from-violet-700 hover:to-violet-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 shadow-lg shadow-purple-500/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full md:w-auto flex items-center justify-center px-8 py-2.5 bg-gradient-to-r from-primary to-primary-hover border border-transparent rounded-xl text-sm font-semibold text-white hover:from-primary-hover hover:to-violet-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-purple-500/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Save size={18} className="mr-2" />
                                     {isSaving ? 'Saving...' : 'Save Changes'}

@@ -141,13 +141,13 @@ const CreateAnnouncementDrawer = ({ isOpen, onClose, onSuccess }) => {
                     </div>
                 </div>
 
-                <div className="p-5 bg-violet-50/50 rounded-2xl border-2 border-dashed border-violet-100 flex items-start gap-4">
-                    <div className="p-3 bg-white rounded-xl text-violet-500 shadow-sm shrink-0">
+                <div className="p-5 bg-primary-light/50 rounded-2xl border-2 border-dashed border-violet-100 flex items-start gap-4">
+                    <div className="p-3 bg-white rounded-xl text-primary shadow-sm shrink-0">
                         <Megaphone size={20} />
                     </div>
                     <div>
                         <p className="text-[10px] font-black text-violet-900 uppercase tracking-widest mb-1">Visibility Tip</p>
-                        <p className="text-[10px] text-violet-600 font-bold leading-relaxed uppercase opacity-70">
+                        <p className="text-[10px] text-primary font-bold leading-relaxed uppercase opacity-70">
                             Show announcement to members once created.
                         </p>
                     </div>

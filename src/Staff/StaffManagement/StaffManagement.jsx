@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
+import StatsCard from '../../modules/dashboard/components/StatsCard';
 
 // ─── API helpers — all backend calls use the JWT token which carries tenantId ──
 const fetchLiveStaffAttendance = () =>
@@ -83,18 +84,18 @@ const StaffManagement = ({ role }) => {
 
     // ─────────────────────────────────────────────────────────────────────────
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 min-h-screen p-0 md:p-8 font-sans pb-24 text-slate-800">
+        <div className="saas-page pb-page animate-fadeIn text-slate-800">
 
             {/* Premium Header */}
             <div className="max-w-full mx-auto mb-10 relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-[2.5rem] blur-2xl opacity-10 animate-pulse pointer-events-none group-hover:opacity-15 transition-opacity"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-xl border border-slate-100 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-[2.5rem] blur-2xl opacity-10 animate-pulse pointer-events-none group-hover:opacity-15 transition-opacity"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-4 md:p-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-transform duration-300 group-hover:scale-105">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-transform duration-300 group-hover:scale-105">
                             <Users size={28} />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                            <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent tracking-tight">
                                 Staff Attendance
                             </h1>
                             <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">
@@ -123,7 +124,7 @@ const StaffManagement = ({ role }) => {
                         <button
                             onClick={loadData}
                             disabled={loading}
-                            className="h-11 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-purple-500/30 transition-all disabled:opacity-50 shadow-lg shadow-violet-500/30/20 flex items-center justify-center gap-2"
+                            className="h-11 px-6 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-purple-500/30 transition-all disabled:opacity-50 shadow-lg shadow-primary/30/20 flex items-center justify-center gap-2"
                         >
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                             Refresh
@@ -135,30 +136,30 @@ const StaffManagement = ({ role }) => {
             {/* Stats Cards */}
             <div className="max-w-full mx-auto mb-10">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    <StatCard
+                    <StatsCard
                         icon={Users}
-                        label="Currently Working"
-                        value={loading ? '—' : liveStaff.length}
-                        color="emerald"
-                        pulse={liveStaff.length > 0}
+                        title="Currently Working"
+                        value={loading ? '—' : liveStaff.length.toString()}
+                        color="success"
+                        subtitle={liveStaff.length > 0 ? "Staff actively logged in" : "No staff on duty"}
                     />
-                    <StatCard
+                    <StatsCard
                         icon={CheckCircle}
-                        label="Today's Check-ins"
-                        value={loading ? '—' : todayLog.length}
-                        color="blue"
+                        title="Today's Check-ins"
+                        value={loading ? '—' : todayLog.length.toString()}
+                        color="primary"
                     />
-                    <StatCard
+                    <StatsCard
                         icon={Clock}
-                        label="Completed Shifts"
-                        value={loading ? '—' : completedShifts}
-                        color="indigo"
+                        title="Completed Shifts"
+                        value={loading ? '—' : completedShifts.toString()}
+                        color="primary"
                     />
                 </div>
             </div>
 
             {/* Main content */}
-            <div className="max-w-7xl mx-auto space-y-12">
+            <div className="max-w-full mx-auto space-y-12">
 
                 {/* ── Currently On Duty ──────────────────────────────────────── */}
                 <section>
@@ -263,9 +264,9 @@ const StaffManagement = ({ role }) => {
                 <section>
                     <div className="mb-6">
                         <h2 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                            <CalendarDays size={20} className="text-violet-500" />
+                            <CalendarDays size={20} className="text-primary" />
                             Today's Attendance Log
-                            <span className="ml-2 px-2 py-0.5 bg-violet-100 text-violet-700 text-xs font-black rounded-full">
+                            <span className="ml-2 px-2 py-0.5 bg-violet-100 text-primary-hover text-xs font-black rounded-full">
                                 {loading ? '…' : todayLog.length}
                             </span>
                         </h2>
@@ -373,31 +374,13 @@ const StaffManagement = ({ role }) => {
 };
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
-const StatCard = ({ icon: Icon, label, value, color, pulse }) => {
-    const colorMap = {
-        emerald: 'bg-emerald-50 text-emerald-600',
-        blue: 'bg-violet-50 text-violet-600',
-        indigo: 'bg-violet-50 text-violet-600',
-    };
-    return (
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow">
-            <div className={`w-12 h-12 ${colorMap[color]} rounded-xl flex items-center justify-center relative shrink-0`}>
-                <Icon size={24} />
-                {pulse && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />}
-            </div>
-            <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
-                <h3 className="text-2xl font-black text-slate-800">{value}</h3>
-            </div>
-        </div>
-    );
-};
+
 
 const RoleBadge = ({ role }) => {
     const map = {
         STAFF: 'bg-slate-100 text-slate-600',
-        TRAINER: 'bg-violet-100 text-violet-700',
-        MANAGER: 'bg-violet-100 text-violet-700',
+        TRAINER: 'bg-violet-100 text-primary-hover',
+        MANAGER: 'bg-violet-100 text-primary-hover',
         BRANCH_ADMIN: 'bg-orange-100 text-orange-700',
     };
     return (

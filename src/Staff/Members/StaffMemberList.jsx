@@ -4,14 +4,13 @@ import {
     UserPlus, Users, CheckCircle, XCircle, Snowflake,
     Clock, Camera, Loader, RefreshCw
 } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import StatsCard from '../../modules/dashboard/components/StatsCard';
 import RightDrawer from '../../components/common/RightDrawer';
 import apiClient from '../../api/apiClient';
 import { toast } from 'react-hot-toast';
 
-const INPUT_CLASS = "w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50";
+const INPUT_CLASS = "w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50";
 const SELECT_CLASS = `${INPUT_CLASS} appearance-none cursor-pointer`;
 
 const EMPTY_FORM = {
@@ -26,7 +25,7 @@ const getInitials = (name = '') =>
 const STATUS_BADGE = {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     Inactive: 'bg-slate-50 text-slate-500 border-slate-100',
-    Frozen: 'bg-violet-50 text-violet-600 border-violet-100',
+    Frozen: 'bg-primary-light text-primary border-violet-100',
     Expired: 'bg-rose-50 text-rose-600 border-rose-100',
 };
 
@@ -123,15 +122,15 @@ const StaffMemberList = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-0 md:p-8 space-y-8 animate-fadeIn">
+        <div className="min-h-screen space-y-8 animate-fadeIn">
 
             {/* Header Section */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-2 sm:p-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-lg shadow-violet-200">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
                                 <Users size={32} />
                             </div>
                             <div>
@@ -144,14 +143,14 @@ const StaffMemberList = () => {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={fetchMembers}
-                                className="h-12 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-violet-600 hover:border-violet-200 transition-all shadow-sm"
+                                className="h-12 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-primary hover:border-violet-200 transition-all shadow-sm"
                                 title="Refresh"
                             >
                                 <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
                             </button>
                             <button
                                 onClick={() => setIsAddDrawerOpen(true)}
-                                className="flex items-center gap-2 px-8 py-4 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:scale-105 transition-all"
+                                className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:scale-105 transition-all"
                             >
                                 <UserPlus size={18} /> Add Member
                             </button>
@@ -178,7 +177,7 @@ const StaffMemberList = () => {
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                         placeholder="Search by name, email, phone, or member code..."
-                        className="pl-12 h-14 w-full rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                        className="pl-12 h-14 w-full rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                     />
                 </div>
                 <div className="w-full md:w-56">
@@ -193,12 +192,12 @@ const StaffMemberList = () => {
                 <div className="flex gap-2">
                     <button
                         onClick={handleExportCSV}
-                        className="h-14 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-violet-600 hover:border-violet-100 transition-all shadow-sm"
+                        className="h-14 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-primary hover:border-violet-100 transition-all shadow-sm"
                         title="Export CSV"
                     >
                         <Download size={20} />
                     </button>
-                    <button className="h-14 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-violet-600 hover:border-violet-100 transition-all shadow-sm" title="Print">
+                    <button className="h-14 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-primary hover:border-violet-100 transition-all shadow-sm" title="Print">
                         <FileText size={20} />
                     </button>
                 </div>
@@ -237,11 +236,11 @@ const StaffMemberList = () => {
                                 key={m.id}
                                 className="hidden md:grid grid-cols-[2.5rem_2fr_1.5fr_1fr_1fr_1fr] gap-4 px-8 py-5 items-center hover:bg-slate-50/50 transition-colors group cursor-pointer"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100 text-violet-600 flex items-center justify-center font-black text-sm">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-light to-purple-100 text-primary flex items-center justify-center font-black text-sm">
                                     {getInitials(m.name)}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-black text-slate-900 group-hover:text-violet-600 transition-colors">{m.name}</p>
+                                    <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">{m.name}</p>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{m.memberId}</p>
                                 </div>
                                 <p className="text-sm font-semibold text-slate-600 truncate">{m.email}</p>
@@ -258,7 +257,7 @@ const StaffMemberList = () => {
                         {filtered.map((m) => (
                             <div key={`mob-${m.id}`} className="md:hidden flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100 text-violet-600 flex items-center justify-center font-black text-sm">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-light to-purple-100 text-primary flex items-center justify-center font-black text-sm">
                                         {getInitials(m.name)}
                                     </div>
                                     <div>
@@ -297,7 +296,7 @@ const StaffMemberList = () => {
                             type="button"
                             onClick={handleAddMember}
                             disabled={saving}
-                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all disabled:opacity-60 flex items-center gap-2"
+                            className="px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/30/30 transition-all disabled:opacity-60 flex items-center gap-2"
                         >
                             {saving && <Loader size={16} className="animate-spin" />}
                             Add Member
@@ -309,10 +308,10 @@ const StaffMemberList = () => {
                     {/* Profile Avatar */}
                     <div className="flex flex-col items-center gap-3 pb-6 border-b border-slate-100">
                         <div className="relative group cursor-pointer">
-                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-violet-100 to-purple-100 text-violet-600 flex items-center justify-center text-4xl font-black border-4 border-white shadow-xl shadow-violet-100 transition-transform group-hover:scale-105">
+                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center text-4xl font-black border-4 border-white shadow-xl shadow-violet-100 transition-transform group-hover:scale-105">
                                 {newMemberData.name ? getInitials(newMemberData.name) : 'N'}
                             </div>
-                            <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-2xl bg-white text-slate-400 flex items-center justify-center shadow-lg border-2 border-slate-50 group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600 transition-all">
+                            <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-2xl bg-white text-slate-400 flex items-center justify-center shadow-lg border-2 border-slate-50 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
                                 <Camera size={20} />
                             </div>
                         </div>
@@ -367,7 +366,7 @@ const StaffMemberList = () => {
                             <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Referral Code (Member Code)</label>
                             <div className="flex gap-2">
                                 <input name="referralCode" type="text" value={newMemberData.referralCode} onChange={handleChange} placeholder="Enter member code" className={`flex-1 ${INPUT_CLASS}`} />
-                                <button className="px-6 h-11 bg-white border-2 border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:border-violet-500 hover:text-violet-600 transition-all">
+                                <button className="px-6 h-11 bg-white border-2 border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:border-primary hover:text-primary transition-all">
                                     Verify
                                 </button>
                             </div>
@@ -399,7 +398,7 @@ const StaffMemberList = () => {
                     <div className="space-y-4">
                         <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-4">Address</h3>
                         <textarea name="address" value={newMemberData.address} onChange={handleChange} placeholder="Enter full address" rows={3}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
                         />
                     </div>
 
@@ -435,7 +434,7 @@ const StaffMemberList = () => {
                             <div>
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Health Conditions</label>
                                 <textarea name="healthConditions" value={newMemberData.healthConditions} onChange={handleChange} placeholder="Any medical conditions..." rows={3}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
                                 />
                             </div>
                         </div>

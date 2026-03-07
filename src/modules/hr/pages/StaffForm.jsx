@@ -217,14 +217,14 @@ const StaffForm = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 pb-12 min-h-screen">
-            <div className="mb-8 relative max-w-4xl mx-auto animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-6 pb-12 min-h-screen">
+            <div className="mb-8 relative max-w-full mx-auto animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                                <UserPlus className="text-violet-600" size={28} />
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
+                                <UserPlus className="text-primary" size={28} />
                                 {isReadOnly ? "Staff Profile" : (isEditMode ? "Edit Employee" : "Add Employee")}
                             </h1>
                             <p className="text-slate-600 text-sm font-medium">
@@ -242,17 +242,17 @@ const StaffForm = () => {
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto pb-20">
+            <div className="max-w-full mx-auto pb-20">
                 {/* Tabs */}
                 <div className="flex border-b border-slate-200 mb-8 px-4 sm:px-0">
                     <button
-                        className={`px-6 py-3 font-bold text-sm transition-all duration-300 border-b-2 ${activeTab === 'Create New User' ? 'border-violet-600 text-violet-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                        className={`px-6 py-3 font-bold text-sm transition-all duration-300 border-b-2 ${activeTab === 'Create New User' ? 'border-primary text-primary-hover' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
                         onClick={() => setActiveTab('Create New User')}
                     >
                         Create New User
                     </button>
                     <button
-                        className={`px-6 py-3 font-bold text-sm transition-all duration-300 border-b-2 ${activeTab === 'Link Existing' ? 'border-violet-600 text-violet-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                        className={`px-6 py-3 font-bold text-sm transition-all duration-300 border-b-2 ${activeTab === 'Link Existing' ? 'border-primary text-primary-hover' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
                         onClick={() => setActiveTab('Link Existing')}
                     >
                         Link Existing
@@ -265,8 +265,8 @@ const StaffForm = () => {
                         <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
 
                             {/* Helper Text */}
-                            <div className="bg-violet-50/50 text-violet-700 text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
-                                <Info size={18} className="text-violet-500 shrink-0" />
+                            <div className="bg-primary-light/50 text-primary-hover text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
+                                <Info size={18} className="text-primary shrink-0" />
                                 The employee will receive a password setup prompt on their first login.
                             </div>
 
@@ -286,7 +286,7 @@ const StaffForm = () => {
                                     {profileImage ? (
                                         <img src={profileImage.data} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
-                                        <Camera className="text-slate-400 group-hover:text-violet-500 transition-colors" size={28} />
+                                        <Camera className="text-slate-400 group-hover:text-primary transition-colors" size={28} />
                                     )}
                                 </div>
                                 {!isReadOnly && (
@@ -308,7 +308,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.name || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.name ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm')}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.name ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm')}`}
                                     />
                                     {errors.name && <p className="text-[10px] text-rose-500 font-bold mt-1.5">{errors.name}</p>}
                                 </div>
@@ -322,7 +322,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.phone || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -335,7 +335,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.email || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.email ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm')}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.email ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm')}`}
                                     />
                                     {errors.email && <p className="text-[10px] text-rose-500 font-bold mt-1.5">{errors.email}</p>}
                                 </div>
@@ -348,7 +348,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.branch || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.branch ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm')}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.branch ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm')}`}
                                     >
                                         <option value="" disabled>Select branch</option>
                                         {branches.map(b => (
@@ -366,7 +366,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.role || 'Staff'}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.role ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm')}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.role ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm')}`}
                                     >
                                         <option value="Admin">Admin</option>
                                         <option value="Manager">Manager</option>
@@ -385,7 +385,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.department || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -398,7 +398,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.position || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -411,7 +411,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.joiningDate || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -423,7 +423,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.salaryType || 'Monthly'}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'focus:border-violet-500 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'focus:border-primary hover:border-slate-300 shadow-sm'}`}
                                     >
                                         <option value="Monthly">Monthly</option>
                                         <option value="Hourly">Hourly</option>
@@ -441,7 +441,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.baseSalary || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -455,7 +455,7 @@ const StaffForm = () => {
                                         value={formData.commission || ''}
                                         onChange={handleChange}
                                         placeholder="0"
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -468,7 +468,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.bankName || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -481,7 +481,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.accountNumber || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -494,7 +494,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.ifsc || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
 
@@ -507,7 +507,7 @@ const StaffForm = () => {
                                         disabled={isReadOnly}
                                         value={formData.taxId || ''}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 shadow-sm'}`}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none transition-all duration-300 ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
                                     />
                                 </div>
                             </div>
@@ -526,7 +526,7 @@ const StaffForm = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30/30'}`}
+                                    className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-primary/30/30'}`}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -549,8 +549,8 @@ const StaffForm = () => {
                         <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
 
                             {/* Helper Text */}
-                            <div className="bg-violet-50/50 text-violet-700 text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
-                                <Info size={18} className="text-violet-500 shrink-0" />
+                            <div className="bg-primary-light/50 text-primary-hover text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
+                                <Info size={18} className="text-primary shrink-0" />
                                 Only profiles that are NOT linked to members are shown.
                             </div>
 
@@ -562,7 +562,7 @@ const StaffForm = () => {
                                         name="userId"
                                         value={linkData.userId}
                                         onChange={handleLinkChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-violet-500 hover:border-slate-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-primary hover:border-slate-300 shadow-sm"
                                         required
                                     >
                                         <option value="" disabled>{loadingUsers ? 'Loading users...' : 'Select user'}</option>
@@ -579,7 +579,7 @@ const StaffForm = () => {
                                         name="branchId"
                                         value={linkData.branchId}
                                         onChange={handleLinkChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-violet-500 hover:border-slate-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-primary hover:border-slate-300 shadow-sm"
                                         required
                                     >
                                         <option value="" disabled>Select branch</option>
@@ -596,7 +596,7 @@ const StaffForm = () => {
                                         name="role"
                                         value={linkData.role}
                                         onChange={handleLinkChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-violet-500 hover:border-slate-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-primary hover:border-slate-300 shadow-sm"
                                         required
                                     >
                                         <option value="Admin">Admin</option>
@@ -615,7 +615,7 @@ const StaffForm = () => {
                                         value={linkData.department}
                                         onChange={handleLinkChange}
                                         placeholder="e.g., Fitness, Sales"
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                     />
                                 </div>
 
@@ -628,7 +628,7 @@ const StaffForm = () => {
                                         value={linkData.position}
                                         onChange={handleLinkChange}
                                         placeholder="e.g., Senior Trainer"
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                     />
                                 </div>
 
@@ -640,7 +640,7 @@ const StaffForm = () => {
                                         name="joiningDate"
                                         value={linkData.joiningDate}
                                         onChange={handleLinkChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                     />
                                 </div>
 
@@ -651,7 +651,7 @@ const StaffForm = () => {
                                         name="salaryType"
                                         value={linkData.salaryType}
                                         onChange={handleLinkChange}
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-violet-500 hover:border-slate-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-primary hover:border-slate-300 shadow-sm"
                                     >
                                         <option value="Monthly">Monthly</option>
                                         <option value="Hourly">Hourly</option>
@@ -668,7 +668,7 @@ const StaffForm = () => {
                                         value={linkData.baseSalary}
                                         onChange={handleLinkChange}
                                         placeholder="Salary amount"
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                     />
                                 </div>
 
@@ -681,7 +681,7 @@ const StaffForm = () => {
                                         value={linkData.commission}
                                         onChange={handleLinkChange}
                                         placeholder="0"
-                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                        className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                     />
                                 </div>
 
@@ -698,7 +698,7 @@ const StaffForm = () => {
                                                 value={linkData.bankName}
                                                 onChange={handleLinkChange}
                                                 placeholder="e.g., HDFC Bank"
-                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                             />
                                         </div>
 
@@ -711,7 +711,7 @@ const StaffForm = () => {
                                                 value={linkData.accountNumber}
                                                 onChange={handleLinkChange}
                                                 placeholder="Account number"
-                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                             />
                                         </div>
 
@@ -724,7 +724,7 @@ const StaffForm = () => {
                                                 value={linkData.taxId}
                                                 onChange={handleLinkChange}
                                                 placeholder="PAN number"
-                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                             />
                                         </div>
 
@@ -737,7 +737,7 @@ const StaffForm = () => {
                                                 value={linkData.ifsc}
                                                 onChange={handleLinkChange}
                                                 placeholder="IFSC code"
-                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
+                                                className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 transition-all duration-300 shadow-sm"
                                             />
                                         </div>
                                     </div>
@@ -757,7 +757,7 @@ const StaffForm = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30/30'}`}
+                                className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-primary/30/30'}`}
                             >
                                 {isSubmitting ? 'Linking...' : 'Add Employee'}
                             </button>

@@ -57,54 +57,51 @@ const TrainerDashboard = () => {
     // Stat Card internal component
     const StatItem = ({ title, value, subtitle, icon: Icon, color = 'primary' }) => {
         const colorClasses = {
-            primary: { bg: 'bg-violet-50', text: 'text-violet-600', iconBg: 'group-hover:bg-violet-600 group-hover:text-white' },
-            success: { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'group-hover:bg-emerald-600 group-hover:text-white' },
-            warning: { bg: 'bg-amber-50', text: 'text-amber-600', iconBg: 'group-hover:bg-amber-600 group-hover:text-white' },
+            primary: { bg: 'bg-primary-light', text: 'text-primary' },
+            success: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
+            warning: { bg: 'bg-amber-50', text: 'text-amber-600' },
         };
         const currentStyle = colorClasses[color] || colorClasses.primary;
 
         return (
-            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 sm:p-5 h-full">
-                <div className="flex justify-between items-start mb-2 relative z-10">
-                    <div>
-                        <div className="text-gray-500 font-black text-[10px] sm:text-xs uppercase tracking-widest mb-1">{title}</div>
-                        <div className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">{value}</div>
+            <div className="saas-card group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden flex flex-col justify-center min-h-[140px]">
+                <div className="flex items-center gap-4 relative z-10">
+                    <div className={`w-14 h-14 rounded-2xl ${currentStyle.bg} ${currentStyle.text} flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 shadow-sm`}>
+                        {Icon && <Icon size={28} strokeWidth={2} />}
                     </div>
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
-                        {Icon && <Icon size={20} className="sm:w-[22px] sm:h-[22px] transition-colors duration-300" />}
+                    <div className="min-w-0">
+                        <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate">{value}</div>
+                        <div className="saas-label !mb-0 truncate">{title}</div>
                     </div>
                 </div>
                 {subtitle && (
-                    <div className="flex items-center gap-1.5 sm:gap-2 mt-3">
-                        <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tighter px-2 py-0.5 rounded-full ${currentStyle.bg} ${currentStyle.text} border border-transparent group-hover:border-current/10`}>
-                            {subtitle}
-                        </span>
+                    <div className="mt-3 pt-3 border-t border-slate-50">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{subtitle}</span>
                     </div>
                 )}
-                <div className={`absolute -bottom-4 -right-4 w-20 h-20 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${currentStyle.bg}`}></div>
-            </Card>
+            </div>
         );
     };
 
     if (loading) {
         return (
             <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
-                <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading Dashboard...</p>
             </div>
         );
     }
 
     return (
-        <div className="h-[calc(100vh-6rem)] overflow-y-auto pr-2 pb-8 space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="saas-page space-y-8">
             {/* Header Section */}
-            <div className="relative mb-2">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl md:rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 px-6 py-5 md:px-8 md:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="saas-card !p-8 relative overflow-hidden group">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">Welcome, {user?.name || 'Trainer'}!</h1>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-3">Welcome, {user?.name || 'Trainer'}!</h1>
                         <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 bg-violet-50 text-violet-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-violet-100">
+                            <span className="px-3 py-1 bg-primary-light text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/10">
                                 {selectedBranch === 'all' ? 'All Branches' : 'Assigned Branch'}
                             </span>
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
@@ -127,7 +124,7 @@ const TrainerDashboard = () => {
             <div className="flex flex-wrap gap-4 px-1">
                 <button
                     onClick={() => navigate('/trainer/members/assigned')}
-                    className="h-12 px-8 bg-violet-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-violet-700 hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                    className="h-12 px-8 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all flex items-center justify-center"
                 >
                     View My Clients
                 </button>
@@ -155,7 +152,7 @@ const TrainerDashboard = () => {
                     {/* Section: Today's Sessions */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                                 <Clock size={16} />
                             </div>
                             <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Today's Sessions</h2>
@@ -163,13 +160,13 @@ const TrainerDashboard = () => {
                         {data.todaySessions.length > 0 ? (
                             data.todaySessions.map((session) => (
                                 <Card key={session.id} className="p-0 border-2 border-violet-100 shadow-2xl shadow-violet-100/20 overflow-hidden bg-white group cursor-pointer hover:border-violet-300 transition-all mb-4">
-                                    <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-l-8 border-violet-600 gap-4">
+                                    <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-l-8 border-primary gap-4">
                                         <div className="flex items-center gap-4 sm:gap-6">
                                             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-900 font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shrink-0">
                                                 {session.member?.name?.charAt(0) || 'M'}
                                             </div>
                                             <div className="min-w-0">
-                                                <h4 className="font-black text-slate-900 text-lg sm:text-xl tracking-tight mb-1 group-hover:text-violet-600 transition-colors truncate">{session.member?.name}</h4>
+                                                <h4 className="font-black text-slate-900 text-lg sm:text-xl tracking-tight mb-1 group-hover:text-primary transition-colors truncate">{session.member?.name}</h4>
                                                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                                                     <div className="flex items-center gap-1.5 text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-tight">
                                                         <Clock size={12} className="text-slate-300 md:w-[14px] md:h-[14px]" />
@@ -204,14 +201,14 @@ const TrainerDashboard = () => {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between px-1">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                                <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
                                     <Users size={16} />
                                 </div>
                                 <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Clients</h2>
                             </div>
                             <button
                                 onClick={() => navigate('/trainer/members/assigned')}
-                                className="text-[10px] font-black text-violet-600 uppercase tracking-widest hover:underline px-4 py-1.5 bg-violet-50/50 rounded-full transition-all active:scale-95"
+                                className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline px-4 py-1.5 bg-primary-light/50 rounded-full transition-all active:scale-95"
                             >
                                 View All
                             </button>
@@ -224,7 +221,7 @@ const TrainerDashboard = () => {
                                             <div className="w-16 h-16 mb-4 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 font-black text-3xl group-hover:scale-110 transition-transform">
                                                 {client.name.charAt(0)}
                                             </div>
-                                            <h4 className="font-black text-slate-900 text-base tracking-tight mb-1 group-hover:text-violet-600">{client.name}</h4>
+                                            <h4 className="font-black text-slate-900 text-base tracking-tight mb-1 group-hover:text-primary">{client.name}</h4>
                                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">Member</p>
                                             <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${client.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
                                                 }`}>
@@ -293,14 +290,14 @@ const TrainerDashboard = () => {
                     </div>
                     {/*
                     
-                    <div className="p-8 bg-gradient-to-br from-violet-600 to-violet-700 rounded-[2rem] text-white relative overflow-hidden shadow-2xl">
+                    <div className="p-8 bg-gradient-to-br from-primary to-primary-hover rounded-[2rem] text-white relative overflow-hidden shadow-2xl">
                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl opacity-50" />
                         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-400/20 rounded-full blur-2xl" />
 
                         <div className="relative z-10">
                             <h4 className="text-xl font-black tracking-tight mb-2">Trainer Pro Tips</h4>
                             <p className="text-xs text-white/70 font-bold mb-8 leading-relaxed">Personalized tracking leads to 40% higher member retention. Update your plans today!</p>
-                            <button className="px-6 py-3 bg-white text-violet-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-violet-50 transition-colors shadow-lg">
+                            <button className="px-6 py-3 bg-white text-primary rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-light transition-colors shadow-lg">
                                 Explore Insights
                             </button>
                         </div>

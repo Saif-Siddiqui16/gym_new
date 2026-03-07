@@ -13,12 +13,12 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
     if (!selectedLog) return null;
 
     return (
-        <div className="flex flex-col h-full bg-white text-slate-600 font-mono selection:bg-violet-500/30">
+        <div className="flex flex-col h-full bg-white text-slate-600 font-mono selection:bg-primary/30">
             {/* Header */}
             <div className="p-8 border-b border-slate-100 bg-slate-50/50 backdrop-blur-md">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/30/20">
+                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30/20">
                             <Zap size={20} />
                         </div>
                         <div>
@@ -43,9 +43,9 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
             </div>
 
             {/* JSON View */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
+            <div className="flex-1  custom-scrollbar relative">
                 <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2 text-violet-600">
+                    <div className="flex items-center gap-2 text-primary">
                         <Terminal size={16} />
                         <span className="text-xs font-bold uppercase tracking-widest">Raw JSON Payload</span>
                     </div>
@@ -90,7 +90,7 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
                     Close Inspector
                 </button>
                 <button
-                    className="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-violet-500/30/20 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-primary hover:bg-primary-hover text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-primary/30/20 transition-all flex items-center justify-center gap-2"
                 >
                     <ExternalLink size={14} /> Open in Logs
                 </button>

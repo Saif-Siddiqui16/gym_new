@@ -3,7 +3,6 @@ import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Ca
 import { fetchManagerProfile, updateManagerProfile } from '../../api/manager/managerApi';
 import { useAuth } from '../../context/AuthContext';
 import NotificationsList from '../../components/notifications/NotificationsList';
-import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -89,7 +88,7 @@ const MyProfile = () => {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="mt-4 text-gray-500 font-medium">Loading profile...</p>
             </div>
         );
@@ -107,7 +106,7 @@ const MyProfile = () => {
                 </p>
                 <button
                     onClick={loadProfile}
-                    className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-all"
+                    className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all"
                 >
                     Retry
                 </button>
@@ -122,19 +121,19 @@ const MyProfile = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
-            <div className="max-w-5xl mx-auto space-y-8">
+        <div className="min-h-screen ">
+            <div className="max-w-full mx-auto space-y-8">
 
                 {/* Profile Header Card */}
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-300">
-                    <div className="h-32 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 opacity-50 blur-2xl"></div>
+                    <div className="h-32 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 opacity-50 blur-2xl"></div>
                     </div>
                     <div className="px-8 pb-8">
                         <div className="relative flex flex-col md:flex-row md:items-end gap-6 -mt-12">
                             <div className="relative group/avatar">
                                 <div className="w-32 h-32 rounded-3xl bg-white p-2 shadow-xl ring-4 ring-violet-100 overflow-hidden">
-                                    <div className="w-full h-full rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-5xl font-black overflow-hidden">
+                                    <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black overflow-hidden">
                                         {formData.avatar ? (
                                             <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : (profile.avatar && profile.avatar.length > 1 ? (
@@ -144,7 +143,7 @@ const MyProfile = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <label className="absolute bottom-2 right-2 p-2.5 bg-white rounded-xl shadow-lg border border-violet-100 text-violet-600 hover:scale-110 hover:rotate-6 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center">
+                                <label className="absolute bottom-2 right-2 p-2.5 bg-white rounded-xl shadow-lg border border-violet-100 text-primary hover:scale-110 hover:rotate-6 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center">
                                     <Camera size={18} />
                                     <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                                 </label>
@@ -153,7 +152,7 @@ const MyProfile = () => {
                             <div className="flex-1 pb-2">
                                 <h1 className="text-3xl font-black text-gray-900 tracking-tight">{profile.name}</h1>
                                 <div className="flex flex-wrap gap-4 mt-2">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 text-xs font-bold border border-violet-200">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary-light to-purple-50 text-primary-hover text-xs font-bold border border-violet-200">
                                         {profile.role.replace('_', ' ')}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-bold uppercase">
@@ -165,7 +164,7 @@ const MyProfile = () => {
                                 </div>
                             </div>
 
-                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
+                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
                                 <CheckCircle2 size={18} /> Manager Account
                             </button>
                         </div>
@@ -182,8 +181,8 @@ const MyProfile = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-xl shadow-violet-500/30/50'
-                                    : 'text-gray-500 hover:bg-white border border-transparent hover:border-violet-100 hover:text-violet-600 hover:shadow-md'
+                                    ? 'bg-gradient-to-r from-primary to-primary text-white shadow-xl shadow-primary/30/50'
+                                    : 'text-gray-500 hover:bg-white border border-transparent hover:border-violet-100 hover:text-primary hover:shadow-md'
                                     }`}
                             >
                                 <tab.icon size={18} />
@@ -194,7 +193,7 @@ const MyProfile = () => {
 
                     {/* Form Area */}
                     <div className="lg:col-span-3">
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-8 hover:shadow-2xl hover:border-violet-200 transition-all duration-300">
+                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl hover:shadow-2xl hover:border-violet-200 transition-all duration-300 p-6 sm:p-10">
 
                             {message.text && (
                                 <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
@@ -215,7 +214,7 @@ const MyProfile = () => {
                                                     name="name"
                                                     value={formData.name}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all hover:border-slate-300"
+                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
                                                     placeholder="Enter your name"
                                                 />
                                             </div>
@@ -229,7 +228,7 @@ const MyProfile = () => {
                                                     name="email"
                                                     value={formData.email}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all hover:border-slate-300"
+                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
                                                     placeholder="Enter your email"
                                                 />
                                             </div>
@@ -243,7 +242,7 @@ const MyProfile = () => {
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all hover:border-slate-300"
+                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
                                                     placeholder="Enter phone number"
                                                 />
                                             </div>
@@ -257,7 +256,7 @@ const MyProfile = () => {
                                                     name="address"
                                                     value={formData.address}
                                                     onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all hover:border-slate-300"
+                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
                                                     placeholder="Enter city, country"
                                                 />
                                             </div>
@@ -268,7 +267,7 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="px-8 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSaving ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

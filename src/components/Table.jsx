@@ -114,7 +114,7 @@
 //             </div>
 //           ))
 //         ) : (
-//           <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+//           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
 //             <Archive className="w-8 h-8 text-slate-300 mx-auto mb-2" />
 //             <p className="text-slate-500 text-sm font-medium">No records found</p>
 //           </div>

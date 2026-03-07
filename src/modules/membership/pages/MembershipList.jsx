@@ -40,15 +40,15 @@ const MembershipList = () => {
     }, [searchTerm, statusFilter]);
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 p-6 pb-12">
+        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 p-6 pb-12">
             {/* Premium Header with Gradient */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                                <Sparkles className="text-violet-600" size={28} />
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-pink-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
+                                <Sparkles className="text-primary" size={28} />
                                 Memberships
                             </h1>
                             <p className="text-gray-600 text-sm">Manage member subscriptions and plans</p>
@@ -56,14 +56,14 @@ const MembershipList = () => {
                         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                             <button
                                 onClick={() => navigate('/memberships/plans')}
-                                className="w-full sm:w-auto px-5 py-3 bg-white text-violet-600 border border-violet-100 rounded-xl font-bold hover:bg-violet-50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-5 py-3 bg-white text-primary border border-violet-100 rounded-xl font-bold hover:bg-primary-light hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
                             >
                                 <Sparkles size={18} />
                                 Manage Plans
                             </button>
                             <button
                                 onClick={() => navigate('/memberships/new')}
-                                className="w-full sm:w-auto group relative px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-purple-500/50 hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto group relative px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-purple-500/50 hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-500"></div>
                                 <Plus size={18} className="relative z-10 transition-transform duration-300 group-hover:rotate-90" />
@@ -81,14 +81,14 @@ const MembershipList = () => {
                     <div className="relative flex-1 group">
                         <Search
                             size={18}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-violet-500 group-focus-within:scale-110"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110"
                         />
                         <input
                             type="text"
                             placeholder="Search by Member Name or ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300 transition-all duration-300 shadow-sm hover:shadow-md"
+                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-sm hover:shadow-md"
                         />
                     </div>
 
@@ -113,7 +113,7 @@ const MembershipList = () => {
             {/* Premium Memberships Grid */}
             {loading ? (
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             ) : memberships.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
@@ -133,7 +133,7 @@ const MembershipList = () => {
                             setSearchTerm('');
                             setStatusFilter('All');
                         }}
-                        className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                        className="px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                     >
                         Clear Filters
                     </button>

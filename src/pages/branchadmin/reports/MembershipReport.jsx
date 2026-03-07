@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Download, Filter, Search, Calendar, UserPlus, UserMinus, UserCheck, PieChart, Loader2 } from 'lucide-react';
-import '../../../styles/GlobalDesign.css';
 import apiClient from '../../../api/apiClient';
 
 const MembershipReport = () => {
@@ -17,7 +16,7 @@ const MembershipReport = () => {
 
     const [stats, setStats] = useState([
         { label: 'Active Members', value: '0', icon: UserCheck, bg: 'bg-emerald-50', color: 'text-emerald-600' },
-        { label: 'New Joins (MTD)', value: '0', icon: UserPlus, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'New Joins (MTD)', value: '0', icon: UserPlus, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Expired (MTD)', value: '0', icon: UserMinus, bg: 'bg-rose-50', color: 'text-rose-600' },
     ]);
 
@@ -83,7 +82,7 @@ const MembershipReport = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 md:p-8">
+        <div className="min-h-screen ">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">

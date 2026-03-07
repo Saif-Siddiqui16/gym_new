@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, UserPlus, FileText, BarChart, Calendar, CheckCircle2, ChevronDown, Check } from 'lucide-react';
 import { createTask, getAllStaff } from '../../api/manager/managerApi';
-import '../../styles/GlobalDesign.css';
 
 // Custom Animated Select Component
 const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, placeholder, isObjectOptions }) => {
@@ -38,22 +37,22 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
     return (
         <div className="space-y-2 relative" ref={dropdownRef}>
             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                <Icon size={16} className="text-violet-500" />
+                <Icon size={16} className="text-primary" />
                 {label}
             </label>
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-violet-300 hover:shadow-md ${isOpen ? 'ring-2 ring-violet-500 border-violet-500 bg-white' : ''}`}
+                className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-violet-300 hover:shadow-md ${isOpen ? 'ring-2 ring-primary border-primary bg-white' : ''}`}
             >
                 <span className={`text-sm ${value ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                     {getDisplayValue()}
                 </span>
-                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-violet-500' : ''}`} />
+                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
             </div>
 
             {/* Animated Dropdown Menu */}
             <div className={`absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${isOpen ? 'opacity-100 scale-100 translate-y-0 max-h-60' : 'opacity-0 scale-95 -translate-y-2 max-h-0 pointer-events-none'}`}>
-                <div className="py-1 overflow-y-auto max-h-60">
+                <div className="py-1  max-h-60">
                     {options.map((option) => {
                         const optVal = isObjectOptions ? option.id : option;
                         const optLabel = isObjectOptions ? option.name : option;
@@ -61,10 +60,10 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
                             <div
                                 key={optVal}
                                 onClick={() => handleSelect(option)}
-                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-violet-50 text-violet-600' : 'text-gray-700 hover:bg-gray-50 hover:text-violet-600'}`}
+                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-primary-light text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary'}`}
                             >
                                 {optLabel}
-                                {value === optVal && <Check size={16} className="text-violet-600" />}
+                                {value === optVal && <Check size={16} className="text-primary" />}
                             </div>
                         );
                     })}
@@ -133,7 +132,7 @@ const AssignTask = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen font-sans managerdashboard-assigntask">
+        <div className=" bg-gray-50 min-h-screen font-sans managerdashboard-assigntask">
             <div className="mb-8 animate-fade-in-down">
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">Assign Task</h1>
                 <p className="text-sm text-gray-500 mt-1">Create and assign new tasks to team members.</p>
@@ -145,15 +144,15 @@ const AssignTask = () => {
                         <div className="space-y-6">
                             {/* Task Title */}
                             <div className="space-y-2 group">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
-                                    <FileText size={16} className="text-violet-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-primary">
+                                    <FileText size={16} className="text-primary" />
                                     Task Title
                                 </label>
                                 <input
                                     type="text"
                                     name="title"
                                     placeholder="e.g., Equipment Maintenance"
-                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
                                     value={formData.title}
                                     onChange={handleChange}
                                     required
@@ -162,15 +161,15 @@ const AssignTask = () => {
 
                             {/* Description */}
                             <div className="space-y-2 group">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
-                                    <BarChart size={16} className="text-violet-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-primary">
+                                    <BarChart size={16} className="text-primary" />
                                     Description
                                 </label>
                                 <textarea
                                     name="description"
                                     placeholder="Enter detailed task instructions..."
                                     rows="4"
-                                    className="saas-input w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 resize-none hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 text-sm bg-gray-50/50 resize-none hover:bg-white hover:shadow-md"
                                     value={formData.description}
                                     onChange={handleChange}
                                     required
@@ -203,14 +202,14 @@ const AssignTask = () => {
 
                             {/* Due Date */}
                             <div className="space-y-2 group relative z-10">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
-                                    <Calendar size={16} className="text-violet-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-primary">
+                                    <Calendar size={16} className="text-primary" />
                                     Due Date
                                 </label>
                                 <input
                                     type="date"
                                     name="dueDate"
-                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
                                     value={formData.dueDate}
                                     onChange={handleChange}
                                     required
@@ -230,7 +229,7 @@ const AssignTask = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`saas-btn w-full h-12 bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-lg shadow-violet-200 font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`saas-btn w-full h-12 bg-primary hover:bg-primary-hover text-white rounded-xl shadow-lg shadow-violet-200 font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {loading ? (
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

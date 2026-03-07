@@ -75,7 +75,7 @@ const StaffDashboard = () => {
 
     const quickActions = [
         { label: 'Check In Member', icon: UserCheck, path: '/staff/attendance/check-in', color: 'bg-emerald-50 text-emerald-600' },
-        { label: 'Open POS', customIcon: ShoppingCart, path: '/finance/pos', color: 'bg-violet-50 text-violet-600' },
+        { label: 'Open POS', customIcon: ShoppingCart, path: '/finance/pos', color: 'bg-primary-light text-primary' },
         { label: 'Add Lead', customIcon: UserPlus, path: '/crm/inquiry', color: 'bg-amber-50 text-amber-600' },
         { label: 'View Invoices', customIcon: FileText, path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
     ];
@@ -102,10 +102,10 @@ const StaffDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-0 sm:p-8 animate-fadeIn">
+        <div className="min-h-screen animate-fadeIn">
             {/* Header */}
             <div className="mb-6 sm:mb-10 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl sm:rounded-3xl blur-2xl opacity-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl sm:rounded-3xl blur-2xl opacity-10"></div>
                 <div className="relative bg-white/80 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 p-2 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-1">
                         {loading ? (
@@ -120,7 +120,7 @@ const StaffDashboard = () => {
                         </p>
                     </div>
                     <div className="flex items-center">
-                        <div className="px-4 py-2 sm:px-5 sm:py-2.5 bg-violet-600 text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200">
+                        <div className="px-4 py-2 sm:px-5 sm:py-2.5 bg-primary text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200">
                             Staff Portal
                         </div>
                     </div>
@@ -130,7 +130,7 @@ const StaffDashboard = () => {
             {/* Quick Actions */}
             <div className="mb-10">
                 <div className="flex items-center gap-3 mb-6 px-2">
-                    <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 rounded-xl bg-primary-light text-primary flex items-center justify-center shadow-sm">
                         <LayoutDashboard size={18} />
                     </div>
                     <h2 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Quick Actions</h2>
@@ -140,12 +140,12 @@ const StaffDashboard = () => {
                         <button
                             key={idx}
                             onClick={() => navigate(action.path)}
-                            className="bg-white p-2 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-violet-500/30/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
+                            className="bg-white p-2 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-primary/30/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
                         >
                             <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl ${action.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm`}>
                                 {action.customIcon ? <action.customIcon size={20} className="sm:w-6 sm:h-6" /> : <action.icon size={20} className="sm:w-6 sm:h-6" />}
                             </div>
-                            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-violet-600 leading-tight">{action.label}</span>
+                            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-primary leading-tight">{action.label}</span>
                         </button>
                     ))}
                 </div>
@@ -195,7 +195,7 @@ const StaffDashboard = () => {
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Recent Check-ins</h3>
                             <button
                                 onClick={() => navigate('/staff/attendance/today')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
+                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
                             >
                                 View All
                             </button>
@@ -236,7 +236,7 @@ const StaffDashboard = () => {
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Pending Actions</h3>
                             <button
                                 onClick={() => navigate('/crm/pipeline')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
+                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
                             >
                                 View All
                             </button>
@@ -246,9 +246,9 @@ const StaffDashboard = () => {
                                 [1, 2].map(i => <div key={i} className="h-20 bg-slate-50 rounded-[2rem] animate-pulse" />)
                             ) : dashData?.pendingActions?.length > 0 ? (
                                 dashData.pendingActions.slice(0, 4).map((action, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-violet-500/30/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
+                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-primary/30/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
                                         <div className="flex items-center gap-5">
-                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-50 to-violet-100 text-violet-600 flex items-center justify-center font-black text-sm shadow-inner">
+                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-light to-violet-100 text-primary flex items-center justify-center font-black text-sm shadow-inner">
                                                 {getInitials(action.title)}
                                             </div>
                                             <div className="space-y-1">
@@ -276,7 +276,7 @@ const StaffDashboard = () => {
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Expiring Soon</h3>
                             <button
                                 onClick={() => navigate('/members/renewal-alerts')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
+                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
                             >
                                 View All
                             </button>
@@ -318,7 +318,7 @@ const StaffDashboard = () => {
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Equipment Alerts</h3>
                             <button
                                 onClick={() => navigate('/operations/equipment')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
+                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
                             >
                                 View All
                             </button>
@@ -340,7 +340,7 @@ const StaffDashboard = () => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all duration-300">
+                                        <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
                                             <ChevronRight size={18} />
                                         </div>
                                     </div>

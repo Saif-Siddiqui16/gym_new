@@ -86,12 +86,12 @@ const TrainerRequests = ({ role }) => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-violet-50/30 min-h-screen p-6 md:p-8 font-sans pb-24 text-slate-800">
+        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 min-h-screen font-sans pb-24 text-slate-800">
             {/* Header section */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
                             Trainer Approvals
                         </h1>
                         <p className="text-slate-500 font-bold mt-1">Review and process trainer signup requests</p>
@@ -99,7 +99,7 @@ const TrainerRequests = ({ role }) => {
                     <button
                         onClick={loadRequests}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-violet-600 transition-colors disabled:opacity-50 shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-colors disabled:opacity-50 shadow-sm"
                     >
                         <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                         Refresh
@@ -108,7 +108,7 @@ const TrainerRequests = ({ role }) => {
             </div>
 
             {/* Stats Cards */}
-            <div className="max-w-7xl mx-auto mb-10">
+            <div className="max-w-full mx-auto mb-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {stats.map((card, idx) => (
                         <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow">
@@ -125,16 +125,16 @@ const TrainerRequests = ({ role }) => {
             </div>
 
             {/* Search and Filters */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-full mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md group">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-violet-600 transition-colors">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
                             <Search size={18} />
                         </div>
                         <input
                             type="text"
                             placeholder="Search by name or email..."
-                            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-600/10 focus:border-violet-600 transition-all shadow-sm"
+                            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all shadow-sm"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -148,7 +148,7 @@ const TrainerRequests = ({ role }) => {
                                     key={filter}
                                     onClick={() => setStatusFilter(filter)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${statusFilter === filter
-                                        ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
+                                        ? 'bg-primary text-white shadow-md shadow-violet-200'
                                         : 'text-slate-400 hover:text-slate-600'
                                         }`}
                                 >
@@ -161,11 +161,11 @@ const TrainerRequests = ({ role }) => {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-full mx-auto">
                 <div className="bg-white/60 backdrop-blur-md rounded-[32px] shadow-sm border border-white/50 overflow-hidden">
                     {loading ? (
                         <div className="py-24 text-center">
-                            <Loader2 className="animate-spin mx-auto text-violet-500 mb-4" size={40} />
+                            <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
                             <p className="text-slate-500 font-bold">Loading requests...</p>
                         </div>
                     ) : filteredTrainers.length === 0 ? (
@@ -197,7 +197,7 @@ const TrainerRequests = ({ role }) => {
                                         <tr key={trainer.id} className="group hover:bg-slate-50/50 transition-colors">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-fuchsia-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
                                                         {(trainer.name || '?').charAt(0)}
                                                     </div>
                                                     <div>

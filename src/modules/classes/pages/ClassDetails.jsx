@@ -35,7 +35,7 @@ const ClassDetails = () => {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
         </div>
     );
 
@@ -50,7 +50,7 @@ const ClassDetails = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                     <button
                         onClick={() => navigate('/classes')}
-                        className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 text-gray-500 hover:text-violet-600"
+                        className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 text-gray-500 hover:text-primary"
                     >
                         <ArrowLeft size={24} />
                     </button>
@@ -98,12 +98,12 @@ const ClassDetails = () => {
 
                     <Card title="Trainer Information">
                         <div className="flex items-center gap-4 p-2">
-                            <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm">
+                            <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
                                 <User size={28} />
                             </div>
                             <div>
                                 <div className="text-lg font-bold text-gray-900 leading-tight">{classData.trainerName}</div>
-                                <div className="text-violet-600 font-semibold text-xs uppercase tracking-wider mt-1">Assigned Trainer</div>
+                                <div className="text-primary font-semibold text-xs uppercase tracking-wider mt-1">Assigned Trainer</div>
                             </div>
                         </div>
                     </Card>
@@ -113,13 +113,13 @@ const ClassDetails = () => {
                 <div>
                     <Card title={`Enrolled Members (${enrolledMembers.length})`}>
                         {enrolledMembers.length > 0 ? (
-                            <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                            <div className="max-h-[500px]  custom-scrollbar pr-2">
                                 <ul style={{ listStyle: 'none', padding: 0 }}>
                                     {enrolledMembers.map(member => (
                                         <li key={member.id} className="py-4 border-b border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 px-2 rounded-xl">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-50 to-purple-50 flex items-center justify-center shadow-sm">
-                                                    <User size={18} className="text-violet-500" />
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-light to-purple-50 flex items-center justify-center shadow-sm">
+                                                    <User size={18} className="text-primary" />
                                                 </div>
                                                 <div>
                                                     <span className="font-bold text-gray-800 block text-sm">{member.name}</span>
@@ -155,7 +155,7 @@ const ClassDetails = () => {
 const InfoRow = ({ icon: Icon, label, value }) => (
     <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-gray-50/50 border border-gray-100 hover:border-violet-100 transition-all duration-300 group">
         <span className="text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2" style={{ fontSize: '0.65rem' }}>
-            {Icon && <Icon size={14} className="group-hover:text-violet-600 transition-colors duration-300" />} {label}
+            {Icon && <Icon size={14} className="group-hover:text-primary transition-colors duration-300" />} {label}
         </span>
         <span className="text-gray-900 font-bold" style={{ fontSize: '0.95rem' }}>{value || 'Not set'}</span>
     </div>

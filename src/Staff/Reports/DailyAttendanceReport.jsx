@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, UserPlus, Calendar, Download, Search, Filter, FileText } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 import { getDailyAttendanceReport, exportReportToCSV } from '../../api/staff/reportApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -11,8 +10,8 @@ const DailyAttendanceReport = () => {
 
     // Mock stats (could be calculated from logs or fetched separately)
     const attendanceStats = [
-        { label: 'Total Check-Ins', value: '142', icon: UserPlus, bg: 'bg-violet-50', color: 'text-violet-600' },
-        { label: 'Members', value: '128', icon: Users, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'Total Check-Ins', value: '142', icon: UserPlus, bg: 'bg-primary-light', color: 'text-primary' },
+        { label: 'Members', value: '128', icon: Users, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Staff members', value: '14', icon: UserCheck, bg: 'bg-teal-50', color: 'text-teal-600' },
     ];
 
@@ -46,7 +45,7 @@ const DailyAttendanceReport = () => {
                     <p className="text-sm text-gray-500 mt-1">Detailed log of today's check-ins and attendance activity.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button onClick={handleExport} className="h-10 px-4 bg-violet-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-violet-600 transition-all shadow-md">
+                    <button onClick={handleExport} className="h-10 px-4 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary transition-all shadow-md">
                         <Download size={16} />
                         Export Log
                     </button>
@@ -76,7 +75,7 @@ const DailyAttendanceReport = () => {
                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                             <input
                                 type="date"
-                                className="saas-input pl-10 h-10 px-4 rounded-lg border-gray-200 text-xs font-bold bg-white focus:ring-2 focus:ring-violet-500"
+                                className="saas-input pl-10 h-10 px-4 rounded-lg border-gray-200 text-xs font-bold bg-white focus:ring-2 focus:ring-primary"
                                 defaultValue={new Date().toISOString().split('T')[0]}
                             />
                         </div>
@@ -96,7 +95,7 @@ const DailyAttendanceReport = () => {
                         <input
                             type="text"
                             placeholder="Search by name..."
-                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-violet-500"
+                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-primary"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -123,7 +122,7 @@ const DailyAttendanceReport = () => {
                                             <p className="text-sm font-bold text-gray-800 tracking-tight">{log.name}</p>
                                         </td>
                                         <td data-label="Type">
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.type === 'Member' ? 'bg-violet-50 text-violet-700' : 'bg-teal-50 text-teal-700'
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.type === 'Member' ? 'bg-primary-light text-primary-hover' : 'bg-teal-50 text-teal-700'
                                                 }`}>
                                                 {log.type}
                                             </span>

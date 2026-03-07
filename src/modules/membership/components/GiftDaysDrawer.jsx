@@ -31,7 +31,7 @@ const GiftDaysDrawer = ({ isOpen, onClose, onGift, memberName }) => {
             }
         >
             <form id="gift-days-form" onSubmit={handleSubmit} className="flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                <div className="flex-1  pr-2 space-y-6">
                     <div className="bg-pink-50 p-4 rounded-xl border border-pink-100 flex gap-3 text-pink-800 text-sm font-bold">
                         <Calendar className="shrink-0" size={20} />
                         <p>Adding complimentary days to {memberName}'s plan. This will extend their expiry date.</p>

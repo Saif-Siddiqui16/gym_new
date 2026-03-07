@@ -23,6 +23,7 @@ import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
+import StatsCard from '../../dashboard/components/StatsCard';
 
 const FinancialDashboard = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -165,7 +166,7 @@ const FinancialDashboard = () => {
     if (loading && !data) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8fafc]">
-                <div className="w-10 h-10 border-4 border-slate-100 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                <div className="w-10 h-10 border-4 border-slate-100 border-t-primary rounded-full animate-spin mb-4"></div>
                 <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Syncing Financial Core...</p>
             </div>
         );
@@ -178,7 +179,7 @@ const FinancialDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-6 lg:p-10 pb-20">
+        <div className="min-h-screen pb-20">
             <div className="max-w-screen-2xl mx-auto space-y-10">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -206,10 +207,10 @@ const FinancialDashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Revenue Report Chart Section */}
-                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col">
+                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10 flex flex-col transition-all duration-300 hover:shadow-md">
                         <div className="flex justify-between items-center mb-10">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm">
+                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
                                     <BarChart3 size={24} />
                                 </div>
                                 <div>
@@ -219,8 +220,8 @@ const FinancialDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="flex-1 min-h-[350px] overflow-x-auto scrollbar-hide pb-4">
-                            <div className="flex items-end justify-between gap-4 md:gap-6 min-w-[600px] h-full px-2">
+                        <div className="flex-1 min-h-[400px] overflow-x-auto scrollbar-hide pb-8 px-4">
+                            <div className="flex items-end justify-between gap-4 md:gap-10 min-w-[700px] h-full px-6">
                                 {monthlyData.map((m, idx) => {
                                     const maxVal = Math.max(...monthlyData.map(d => Math.max(d.income, d.expenses))) || 1;
                                     const incomePercent = (m.income / maxVal) * 100;
@@ -228,10 +229,10 @@ const FinancialDashboard = () => {
 
                                     return (
                                         <div key={idx} className="flex-1 flex flex-col items-center gap-6 group">
-                                            <div className="w-full flex justify-center gap-2 h-[220px] items-end">
+                                            <div className="w-full flex justify-center gap-1.5 h-[220px] items-end">
                                                 {/* Income Bar */}
                                                 <div
-                                                    className="w-4 bg-[#7c3aed] rounded-full transition-all duration-700 hover:w-6 hover:shadow-lg hover:shadow-violet-200 cursor-help relative group/bar"
+                                                    className="w-6 bg-[#7c3aed] rounded-t-xl transition-all duration-700 hover:w-8 hover:shadow-lg hover:shadow-violet-200 cursor-help relative group/bar"
                                                     style={{ height: `${Math.max(5, incomePercent)}%` }}
                                                 >
                                                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 whitespace-nowrap z-20 transition-all shadow-xl">
@@ -240,7 +241,7 @@ const FinancialDashboard = () => {
                                                 </div>
                                                 {/* Expense Bar */}
                                                 <div
-                                                    className="w-4 bg-slate-100 rounded-full transition-all duration-700 hover:w-6 hover:shadow-lg hover:shadow-slate-200 cursor-help relative group/bar"
+                                                    className="w-6 bg-slate-100/80 rounded-t-xl transition-all duration-700 hover:w-8 hover:shadow-lg hover:shadow-slate-200 cursor-help relative group/bar"
                                                     style={{ height: `${Math.max(5, expensePercent)}%` }}
                                                 >
                                                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 whitespace-nowrap z-20 transition-all shadow-xl">
@@ -248,7 +249,7 @@ const FinancialDashboard = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{m.month}</span>
+                                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">{m.month}</span>
                                         </div>
                                     );
                                 })}
@@ -257,14 +258,16 @@ const FinancialDashboard = () => {
                     </div>
 
                     {/* Right Summary Card (Budget 2026) */}
-                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col">
-                        <div className="mb-10 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm">
-                                <PieChart size={24} />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">2026 Budget</h3>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-0.5">Financial summary</p>
+                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10 flex flex-col">
+                        <div className="mb-10 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
+                                    <PieChart size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">2026 Budget</h3>
+                                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Summary</p>
+                                </div>
                             </div>
                         </div>
 
@@ -278,13 +281,18 @@ const FinancialDashboard = () => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-10">
-                            <div className="bg-[#f0fdf4] p-5 rounded-3xl border border-emerald-100 text-center group cursor-pointer hover:shadow-lg hover:shadow-emerald-50 transition-all">
-                                <h4 className="text-emerald-700 text-lg font-black truncate">₹{summary.netProfit.toLocaleString()}</h4>
-                                <p className="text-[#15803d] text-[9px] font-black uppercase tracking-widest mt-2">Net Profit</p>
+                            {/* Net Profit Mini Card */}
+                            <div className="bg-emerald-50/40 rounded-3xl p-5 border border-emerald-100 relative overflow-hidden group/mini shadow-sm hover:shadow-md transition-all">
+                                <p className="text-[9px] font-black text-emerald-600/60 uppercase tracking-widest mb-1.5 ml-1">Net Profit</p>
+                                <h4 className="text-lg font-black text-slate-900 truncate">₹{summary.netProfit.toLocaleString()}</h4>
+                                <div className="absolute -right-2 -bottom-2 w-10 h-10 bg-emerald-500/10 rounded-full blur-xl group-hover/mini:scale-150 transition-transform"></div>
                             </div>
-                            <div className="bg-[#fef2f2] p-5 rounded-3xl border border-red-100 text-center group cursor-pointer hover:shadow-lg hover:shadow-red-50 transition-all">
-                                <h4 className="text-red-700 text-lg font-black truncate">₹{summary.totalExpenses.toLocaleString()}</h4>
-                                <p className="text-red-700 text-[9px] font-black uppercase tracking-widest mt-2">Expenses</p>
+
+                            {/* Expenses Mini Card */}
+                            <div className="bg-red-50/40 rounded-3xl p-5 border border-red-100 relative overflow-hidden group/mini shadow-sm hover:shadow-md transition-all">
+                                <p className="text-[9px] font-black text-red-600/60 uppercase tracking-widest mb-1.5 ml-1">Expenses</p>
+                                <h4 className="text-lg font-black text-slate-900 truncate">₹{summary.totalExpenses.toLocaleString()}</h4>
+                                <div className="absolute -right-2 -bottom-2 w-10 h-10 bg-red-500/10 rounded-full blur-xl group-hover/mini:scale-150 transition-transform"></div>
                             </div>
                         </div>
 
@@ -306,13 +314,13 @@ const FinancialDashboard = () => {
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent</h3>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto px-6 pb-8 scrollbar-hide">
+                        <div className="flex-1  px-6 pb-8 scrollbar-hide">
                             {transactions.length > 0 ? (
                                 <div className="space-y-4">
                                     {transactions.slice(0, 5).map((txn, idx) => (
                                         <div key={idx} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-300 group-hover:text-violet-600 shadow-sm transition-colors border border-slate-100 flex-shrink-0">
+                                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-300 group-hover:text-primary shadow-sm transition-colors border border-slate-100 flex-shrink-0">
                                                     <ReceiptText size={18} />
                                                 </div>
                                                 <div className="min-w-0">
@@ -347,7 +355,7 @@ const FinancialDashboard = () => {
                             <div className="flex flex-wrap items-center gap-3">
                                 <button
                                     onClick={() => setActiveTab('income')}
-                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'income' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'bg-slate-50 text-slate-400 hover:text-slate-600'}`}
+                                    className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'income' ? 'bg-primary text-white shadow-lg shadow-violet-200' : 'bg-slate-50 text-slate-400 hover:text-slate-600'}`}
                                 >
                                     <ArrowUpRight size={16} /> Income ({transactions.filter(t => t.flow === 'in').length})
                                 </button>
@@ -388,11 +396,11 @@ const FinancialDashboard = () => {
                                                         <span className={`text-[11px] font-black uppercase tracking-widest ${txn.flow === 'in' ? 'text-slate-900' : 'text-red-600'}`}>{txn.type}</span>
                                                     </td>
                                                     <td className="py-5 pr-4">
-                                                        <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">{txn.branch}</span>
+                                                        <span className="text-[10px] font-black text-primary bg-primary-light px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">{txn.branch}</span>
                                                     </td>
                                                     <td className="py-5 pr-4 text-xs font-black text-slate-900">{txn.member}</td>
                                                     <td className="py-5 pr-4 text-center">
-                                                        <span className="text-[10px] font-black text-slate-400 group-hover:text-violet-600 underline cursor-pointer uppercase tracking-widest">{txn.id}</span>
+                                                        <span className="text-[10px] font-black text-slate-400 group-hover:text-primary underline cursor-pointer uppercase tracking-widest">{txn.id}</span>
                                                     </td>
                                                     <td className="py-5 pr-4 text-center">
                                                         <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${txn.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
@@ -435,14 +443,14 @@ const FinancialDashboard = () => {
                                     required
                                     value={expenseForm.branchId}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, branchId: e.target.value })}
-                                    className="w-full px-4 py-3 bg-violet-50/50 border-2 border-violet-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all appearance-none cursor-pointer"
+                                    className="w-full px-4 py-3 bg-primary-light/50 border-2 border-violet-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer"
                                 >
                                     <option value="all">Select Branch</option>
                                     {branches.map(b => (
                                         <option key={b.id} value={b.id}>{b.name}</option>
                                     ))}
                                 </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-violet-400 group-hover:text-violet-600 transition-colors">
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-violet-400 group-hover:text-primary transition-colors">
                                     <ChevronDown size={16} />
                                 </div>
                             </div>
@@ -451,9 +459,9 @@ const FinancialDashboard = () => {
                         {/* File Upload Area */}
                         <div className="space-y-4">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Receipt (Optional)</label>
-                            <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center text-slate-400 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer group">
+                            <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center text-slate-400 hover:border-violet-300 hover:bg-primary-light transition-all cursor-pointer group">
                                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-sm">
-                                    <Upload size={24} className="text-slate-300 group-hover:text-violet-500" />
+                                    <Upload size={24} className="text-slate-300 group-hover:text-primary" />
                                 </div>
                                 <p className="text-xs font-bold text-slate-600">Click to upload receipt</p>
                                 <p className="text-[10px] font-medium mt-1">Image or PDF up to 10MB</p>
@@ -467,7 +475,7 @@ const FinancialDashboard = () => {
                                     required
                                     value={expenseForm.category}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all"
                                 >
                                     <option value="">Select category</option>
                                     {dynamicFormCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -481,7 +489,7 @@ const FinancialDashboard = () => {
                                     value={expenseForm.amount}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
                                     placeholder="5000"
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all"
                                 />
                             </div>
                         </div>
@@ -494,7 +502,7 @@ const FinancialDashboard = () => {
                                 onChange={(e) => setExpenseForm({ ...expenseForm, title: e.target.value, description: e.target.value })}
                                 placeholder="Monthly electricity bill..."
                                 rows={3}
-                                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all resize-none"
+                                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all resize-none"
                             />
                         </div>
 
@@ -506,7 +514,7 @@ const FinancialDashboard = () => {
                                     value={expenseForm.vendor}
                                     onChange={(e) => setExpenseForm({ ...expenseForm, vendor: e.target.value })}
                                     placeholder="BSES Power"
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all"
                                 />
                             </div>
                             <div className="space-y-3">
@@ -517,7 +525,7 @@ const FinancialDashboard = () => {
                                         type="date"
                                         value={expenseForm.date}
                                         onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
-                                        className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-violet-500 transition-all"
+                                        className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all"
                                     />
                                 </div>
                             </div>
@@ -533,7 +541,7 @@ const FinancialDashboard = () => {
                             </button>
                             <button
                                 type="submit"
-                                className="flex-[2] py-4 bg-violet-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-violet-700 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2"
+                                className="flex-[2] py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-hover transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2"
                             >
                                 <CheckCircle2 size={16} /> Submit Expense
                             </button>

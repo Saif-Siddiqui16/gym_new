@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Clock, ShieldAlert, CheckSquare, XCircle, Info, ChevronRight } from 'lucide-react';
-import '../../styles/GlobalDesign.css';
 
 const BlockedEntryAlerts = () => {
     // Mock Data
@@ -103,9 +102,9 @@ const BlockedEntryAlerts = () => {
             </div>
 
             {/* Advice Box */}
-            <div className="mt-8 p-1 bg-gradient-to-r from-violet-100 to-violet-50 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div className="mt-8 p-1 bg-gradient-to-r from-violet-100 to-primary-light rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                 <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl flex gap-4 items-start md:items-center">
-                    <div className="p-3 bg-violet-100 text-violet-600 rounded-xl shrink-0">
+                    <div className="p-3 bg-violet-100 text-primary rounded-xl shrink-0">
                         <Info size={20} />
                     </div>
                     <div className="flex-1">

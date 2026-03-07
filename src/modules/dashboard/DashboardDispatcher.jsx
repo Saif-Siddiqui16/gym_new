@@ -37,7 +37,7 @@ const DashboardDispatcher = ({ role }) => {
             return <MemberDashboard />;
         default:
             return (
-                <div className="text-center p-8">
+                <div className="text-center">
                     <h2 className="text-title">Welcome to {user?.branchName || 'Gym CRM'}</h2>
                     <p className="text-muted">Please select a role from the sidebar debugger to view specific dashboards.</p>
                 </div>

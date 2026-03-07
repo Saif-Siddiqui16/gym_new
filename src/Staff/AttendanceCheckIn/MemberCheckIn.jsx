@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, QrCode, User, Calendar, AlertCircle, CheckCircle, ScanLine, X, CameraOff, Camera, Phone, CreditCard } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import '../../styles/GlobalDesign.css';
 import { searchMember, checkInMember, getMemberSuggestions } from '../../api/staff/memberCheckInApi';
 import toast from 'react-hot-toast';
 
@@ -117,22 +116,22 @@ const MemberCheckIn = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-0 sm:p-6 animate-fadeIn">
+        <div className="min-h-screen animate-fadeIn">
             {/* Premium Header */}
             <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-2 sm:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                                 <QrCode size={28} strokeWidth={2.5} />
                             </div>
                             <div>
                                 <div className="flex items-center gap-3">
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Member Check-In
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[10px] font-black rounded-md shadow-sm animate-pulse">
+                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse">
                                         LIVE
                                     </span>
                                 </div>
@@ -146,12 +145,12 @@ const MemberCheckIn = () => {
             <div className="max-w-2xl mx-auto space-y-6">
                 {/* Search Card */}
                 <div className="group relative bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-100 transition-all duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-50/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-light/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative z-10 p-5 sm:p-8">
                         <div className="relative mb-8" ref={searchRef}>
                             {isScanning && (
-                                <div className="mb-8 relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-violet-500/20 max-w-sm mx-auto w-full animate-in zoom-in-95 duration-300">
+                                <div className="mb-8 relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-primary/20 max-w-sm mx-auto w-full animate-in zoom-in-95 duration-300">
                                     <div id="member-reader" className="w-full"></div>
                                     <button
                                         onClick={() => setIsScanning(false)}
@@ -165,12 +164,12 @@ const MemberCheckIn = () => {
                             <form onSubmit={handleSearch} className="flex gap-4">
                                 <div className="relative flex-1 group/input">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <Search size={20} className="text-slate-400 group-focus-within/input:text-violet-500 transition-colors" />
+                                        <Search size={20} className="text-slate-400 group-focus-within/input:text-primary transition-colors" />
                                     </div>
                                     <input
                                         type="text"
                                         placeholder="Search by Name, ID, or Phone..."
-                                        className="w-full pl-11 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-800 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
+                                        className="w-full pl-11 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onFocus={() => searchQuery.length >= 2 && setShowSuggestions(true)}
@@ -185,7 +184,7 @@ const MemberCheckIn = () => {
                                         </button>
                                     )}
                                 </div>
-                                <button type="submit" className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30/30 hover:shadow-xl hover:shadow-violet-500/30/40 hover:scale-105 transition-all duration-300">
+                                <button type="submit" className="px-8 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold shadow-lg shadow-primary/30/30 hover:shadow-xl hover:shadow-primary/30/40 hover:scale-105 transition-all duration-300">
                                     Search
                                 </button>
                             </form>
@@ -197,10 +196,10 @@ const MemberCheckIn = () => {
                                         <button
                                             key={member.id}
                                             onClick={() => handleSelectMember(member)}
-                                            className="w-full px-4 py-3 text-left hover:bg-violet-50 transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0"
+                                            className="w-full px-4 py-3 text-left hover:bg-primary-light transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
+                                                <div className="h-10 w-10 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
                                                     {member.name.charAt(0)}
                                                 </div>
                                                 <div>
@@ -225,9 +224,9 @@ const MemberCheckIn = () => {
                         <button
                             type="button"
                             onClick={() => setIsScanning(!isScanning)}
-                            className={`w-full mt-8 py-4 border-2 border-dashed rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/scan ${isScanning ? 'bg-rose-50 border-rose-300 text-rose-600' : 'border-slate-300 text-slate-500 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-600'}`}
+                            className={`w-full mt-8 py-4 border-2 border-dashed rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/scan ${isScanning ? 'bg-rose-50 border-rose-300 text-rose-600' : 'border-slate-300 text-slate-500 hover:bg-primary-light hover:border-violet-300 hover:text-primary'}`}
                         >
-                            <div className={`p-2 rounded-lg transition-colors ${isScanning ? 'bg-white text-rose-600' : 'bg-slate-100 group-hover/scan:bg-white group-hover/scan:text-violet-600'}`}>
+                            <div className={`p-2 rounded-lg transition-colors ${isScanning ? 'bg-white text-rose-600' : 'bg-slate-100 group-hover/scan:bg-white group-hover/scan:text-primary'}`}>
                                 {isScanning ? <CameraOff size={24} /> : <ScanLine size={24} />}
                             </div>
                             <span className="font-bold">{isScanning ? 'Stop Scanning' : 'Scan QR / Barcode'}</span>
@@ -272,14 +271,14 @@ const MemberCheckIn = () => {
                                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Expiration</div>
                                         <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                            <Calendar size={14} className="text-violet-500" />
+                                            <Calendar size={14} className="text-primary" />
                                             {foundMember.expiryDate ? new Date(foundMember.expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'No expiry'}
                                         </div>
                                     </div>
                                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Plan</div>
                                         <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                            <CreditCard size={14} className="text-violet-500" />
+                                            <CreditCard size={14} className="text-primary" />
                                             {foundMember.plan?.name || 'No Plan'}
                                         </div>
                                     </div>
@@ -287,7 +286,7 @@ const MemberCheckIn = () => {
                                         <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 col-span-2">
                                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone</div>
                                             <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                                <Phone size={14} className="text-violet-500" />
+                                                <Phone size={14} className="text-primary" />
                                                 {foundMember.phone}
                                             </div>
                                         </div>

@@ -124,7 +124,7 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
             <div className="space-y-8">
                 {/* Member Summary */}
                 <div className="p-6 rounded-3xl bg-slate-50 border border-slate-100 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-violet-500">
+                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary">
                         <User size={28} />
                     </div>
                     <div>
@@ -142,21 +142,21 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
                                 key={plan.id}
                                 onClick={() => setSelectedPlanId(plan.id)}
                                 className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between group ${selectedPlanId === plan.id
-                                    ? 'border-violet-500 bg-violet-50/50 shadow-lg shadow-violet-100'
+                                    ? 'border-primary bg-primary-light/50 shadow-lg shadow-violet-100'
                                     : 'border-slate-100 bg-white hover:border-violet-200'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg transition-colors ${selectedPlanId === plan.id ? 'bg-violet-500 text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-violet-100 group-hover:text-violet-500'
+                                    <div className={`p-2 rounded-lg transition-colors ${selectedPlanId === plan.id ? 'bg-primary text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-violet-100 group-hover:text-primary'
                                         }`}>
                                         <ShieldCheck size={18} />
                                     </div>
                                     <div className="text-left">
-                                        <p className={`text-sm font-black ${selectedPlanId === plan.id ? 'text-violet-700' : 'text-slate-700'}`}>{plan.name}</p>
+                                        <p className={`text-sm font-black ${selectedPlanId === plan.id ? 'text-primary-hover' : 'text-slate-700'}`}>{plan.name}</p>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Base Rate: ${plan.price}</p>
                                     </div>
                                 </div>
-                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedPlanId === plan.id ? 'border-violet-500 bg-violet-500' : 'border-slate-200'
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedPlanId === plan.id ? 'border-primary bg-primary' : 'border-slate-200'
                                     }`}>
                                     {selectedPlanId === plan.id && <div className="w-1.5 h-1.5 rounded-full bg-white animate-scale-in" />}
                                 </div>
@@ -172,7 +172,7 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
                         <div className="relative">
                             <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             <select
-                                className="w-full pl-11 pr-4 h-14 rounded-2xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 font-bold text-slate-700 bg-slate-50/50 transition-all appearance-none"
+                                className="w-full pl-11 pr-4 h-14 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 font-bold text-slate-700 bg-slate-50/50 transition-all appearance-none"
                                 value={duration}
                                 onChange={handleDurationChange}
                             >
@@ -194,7 +194,7 @@ const RenewalModal = ({ isOpen, onClose, member }) => {
                 {/* Pricing Summary */}
                 {selectedPlan && (
                     <div className="p-6 rounded-3xl bg-violet-900 text-white shadow-xl shadow-violet-200 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                        <div className="absolute top-0 right-0 opacity-10 group-hover:scale-125 transition-transform duration-700">
                             <Zap size={120} strokeWidth={1} />
                         </div>
                         <div className="relative z-10">

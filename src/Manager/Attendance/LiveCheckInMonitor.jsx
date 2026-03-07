@@ -43,22 +43,22 @@ const LiveCheckInMonitor = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6">
             {/* Premium Header */}
             <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
                                 <Activity size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
                             </div>
                             <div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                                    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
                                         Live Monitor
                                     </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[10px] font-black rounded-md shadow-sm animate-pulse whitespace-nowrap">
+                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse whitespace-nowrap">
                                         PREMIUM ✨
                                     </span>
                                 </div>
@@ -86,13 +86,13 @@ const LiveCheckInMonitor = () => {
             {/* Live Activity Table */}
             <div className="group relative bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
                 {/* Gradient Background on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <div className="relative z-10">
                     {/* Table Header */}
                     <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-violet-600 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
                                 <Clock size={20} strokeWidth={2.5} />
                             </div>
                             <h2 className="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Latest Activity</h2>
@@ -111,10 +111,10 @@ const LiveCheckInMonitor = () => {
                         <table className="w-full text-left text-sm">
                             <thead className="bg-white border-b border-slate-100">
                                 <tr>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Name</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Type</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Time</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-violet-600 transition-colors duration-300 cursor-pointer">Status</th>
+                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Name</th>
+                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Type</th>
+                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Time</th>
+                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -122,7 +122,7 @@ const LiveCheckInMonitor = () => {
                                     <tr>
                                         <td colSpan="4" className="px-6 py-12 text-center text-sm text-slate-400">
                                             <div className="flex flex-col items-center gap-3">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                                                 <span className="font-semibold">Monitoring live feed...</span>
                                             </div>
                                         </td>
@@ -131,30 +131,30 @@ const LiveCheckInMonitor = () => {
                                     checkIns.map((log) => (
                                         <tr
                                             key={log.id}
-                                            className="group/row hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md"
+                                            className="group/row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md"
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-violet-500 group-hover/row:to-purple-600 group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
+                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
                                                         {log.avatar || (log.name || '?').charAt(0)}
                                                     </div>
-                                                    <span className="font-bold text-slate-700 group-hover/row:text-violet-700 group-hover/row:translate-x-1 transition-all duration-300">
+                                                    <span className="font-bold text-slate-700 group-hover/row:text-primary-hover group-hover/row:translate-x-1 transition-all duration-300">
                                                         {log.name}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border shadow-sm transition-all duration-300 inline-block group-hover/row:scale-110 group-hover/row:shadow-lg ${log.type === 'Member'
-                                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white border-violet-300 shadow-violet-500/30/50'
+                                                    ? 'bg-gradient-to-r from-primary to-primary text-white border-violet-300 shadow-primary/30/50'
                                                     : log.type === 'Staff'
-                                                        ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-300 shadow-purple-500/50'
+                                                        ? 'bg-gradient-to-r from-purple-500 to-primary text-white border-purple-300 shadow-purple-500/50'
                                                         : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white border-orange-300 shadow-orange-500/50'
                                                     }`}>
                                                     {log.type}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 text-slate-500 font-semibold font-mono text-xs group-hover/row:text-violet-600 transition-colors duration-300">
+                                                <div className="flex items-center gap-2 text-slate-500 font-semibold font-mono text-xs group-hover/row:text-primary transition-colors duration-300">
                                                     <Clock size={14} className="text-slate-300 group-hover/row:text-violet-400 group-hover/row:rotate-12 transition-all duration-300" />
                                                     <span className="group-hover/row:scale-105 inline-block transition-transform duration-300">{log.time}</span>
                                                 </div>
@@ -180,8 +180,8 @@ const LiveCheckInMonitor = () => {
                         {loading ? (
                             <div className="py-12 text-center text-sm text-slate-400">
                                 <div className="flex flex-col items-center gap-3">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-                                    <span className="font-semibold text-violet-600">Monitoring live feed...</span>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                    <span className="font-semibold text-primary">Monitoring live feed...</span>
                                 </div>
                             </div>
                         ) : checkIns.length > 0 ? (

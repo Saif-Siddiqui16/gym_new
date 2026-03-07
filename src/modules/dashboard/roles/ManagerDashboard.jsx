@@ -73,9 +73,9 @@ const ManagerDashboard = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
+            <div className="flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Accessing Manager Intelligence...</p>
                 </div>
             </div>
@@ -83,12 +83,15 @@ const ManagerDashboard = () => {
     }
 
     return (
-        <div className="fade-in">
+        <div className="saas-page space-y-6">
             {/* Header Section */}
-            <div className="relative mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl md:rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-xl border border-slate-100 px-6 py-5 md:px-8 md:py-6">
-                    <h2 className="text-title" style={{ marginBottom: 0 }}>Manager Dashboard</h2>
+            <div className="saas-card !p-8 relative overflow-hidden group">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
+                <div className="relative flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">Manager Dashboard</h1>
+                        <p className="text-slate-500 text-sm font-medium">Daily overview of your branch performance</p>
+                    </div>
                 </div>
             </div>
 
@@ -103,7 +106,7 @@ const ManagerDashboard = () => {
                     </div>
                     <button
                         onClick={() => navigate('/finance/transactions')}
-                        className="text-[10px] font-black text-violet-600 hover:text-violet-700 flex items-center gap-1 uppercase tracking-widest bg-violet-50 px-3 py-1.5 rounded-lg transition-all"
+                        className="text-[10px] font-black text-primary hover:text-primary-hover flex items-center gap-1 uppercase tracking-widest bg-primary-light px-3 py-1.5 rounded-lg transition-all"
                     >
                         View Audit Log <ArrowRight size={10} />
                     </button>
@@ -141,24 +144,24 @@ const ManagerDashboard = () => {
                                 <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] font-black rounded-md">
                                     {data.stats.find(s => s.title === 'Payments Due')?.value} Invoices
                                 </span>
-                                <button onClick={() => navigate('/finance/invoices')} className="text-[9px] font-black text-violet-600 underline">Send Reminders</button>
+                                <button onClick={() => navigate('/finance/invoices')} className="text-[9px] font-black text-primary underline">Send Reminders</button>
                             </div>
                         </div>
                     </div>
 
                     {/* Petty Cash Widget */}
                     <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-violet-50/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-violet-100/50 transition-colors"></div>
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-primary-light/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-violet-100/50 transition-colors"></div>
                         <div className="relative z-10">
                             <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Local Expenses</p>
                             <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
-                                <span className="text-violet-500 font-bold">₹</span>
+                                <span className="text-primary font-bold">₹</span>
                                 {data.financials?.localExpenses.toLocaleString()}
                             </h4>
                             <div className="mt-2 flex items-center gap-2">
                                 <button
                                     onClick={() => navigate('/finance/petty-cash')}
-                                    className="px-3 py-1 bg-violet-600 text-white text-[9px] font-black rounded-lg hover:bg-violet-700 transition-all"
+                                    className="px-3 py-1 bg-primary text-white text-[9px] font-black rounded-lg hover:bg-primary-hover transition-all"
                                 >
                                     Log Expense
                                 </button>
@@ -183,18 +186,18 @@ const ManagerDashboard = () => {
                 {/* Today's Classes & Attendance */}
                 <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden group">
                     {/* Premium Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 via-purple-50/20 to-violet-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 via-purple-50/20 to-primary-light/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                     <div className="relative z-10">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6 pb-4 border-b border-slate-100">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
                                     <Dumbbell size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
                                 </div>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                         <h3 className="text-base sm:text-lg font-black text-slate-900">Today's Classes</h3>
-                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
+                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
                                             PREMIUM ✨
                                         </span>
                                     </div>
@@ -203,7 +206,7 @@ const ManagerDashboard = () => {
                             </div>
                             <button
                                 onClick={() => navigate('/classes')}
-                                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-violet-500/30/50 hover:shadow-xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
+                                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-primary/30/50 hover:shadow-xl hover:shadow-primary/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
                             >
                                 View Schedule <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
                             </button>
@@ -213,7 +216,7 @@ const ManagerDashboard = () => {
                             {data.attendance.map((cls, index) => {
                                 const percentage = (cls.attendees / cls.capacity) * 100;
                                 const colors = [
-                                    { gradient: 'from-violet-500 via-purple-500 to-fuchsia-500', bgColor: 'from-violet-50 to-purple-50' },
+                                    { gradient: 'from-primary via-purple-500 to-fuchsia-500', bgColor: 'from-primary-light to-purple-50' },
                                     { gradient: 'from-orange-500 via-red-500 to-pink-500', bgColor: 'from-orange-50 to-red-50' }
                                 ];
                                 const colorScheme = colors[index % 2];
@@ -235,7 +238,7 @@ const ManagerDashboard = () => {
                                                     <div>
                                                         <div className="font-black text-slate-900 text-sm sm:text-base">{cls.name}</div>
                                                         <div className="text-[10px] sm:text-xs text-slate-500 font-bold flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1">
-                                                            <Clock size={12} className="text-violet-500 sm:w-[13px] sm:h-[13px]" />
+                                                            <Clock size={12} className="text-primary sm:w-[13px] sm:h-[13px]" />
                                                             {cls.time}
                                                         </div>
                                                     </div>
@@ -282,13 +285,13 @@ const ManagerDashboard = () => {
                     <div className="relative z-10">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6 pb-4 border-b border-slate-100">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
                                     <Bell size={20} className="sm:w-[22px] sm:h-[22px] animate-pulse" strokeWidth={2.5} />
                                 </div>
                                 <div>
                                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                         <h3 className="text-base sm:text-lg font-black text-slate-900">Tasks & Notices</h3>
-                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
+                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
                                             PREMIUM ✨
                                         </span>
                                     </div>
@@ -307,7 +310,7 @@ const ManagerDashboard = () => {
                                 const isUrgent = task.type === 'urgent';
                                 const colorTheme = isUrgent
                                     ? { bg: 'red', icon: AlertTriangle, txt: 'red', border: 'red-500' }
-                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'violet-500' };
+                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'primary' };
 
                                 const IconComponent = colorTheme.icon;
 
@@ -349,7 +352,7 @@ const ManagerDashboard = () => {
                         <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100">
                             <button
                                 onClick={() => navigate('/facility/maintenance')}
-                                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
+                                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
                             >
                                 View All Tasks <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
                             </button>

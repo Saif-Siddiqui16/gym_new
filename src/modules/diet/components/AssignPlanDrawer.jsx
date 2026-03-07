@@ -61,7 +61,7 @@ const AssignPlanDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                             onClose();
                         }}
                         disabled={selectedMembers.length === 0 || !startDate || !endDate}
-                        className="flex-[2] py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-200 active:scale-95 text-sm flex items-center justify-center gap-2"
+                        className="flex-[2] py-3.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-200 active:scale-95 text-sm flex items-center justify-center gap-2"
                     >
                         Assign to {selectedMembers.length} Members
                     </button>
@@ -70,22 +70,22 @@ const AssignPlanDrawer = ({ isOpen, onClose, onAssign, planName }) => {
         >
             <div className="flex flex-col h-full">
                 {/* Search & List */}
-                <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+                <div className="flex-1  pr-2 space-y-6">
                     {/* Assignment Settings */}
                     <div className="bg-slate-50 p-5 rounded-[24px] border border-slate-100 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Start Date</label>
-                                <input type="date" className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-sm font-bold focus:border-violet-500 outline-none" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                                <input type="date" className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-sm font-bold focus:border-primary outline-none" value={startDate} onChange={e => setStartDate(e.target.value)} />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">End Date</label>
-                                <input type="date" className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-sm font-bold focus:border-violet-500 outline-none" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                                <input type="date" className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-sm font-bold focus:border-primary outline-none" value={endDate} onChange={e => setEndDate(e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Assignment Notes (Optional)</label>
-                            <textarea className="w-full h-20 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:border-violet-500 outline-none resize-none" placeholder="Add specific instructions for the member..." value={notes} onChange={e => setNotes(e.target.value)} />
+                            <textarea className="w-full h-20 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:border-primary outline-none resize-none" placeholder="Add specific instructions for the member..." value={notes} onChange={e => setNotes(e.target.value)} />
                         </div>
                     </div>
 
@@ -94,7 +94,7 @@ const AssignPlanDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                         <input
                             type="text"
                             placeholder="Search members..."
-                            className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                            className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -108,12 +108,12 @@ const AssignPlanDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                                     key={member.id}
                                     onClick={() => toggleMember(member.id)}
                                     className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${isSelected
-                                        ? 'bg-violet-50 border-violet-200 shadow-inner'
+                                        ? 'bg-primary-light border-violet-200 shadow-inner'
                                         : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors ${isSelected ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-500'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'
                                             }`}>
                                             {member.name.charAt(0)}
                                         </div>
@@ -125,7 +125,7 @@ const AssignPlanDrawer = ({ isOpen, onClose, onAssign, planName }) => {
                                         </div>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isSelected
-                                        ? 'border-violet-600 bg-violet-600 text-white'
+                                        ? 'border-primary bg-primary text-white'
                                         : 'border-gray-200 text-transparent group-hover:border-gray-300'
                                         }`}>
                                         <CheckCircle2 size={14} strokeWidth={4} />
