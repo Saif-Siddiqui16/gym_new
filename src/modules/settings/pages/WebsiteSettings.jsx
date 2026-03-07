@@ -647,7 +647,7 @@ const WebsiteSettings = () => {
 
                         <div className="space-y-3">
                             <label className="form-label flex items-center gap-2">
-                                <Facebook size={16} className="text-blue-600" />
+                                <Facebook size={16} className="text-violet-600" />
                                 Facebook
                             </label>
                             <input

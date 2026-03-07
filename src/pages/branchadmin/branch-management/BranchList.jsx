@@ -218,10 +218,10 @@ const BranchList = () => {
             {/* Premium Header */}
             <div className="relative mb-10">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl blur-3xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/10 border border-white/50 p-6 sm:p-10">
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/30/10 border border-white/50 p-6 sm:p-10">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                         <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-xl shadow-violet-500/40 transition-all duration-500 hover:scale-110 hover:rotate-6">
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-white shadow-xl shadow-violet-500/30/40 transition-all duration-500 hover:scale-110 hover:rotate-6">
                                 <Building2 size={32} strokeWidth={3} />
                             </div>
                             <div>
@@ -235,7 +235,7 @@ const BranchList = () => {
                         </div>
                         <button
                             onClick={() => { resetForm(); setIsAddDrawerOpen(true); }}
-                            className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/25 hover:scale-[1.02] active:scale-95 transition-all w-full lg:w-auto"
+                            className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full lg:w-auto"
                         >
                             <Plus size={20} strokeWidth={3} />
                             Add Branch
@@ -461,7 +461,7 @@ const BranchList = () => {
                         </button>
                         <button
                             onClick={handleSaveBranch}
-                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all font-black uppercase tracking-widest text-[10px]"
+                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all font-black uppercase tracking-widest text-[10px]"
                         >
                             Create Branch
                         </button>
@@ -806,7 +806,7 @@ const BranchList = () => {
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <button type="button" onClick={() => setIsEditDrawerOpen(false)} className="px-6 h-11 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all font-black uppercase tracking-widest text-[10px]">Discard</button>
-                        <button onClick={handleUpdateBranch} className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all font-black uppercase tracking-widest text-[10px]">Save Changes</button>
+                        <button onClick={handleUpdateBranch} className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all font-black uppercase tracking-widest text-[10px]">Save Changes</button>
                     </div>
                 }
             >

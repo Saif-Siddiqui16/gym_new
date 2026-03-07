@@ -86,7 +86,7 @@ const AllGyms = () => {
     if (loading && gyms.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-20 animate-pulse">
-                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mb-4"></div>
                 <p className="text-gray-500 font-medium">Loading Gym Data...</p>
             </div>
         );
@@ -110,7 +110,7 @@ const AllGyms = () => {
                     </button>
                     <button
                         onClick={() => setIsAddDrawerOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl text-sm font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group"
+                        className="flex items-center gap-2 px-4 py-2 bg-violet-50 border border-violet-100 rounded-xl text-sm font-bold text-violet-600 hover:bg-violet-600 hover:text-white hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group"
                     >
                         <Plus className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
                         Add New Gym
@@ -123,7 +123,7 @@ const AllGyms = () => {
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="relative w-full md:w-96 group">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
                         </div>
                         <input
                             type="text"
@@ -146,7 +146,7 @@ const AllGyms = () => {
                                     setPage(1); // Reset to first page on filter
                                 }}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap hover:scale-105 hover:-translate-y-0.5 ${filterStatus === status
-                                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-md'
+                                    ? 'bg-violet-50 text-violet-700 border border-violet-100 shadow-md'
                                     : 'text-gray-600 hover:bg-gray-50 hover:shadow-sm border border-transparent'
                                     }`}
                             >
@@ -162,7 +162,7 @@ const AllGyms = () => {
                 <div className="saas-table-wrapper relative">
                     {loading && (
                         <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center z-10 transition-opacity">
-                            <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-8 h-8 border-3 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     )}
                     <table className="saas-table saas-table-responsive">
@@ -178,14 +178,14 @@ const AllGyms = () => {
                         <tbody>
                             {gyms.length > 0 ? (
                                 gyms.map((gym) => (
-                                    <tr key={gym.id} className="hover:bg-indigo-50/30 hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer group">
+                                    <tr key={gym.id} className="hover:bg-violet-50/30 hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer group">
                                         <td data-label="Gym Detail">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg">
+                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg">
                                                     {(gym.gymName || '?').charAt(0)}
                                                 </div>
                                                 <div className="ml-4 text-left">
-                                                    <div className="text-sm font-semibold text-gray-900 transition-colors duration-300 group-hover:text-indigo-600">{gym.gymName}</div>
+                                                    <div className="text-sm font-semibold text-gray-900 transition-colors duration-300 group-hover:text-violet-600">{gym.gymName}</div>
                                                     <div className="text-sm text-gray-500">{gym.branchName}</div>
                                                 </div>
                                             </div>
@@ -215,7 +215,7 @@ const AllGyms = () => {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleView(gym)}
-                                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
+                                                    className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
                                                     title="View Details"
                                                 >
                                                     <Eye className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
@@ -272,8 +272,8 @@ const AllGyms = () => {
                                         key={i + 1}
                                         onClick={() => handlePageChange(i + 1)}
                                         className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all duration-300 hover:scale-110 ${page === i + 1
-                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
-                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm'
+                                            ? 'bg-violet-600 text-white shadow-lg shadow-violet-200'
+                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-violet-300 hover:text-violet-600 hover:shadow-sm'
                                             }`}
                                     >
                                         {i + 1}
@@ -304,7 +304,7 @@ const AllGyms = () => {
                     <div className="flex flex-col h-full">
                         <div className="flex-1 overflow-y-auto pr-2">
                             <div className="flex flex-col items-center mb-8">
-                                <div className="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-3xl mb-4 shadow-lg shadow-indigo-100">
+                                <div className="h-20 w-20 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-3xl mb-4 shadow-lg shadow-violet-100">
                                     {(selectedGym.gymName || '?').charAt(0)}
                                 </div>
                                 <h3 className="text-2xl font-bold text-gray-900 text-center">
@@ -317,7 +317,7 @@ const AllGyms = () => {
                             </div>
 
                             <div className="space-y-6">
-                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-indigo-100 transition-colors">
+                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Owner Details</label>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 font-bold border border-gray-100">
@@ -333,7 +333,7 @@ const AllGyms = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-indigo-100 transition-colors">
+                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Location</label>
                                     <div className="flex items-start gap-3">
                                         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 shrink-0 border border-gray-100">

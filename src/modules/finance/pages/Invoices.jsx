@@ -17,13 +17,16 @@ import {
     Trash2,
     Eye,
     PlusCircle,
-    ChevronDown
+    ChevronDown,
+    CreditCard
 } from 'lucide-react';
-import { fetchInvoices, addInvoice, fetchInvoiceById, deleteInvoice } from '../../../api/finance/financeApi';
+import { fetchInvoices, addInvoice, fetchInvoiceById, deleteInvoice, settleInvoice } from '../../../api/finance/financeApi';
+import { fetchOrderById } from '../../../api/storeApi';
 import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { useAuth } from '../../../context/AuthContext';
 import RightDrawer from '../../../components/common/RightDrawer';
+import Button from '../../../components/ui/Button';
 import StatsCard from '../../dashboard/components/StatsCard';
 import toast from 'react-hot-toast';
 
@@ -40,6 +43,15 @@ const Invoices = () => {
     const [fetchingInvoice, setFetchingInvoice] = useState(false);
     const [members, setMembers] = useState([]);
     const [fetchingMembers, setFetchingMembers] = useState(false);
+    const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+    const [settlementData, setSettlementData] = useState({
+        invoiceId: null,
+        method: 'Cash',
+        amount: 0,
+        referenceNumber: '',
+        date: new Date().toISOString().split('T')[0]
+    });
+    const [isSettling, setIsSettling] = useState(false);
 
     // Create Invoice Form State
     const [invoiceForm, setInvoiceForm] = useState({
@@ -158,10 +170,26 @@ const Invoices = () => {
         try {
             setFetchingInvoice(true);
             setIsViewDrawerOpen(true);
-            const res = await fetchInvoiceById(id);
+
+            const item = data.invoices.find(inv => inv.id === id);
+            let res;
+            if (item?.type === 'POS Sale') {
+                res = await fetchOrderById(item.internalId);
+                // Map POS response to invoice format for the drawer
+                res.invoiceNumber = `POS-#${res.id}`;
+                res.dueDate = res.dueDate || res.date || res.paidDate;
+                res.amount = Number(res.total || res.amount || 0);
+                res.subtotal = (res.items || []).reduce((acc, i) => acc + (Number(i.rate || 0) * Number(i.quantity || 0)), 0);
+                res.taxAmount = Number(res.amount) - res.subtotal;
+                res.taxRate = 0;
+                // Items from backend (getOrderById) already have: description, quantity, rate, amount
+            } else {
+                res = await fetchInvoiceById(id);
+            }
             setSelectedInvoice(res);
         } catch (error) {
-            toast.error("Failed to load invoice details");
+            console.error(error);
+            toast.error("Failed to load details");
             setIsViewDrawerOpen(false);
         } finally {
             setFetchingInvoice(false);
@@ -179,6 +207,37 @@ const Invoices = () => {
         }
     };
 
+    const handleSettleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setIsSettling(true);
+            await settleInvoice(settlementData.invoiceId, {
+                method: settlementData.method,
+                referenceNumber: settlementData.referenceNumber,
+                amount: settlementData.amount,
+                date: settlementData.date
+            });
+            toast.success("Invoice settled successfully!");
+            setIsSettleModalOpen(false);
+            loadInvoices();
+        } catch (error) {
+            toast.error(error.message || "Failed to settle invoice");
+        } finally {
+            setIsSettling(false);
+        }
+    };
+
+    const openSettleModal = (inv) => {
+        setSettlementData({
+            invoiceId: inv.id,
+            method: 'Cash',
+            amount: inv.amount,
+            referenceNumber: '',
+            date: new Date().toISOString().split('T')[0]
+        });
+        setIsSettleModalOpen(true);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30 p-4 sm:p-8 space-y-8 animate-fadeIn">
             {/* Header */}
@@ -187,12 +246,14 @@ const Invoices = () => {
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Invoices</h1>
                     <p className="text-slate-500 text-sm font-medium">Manage and track all invoices</p>
                 </div>
-                <button
+                <Button
                     onClick={() => setIsCreateDrawerOpen(true)}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#f97316] text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-100 hover:bg-[#ea580c] transition-all w-full sm:w-auto"
+                    variant="primary"
+                    className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                    icon={Plus}
                 >
-                    <Plus size={18} /> Create Invoice
-                </button>
+                    Create Invoice
+                </Button>
             </div>
 
             {/* Stats Grid */}
@@ -306,7 +367,7 @@ const Invoices = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6" data-label="Status">
-                                        <div className="flex justify-end sm:justify-start">
+                                        <div className="flex flex-col gap-1 items-end sm:items-start">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                 inv.status === 'Overdue' ? 'bg-red-50 text-red-600 border-red-100' :
                                                     'bg-amber-50 text-amber-600 border-amber-100'
@@ -314,6 +375,11 @@ const Invoices = () => {
                                                 {inv.status === 'Paid' ? <CheckCircle2 size={12} /> : inv.status === 'Overdue' ? <AlertCircle size={12} /> : <Clock size={12} />}
                                                 {inv.status}
                                             </span>
+                                            {inv.status === 'Paid' && (inv.paymentMode || inv.method) && (
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                                                    via {inv.paymentMode || inv.method}
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-8 py-6 text-right" data-label="Actions">
@@ -321,12 +387,23 @@ const Invoices = () => {
                                             <button
                                                 onClick={() => handleViewInvoice(inv.id)}
                                                 className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all"
+                                                title="View Details"
                                             >
                                                 <Eye size={18} />
                                             </button>
+                                            {inv.status !== 'Paid' && (
+                                                <button
+                                                    onClick={() => openSettleModal(inv)}
+                                                    className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                    title="Record Payment"
+                                                >
+                                                    <CreditCard size={18} />
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleDeleteInvoice(inv.id)}
                                                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                title="Delete"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
@@ -549,12 +626,13 @@ const Invoices = () => {
                         >
                             Cancel
                         </button>
-                        <button
+                        <Button
                             type="submit"
-                            className="flex-[1.5] h-11 bg-gradient-to-r from-violet-600 to-indigo-700 text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-violet-100 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                            variant="primary"
+                            className="flex-[1.5] h-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all font-bold"
                         >
                             Create Invoice
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </RightDrawer >
@@ -662,11 +740,39 @@ const Invoices = () => {
                                 </div>
                             )}
 
+                            {(selectedInvoice.status === 'Paid' || selectedInvoice.status === 'Completed') && (
+                                <div className="space-y-4 p-6 bg-emerald-50/30 rounded-3xl border border-emerald-100/50">
+                                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                                        <CheckCircle2 size={12} /> Payment Information
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Method</p>
+                                            <p className="text-xs font-black text-slate-900">{selectedInvoice.paymentMode || 'Cash'}</p>
+                                        </div>
+                                        {(selectedInvoice.referenceNumber || selectedInvoice.notes?.includes('[Ref:')) && (
+                                            <div>
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Reference</p>
+                                                <p className="text-xs font-black text-slate-900">
+                                                    {selectedInvoice.referenceNumber ||
+                                                        selectedInvoice.notes?.match(/\[(?:Payment )?Ref: (.*?)\]/)?.[1] ||
+                                                        'N/A'}
+                                                </p>
+                                            </div>
+                                        )}
+                                        {selectedInvoice.paidDate && (
+                                            <div className="col-span-2">
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Settled On</p>
+                                                <p className="text-xs font-black text-slate-900">{new Date(selectedInvoice.paidDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="pt-8">
                                 <button
-                                    onClick={() => {
-                                        window.print();
-                                    }}
+                                    onClick={() => window.print()}
                                     className="w-full h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-sm font-black text-slate-900 hover:border-violet-200 hover:bg-violet-50/30 transition-all active:scale-[0.98]"
                                 >
                                     <Download size={18} className="text-violet-600" />
@@ -675,8 +781,82 @@ const Invoices = () => {
                             </div>
                         </div>
                     )}
-            </RightDrawer >
-        </div >
+            </RightDrawer>
+
+            {/* Settle Invoice Modal */}
+            <RightDrawer
+                isOpen={isSettleModalOpen}
+                onClose={() => setIsSettleModalOpen(false)}
+                title="Record Payment"
+            >
+                <form onSubmit={handleSettleSubmit} className="p-8 space-y-8">
+                    <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex items-center justify-between">
+                        <div>
+                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Payable</p>
+                            <h3 className="text-2xl font-black text-emerald-700">₹{Number(settlementData.amount).toLocaleString()}</h3>
+                        </div>
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm shadow-emerald-100">
+                            <Receipt size={24} />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Method</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {['Cash', 'UPI', 'QR Code', 'Card', 'Online Link'].map(m => (
+                                    <button
+                                        key={m}
+                                        type="button"
+                                        onClick={() => setSettlementData({ ...settlementData, method: m })}
+                                        className={`px-4 py-3 rounded-xl border-2 transition-all text-[10px] font-black uppercase tracking-widest ${settlementData.method === m ? 'border-violet-600 bg-violet-600 text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
+                                    >
+                                        {m}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {settlementData.method !== 'Cash' && (
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reference / Transaction ID</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={settlementData.referenceNumber}
+                                    onChange={(e) => setSettlementData({ ...settlementData, referenceNumber: e.target.value })}
+                                    placeholder="Enter TNX ID..."
+                                    className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all font-sans"
+                                />
+                            </div>
+                        )}
+
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Date</label>
+                            <input
+                                type="date"
+                                required
+                                value={settlementData.date}
+                                onChange={(e) => setSettlementData({ ...settlementData, date: e.target.value })}
+                                className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-violet-500 transition-all font-sans"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-6">
+                        <Button
+                            type="submit"
+                            disabled={isSettling}
+                            loading={isSettling}
+                            variant="primary"
+                            className="w-full h-14 rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30"
+                        >
+                            Complete Settlement
+                        </Button>
+                    </div>
+                </form>
+            </RightDrawer>
+        </div>
     );
 };
 

@@ -71,7 +71,7 @@ const Devices = () => {
                 <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-all duration-500 hover:scale-110 hover:rotate-3">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-violet-200 transition-all duration-500 hover:scale-110 hover:rotate-3">
                                 <Smartphone size={28} strokeWidth={2.5} />
                             </div>
                             <div>
@@ -142,8 +142,8 @@ const Devices = () => {
                         <div className="p-6 sm:p-7 relative z-10">
                             <div className="flex justify-between items-start mb-6">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${device.type === 'Face ID'
-                                    ? 'bg-gradient-to-br from-violet-50 to-indigo-50 text-violet-600 border border-violet-100'
-                                    : 'bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 border border-blue-100'
+                                    ? 'bg-gradient-to-br from-violet-50 to-violet-50 text-violet-600 border border-violet-100'
+                                    : 'bg-gradient-to-br from-violet-50 to-cyan-50 text-violet-600 border border-violet-100'
                                     }`}>
                                     {device.type === 'Face ID' ? <ShieldCheck size={28} /> : <Activity size={28} />}
                                 </div>
@@ -197,19 +197,19 @@ const Devices = () => {
 
             {/* Sync Notice */}
             <div className="mt-12 max-w-7xl mx-auto">
-                <div className="bg-indigo-50/50 rounded-2xl border border-indigo-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="bg-violet-50/50 rounded-2xl border border-violet-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4 text-center sm:text-left">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
                             <CheckCircle size={20} />
                         </div>
                         <div>
-                            <p className="text-sm font-black text-indigo-900 tracking-tight">Automatic Hardware Synchronization</p>
+                            <p className="text-sm font-black text-violet-900 tracking-tight">Automatic Hardware Synchronization</p>
                             <p className="text-xs text-slate-500 font-medium">Device access syncs with Member Status and Attendance automatically.</p>
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-white border border-indigo-200 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest">Active</span>
-                        <span className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest">Verified</span>
+                        <span className="px-3 py-1 bg-white border border-violet-200 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest">Active</span>
+                        <span className="px-3 py-1 bg-violet-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest">Verified</span>
                     </div>
                 </div>
             </div>
@@ -221,7 +221,7 @@ const SummaryCard = ({ icon, label, value, color, trend }) => {
     const colorClasses = {
         violet: 'from-violet-500 to-purple-600 shadow-violet-200 text-violet-600',
         emerald: 'from-emerald-500 to-teal-600 shadow-emerald-200 text-emerald-600',
-        blue: 'from-blue-500 to-indigo-600 shadow-blue-200 text-blue-600'
+        blue: 'from-violet-500 to-purple-600 shadow-violet-200 text-violet-600'
     };
 
     return (

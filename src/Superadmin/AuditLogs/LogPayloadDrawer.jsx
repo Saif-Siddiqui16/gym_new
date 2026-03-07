@@ -18,7 +18,7 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
             <div className="p-8 border-b border-slate-100 bg-slate-50/50 backdrop-blur-md">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+                        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/30/20">
                             <Zap size={20} />
                         </div>
                         <div>
@@ -58,7 +58,7 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
                 </div>
 
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-sm leading-relaxed overflow-x-auto shadow-inner">
-                    <pre className="text-indigo-300 font-mono">
+                    <pre className="text-violet-300 font-mono">
                         {JSON.stringify(selectedLog.payload || {
                             "event": "membership.created",
                             "timestamp": "2024-03-20T10:30:15Z",
@@ -90,7 +90,7 @@ const LogPayloadDrawer = ({ isOpen, onClose, selectedLog }) => {
                     Close Inspector
                 </button>
                 <button
-                    className="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-violet-500/20 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-violet-500/30/20 transition-all flex items-center justify-center gap-2"
                 >
                     <ExternalLink size={14} /> Open in Logs
                 </button>

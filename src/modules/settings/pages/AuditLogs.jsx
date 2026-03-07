@@ -27,7 +27,7 @@ import { toast } from 'react-hot-toast';
 
 const ACTION_ICONS = {
     CREATE: { icon: Plus, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
-    UPDATE: { icon: Edit, color: 'text-blue-600 bg-blue-50 border-blue-100' },
+    UPDATE: { icon: Edit, color: 'text-violet-600 bg-violet-50 border-violet-100' },
     DELETE: { icon: Trash2, color: 'text-rose-600 bg-rose-50 border-rose-100' },
     LOGIN: { icon: CheckCircle, color: 'text-violet-600 bg-violet-50 border-violet-100' },
     LOGOUT: { icon: XCircle, color: 'text-slate-600 bg-slate-50 border-slate-100' },
@@ -39,7 +39,7 @@ const getActionStyle = (action) => {
     for (const key of Object.keys(ACTION_ICONS)) {
         if (normalized.includes(key)) return ACTION_ICONS[key];
     }
-    return { icon: Activity, color: 'text-indigo-600 bg-indigo-50 border-indigo-100' };
+    return { icon: Activity, color: 'text-violet-600 bg-violet-50 border-violet-100' };
 };
 
 const formatDate = (dt) => {
@@ -192,7 +192,7 @@ const AuditLogs = () => {
                         </div>
                     </div>
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                        <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
                             <Activity size={24} />
                         </div>
                         <div>
@@ -231,7 +231,7 @@ const AuditLogs = () => {
                         <button
                             onClick={handleExport}
                             disabled={exporting || logs.length === 0}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
                         >
                             {exporting ? <Loader size={18} className="animate-spin" /> : <Download size={18} />}
                             Export CSV
@@ -381,7 +381,7 @@ const AuditLogs = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
+                                                        <span className="text-[10px] font-black text-violet-600 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
                                                             {log.user?.branch || 'Main'}
                                                         </span>
                                                     </td>
@@ -427,7 +427,7 @@ const AuditLogs = () => {
                                                 </span>
                                             </div>
                                             <div className="flex gap-2 flex-wrap mt-2">
-                                                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{log.user?.branch || 'Main'}</span>
+                                                <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded">{log.user?.branch || 'Main'}</span>
                                                 <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{log.module}</span>
                                                 {log.affectedEntity && <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{log.affectedEntity}</span>}
                                             </div>

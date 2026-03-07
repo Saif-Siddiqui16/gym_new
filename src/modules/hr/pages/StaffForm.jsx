@@ -116,7 +116,7 @@ const StaffForm = () => {
                 position: configData.position || configData.Position || '',
                 joiningDate: formattedJoined,
                 salaryType: configData.salaryType || configData.SalaryType || 'Monthly',
-                baseSalary: data.baseSalary ? data.baseSalary.toString() : '',
+                baseSalary: (data.baseSalary !== null && data.baseSalary !== undefined) ? data.baseSalary.toString() : '',
                 commission: (configData.commission ?? configData.commissionPercent ?? '').toString(),
                 bankName: configData.bankName || configData.BankName || '',
                 accountNumber: data.accountNumber || '',
@@ -265,8 +265,8 @@ const StaffForm = () => {
                         <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
 
                             {/* Helper Text */}
-                            <div className="bg-blue-50/50 text-blue-700 text-sm font-medium px-4 py-3 rounded-xl border border-blue-100 flex items-center gap-2 mb-8 shadow-sm">
-                                <Info size={18} className="text-blue-500 shrink-0" />
+                            <div className="bg-violet-50/50 text-violet-700 text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
+                                <Info size={18} className="text-violet-500 shrink-0" />
                                 The employee will receive a password setup prompt on their first login.
                             </div>
 
@@ -526,7 +526,7 @@ const StaffForm = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30'}`}
+                                    className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30/30'}`}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -549,8 +549,8 @@ const StaffForm = () => {
                         <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
 
                             {/* Helper Text */}
-                            <div className="bg-blue-50/50 text-blue-700 text-sm font-medium px-4 py-3 rounded-xl border border-blue-100 flex items-center gap-2 mb-8 shadow-sm">
-                                <Info size={18} className="text-blue-500 shrink-0" />
+                            <div className="bg-violet-50/50 text-violet-700 text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
+                                <Info size={18} className="text-violet-500 shrink-0" />
                                 Only profiles that are NOT linked to members are shown.
                             </div>
 
@@ -757,7 +757,7 @@ const StaffForm = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30'}`}
+                                className={`px-10 py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-violet-500/30/30'}`}
                             >
                                 {isSubmitting ? 'Linking...' : 'Add Employee'}
                             </button>

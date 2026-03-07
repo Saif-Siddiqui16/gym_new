@@ -31,8 +31,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                 try {
                     const data = await amenityApi.getAll();
                     console.log('[CreateMembershipPlanDrawer] Fetched amenities:', data);
-                    const filteredData = data.filter(a => !['ICE BATH F', 'ICE BATH M'].includes(a.name));
-                    setAmenities(filteredData);
+                    setAmenities(data);
                 } catch (error) {
                     console.error('Failed to fetch amenities:', error);
                 }
@@ -113,7 +112,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     onChange={onChange}
                     className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
             </label>
         </div>
     );
@@ -126,22 +125,24 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
             subtitle="Create a new membership plan with benefits"
             maxWidth="max-w-2xl"
             footer={
-                <React.Fragment>
-                    <button
+                <div className="flex gap-3 w-full justify-end px-2">
+                    <Button
                         type="button"
+                        variant="outline"
                         onClick={onClose}
-                        className="drawer-btn drawer-btn-secondary flex-1"
+                        className="flex-1 h-11 rounded-xl"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
                         form="membership-plan-form"
-                        className="drawer-btn drawer-btn-primary flex-1"
+                        variant="primary"
+                        className="flex-1 h-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                     >
-                        Create Plan
-                    </button>
-                </React.Fragment>
+                        {initialData ? 'Update Plan' : 'Create Plan'}
+                    </Button>
+                </div>
             }
         >
             <form id="membership-plan-form" onSubmit={handleSubmit} className="space-y-6">
@@ -278,14 +279,14 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                                 <div
                                     key={benefit.id}
                                     className={`p-4 rounded-xl border-2 transition-all ${isSelected
-                                        ? 'border-indigo-500 bg-indigo-50/10'
+                                        ? 'border-violet-500 bg-violet-50/10'
                                         : 'border-slate-100 bg-white'
                                         }`}
                                 >
                                     <div className="flex items-start gap-4">
                                         <div
                                             onClick={() => handleBenefitToggle(benefit.id)}
-                                            className={`mt-1 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${isSelected ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300'
+                                            className={`mt-1 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${isSelected ? 'bg-violet-500 border-violet-500' : 'border-slate-300'
                                                 }`}
                                         >
                                             {isSelected && <Check size={14} className="text-white" strokeWidth={3} />}

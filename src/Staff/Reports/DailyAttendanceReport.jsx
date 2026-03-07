@@ -11,8 +11,8 @@ const DailyAttendanceReport = () => {
 
     // Mock stats (could be calculated from logs or fetched separately)
     const attendanceStats = [
-        { label: 'Total Check-Ins', value: '142', icon: UserPlus, bg: 'bg-blue-50', color: 'text-blue-600' },
-        { label: 'Members', value: '128', icon: Users, bg: 'bg-indigo-50', color: 'text-indigo-600' },
+        { label: 'Total Check-Ins', value: '142', icon: UserPlus, bg: 'bg-violet-50', color: 'text-violet-600' },
+        { label: 'Members', value: '128', icon: Users, bg: 'bg-violet-50', color: 'text-violet-600' },
         { label: 'Staff members', value: '14', icon: UserCheck, bg: 'bg-teal-50', color: 'text-teal-600' },
     ];
 
@@ -46,7 +46,7 @@ const DailyAttendanceReport = () => {
                     <p className="text-sm text-gray-500 mt-1">Detailed log of today's check-ins and attendance activity.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button onClick={handleExport} className="h-10 px-4 bg-blue-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-600 transition-all shadow-md">
+                    <button onClick={handleExport} className="h-10 px-4 bg-violet-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-violet-600 transition-all shadow-md">
                         <Download size={16} />
                         Export Log
                     </button>
@@ -76,7 +76,7 @@ const DailyAttendanceReport = () => {
                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                             <input
                                 type="date"
-                                className="saas-input pl-10 h-10 px-4 rounded-lg border-gray-200 text-xs font-bold bg-white focus:ring-2 focus:ring-blue-500"
+                                className="saas-input pl-10 h-10 px-4 rounded-lg border-gray-200 text-xs font-bold bg-white focus:ring-2 focus:ring-violet-500"
                                 defaultValue={new Date().toISOString().split('T')[0]}
                             />
                         </div>
@@ -96,7 +96,7 @@ const DailyAttendanceReport = () => {
                         <input
                             type="text"
                             placeholder="Search by name..."
-                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-blue-500"
+                            className="saas-input pl-10 h-10 w-full rounded-lg border-gray-200 text-sm focus:ring-2 focus:ring-violet-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -123,7 +123,7 @@ const DailyAttendanceReport = () => {
                                             <p className="text-sm font-bold text-gray-800 tracking-tight">{log.name}</p>
                                         </td>
                                         <td data-label="Type">
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.type === 'Member' ? 'bg-indigo-50 text-indigo-700' : 'bg-teal-50 text-teal-700'
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.type === 'Member' ? 'bg-violet-50 text-violet-700' : 'bg-teal-50 text-teal-700'
                                                 }`}>
                                                 {log.type}
                                             </span>

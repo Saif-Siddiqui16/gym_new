@@ -75,7 +75,7 @@ const StaffDashboard = () => {
 
     const quickActions = [
         { label: 'Check In Member', icon: UserCheck, path: '/staff/attendance/check-in', color: 'bg-emerald-50 text-emerald-600' },
-        { label: 'Open POS', customIcon: ShoppingCart, path: '/finance/pos', color: 'bg-blue-50 text-blue-600' },
+        { label: 'Open POS', customIcon: ShoppingCart, path: '/finance/pos', color: 'bg-violet-50 text-violet-600' },
         { label: 'Add Lead', customIcon: UserPlus, path: '/crm/inquiry', color: 'bg-amber-50 text-amber-600' },
         { label: 'View Invoices', customIcon: FileText, path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
     ];
@@ -140,7 +140,7 @@ const StaffDashboard = () => {
                         <button
                             key={idx}
                             onClick={() => navigate(action.path)}
-                            className="bg-white p-2 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-violet-500/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
+                            className="bg-white p-2 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-violet-500/30/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
                         >
                             <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl ${action.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm`}>
                                 {action.customIcon ? <action.customIcon size={20} className="sm:w-6 sm:h-6" /> : <action.icon size={20} className="sm:w-6 sm:h-6" />}
@@ -246,7 +246,7 @@ const StaffDashboard = () => {
                                 [1, 2].map(i => <div key={i} className="h-20 bg-slate-50 rounded-[2rem] animate-pulse" />)
                             ) : dashData?.pendingActions?.length > 0 ? (
                                 dashData.pendingActions.slice(0, 4).map((action, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-violet-500/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
+                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-violet-500/30/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
                                         <div className="flex items-center gap-5">
                                             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-50 to-violet-100 text-violet-600 flex items-center justify-center font-black text-sm shadow-inner">
                                                 {getInitials(action.title)}

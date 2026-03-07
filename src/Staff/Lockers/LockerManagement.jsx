@@ -92,7 +92,7 @@ const LockerManagement = () => {
                     </button>
                     <button
                         onClick={() => setIsCreateDrawerOpen(true)}
-                        className="flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
+                        className="flex items-center gap-2 px-5 py-3 bg-violet-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all shadow-xl shadow-violet-200"
                     >
                         <Plus size={16} /> Add Locker
                     </button>
@@ -102,7 +102,7 @@ const LockerManagement = () => {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Lockers', value: stats.total, icon: Box, color: 'text-blue-500', bg: 'bg-blue-50/50' },
+                    { label: 'Total Lockers', value: stats.total, icon: Box, color: 'text-violet-500', bg: 'bg-violet-50/50' },
                     { label: 'Available', value: stats.available, icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50/50' },
                     { label: 'Assigned', value: stats.assigned, subValue: `${stats.occupancy} occupancy`, icon: User, color: 'text-slate-500', bg: 'bg-slate-50/50' },
                     { label: 'Maintenance', value: stats.maintenance, icon: Key, color: 'text-amber-600', bg: 'bg-amber-100/50' }
@@ -149,13 +149,13 @@ const LockerManagement = () => {
                 <div className="flex items-center p-1.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         <LayoutGrid size={18} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         <List size={18} />
                     </button>
@@ -191,7 +191,7 @@ const LockerManagement = () => {
                         <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 text-center space-y-4">
                             {loading ? (
                                 <div className="flex flex-col items-center gap-4">
-                                    <RefreshCw className="w-12 h-12 text-indigo-500 animate-spin" />
+                                    <RefreshCw className="w-12 h-12 text-violet-500 animate-spin" />
                                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading lockers...</p>
                                 </div>
                             ) : filteredLockers.length === 0 ? (
@@ -210,13 +210,13 @@ const LockerManagement = () => {
                                             className={`aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer border-2 transition-all group scale-100 hover:scale-105 ${locker.status === 'Available' ? 'bg-emerald-50 border-emerald-100 hover:border-emerald-300' :
                                                 locker.status === 'Occupied' || locker.status === 'Assigned' ? 'bg-slate-50 border-slate-100 hover:border-slate-300' :
                                                     locker.status === 'Maintenance' ? 'bg-amber-50 border-amber-100 hover:border-amber-300' :
-                                                        'bg-blue-50 border-blue-100 hover:border-blue-300'
+                                                        'bg-violet-50 border-violet-100 hover:border-violet-300'
                                                 }`}
                                         >
                                             <Lock size={20} className={`${locker.status === 'Available' ? 'text-emerald-500' :
                                                 locker.status === 'Occupied' || locker.status === 'Assigned' ? 'text-slate-400' :
                                                     locker.status === 'Maintenance' ? 'text-amber-500' :
-                                                        'text-blue-500'
+                                                        'text-violet-500'
                                                 }`} />
                                             <span className="text-xs font-black text-slate-700">{locker.number}</span>
                                         </div>
@@ -231,7 +231,7 @@ const LockerManagement = () => {
                                 { label: 'Available', color: 'bg-green-400' },
                                 { label: 'Assigned', color: 'bg-slate-400' },
                                 { label: 'Maintenance', color: 'bg-orange-400' },
-                                { label: 'Reserved', color: 'bg-blue-300' }
+                                { label: 'Reserved', color: 'bg-violet-300' }
                             ].map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-2">
                                     <div className={`w-3 h-3 rounded-full ${item.color} shadow-sm shadow-slate-200`} />
@@ -282,7 +282,7 @@ const LockerManagement = () => {
                                                 <td className="px-10 py-5 text-right">
                                                     <button
                                                         onClick={() => handleAction(locker)}
-                                                        className="p-2.5 text-slate-400 hover:text-indigo-600 transition-colors"
+                                                        className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"
                                                     >
                                                         <Info size={20} />
                                                     </button>
@@ -299,7 +299,7 @@ const LockerManagement = () => {
                                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] md:rounded-[3.5rem] bg-gradient-to-br from-slate-50 to-slate-100/50 flex items-center justify-center text-slate-200 rotation-slow">
                                         <Key size={48} className="md:w-16 md:h-16 text-slate-300" />
                                     </div>
-                                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-50 flex items-center justify-center text-indigo-500 animate-bounce">
+                                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-50 flex items-center justify-center text-violet-500 animate-bounce">
                                         <Lock size={20} />
                                     </div>
                                 </div>

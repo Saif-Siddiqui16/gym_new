@@ -80,10 +80,10 @@
 //                 const mappedStats = validCardsData.map(stat => ({
 //                     ...stat,
 //                     icon: iconMap[stat.icon] || Activity,
-//                     bg: stat.color === 'blue' ? 'bg-indigo-50' :
+//                     bg: stat.color === 'blue' ? 'bg-violet-50' :
 //                         stat.color === 'green' ? 'bg-emerald-50' :
 //                             stat.color === 'purple' ? 'bg-violet-50' : 'bg-amber-50',
-//                     color: stat.color === 'blue' ? 'text-indigo-600' :
+//                     color: stat.color === 'blue' ? 'text-violet-600' :
 //                         stat.color === 'green' ? 'text-emerald-600' :
 //                             stat.color === 'purple' ? 'text-violet-600' : 'text-amber-600'
 //                 }));
@@ -102,7 +102,7 @@
 //
 //     const getRoleBadgeColor = () => {
 //         switch (userRole) {
-//             case 'staff': return 'bg-blue-100 text-blue-700 border-blue-200';
+//             case 'staff': return 'bg-violet-100 text-violet-700 border-violet-200';
 //             case 'trainer': return 'bg-orange-100 text-orange-700 border-orange-200';
 //             default: return 'bg-violet-100 text-violet-700 border-violet-200';
 //         }
@@ -338,7 +338,7 @@
 //                     {/* Quick Stats / Revenue Placeholder to match design */}
 //                     <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between min-h-[400px]">
 //                         <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[100px] opacity-40 -mr-20 -mt-20"></div>
-//                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-40 -ml-20 -mb-20"></div>
+//                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-600 rounded-full blur-[100px] opacity-40 -ml-20 -mb-20"></div>
 //
 //                         <div className="relative z-10">
 //                             <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6">

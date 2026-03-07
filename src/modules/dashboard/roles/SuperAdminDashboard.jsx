@@ -95,7 +95,7 @@ const SuperAdminDashboard = () => {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <TrendingUp size={20} className="text-indigo-600" />
+                        <TrendingUp size={20} className="text-violet-600" />
                         <h2 className="text-lg font-bold text-gray-800">Key Metrics</h2>
                     </div>
                     <span className="text-xs text-gray-500 flex items-center gap-1">
@@ -120,7 +120,7 @@ const SuperAdminDashboard = () => {
                         <Button
                             variant="outline"
                             size="small"
-                            className="group hover:bg-indigo-600 hover:text-white hover:border-indigo-600 text-indigo-600 border-indigo-200 font-semibold transition-all duration-300"
+                            className="group hover:bg-violet-600 hover:text-white hover:border-violet-600 text-violet-600 border-violet-200 font-semibold transition-all duration-300"
                         >
                             View All
                             <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -140,21 +140,21 @@ const SuperAdminDashboard = () => {
                                 <tbody className="divide-y divide-gray-100">
                                     {recentRegistrations.length > 0 ? (
                                         recentRegistrations.map(gym => (
-                                            <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-transparent transition-all duration-200 cursor-pointer">
+                                            <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-transparent transition-all duration-200 cursor-pointer">
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-9 h-9 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
+                                                        <div className="w-9 h-9 flex-shrink-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
                                                             {gym.gymName?.charAt(0) || 'G'}
                                                         </div>
-                                                        <span className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
+                                                        <span className="font-semibold text-gray-900 group-hover:text-violet-600 transition-colors truncate">
                                                             {gym.gymName}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
                                                     <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-7 h-7 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                                                            <MapPin size={13} className="text-indigo-500" />
+                                                        <div className="w-7 h-7 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+                                                            <MapPin size={13} className="text-violet-500" />
                                                         </div>
                                                         <span className="font-medium truncate">{gym.location || 'N/A'}</span>
                                                     </div>

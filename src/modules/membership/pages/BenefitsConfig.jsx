@@ -87,12 +87,12 @@ const BenefitsConfig = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="hidden lg:flex flex-col items-end mr-6">
-                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1">
+                        <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest flex items-center gap-1">
                             <Infinity size={12} /> SaaS Sync Active
                         </span>
                         <span className="text-[8px] font-bold text-slate-400 uppercase">Controlled by Plan Limits</span>
                     </div>
-                    <Button variant="primary" onClick={openCreateModal} className="px-6 py-3 rounded-xl shadow-lg shadow-indigo-200">
+                    <Button variant="primary" onClick={openCreateModal} className="px-6 py-3 rounded-xl shadow-lg shadow-violet-200">
                         <Plus size={20} className="mr-2" />
                         Create New Benefit
                     </Button>
@@ -103,15 +103,15 @@ const BenefitsConfig = () => {
                 {benefits.map(benefit => {
                     const IconComp = ICONS[benefit.icon] || Dumbbell;
                     return (
-                        <div key={benefit.id} className="bg-white p-6 rounded-[24px] shadow-xl shadow-gray-100/50 border border-gray-50 hover:border-indigo-100 transition-all group relative overflow-hidden">
+                        <div key={benefit.id} className="bg-white p-6 rounded-[24px] shadow-xl shadow-gray-100/50 border border-gray-50 hover:border-violet-100 transition-all group relative overflow-hidden">
                             <div className="relative z-10">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                         <IconComp size={24} strokeWidth={2.5} />
                                     </div>
                                     <div className="flex gap-2">
                                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                            <button onClick={() => handleEdit(benefit)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-indigo-600">
+                                            <button onClick={() => handleEdit(benefit)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-violet-600">
                                                 <Edit2 size={16} />
                                             </button>
                                             <button onClick={() => handleDelete(benefit.id)} className="p-2 hover:bg-red-50 rounded-lg text-gray-500 hover:text-red-500">
@@ -123,8 +123,8 @@ const BenefitsConfig = () => {
 
                                 <h3 className="text-xl font-black text-gray-900 mb-1">{benefit.name}</h3>
                                 <div className="flex items-center gap-1.5 mb-3">
-                                    <div className="w-1 h-3 bg-indigo-500 rounded-full"></div>
-                                    <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">SaaS Sync Logic</span>
+                                    <div className="w-1 h-3 bg-violet-500 rounded-full"></div>
+                                    <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">SaaS Sync Logic</span>
                                 </div>
                                 <p className="text-gray-500 text-sm font-medium mb-4 min-h-[40px] italic line-clamp-2">"{benefit.description}"</p>
 
@@ -138,7 +138,7 @@ const BenefitsConfig = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-indigo-50/50 transition-colors pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-violet-50/50 transition-colors pointer-events-none"></div>
                         </div>
                     );
                 })}
@@ -154,7 +154,7 @@ const BenefitsConfig = () => {
                                     <h3 className="text-xl font-black text-gray-900">
                                         {editingBenefit ? 'Refine Benefit' : 'Establish Benefit'}
                                     </h3>
-                                    <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1 mt-1">
+                                    <p className="text-[10px] font-bold text-violet-600 uppercase tracking-widest flex items-center gap-1 mt-1">
                                         <Sparkles size={12} /> Managed by SaaS Subscription
                                     </p>
                                 </div>
@@ -165,11 +165,11 @@ const BenefitsConfig = () => {
                         </div>
 
                         <form onSubmit={handleSave} className="p-6 space-y-5">
-                            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 mb-2">
-                                <h4 className="text-[10px] font-black text-indigo-700 uppercase tracking-widest mb-1 flex items-center gap-2">
+                            <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 mb-2">
+                                <h4 className="text-[10px] font-black text-violet-700 uppercase tracking-widest mb-1 flex items-center gap-2">
                                     <Info size={14} /> Usage Logic Reminder
                                 </h4>
-                                <p className="text-[11px] font-bold text-indigo-600/70 leading-relaxed">
+                                <p className="text-[11px] font-bold text-violet-600/70 leading-relaxed">
                                     Individual member usage for this benefit will be capped based on their plan's quota set in Plan Management.
                                 </p>
                             </div>
@@ -189,7 +189,7 @@ const BenefitsConfig = () => {
                                 <div>
                                     <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Sync Strategy</label>
                                     <select
-                                        className="w-full h-12 px-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-indigo-100 outline-none font-bold text-sm appearance-none"
+                                        className="w-full h-12 px-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-violet-100 outline-none font-bold text-sm appearance-none"
                                         value={formData.type}
                                         onChange={e => setFormData({ ...formData, type: e.target.value })}
                                     >
@@ -220,7 +220,7 @@ const BenefitsConfig = () => {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, icon: iconName })}
                                                 className={`p-3 rounded-xl flex items-center justify-center transition-all ${formData.icon === iconName
-                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-110'
+                                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 scale-110'
                                                     : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                                                     }`}
                                             >
@@ -234,7 +234,7 @@ const BenefitsConfig = () => {
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Detailed Description</label>
                                 <textarea
-                                    className="w-full p-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-indigo-100 outline-none font-medium text-sm transition-all resize-none h-24"
+                                    className="w-full p-4 rounded-xl bg-gray-50 border-transparent focus:bg-white ring-2 ring-transparent focus:ring-violet-100 outline-none font-medium text-sm transition-all resize-none h-24"
                                     placeholder="Brief description of the benefit..."
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -243,7 +243,7 @@ const BenefitsConfig = () => {
 
                             <div className="pt-4 flex gap-3">
                                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs">Discard</Button>
-                                <Button type="submit" variant="primary" className="flex-1 py-4 rounded-xl shadow-lg shadow-indigo-200 font-black uppercase tracking-widest text-xs">Commit Benefit</Button>
+                                <Button type="submit" variant="primary" className="flex-1 py-4 rounded-xl shadow-lg shadow-violet-200 font-black uppercase tracking-widest text-xs">Commit Benefit</Button>
                             </div>
                         </form>
                     </div>

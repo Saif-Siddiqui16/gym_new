@@ -3,6 +3,7 @@ import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Ca
 import { fetchTrainerProfile, updateTrainerProfile, changeTrainerPassword, updateNotificationSettings } from '../../api/trainer/trainerApi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import NotificationsList from '../../components/notifications/NotificationsList';
 import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
@@ -166,7 +167,8 @@ const MyProfile = () => {
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
         { id: 'security', label: 'Security', icon: Shield },
-        { id: 'notifications', label: 'Notifications', icon: Bell }
+        { id: 'alerts', label: 'System Alerts', icon: Bell },
+        { id: 'notifications', label: 'Preferences', icon: Activity }
     ];
 
     return (
@@ -376,6 +378,10 @@ const MyProfile = () => {
                                 </div>
                             )}
 
+                            {activeTab === 'alerts' && (
+                                <NotificationsList />
+                            )}
+
                             {activeTab === 'notifications' && (
                                 <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     <div className="flex justify-between items-center">
@@ -438,7 +444,7 @@ const MyProfile = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => !isSaving && setShowPasswordModal(false)}></div>
                     <div className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl p-8 md:p-12 animate-in zoom-in-95 duration-300 overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-600 to-violet-600"></div>
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-600 to-purple-600"></div>
 
                         <div className="flex justify-between items-center mb-10">
                             <div>

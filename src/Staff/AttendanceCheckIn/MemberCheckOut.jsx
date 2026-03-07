@@ -52,11 +52,11 @@ const MemberCheckOut = () => {
                     <p className="text-sm text-gray-500 mt-1">Manage members currently on the gym floor.</p>
                 </div>
                 <div className="relative w-full md:w-72 group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-indigo-500 transition-colors" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-violet-500 transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="Search name or ID..."
-                        className="saas-input pl-11 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm hover:border-gray-300 transition-all"
+                        className="saas-input pl-11 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-violet-500 bg-white shadow-sm hover:border-gray-300 transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -84,18 +84,18 @@ const MemberCheckOut = () => {
                                     <tr key={row.id} className="hover:bg-gray-50/80 transition-all duration-200 group">
                                         <td className="px-6 py-4" data-label="Member">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm shadow-sm">
+                                                <div className="h-10 w-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-sm shadow-sm">
                                                     {(row.name || '?').charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{row.name}</p>
+                                                    <p className="text-sm font-bold text-gray-900 group-hover:text-violet-600 transition-colors">{row.name}</p>
                                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{row.memId}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4" data-label="Check-In Time">
                                             <div className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
-                                                <Clock size={14} className="text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                                                <Clock size={14} className="text-gray-400 group-hover:text-violet-500 transition-colors" />
                                                 {row.time}
                                             </div>
                                         </td>
@@ -107,7 +107,7 @@ const MemberCheckOut = () => {
                                         <td className="px-6 py-4 text-right" data-label="Actions">
                                             <button
                                                 onClick={() => handleCheckOut(row.id, row.memberId)}
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ml-auto shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 group/btn"
+                                                className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ml-auto shadow-md shadow-violet-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 group/btn"
                                             >
                                                 <LogOut size={14} />
                                                 Check-Out

@@ -136,7 +136,7 @@ const StoreDashboard = () => {
                 <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-slate-500 text-sm font-bold">Stock Value</h3>
-                        <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center">
                             <Layers size={16} />
                         </div>
                     </div>
@@ -144,7 +144,7 @@ const StoreDashboard = () => {
                         <p className="text-3xl font-black text-slate-900">₹{stats.stockValue.toLocaleString()}</p>
                         <p className="text-slate-400 text-xs font-bold mb-1.5">{stats.productsCount} items in stock</p>
                     </div>
-                    <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border-4 border-slate-50 border-t-blue-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border-4 border-slate-50 border-t-violet-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
                 </div>
 
                 {/* Low Stock Alert */}

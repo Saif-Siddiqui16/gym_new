@@ -54,6 +54,15 @@ export const getStoreOrders = async (params = {}) => {
     }
 };
 
+export const fetchOrderById = async (id) => {
+    try {
+        const response = await apiClient.get(`/store/orders/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to load order details';
+    }
+};
+
 export const checkoutStoreOrder = async (data) => {
     try {
         const response = await apiClient.post('/store/checkout', data);

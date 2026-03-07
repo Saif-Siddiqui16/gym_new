@@ -26,7 +26,7 @@ const MacroInput = ({ label, value, onChange, placeholder, icon: Icon }) => (
         <div className="relative group">
             <input
                 type="text"
-                className="w-full h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:font-normal placeholder:text-gray-400"
+                className="w-full h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-violet-100 focus:border-violet-500 outline-none transition-all placeholder:font-normal placeholder:text-gray-400"
                 value={value}
                 placeholder={placeholder}
                 onChange={e => onChange(e.target.value)}
@@ -135,7 +135,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                     });
                                 }
                             }}
-                            className="px-8 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center gap-2"
+                            className="px-8 py-3 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 shadow-lg shadow-violet-200 transition-all flex items-center gap-2"
                         >
                             {step === 1 ? 'Next Step' : 'Save Protocol'}
                             {step === 1 ? <ChevronRight size={18} /> : <Save size={18} />}
@@ -156,12 +156,12 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                             <input
                                                 type="text"
                                                 placeholder="e.g. Hypertrophy Mastery 2.0"
-                                                className="flex-1 h-14 px-4 bg-white border border-gray-200 rounded-xl text-lg font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:font-normal placeholder:text-gray-400"
+                                                className="flex-1 h-14 px-4 bg-white border border-gray-200 rounded-xl text-lg font-bold focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all placeholder:font-normal placeholder:text-gray-400"
                                                 value={formData.name}
                                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                             />
                                             <select
-                                                className="flex-1 h-14 bg-white border border-gray-200 px-4 rounded-xl text-sm font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none"
+                                                className="flex-1 h-14 bg-white border border-gray-200 px-4 rounded-xl text-sm font-bold focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all appearance-none"
                                                 value={formData.clientId}
                                                 onChange={e => setFormData({ ...formData, clientId: e.target.value })}
                                             >
@@ -176,7 +176,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                         <label className="text-sm font-bold text-gray-700">Description</label>
                                         <textarea
                                             placeholder="Scientific objectives & background..."
-                                            className="w-full h-32 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none placeholder:font-normal placeholder:text-gray-400"
+                                            className="w-full h-32 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all resize-none placeholder:font-normal placeholder:text-gray-400"
                                             value={formData.description}
                                             onChange={e => setFormData({ ...formData, description: e.target.value })}
                                         />
@@ -193,8 +193,8 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                                 key={t}
                                                 onClick={() => setFormData({ ...formData, target: t })}
                                                 className={`h-12 rounded-xl text-xs font-bold transition-all border ${formData.target === t
-                                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200'
-                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-gray-50'
+                                                    ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200'
+                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-violet-300 hover:bg-gray-50'
                                                     }`}
                                             >
                                                 {t}
@@ -211,8 +211,8 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                                 key={d}
                                                 onClick={() => setFormData({ ...formData, intensity: d })}
                                                 className={`h-12 rounded-xl text-xs font-bold transition-all border ${formData.intensity === d
-                                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200'
-                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-gray-50'
+                                                    ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200'
+                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-violet-300 hover:bg-gray-50'
                                                     }`}
                                             >
                                                 {d}
@@ -231,7 +231,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                         <div className="flex-1 space-y-1">
                                             <input
                                                 type="number"
-                                                className="w-full h-12 bg-white border border-gray-200 rounded-xl px-4 font-bold focus:border-indigo-500 outline-none"
+                                                className="w-full h-12 bg-white border border-gray-200 rounded-xl px-4 font-bold focus:border-violet-500 outline-none"
                                                 value={formData.durationWeeks}
                                                 onChange={e => setFormData({ ...formData, durationWeeks: e.target.value })}
                                             />
@@ -240,7 +240,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                         <div className="flex-1 space-y-1">
                                             <input
                                                 type="number"
-                                                className="w-full h-12 bg-white border border-gray-200 rounded-xl px-4 font-bold focus:border-indigo-500 outline-none"
+                                                className="w-full h-12 bg-white border border-gray-200 rounded-xl px-4 font-bold focus:border-violet-500 outline-none"
                                                 value={formData.durationDays}
                                                 onChange={e => setFormData({ ...formData, durationDays: e.target.value })}
                                             />
@@ -254,7 +254,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                     </label>
                                     <div className="relative">
                                         <select
-                                            className="w-full h-12 bg-white border border-gray-200 rounded-xl text-sm px-4 font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none"
+                                            className="w-full h-12 bg-white border border-gray-200 rounded-xl text-sm px-4 font-bold focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all appearance-none"
                                             value={formData.difficulty}
                                             onChange={e => setFormData({ ...formData, difficulty: e.target.value })}
                                         >
@@ -277,8 +277,8 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                         key={day}
                                         onClick={() => setCurrentDay(day)}
                                         className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all font-bold text-sm uppercase tracking-wider ${currentDay === day
-                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
-                                            : 'bg-white text-gray-500 hover:text-indigo-600 hover:text-indigo-600 hover:bg-gray-50'
+                                            ? 'bg-violet-600 text-white shadow-lg shadow-violet-200'
+                                            : 'bg-white text-gray-500 hover:text-violet-600 hover:text-violet-600 hover:bg-gray-50'
                                             }`}
                                     >
                                         <span>{day.slice(0, 3)}</span>
@@ -293,7 +293,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                             <div className="lg:col-span-9 space-y-8">
                                 <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm space-y-6">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
+                                        <div className="w-8 h-8 bg-violet-50 text-violet-600 rounded-lg flex items-center justify-center">
                                             <Dumbbell size={16} />
                                         </div>
                                         <h3 className="text-lg font-bold text-gray-900">Add Movement to <span className="capitalize">{currentDay}</span></h3>
@@ -313,7 +313,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                             </label>
                                             <textarea
                                                 placeholder="Technical notes, queueing..."
-                                                className="w-full h-20 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none resize-none transition-all"
+                                                className="w-full h-20 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 text-sm font-medium focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none resize-none transition-all"
                                                 value={newExercise.notes}
                                                 onChange={e => setNewExercise({ ...newExercise, notes: e.target.value })}
                                             />
@@ -322,7 +322,7 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
 
                                     <button
                                         onClick={handleAddExercise}
-                                        className="w-full h-12 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2"
+                                        className="w-full h-12 bg-gray-900 text-white rounded-xl font-bold text-sm hover:bg-violet-600 transition-all shadow-lg hover:shadow-violet-200 flex items-center justify-center gap-2"
                                     >
                                         <Plus size={18} /> Add Movement
                                     </button>
@@ -344,8 +344,8 @@ const CreateWorkoutDrawer = ({ isOpen, onClose, onSave, initialData = null }) =>
                                     ) : (
                                         <div className="space-y-3">
                                             {formData.days[currentDay].map((ex, idx) => (
-                                                <div key={ex.id} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-indigo-100 transition-all group">
-                                                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs text-gray-500 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                                <div key={ex.id} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-violet-100 transition-all group">
+                                                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-xs text-gray-500 group-hover:bg-violet-600 group-hover:text-white transition-all">
                                                         {idx + 1}
                                                     </div>
                                                     <div className="flex-1">

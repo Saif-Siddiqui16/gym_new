@@ -206,7 +206,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                         </form>
                     ) : filteredTemplates.length > 0 ? (
                         filteredTemplates.map((template) => (
-                            <div key={template.id} className="group bg-white rounded-3xl p-6 border-2 border-slate-100 transition-all hover:border-violet-100 hover:shadow-xl hover:shadow-violet-500/5">
+                            <div key={template.id} className="group bg-white rounded-3xl p-6 border-2 border-slate-100 transition-all hover:border-violet-100 hover:shadow-xl hover:shadow-violet-500/30/5">
                                 <div className="flex justify-between items-start mb-4">
                                     <h4 className="text-sm font-black text-slate-900 tracking-tight">{template.name}</h4>
                                     <div className="flex gap-2">

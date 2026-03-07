@@ -106,7 +106,7 @@ const BranchManagement = () => {
                         </div>
                         <button
                             onClick={() => setShowModal(true)}
-                            className="group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all w-full sm:w-auto"
+                            className="group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all w-full sm:w-auto"
                         >
                             <Plus size={18} strokeWidth={2.5} className="transition-all duration-300 group-hover:rotate-90" />
                             Add Branch

@@ -25,7 +25,7 @@ const Input = ({ label, icon: Icon, className = '', ...props }) => {
                         text-gray-900 
                         outline-none 
                         focus:ring-2 
-                        focus:ring-indigo-500 
+                        focus:ring-violet-500 
                         focus:bg-white 
                         transition-all
                         border border-transparent

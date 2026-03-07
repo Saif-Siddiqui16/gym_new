@@ -19,6 +19,7 @@ import {
     History
 } from 'lucide-react';
 import { fetchTransactions, fetchInvoiceById } from '../../../api/finance/financeApi';
+import { fetchOrderById } from '../../../api/storeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import RightDrawer from '../../../components/common/RightDrawer';
@@ -78,8 +79,8 @@ const Payments = () => {
         try {
             const headers = ["Member", "Branch", "Transaction Code", "Date", "Time", "Method", "Amount", "Status"];
             const rows = data.transactions.map(txn => [
-                `"${txn.member}"`,
-                `"${txn.branch}"`,
+                `"${(txn.member || 'Guest').toString().replace(/"/g, '""')}"`,
+                `"${(txn.branch || 'Main').toString().replace(/"/g, '""')}"`,
                 txn.id,
                 new Date(txn.date).toLocaleDateString(),
                 new Date(txn.date).toLocaleTimeString(),
@@ -112,7 +113,21 @@ const Payments = () => {
                 return;
             }
 
-            const res = await fetchInvoiceById(txn.internalId);
+            let res;
+            if (txn.type === 'POS Sale') {
+                const orderData = await fetchOrderById(txn.internalId);
+                // Format order for common receipt view
+                res = {
+                    ...orderData,
+                    invoiceNumber: `POS-#${orderData.id}`,
+                    paidDate: orderData.paidDate || orderData.dueDate || orderData.date,
+                    amount: Number(orderData.total || orderData.amount || 0),
+                    paymentMode: orderData.paymentMode || 'Cash',
+                    items: orderData.items || []
+                };
+            } else {
+                res = await fetchInvoiceById(txn.internalId);
+            }
             setSelectedReceipt(res);
         } catch (err) {
             console.error("Receipt load failed", err);
@@ -238,7 +253,7 @@ const Payments = () => {
                     </div>
 
                     {/* Completed */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-blue-50 transition-all duration-500">
+                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-violet-50 transition-all duration-500">
                         <div>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Completed</p>
                             <h2 className="text-3xl font-black text-slate-900 font-roboto">₹{data.stats.completed.toLocaleString()}</h2>
@@ -249,12 +264,12 @@ const Payments = () => {
                     </div>
 
                     {/* Pending */}
-                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-blue-50 transition-all duration-500">
+                    <div className="bg-white rounded-[2rem] p-8 h-40 shadow-sm border border-slate-100 flex justify-between items-center gap-6 group hover:bg-violet-50 transition-all duration-500">
                         <div>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Pending</p>
-                            <h2 className="text-3xl font-black text-blue-600">₹{data.stats.pending.toLocaleString()}</h2>
+                            <h2 className="text-3xl font-black text-violet-600">₹{data.stats.pending.toLocaleString()}</h2>
                         </div>
-                        <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform shadow-sm">
+                        <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center text-violet-500 group-hover:scale-110 transition-transform shadow-sm">
                             <Clock size={24} />
                         </div>
                     </div>
@@ -420,7 +435,7 @@ const Payments = () => {
                         <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Generating Receipt...</p>
                     </div>
                 ) : selectedReceipt && (
-                    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-right-8 duration-300">
+                    <div id="printable-receipt" className="p-8 space-y-8 animate-in fade-in slide-in-from-right-8 duration-300">
                         {/* Header Info */}
                         <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-2">
@@ -458,7 +473,8 @@ const Payments = () => {
                                         <tr className="border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100/30">
                                             <th className="px-6 py-4">Description</th>
                                             <th className="px-6 py-4 text-center">Qty</th>
-                                            <th className="px-6 py-4 text-right">Amount</th>
+                                            <th className="px-6 py-4 text-right">Rate</th>
+                                            <th className="px-6 py-4 text-right">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -466,7 +482,8 @@ const Payments = () => {
                                             <tr key={idx} className="text-xs font-bold text-slate-700">
                                                 <td className="px-6 py-4">{item.description}</td>
                                                 <td className="px-6 py-4 text-center">{item.quantity}</td>
-                                                <td className="px-6 py-4 text-right">₹{Number(item.amount).toLocaleString()}</td>
+                                                <td className="px-6 py-4 text-right">₹{Number(item.rate || 0).toLocaleString()}</td>
+                                                <td className="px-6 py-4 text-right">₹{Number(item.amount || 0).toLocaleString()}</td>
                                             </tr>
                                         )) : (
                                             <tr className="text-xs font-bold text-slate-700">
@@ -487,7 +504,7 @@ const Payments = () => {
                             </div>
                             <button
                                 onClick={() => window.print()}
-                                className="w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98]"
+                                className="no-print w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98]"
                             >
                                 <Download size={20} /> Download PDF Receipt
                             </button>

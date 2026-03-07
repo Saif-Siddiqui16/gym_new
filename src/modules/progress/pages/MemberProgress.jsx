@@ -233,7 +233,7 @@ const MemberProgress = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
-                <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+                <Loader2 className="w-12 h-12 text-violet-600 animate-spin" />
             </div>
         );
     }
@@ -243,7 +243,7 @@ const MemberProgress = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
                 <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <TrendingUp size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -264,7 +264,7 @@ const MemberProgress = () => {
                     )}
                     <button
                         onClick={() => setShowLogModal(true)}
-                        className="flex items-center gap-2 h-11 px-6 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
+                        className="flex items-center gap-2 h-11 px-6 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95"
                     >
                         <Plus size={16} /> Log Progress
                     </button>
@@ -298,7 +298,7 @@ const MemberProgress = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === tab
-                                ? 'bg-white text-indigo-600 shadow-md ring-1 ring-slate-200'
+                                ? 'bg-white text-violet-600 shadow-md ring-1 ring-slate-200'
                                 : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
                                 }`}
                         >
@@ -314,7 +314,7 @@ const MemberProgress = () => {
                         <div className="space-y-6">
                             <div className="flex items-center justify-between px-1">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                    <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                                         <Target size={16} />
                                     </div>
                                     <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Measurements</h2>
@@ -329,7 +329,7 @@ const MemberProgress = () => {
                                     </div>
                                     <h3 className="text-xl font-black text-slate-400 tracking-tight uppercase mb-3">No Data Available</h3>
                                     <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-8">Start tracking your progress today</p>
-                                    <button onClick={() => setShowLogModal(true)} className="h-12 px-8 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2">
+                                    <button onClick={() => setShowLogModal(true)} className="h-12 px-8 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all flex items-center gap-2">
                                         <Plus size={16} /> Log First Entry
                                     </button>
                                 </Card>
@@ -423,7 +423,7 @@ const MemberProgress = () => {
                     {activeTab === 'Workout Plan' && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 px-1">
-                                <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><Dumbbell size={16} /></div>
+                                <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600"><Dumbbell size={16} /></div>
                                 <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Workout Plan</h2>
                             </div>
 
@@ -455,10 +455,10 @@ const MemberProgress = () => {
                                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Training Schedule</p>
                                                             {daysWithExercises.map(([dayKey, exercises], dayIdx) => (
                                                                 <div key={dayIdx} className="space-y-2">
-                                                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{dayKey.replace(/([a-z])(\d+)/i, '$1 $2')}</p>
+                                                                    <p className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{dayKey.replace(/([a-z])(\d+)/i, '$1 $2')}</p>
                                                                     {exercises.map((ex, i) => (
                                                                         <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                                                                            <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-black">{i + 1}</div>
+                                                                            <div className="w-7 h-7 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center text-[10px] font-black">{i + 1}</div>
                                                                             <div className="flex-1">
                                                                                 <p className="text-sm font-black text-slate-900">{ex.name || ex.exercise || 'Exercise'}</p>
                                                                                 {(ex.sets || ex.reps) && <p className="text-[10px] font-bold text-slate-400 uppercase">{ex.sets && `${ex.sets} sets`}{ex.reps && ` × ${ex.reps} reps`}</p>}
@@ -556,7 +556,7 @@ const MemberProgress = () => {
                 onClose={() => setShowLogModal(false)}
                 title={
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600">
                             <TrendingUp size={24} />
                         </div>
                         <span className="text-xl font-black text-slate-900">Log Progress</span>
@@ -566,8 +566,8 @@ const MemberProgress = () => {
             >
                 <form onSubmit={handleLogSubmit} className="space-y-6 p-1">
                     {isManagement && (
-                        <div className="p-4 bg-indigo-50/50 rounded-2xl border-2 border-indigo-100/50">
-                            <label className="text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 mb-2 block">Select Member</label>
+                        <div className="p-4 bg-violet-50/50 rounded-2xl border-2 border-violet-100/50">
+                            <label className="text-[10px] font-black text-violet-400 uppercase tracking-widest ml-1 mb-2 block">Select Member</label>
                             <CustomDropdown
                                 options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))}
                                 value={selectedMemberId}
@@ -604,12 +604,12 @@ const MemberProgress = () => {
                         <textarea value={logForm.notes} rows={3}
                             onChange={e => setLogForm({ ...logForm, notes: e.target.value })}
                             placeholder="How are you feeling? Any observations..."
-                            className="w-full mt-2 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:border-indigo-600 outline-none transition-all resize-none"
+                            className="w-full mt-2 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:border-violet-600 outline-none transition-all resize-none"
                         />
                     </div>
 
                     <button type="submit" disabled={submitting}
-                        className="w-full h-14 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                        className="w-full h-14 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
                         {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                         Save Progress Entry
                     </button>
@@ -623,12 +623,12 @@ const MemberProgress = () => {
 
 const MetricCard = ({ label, value, trend, color = 'indigo', invertTrend = false }) => {
     const colors = {
-        indigo: 'bg-indigo-50 text-indigo-700',
+        indigo: 'bg-violet-50 text-violet-700',
         amber: 'bg-amber-50 text-amber-700',
         emerald: 'bg-emerald-50 text-emerald-700',
         rose: 'bg-rose-50 text-rose-700',
         purple: 'bg-purple-50 text-purple-700',
-        blue: 'bg-blue-50 text-blue-700',
+        blue: 'bg-violet-50 text-violet-700',
         orange: 'bg-orange-50 text-orange-700',
     };
     return (
@@ -648,7 +648,7 @@ const MetricCard = ({ label, value, trend, color = 'indigo', invertTrend = false
 const MacroChip = ({ label, value, unit, color }) => {
     const colors = {
         amber: 'bg-amber-50 border-amber-100 text-amber-700',
-        blue: 'bg-blue-50 border-blue-100 text-blue-700',
+        blue: 'bg-violet-50 border-violet-100 text-violet-700',
         emerald: 'bg-emerald-50 border-emerald-100 text-emerald-700',
         rose: 'bg-rose-50 border-rose-100 text-rose-700',
     };
@@ -669,7 +669,7 @@ const FormField = ({ label, type, value, onChange, placeholder, step }) => (
             value={value}
             placeholder={placeholder}
             onChange={e => onChange(e.target.value)}
-            className="w-full mt-2 h-12 bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:border-indigo-600 outline-none transition-all"
+            className="w-full mt-2 h-12 bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:border-violet-600 outline-none transition-all"
         />
     </div>
 );

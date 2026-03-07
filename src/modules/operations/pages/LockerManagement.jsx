@@ -16,8 +16,11 @@ import {
     Package,
     Activity,
     Clock,
-    Filter
+    Filter,
+    X,
+    Plus
 } from 'lucide-react';
+import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddLockerDrawer from './AddLockerDrawer';
 import BulkCreateLockersDrawer from './BulkCreateLockersDrawer';
@@ -79,7 +82,7 @@ const LockerManagement = () => {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                        <div className="w-14 h-14 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-100">
                             <Lock size={28} />
                         </div>
                         <div>
@@ -88,18 +91,22 @@ const LockerManagement = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button
+                        <Button
                             onClick={() => openDrawer('bulk')}
-                            className="h-12 px-6 bg-white text-slate-600 border-2 border-slate-100 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:border-indigo-100 hover:text-indigo-600 transition-all flex items-center gap-2 shadow-sm"
+                            variant="outline"
+                            className="h-11 px-6 rounded-xl"
+                            icon={Settings}
                         >
-                            <Settings size={18} /> Bulk Create
-                        </button>
-                        <button
+                            Bulk Create
+                        </Button>
+                        <Button
                             onClick={() => openDrawer('add')}
-                            className="h-12 px-6 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+                            variant="primary"
+                            className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                            icon={Plus}
                         >
-                            <Plus size={18} /> Add Locker
-                        </button>
+                            Add Locker
+                        </Button>
                     </div>
                 </div>
 
@@ -123,14 +130,14 @@ const LockerManagement = () => {
                                     placeholder="Search locker number..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-12 pr-4 h-12 bg-slate-50 border-2 border-transparent focus:border-indigo-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none"
+                                    className="w-full pl-12 pr-4 h-12 bg-slate-50 border-2 border-transparent focus:border-violet-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none"
                                 />
                             </div>
                             <div className="relative w-48 hidden md:block">
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="w-full pl-4 pr-10 h-12 bg-slate-50 border-2 border-transparent focus:border-indigo-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none appearance-none cursor-pointer"
+                                    className="w-full pl-4 pr-10 h-12 bg-slate-50 border-2 border-transparent focus:border-violet-600 focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none appearance-none cursor-pointer"
                                 >
                                     <option>All Status</option>
                                     <option>Available</option>
@@ -158,7 +165,7 @@ const LockerManagement = () => {
                     <div className="p-8">
                         {loading ? (
                             <div className="h-96 flex flex-col items-center justify-center gap-4">
-                                <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                                <div className="w-12 h-12 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin"></div>
                                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Lockers...</p>
                             </div>
                         ) : lockers.length === 0 ? (
@@ -192,32 +199,55 @@ const LockerManagement = () => {
                     {!loading && lockers.length > 0 && activeTab === 'Overview' && (
                         <div className="p-6 bg-slate-50/50 border-t-2 border-slate-50 flex items-center gap-6 justify-center flex-wrap">
                             <LegendItem color="bg-emerald-500" label="Available" />
-                            <LegendItem color="bg-indigo-500" label="Assigned" />
+                            <LegendItem color="bg-violet-500" label="Assigned" />
                             <LegendItem color="bg-amber-500" label="Maintenance" />
-                            <LegendItem color="bg-blue-500" label="Reserved" />
+                            <LegendItem color="bg-violet-500" label="Reserved" />
                             <LegendItem color="bg-rose-500" label="Expired" />
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Drawers */}
-            <AddLockerDrawer
+            {/* Forms / Drawers */}
+            <RightDrawer
                 isOpen={drawerType === 'add'}
                 onClose={closeDrawer}
-                onSuccess={loadData}
-            />
-            <BulkCreateLockersDrawer
+                title="Add New Locker"
+                subtitle="Create a single locker entry"
+            >
+                <AddLockerDrawer
+                    onClose={closeDrawer}
+                    onSuccess={loadData}
+                />
+            </RightDrawer>
+
+            <RightDrawer
                 isOpen={drawerType === 'bulk'}
                 onClose={closeDrawer}
-                onSuccess={loadData}
-            />
-            <LockerDetailsDrawer
-                isOpen={drawerType === 'details'}
-                locker={selectedLocker}
-                onClose={closeDrawer}
-                onSuccess={loadData}
-            />
+                title="Bulk Create Lockers"
+                subtitle="Create multiple lockers at once"
+            >
+                <BulkCreateLockersDrawer
+                    onClose={closeDrawer}
+                    onSuccess={loadData}
+                />
+            </RightDrawer>
+
+            {/* Details Drawer (Outside main flow) */}
+            {drawerType === 'details' && (
+                <RightDrawer
+                    isOpen={drawerType === 'details'}
+                    onClose={closeDrawer}
+                    title="Locker details"
+                    subtitle={`Manage Locker #${selectedLocker?.number}`}
+                >
+                    <LockerDetailsDrawer
+                        locker={selectedLocker}
+                        onClose={closeDrawer}
+                        onSuccess={loadData}
+                    />
+                </RightDrawer>
+            )}
         </div>
     );
 };
@@ -226,13 +256,13 @@ const LockerManagement = () => {
 
 const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
     const colorMap = {
-        indigo: 'bg-indigo-50 text-indigo-600',
+        indigo: 'bg-violet-50 text-violet-600',
         emerald: 'bg-emerald-50 text-emerald-600',
-        blue: 'bg-blue-50 text-blue-600',
+        blue: 'bg-violet-50 text-violet-600',
         amber: 'bg-amber-50 text-amber-600'
     };
     return (
-        <div className="bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex items-center justify-between group hover:border-indigo-100 transition-all">
+        <div className="bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex items-center justify-between group hover:border-violet-100 transition-all">
             <div className="space-y-1">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{title}</p>
                 <div className="flex flex-col">
@@ -250,7 +280,7 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle }) => {
 const TabButton = ({ active, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
     >
         {children}
     </button>
@@ -259,7 +289,7 @@ const TabButton = ({ active, onClick, children }) => (
 const IconButton = ({ active, onClick, icon: Icon }) => (
     <button
         onClick={onClick}
-        className={`p-2 rounded-xl transition-all ${active ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        className={`p-2 rounded-xl transition-all ${active ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
     >
         <Icon size={18} />
     </button>
@@ -279,10 +309,10 @@ const LockerCard = ({ locker, onClick }) => {
     if (isAvailable) { style = "bg-emerald-50 border-emerald-100 text-emerald-700"; iconColor = "text-emerald-500"; dotColor = "bg-emerald-500"; }
     else if (isAssigned) {
         if (isExpired) { style = "bg-rose-50 border-rose-200 text-rose-700"; iconColor = "text-rose-500"; dotColor = "bg-rose-500"; }
-        else { style = "bg-indigo-50 border-indigo-100 text-indigo-700"; iconColor = "text-indigo-500"; dotColor = "bg-indigo-500"; }
+        else { style = "bg-violet-50 border-violet-100 text-violet-700"; iconColor = "text-violet-500"; dotColor = "bg-violet-500"; }
     }
     else if (isMaintenance) { style = "bg-amber-50 border-amber-200 text-amber-700"; iconColor = "text-amber-500"; dotColor = "bg-amber-500"; }
-    else if (isReserved) { style = "bg-blue-50 border-blue-200 text-blue-700"; iconColor = "text-blue-500"; dotColor = "bg-blue-500"; }
+    else if (isReserved) { style = "bg-violet-50 border-violet-200 text-violet-700"; iconColor = "text-violet-500"; dotColor = "bg-violet-500"; }
 
     return (
         <div
@@ -358,9 +388,9 @@ const AssignedMemberTable = ({ lockers, onRowClick }) => (
 const StatusBadge = ({ status }) => {
     const styles = {
         Available: 'bg-emerald-50 text-emerald-700',
-        Assigned: 'bg-indigo-50 text-indigo-700',
+        Assigned: 'bg-violet-50 text-violet-700',
         Maintenance: 'bg-amber-50 text-amber-700',
-        Reserved: 'bg-blue-50 text-blue-700'
+        Reserved: 'bg-violet-50 text-violet-700'
     };
     return (
         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
@@ -376,6 +406,5 @@ const LegendItem = ({ color, label }) => (
     </div>
 );
 
-const Plus = ({ size }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
 
 export default LockerManagement;

@@ -250,7 +250,7 @@ const MarkWorkoutAttendance = () => {
                             <div key={member.id} className="p-4 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
                                             {(member.name || '?').charAt(0)}
                                         </div>
                                         <div>
@@ -307,7 +307,7 @@ const MarkWorkoutAttendance = () => {
                     <button
                         onClick={handleSave}
                         disabled={saving || !selectedSessionId}
-                        className="flex items-center justify-center gap-2 px-8 py-2 bg-violet-600 hover:bg-violet-500 hover:scale-105 hover:shadow-xl hover:shadow-violet-500/40 active:scale-95 transition-all duration-300 text-white font-bold rounded-xl shadow-lg shadow-violet-500/25 w-full md:w-auto disabled:opacity-50 disabled:hover:scale-100"
+                        className="flex items-center justify-center gap-2 px-8 py-2 bg-violet-600 hover:bg-violet-500 hover:scale-105 hover:shadow-xl hover:shadow-violet-500/30/40 active:scale-95 transition-all duration-300 text-white font-bold rounded-xl shadow-lg shadow-violet-500/30/25 w-full md:w-auto disabled:opacity-50 disabled:hover:scale-100"
                     >
                         {saving ? (
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

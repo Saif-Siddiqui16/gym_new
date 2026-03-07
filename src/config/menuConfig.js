@@ -249,7 +249,6 @@ export const menuConfig = {
                 { label: 'Attendance', path: '/branchadmin/reports/daily-attendance', icon: ClipboardList },
                 { label: 'Plans', path: '/memberships/plans', icon: CreditCard },
                 { label: 'Referrals', path: '/referrals', icon: UserPlus },
-                { label: 'Member Messages', path: '/messages', icon: MessageSquare },
                 { label: 'Feedback', path: '/operations/feedback', icon: MessageSquare },
             ]
         },

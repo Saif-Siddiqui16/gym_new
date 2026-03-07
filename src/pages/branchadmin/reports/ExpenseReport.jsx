@@ -17,7 +17,7 @@ const ExpenseReport = () => {
 
     const [stats, setStats] = useState([
         { label: 'Total Expenses', value: '₹0', icon: CreditCard, bg: 'bg-rose-50', color: 'text-rose-600' },
-        { label: 'Operational Costs', value: '₹0', icon: Zap, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'Operational Costs', value: '₹0', icon: Zap, bg: 'bg-violet-50', color: 'text-violet-600' },
         { label: 'Supplies/Inventory', value: '₹0', icon: ShoppingBag, bg: 'bg-amber-50', color: 'text-amber-600' },
     ]);
 

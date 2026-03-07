@@ -26,6 +26,7 @@ import amenityApi from '../../../api/amenityApi';
 import { toast } from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
 import RightDrawer from '../../../components/common/RightDrawer';
+import Button from '../../../components/ui/Button';
 
 const ICON_OPTIONS = [
     { name: 'Wifi', icon: Wifi },
@@ -148,13 +149,14 @@ const AmenitySettings = () => {
                     </h1>
                     <p className="text-slate-500 text-sm font-medium">Create and manage facilities available at your gym</p>
                 </div>
-                <button
+                <Button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold shadow-lg shadow-violet-200 transition-all hover:scale-105 active:scale-95"
+                    variant="primary"
+                    icon={Plus}
+                    className="px-6 h-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                 >
-                    <Plus size={20} />
-                    Add New Amenity
-                </button>
+                    Add Amenity
+                </Button>
             </div>
 
             {/* Toolbar */}
@@ -213,7 +215,7 @@ const AmenitySettings = () => {
                                     }`}>
                                     {amenity.status}
                                 </span>
-                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${amenity.gender === 'MALE' ? 'bg-blue-50 text-blue-600' :
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${amenity.gender === 'MALE' ? 'bg-violet-50 text-violet-600' :
                                     amenity.gender === 'FEMALE' ? 'bg-pink-50 text-pink-600' :
                                         'bg-purple-50 text-purple-600'
                                     }`}>
@@ -234,12 +236,13 @@ const AmenitySettings = () => {
                     </div>
                     <h3 className="text-lg font-bold text-slate-800">No amenities found</h3>
                     <p className="text-slate-500 mt-1 mb-6">Start by adding your first gym facility</p>
-                    <button
+                    <Button
                         onClick={() => handleOpenModal()}
-                        className="px-6 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all"
+                        variant="primary"
+                        className="px-8 h-11 rounded-xl"
                     >
                         Create Now
-                    </button>
+                    </Button>
                 </div>
             )}
 
@@ -321,20 +324,22 @@ const AmenitySettings = () => {
                     </div>
 
                     <div className="pt-6 flex gap-3">
-                        <button
+                        <Button
                             type="button"
+                            variant="outline"
                             onClick={() => setIsModalOpen(false)}
-                            className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-all text-sm uppercase tracking-widest font-black"
+                            className="flex-1 h-12 rounded-xl"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 px-6 py-3 bg-violet-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-violet-700 shadow-lg shadow-violet-200 transition-all text-sm uppercase tracking-widest font-black"
+                            variant="primary"
+                            icon={Save}
+                            className="flex-1 h-12 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                         >
-                            <Save size={18} />
                             {editingAmenity ? 'Save Changes' : 'Create Amenity'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </RightDrawer>

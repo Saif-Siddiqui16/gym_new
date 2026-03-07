@@ -154,7 +154,7 @@ const HardwareSettings = () => {
                         </div>
                         <button
                             onClick={handleAddDevice}
-                            className="group relative px-6 py-3 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/50"
+                            className="group relative px-6 py-3 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <Plus className="w-5 h-5 relative transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" />

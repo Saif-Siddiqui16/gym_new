@@ -115,7 +115,7 @@ const ErrorLogs = () => {
             <div className="saas-card mb-6" style={{ overflow: 'visible', zIndex: 100, position: 'relative' }}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div className="relative group" style={{ zIndex: 30 }}>
-                        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-indigo-600 group-focus-within:scale-110" />
+                        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-violet-600 group-focus-within:scale-110" />
                         <input
                             type="text"
                             name="search"
@@ -174,13 +174,13 @@ const ErrorLogs = () => {
                                                     size={16}
                                                     className={`transition-all duration-300 group-hover:scale-125 ${log.severity === 'high' ? 'text-red-500 group-hover:text-red-600' : 'text-yellow-500 group-hover:text-yellow-600'}`}
                                                 />
-                                                <span className="font-mono text-xs font-bold text-gray-700 transition-colors duration-200 group-hover:text-indigo-600">{log.code}</span>
+                                                <span className="font-mono text-xs font-bold text-gray-700 transition-colors duration-200 group-hover:text-violet-600">{log.code}</span>
                                             </div>
                                         </td>
                                         <td data-label="Error Message" className="font-medium text-gray-800 transition-colors duration-200 group-hover:text-gray-900">{log.message}</td>
-                                        <td data-label="Module" className="text-sm text-gray-600 transition-colors duration-200 group-hover:text-indigo-600">{log.module}</td>
+                                        <td data-label="Module" className="text-sm text-gray-600 transition-colors duration-200 group-hover:text-violet-600">{log.module}</td>
                                         <td data-label="Severity">{getSeverityBadge(log.severity)}</td>
-                                        <td data-label="Date & Time" className="text-gray-500 text-sm font-mono transition-colors duration-200 group-hover:text-indigo-600">{log.date}</td>
+                                        <td data-label="Date & Time" className="text-gray-500 text-sm font-mono transition-colors duration-200 group-hover:text-violet-600">{log.date}</td>
                                     </tr>
                                 ))
                             ) : (

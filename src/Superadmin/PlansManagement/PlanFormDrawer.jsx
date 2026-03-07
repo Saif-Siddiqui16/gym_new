@@ -236,7 +236,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                     subtitle="Plan core details and pricing"
                     section="basic"
                     active={activeSections.basic}
-                    color="text-indigo-600"
+                    color="text-violet-600"
                 />
 
                 {activeSections.basic && (
@@ -246,7 +246,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <input
                                 type="text"
                                 name="planName"
-                                className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all ${errors.planName ? 'border-red-500 bg-white' : ''}`}
+                                className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-violet-500 transition-all ${errors.planName ? 'border-red-500 bg-white' : ''}`}
                                 placeholder="e.g., Enterprise Premium"
                                 value={formData.planName}
                                 onChange={handleInputChange}
@@ -260,7 +260,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                 <input
                                     type="number"
                                     name="price"
-                                    className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all ${errors.price ? 'border-red-500 bg-white' : ''}`}
+                                    className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-violet-500 transition-all ${errors.price ? 'border-red-500 bg-white' : ''}`}
                                     placeholder="4999"
                                     value={formData.price}
                                     onChange={handleInputChange}
@@ -269,7 +269,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <div className="space-y-3">
                                 <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Billing Cycle</label>
                                 <select
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-violet-500 transition-all"
                                     value={formData.billingCycle}
                                     onChange={(e) => setFormData(p => ({ ...p, billingCycle: e.target.value }))}
                                 >
@@ -285,7 +285,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Description *</label>
                             <textarea
                                 name="description"
-                                className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all min-h-[80px]"
+                                className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-violet-500 transition-all min-h-[80px]"
                                 placeholder="Describe who this plan is for..."
                                 value={formData.description}
                                 onChange={handleInputChange}
@@ -511,7 +511,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-[2] py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-200 flex items-center justify-center gap-2 hover:shadow-indigo-300 transition-all active:scale-95"
+                    className="flex-[2] py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-200 flex items-center justify-center gap-2 hover:shadow-violet-300 transition-all active:scale-95"
                 >
                     <Save size={18} />
                     {isSubmitting ? 'Saving Configuration...' : (editId ? 'Update & Sync Plan' : 'Establish SaaS Plan')}

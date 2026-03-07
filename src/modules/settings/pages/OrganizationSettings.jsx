@@ -93,7 +93,7 @@ const OrganizationSettings = ({ role }) => {
             {/* Header */}
             <div className="relative mb-12">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/30/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent font-black tracking-tighter">Organization Settings</h1>
                         <p className="text-slate-400 text-[10px] sm:text-xs mt-1 uppercase tracking-widest font-bold">Manage your brand identity and global localization</p>
@@ -101,7 +101,7 @@ const OrganizationSettings = ({ role }) => {
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest disabled:opacity-50"
+                        className="flex items-center justify-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest disabled:opacity-50"
                     >
                         {saving ? <Loader className="animate-spin" size={20} /> : <Save size={20} strokeWidth={3} />}
                         {saving ? 'Saving...' : 'Save Brand'}

@@ -6,6 +6,7 @@ import CustomDropdown from '../../components/common/CustomDropdown';
 import { useBranchContext } from '../../context/BranchContext';
 import { getAllStaff, createTask, getTasks, getTaskStats, deleteTask, updateTask } from '../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
+import Button from '../../components/ui/Button';
 
 const TaskList = () => {
     const navigate = useNavigate();
@@ -200,17 +201,18 @@ const TaskList = () => {
             <div className="max-w-7xl mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent">
                             Task Management
                         </h1>
                     </div>
-                    <button
+                    <Button
                         onClick={handleNewTask}
-                        className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-violet-500/30 hover:scale-105 active:scale-95 transition-all shadow-xl"
+                        variant="primary"
+                        className="px-8 h-12 rounded-2xl shadow-xl shadow-violet-200 font-bold"
+                        icon={Plus}
                     >
-                        <Plus size={20} strokeWidth={3} />
                         New Task
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -286,7 +288,7 @@ const TaskList = () => {
                                             <td className="px-8 py-5 font-bold text-slate-700">{task.title}</td>
                                             <td className="px-8 py-5">
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${task.priority === 'High' ? 'bg-rose-50 text-rose-600' :
-                                                    task.priority === 'Medium' ? 'bg-blue-50 text-blue-600' :
+                                                    task.priority === 'Medium' ? 'bg-violet-50 text-violet-600' :
                                                         'bg-slate-50 text-slate-600'
                                                     }`}>
                                                     {task.priority}
@@ -318,7 +320,7 @@ const TaskList = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleEditTask(task)}
-                                                    className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-colors"
+                                                    className="p-2 hover:bg-violet-50 text-slate-400 hover:text-violet-600 rounded-lg transition-colors"
                                                     title="Edit Task"
                                                 >
                                                     <FileText size={18} />
@@ -359,21 +361,24 @@ const TaskList = () => {
                 subtitle={isReadOnly ? "Detailed overview of the selected task" : "Add a new task and assign it to team members"}
                 maxWidth="max-w-md"
                 footer={
-                    <div className="flex gap-4 w-full">
-                        <button
+                    <div className="flex gap-4 w-full px-2">
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => setIsNewTaskDrawerOpen(false)}
-                            className={`flex-1 h-12 border-2 border-slate-100 text-slate-600 rounded-2xl text-sm font-bold hover:bg-slate-50 hover:border-slate-200 transition-all duration-300 ${isReadOnly ? 'w-full' : ''}`}
+                            className={`flex-1 h-12 rounded-2xl ${isReadOnly ? 'w-full' : ''}`}
                         >
                             {isReadOnly ? 'Close' : 'Cancel'}
-                        </button>
+                        </Button>
                         {!isReadOnly && (
-                            <button
+                            <Button
                                 type="submit"
                                 form="create-task-form"
-                                className="flex-1 h-12 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-200 hover:shadow-violet-400/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                variant="primary"
+                                className="flex-1 h-12 rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                             >
                                 {editingTaskId ? "Save Changes" : "Create Task"}
-                            </button>
+                            </Button>
                         )}
                     </div>
                 }

@@ -3,6 +3,7 @@ import { ChevronDown, Loader2 } from 'lucide-react';
 import { addAnnouncement } from '../../../api/communication/communicationApi';
 import RightDrawer from '../../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
+import Button from '../../../components/ui/Button';
 
 const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -70,25 +71,23 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
             maxWidth="max-w-2xl"
             footer={
                 <div className="flex gap-3 w-full justify-end px-2">
-                    <button
+                    <Button
                         type="button"
+                        variant="outline"
                         onClick={onClose}
-                        className="px-6 h-11 border-2 border-slate-100 bg-white text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                        className="px-6 h-11 rounded-xl"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
                         form="announcement-form"
-                        disabled={isSubmitting}
-                        className="px-8 h-11 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        variant="primary"
+                        loading={isSubmitting}
+                        className="px-8 h-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                     >
-                        {isSubmitting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            'Create Announcement'
-                        )}
-                    </button>
+                        Create Announcement
+                    </Button>
                 </div>
             }
         >
@@ -102,7 +101,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             required
                             type="text"
                             placeholder="Announcement title"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
@@ -115,7 +114,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             required
                             rows={5}
                             placeholder="Announcement content..."
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         />
@@ -126,7 +125,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Audience</label>
                         <div className="relative group">
                             <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
                                 value={formData.targetAudience}
                                 onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
                             >
@@ -136,7 +135,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 <option>Staff Only</option>
                                 <option>Trainers Only</option>
                             </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-600 transition-colors" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
                         </div>
                     </div>
 
@@ -147,7 +146,7 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
                             type="number"
                             min="0"
                             max="10"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
                         />

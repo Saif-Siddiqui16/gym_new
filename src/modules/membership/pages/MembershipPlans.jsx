@@ -102,7 +102,7 @@ const MembershipPlans = () => {
                     </div>
                     <button
                         onClick={openCreate}
-                        className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-violet-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-violet-500/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
                         <Plus size={18} />
                         Create Plan
@@ -155,7 +155,7 @@ const MembershipPlans = () => {
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{plans.reduce((acc, p) => acc + (p.memberCount || 0), 0)} total members</p>
                             </div>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-md">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
                             <Sparkles size={20} />
                         </div>
                     </div>

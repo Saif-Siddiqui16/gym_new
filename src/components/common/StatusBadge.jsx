@@ -5,11 +5,11 @@ const StatusBadge = ({ status, color = 'emerald', icon: Icon }) => {
         emerald: 'from-emerald-500 to-emerald-600 shadow-emerald-500/50',
         amber: 'from-amber-500 to-amber-600 shadow-amber-500/50',
         red: 'from-red-500 to-red-600 shadow-red-500/50',
-        blue: 'from-blue-500 to-blue-600 shadow-blue-500/50',
+        blue: 'from-violet-500 to-purple-600 shadow-violet-500/30/50',
         orange: 'from-orange-500 to-orange-600 shadow-orange-500/50',
         slate: 'from-slate-500 to-slate-600 shadow-slate-500/50',
-        violet: 'from-violet-500 to-violet-600 shadow-violet-500/50',
-        indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-500/50',
+        violet: 'from-violet-500 to-purple-600 shadow-violet-500/30/50',
+        indigo: 'from-violet-500 to-purple-600 shadow-purple-500/50',
     };
 
     const gradientClass = config[color] || config.emerald;

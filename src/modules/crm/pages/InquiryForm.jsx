@@ -274,7 +274,7 @@ const InquiryForm = () => {
                         <button
                             disabled={loading}
                             className={`
-                                w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-violet-200/50 
+                                w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-violet-200/50 
                                 hover:shadow-xl hover:shadow-violet-300/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-3
                                 ${loading ? 'opacity-70 cursor-not-allowed' : ''}
                             `}

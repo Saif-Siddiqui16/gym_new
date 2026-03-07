@@ -36,8 +36,8 @@ const TodaysBookings = () => {
 
         if (statData) {
             setStats([
-                { title: "Today's Total", value: (statData.total || 0).toString(), icon: Calendar, color: "text-indigo-600", bg: "bg-indigo-50" },
-                { title: "Upcoming", value: (statData.upcoming || 0).toString(), icon: Clock, color: "text-blue-600", bg: "bg-blue-50" },
+                { title: "Today's Total", value: (statData.total || 0).toString(), icon: Calendar, color: "text-violet-600", bg: "bg-violet-50" },
+                { title: "Upcoming", value: (statData.upcoming || 0).toString(), icon: Clock, color: "text-violet-600", bg: "bg-violet-50" },
                 { title: "Completed", value: (statData.completed || 0).toString(), icon: CheckCircle, color: "text-green-600", bg: "bg-green-50" },
                 { title: "Cancelled", value: (statData.cancelled || 0).toString(), icon: XCircle, color: "text-red-600", bg: "bg-red-50" }
             ]);
@@ -54,7 +54,7 @@ const TodaysBookings = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'Upcoming':
-                return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 hover:scale-110 hover:shadow-lg hover:bg-blue-200 transition-all duration-300 cursor-pointer">Upcoming</span>;
+                return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 hover:scale-110 hover:shadow-lg hover:bg-violet-200 transition-all duration-300 cursor-pointer">Upcoming</span>;
             case 'Completed':
                 return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 hover:scale-110 hover:shadow-lg hover:bg-green-200 transition-all duration-300 cursor-pointer">Completed</span>;
             case 'Cancelled':
@@ -125,9 +125,9 @@ const TodaysBookings = () => {
                         </div>
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`saas-btn p-2 border rounded-lg hover:bg-gray-50 transition-all hover:scale-110 hover:shadow-md ${showFilters ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-100' : 'saas-btn-secondary'}`}
+                            className={`saas-btn p-2 border rounded-lg hover:bg-gray-50 transition-all hover:scale-110 hover:shadow-md ${showFilters ? 'bg-violet-50 border-violet-200 ring-2 ring-violet-100' : 'saas-btn-secondary'}`}
                         >
-                            <Filter size={18} className={`${showFilters ? 'text-indigo-600 rotate-12' : 'text-gray-500'} transition-transform duration-300`} />
+                            <Filter size={18} className={`${showFilters ? 'text-violet-600 rotate-12' : 'text-gray-500'} transition-transform duration-300`} />
                         </button>
                     </div>
                 </div>
@@ -217,8 +217,8 @@ const TodaysBookings = () => {
                                             <span className="text-sm text-gray-500 group-hover:text-violet-600 transition-colors duration-300">{booking.class?.trainer?.name || 'Staff'}</span>
                                         </td>
                                         <td data-label="Time Slot">
-                                            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-indigo-600 transition-colors duration-300">
-                                                <Clock size={14} className="text-gray-400 group-hover:text-indigo-500 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
+                                            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-violet-600 transition-colors duration-300">
+                                                <Clock size={14} className="text-gray-400 group-hover:text-violet-500 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" />
                                                 {booking.class?.startTime || '-'}
                                             </div>
                                         </td>
@@ -264,7 +264,7 @@ const TodaysBookings = () => {
 
                 {/* Pagination */}
                 {!loading && totalItems > 0 && (
-                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 hover:bg-indigo-50/20 transition-colors duration-300">
+                    <div className="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 hover:bg-violet-50/20 transition-colors duration-300">
                         <span className="text-sm text-gray-600 text-center sm:text-left">
                             Showing <span className="font-semibold text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="font-semibold text-gray-900">{totalItems}</span>
                         </span>
@@ -272,7 +272,7 @@ const TodaysBookings = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all active:scale-95 hover:scale-110 hover:border-indigo-300 disabled:hover:scale-100 group"
+                                className="p-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all active:scale-95 hover:scale-110 hover:border-violet-300 disabled:hover:scale-100 group"
                                 aria-label="Previous Page"
                             >
                                 <ChevronLeft size={20} className="stroke-[2.5] group-hover:-translate-x-0.5 transition-transform duration-300" />
@@ -280,7 +280,7 @@ const TodaysBookings = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
                                 disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
-                                className="p-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all active:scale-95 hover:scale-110 hover:border-indigo-300 disabled:hover:scale-100 group"
+                                className="p-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all active:scale-95 hover:scale-110 hover:border-violet-300 disabled:hover:scale-100 group"
                                 aria-label="Next Page"
                             >
                                 <ChevronRight size={20} className="stroke-[2.5] group-hover:translate-x-0.5 transition-transform duration-300" />

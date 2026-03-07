@@ -17,7 +17,7 @@ const RevenueReport = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const [stats, setStats] = useState([
-        { label: 'Total Revenue', value: '₹0', icon: DollarSign, bg: 'bg-indigo-50', color: 'text-indigo-600' },
+        { label: 'Total Revenue', value: '₹0', icon: DollarSign, bg: 'bg-violet-50', color: 'text-violet-600' },
         { label: 'Monthly Target', value: '₹5,00,000', icon: TrendingUp, bg: 'bg-emerald-50', color: 'text-emerald-600' },
         { label: 'Pending Payments', value: '₹0', icon: Banknote, bg: 'bg-amber-50', color: 'text-amber-600' },
     ]);
@@ -124,11 +124,11 @@ const RevenueReport = () => {
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
                                 <DollarSign size={28} />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-violet-600 to-cyan-600 bg-clip-text text-transparent">
                                     Revenue Report
                                 </h1>
                                 <p className="text-slate-600 text-sm mt-1">Track payments, collection trends and financial health</p>
@@ -143,7 +143,7 @@ const RevenueReport = () => {
                             </button>
                             <button
                                 onClick={handleExportPDF}
-                                className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 text-white flex items-center justify-center gap-2 shadow-sm transition-all rounded-xl px-4 py-2 text-sm font-semibold"
+                                className="flex-1 md:flex-none bg-violet-600 hover:bg-violet-700 hover:shadow-lg hover:shadow-purple-500/30 text-white flex items-center justify-center gap-2 shadow-sm transition-all rounded-xl px-4 py-2 text-sm font-semibold"
                             >
                                 Export PDF
                             </button>
@@ -173,7 +173,7 @@ const RevenueReport = () => {
                             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             <input
                                 type="date"
-                                className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 text-sm focus:border-indigo-500 transition-all bg-white"
+                                className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 text-sm focus:border-violet-500 transition-all bg-white"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
                             />
@@ -183,7 +183,7 @@ const RevenueReport = () => {
                             <input
                                 type="text"
                                 placeholder="Search payments..."
-                                className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-indigo-500 text-sm transition-all"
+                                className="pl-11 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-violet-500 text-sm transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -208,7 +208,7 @@ const RevenueReport = () => {
                                 <tr>
                                     <td colSpan="6" className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center gap-3">
-                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
                                             <p className="text-slate-500 font-medium">Loading revenue data...</p>
                                         </div>
                                     </td>
@@ -227,10 +227,10 @@ const RevenueReport = () => {
                                             <td className="px-6 py-4 text-sm font-medium text-slate-600">{row.date}</td>
                                             <td className="px-6 py-4 text-sm font-bold text-slate-900">{row.member}</td>
                                             <td className="px-6 py-4 text-sm text-slate-600">{row.service}</td>
-                                            <td className="px-6 py-4 text-sm font-black text-indigo-600">{row.amount}</td>
+                                            <td className="px-6 py-4 text-sm font-black text-violet-600">{row.amount}</td>
                                             <td className="px-6 py-4">
                                                 <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                                                    {(row.mode === 'UPI' || row.mode === 'GPay' || row.mode === 'PhonePe') ? <Check size={14} className="text-blue-500" /> : <CreditCard size={14} />}
+                                                    {(row.mode === 'UPI' || row.mode === 'GPay' || row.mode === 'PhonePe') ? <Check size={14} className="text-violet-500" /> : <CreditCard size={14} />}
                                                     {row.mode}
                                                 </span>
                                             </td>

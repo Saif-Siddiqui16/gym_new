@@ -199,11 +199,11 @@ const CreatePlan = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-violet-50/30 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 <button
                     onClick={() => navigate('/superadmin/plans/list')}
-                    className="group flex items-center text-slate-500 hover:text-indigo-600 transition-all mb-8"
+                    className="group flex items-center text-slate-500 hover:text-violet-600 transition-all mb-8"
                 >
                     <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                     <span className="font-bold text-sm tracking-tight">Back to SaaS Plans</span>
@@ -216,8 +216,8 @@ const CreatePlan = () => {
                         </h1>
                         <p className="text-slate-500 font-bold mt-1">Configure global resource quotas and member benefits.</p>
                     </div>
-                    <div className="flex items-center gap-3 p-2 bg-indigo-50 rounded-2xl border border-indigo-100">
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${formData.status ? 'text-indigo-600' : 'text-slate-400'}`}>
+                    <div className="flex items-center gap-3 p-2 bg-violet-50 rounded-2xl border border-violet-100">
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${formData.status ? 'text-violet-600' : 'text-slate-400'}`}>
                             {formData.status ? 'Tier Publicly Active' : 'Tier Hidden / Draft'}
                         </span>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -227,7 +227,7 @@ const CreatePlan = () => {
                                 onChange={() => setFormData(p => ({ ...p, status: !p.status }))}
                                 className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-indigo-600 peer-checked:to-purple-600"></div>
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-violet-600 peer-checked:to-purple-600"></div>
                         </label>
                     </div>
                 </div>
@@ -241,7 +241,7 @@ const CreatePlan = () => {
                             subtitle="Core identity and billing"
                             section="basic"
                             active={activeSections.basic}
-                            color="text-indigo-600"
+                            color="text-violet-600"
                         />
 
                         {activeSections.basic && (
@@ -251,7 +251,7 @@ const CreatePlan = () => {
                                     <input
                                         type="text"
                                         name="planName"
-                                        className={`w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black text-slate-800 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all ${errors.planName ? 'border-red-500 bg-white' : ''}`}
+                                        className={`w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black text-slate-800 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-violet-500 transition-all ${errors.planName ? 'border-red-500 bg-white' : ''}`}
                                         placeholder="e.g., Global Enterprise Plus"
                                         value={formData.planName}
                                         onChange={handleInputChange}
@@ -267,7 +267,7 @@ const CreatePlan = () => {
                                             <input
                                                 type="number"
                                                 name="price"
-                                                className={`w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-2xl font-black text-slate-800 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all ${errors.price ? 'border-red-500 bg-white' : ''}`}
+                                                className={`w-full pl-12 pr-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-2xl font-black text-slate-800 focus:outline-none focus:bg-white focus:border-violet-500 transition-all ${errors.price ? 'border-red-500 bg-white' : ''}`}
                                                 placeholder="9999"
                                                 value={formData.price}
                                                 onChange={handleInputChange}
@@ -277,7 +277,7 @@ const CreatePlan = () => {
                                     <div className="space-y-3">
                                         <label className="block text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Billing Interval</label>
                                         <select
-                                            className="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-black text-slate-600 uppercase tracking-widest focus:outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                            className="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-black text-slate-600 uppercase tracking-widest focus:outline-none focus:bg-white focus:border-violet-500 transition-all"
                                             value={formData.billingCycle}
                                             onChange={(e) => setFormData(p => ({ ...p, billingCycle: e.target.value }))}
                                         >
@@ -293,7 +293,7 @@ const CreatePlan = () => {
                                     <label className="block text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Marketing Description *</label>
                                     <textarea
                                         name="description"
-                                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-bold text-slate-600 focus:outline-none focus:bg-white focus:border-indigo-500 transition-all min-h-[120px] resize-none"
+                                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-bold text-slate-600 focus:outline-none focus:bg-white focus:border-violet-500 transition-all min-h-[120px] resize-none"
                                         placeholder="Highlight why this plan is perfect for scaling gyms..."
                                         value={formData.description}
                                         onChange={handleInputChange}
@@ -506,7 +506,7 @@ const CreatePlan = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-[2] py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-3xl text-sm font-black uppercase tracking-widest shadow-2xl shadow-indigo-200 flex items-center justify-center gap-3 hover:shadow-indigo-400 hover:-translate-y-1 active:translate-y-0 transition-all"
+                            className="flex-[2] py-5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-3xl text-sm font-black uppercase tracking-widest shadow-2xl shadow-violet-200 flex items-center justify-center gap-3 hover:shadow-violet-400 hover:-translate-y-1 active:translate-y-0 transition-all"
                         >
                             <Save size={24} />
                             {isSubmitting ? 'Syncing with SaaS Engine...' : (editId ? 'Commit & Synchronize Plan' : 'Establish Global SaaS Tier')}

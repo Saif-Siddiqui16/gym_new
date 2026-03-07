@@ -185,7 +185,7 @@ const MemberCheckIn = () => {
                                         </button>
                                     )}
                                 </div>
-                                <button type="submit" className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300">
+                                <button type="submit" className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30/30 hover:shadow-xl hover:shadow-violet-500/30/40 hover:scale-105 transition-all duration-300">
                                     Search
                                 </button>
                             </form>

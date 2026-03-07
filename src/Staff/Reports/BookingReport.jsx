@@ -34,7 +34,7 @@ const BookingReport = () => {
     const cancelledCount = bookings.filter(b => b.status === 'Cancelled').length;
 
     const bookingStats = [
-        { label: 'Total Bookings', value: bookings.length.toString(), icon: ClipboardList, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'Total Bookings', value: bookings.length.toString(), icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600' },
         { label: 'Completed', value: completedCount.toString(), icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
         { label: 'Cancelled', value: cancelledCount.toString(), icon: XCircle, bg: 'bg-red-50', color: 'text-red-600' },
     ];
@@ -48,10 +48,10 @@ const BookingReport = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 flex items-center gap-2 hover:bg-gray-50 shadow-sm transition-all">
-                        <Download size={16} className="text-blue-500" />
+                        <Download size={16} className="text-violet-500" />
                         Export CSV
                     </button>
-                    <button className="h-10 px-4 bg-blue-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-600 shadow-md transition-all">
+                    <button className="h-10 px-4 bg-violet-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-violet-600 shadow-md transition-all">
                         <FileText size={16} />
                         Export PDF
                     </button>
@@ -82,7 +82,7 @@ const BookingReport = () => {
                         <input
                             type="text"
                             placeholder="Search by ID or Member Name..."
-                            className="saas-input pl-10 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-blue-500"
+                            className="saas-input pl-10 h-11 w-full rounded-xl border-gray-200 text-sm focus:ring-2 focus:ring-violet-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -143,7 +143,7 @@ const BookingReport = () => {
                                 .filter(b => (typeFilter === 'All' || b.type === typeFilter) && (statusFilter === 'All' || b.status === statusFilter) && b.member.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map((b) => (
                                     <tr key={b.id} className="hover:bg-gray-50 transition-all duration-200 group">
-                                        <td data-label="Booking ID" className="text-xs font-bold text-blue-600">{b.id}</td>
+                                        <td data-label="Booking ID" className="text-xs font-bold text-violet-600">{b.id}</td>
                                         <td data-label="Member">
                                             <div className="flex items-center gap-2">
                                                 <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500">
@@ -153,7 +153,7 @@ const BookingReport = () => {
                                             </div>
                                         </td>
                                         <td data-label="Type">
-                                            <span className="text-[10px] font-black px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 uppercase">
+                                            <span className="text-[10px] font-black px-2 py-0.5 rounded bg-violet-50 text-violet-700 uppercase">
                                                 {b.type}
                                             </span>
                                         </td>
@@ -169,7 +169,7 @@ const BookingReport = () => {
                                         <td data-label="Status" className="text-center">
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${b.status === 'Completed' ? 'bg-green-100 text-green-700' :
                                                 b.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                                                    'bg-blue-100 text-blue-700'
+                                                    'bg-violet-100 text-violet-700'
                                                 }`}>
                                                 {b.status}
                                             </span>

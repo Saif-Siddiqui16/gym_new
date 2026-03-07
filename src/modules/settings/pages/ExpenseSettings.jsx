@@ -63,7 +63,7 @@ const ExpenseSettings = () => {
             <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-8 transition-all duration-300">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
                     <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
+                        <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm border border-violet-100">
                             <DollarSign size={28} />
                         </div>
                         <div>
@@ -77,7 +77,7 @@ const ExpenseSettings = () => {
                     </div>
                     <button
                         onClick={() => setIsDrawerOpen(true)}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl text-xs font-bold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg shadow-indigo-100 self-start sm:self-center active:scale-95"
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-xs font-bold hover:from-violet-700 hover:to-violet-700 transition-all shadow-lg shadow-violet-100 self-start sm:self-center active:scale-95"
                     >
                         <Plus size={18} />
                         Add Category
@@ -86,7 +86,7 @@ const ExpenseSettings = () => {
 
                 {loading ? (
                     <div className="py-24 flex justify-center">
-                        <Loader className="animate-spin text-indigo-600" size={32} />
+                        <Loader className="animate-spin text-violet-600" size={32} />
                     </div>
                 ) : categories.length === 0 ? (
                     <div className="py-24 flex flex-col items-center justify-center text-center">
@@ -137,7 +137,7 @@ const ExpenseSettings = () => {
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="Utilities"
-                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-indigo-500/30 focus:bg-white transition-all shadow-sm"
+                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-violet-500/30 focus:bg-white transition-all shadow-sm"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ const ExpenseSettings = () => {
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Electricity, Water, Internet"
                                 rows={4}
-                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-indigo-500/30 focus:bg-white transition-all shadow-sm resize-none"
+                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-violet-500/30 focus:bg-white transition-all shadow-sm resize-none"
                             />
                         </div>
                     </div>
@@ -166,7 +166,7 @@ const ExpenseSettings = () => {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="flex-[2] flex justify-center items-center gap-2 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:from-indigo-700 hover:to-violet-700 transition-all active:scale-95 disabled:opacity-50"
+                            className="flex-[2] flex justify-center items-center gap-2 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:from-violet-700 hover:to-violet-700 transition-all active:scale-95 disabled:opacity-50"
                         >
                             {submitting && <Loader size={14} className="animate-spin" />}
                             {submitting ? 'Creating...' : 'Create'}

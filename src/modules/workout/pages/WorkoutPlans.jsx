@@ -201,7 +201,7 @@ const WorkoutPlans = ({ role }) => {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-6 md:pb-8 border-b-2 border-slate-100">
                     <div className="flex items-center gap-4 md:gap-5">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100 animate-in zoom-in duration-500 shrink-0">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
                             <Dumbbell size={24} className="md:w-8 md:h-8" strokeWidth={2.5} />
                         </div>
                         <div className="min-w-0">
@@ -212,7 +212,7 @@ const WorkoutPlans = ({ role }) => {
                                 <span className="text-slate-500 font-bold text-[9px] md:text-[10px] uppercase tracking-widest shrink-0">
                                     Goal:
                                 </span>
-                                <span className="px-2 md:px-3 py-0.5 md:py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-indigo-100 truncate">
+                                <span className="px-2 md:px-3 py-0.5 md:py-1 bg-violet-50 text-violet-600 rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100 truncate">
                                     {activePlan ? activePlan.goal : 'No Plan Assigned'}
                                 </span>
                             </div>
@@ -232,7 +232,7 @@ const WorkoutPlans = ({ role }) => {
                         >
                             <Zap
                                 size={16}
-                                className={`transition-colors ${memberActiveTab === 'today' ? 'text-indigo-600' : 'text-slate-400 opacity-60'}`}
+                                className={`transition-colors ${memberActiveTab === 'today' ? 'text-violet-600' : 'text-slate-400 opacity-60'}`}
                             />
                             Today
                         </button>
@@ -245,7 +245,7 @@ const WorkoutPlans = ({ role }) => {
                         >
                             <Dumbbell
                                 size={16}
-                                className={`transition-colors ${memberActiveTab === 'plan' ? 'text-indigo-600' : 'text-slate-400 opacity-60'}`}
+                                className={`transition-colors ${memberActiveTab === 'plan' ? 'text-violet-600' : 'text-slate-400 opacity-60'}`}
                             />
                             Full Plan
                         </button>
@@ -258,7 +258,7 @@ const WorkoutPlans = ({ role }) => {
                                     key={day.key}
                                     onClick={() => setMemberActiveDay(day.key)}
                                     className={`flex-shrink-0 px-6 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all border-b-4 whitespace-nowrap ${memberActiveDay === day.key
-                                        ? 'text-indigo-600 border-indigo-600 bg-white'
+                                        ? 'text-violet-600 border-violet-600 bg-white'
                                         : 'text-gray-400 border-transparent hover:text-gray-600 hover:bg-white/60'
                                         }`}
                                 >
@@ -270,7 +270,7 @@ const WorkoutPlans = ({ role }) => {
 
                     <div className="space-y-6">
                         {loadingPlans ? (
-                            <div className="flex justify-center p-10"><Zap className="animate-pulse text-indigo-400" /></div>
+                            <div className="flex justify-center p-10"><Zap className="animate-pulse text-violet-400" /></div>
                         ) : activePlan ? (
                             <>
                                 {/* Today's Workout Card - Progress Info */}
@@ -285,7 +285,7 @@ const WorkoutPlans = ({ role }) => {
                                     </div>
                                     <div className="grid grid-cols-1 gap-4 pt-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                                            <div className="w-2 h-2 rounded-full bg-violet-500" />
                                             <span className="text-xs font-black text-slate-700 uppercase tracking-widest">To Do: {exercisesToRender.length || 0} Sets</span>
                                         </div>
                                     </div>
@@ -294,10 +294,10 @@ const WorkoutPlans = ({ role }) => {
                                 {exercisesToRender.length > 0 ? (
                                     <div className="space-y-4">
                                         {exercisesToRender.map((ex, idx) => (
-                                            <Card key={idx} className="p-5 border-2 border-slate-50 hover:border-indigo-100 bg-[#FCFCFE] rounded-2xl transition-all">
+                                            <Card key={idx} className="p-5 border-2 border-slate-50 hover:border-violet-100 bg-[#FCFCFE] rounded-2xl transition-all">
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-3">
-                                                        <span className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[12px] font-black text-indigo-600">
+                                                        <span className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-[12px] font-black text-violet-600">
                                                             {idx + 1}
                                                         </span>
                                                         <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">{ex.name}</h4>
@@ -324,7 +324,7 @@ const WorkoutPlans = ({ role }) => {
                                                         </span>
                                                     )}
                                                     {ex.notes && (
-                                                        <p className="text-[11px] text-slate-500 italic flex-1 border-l-2 border-indigo-200 pl-3 py-1 bg-white rounded-r-lg">
+                                                        <p className="text-[11px] text-slate-500 italic flex-1 border-l-2 border-violet-200 pl-3 py-1 bg-white rounded-r-lg">
                                                             "{ex.notes}"
                                                         </p>
                                                     )}
@@ -388,8 +388,8 @@ const WorkoutPlans = ({ role }) => {
                                     "Track your progress in the My Progress section"
                                 ].map((tip, idx) => (
                                     <li key={idx} className="flex items-start gap-3 md:gap-4 group">
-                                        <div className="mt-1 w-5 h-5 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 transition-colors">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 group-hover:bg-white transition-colors" />
+                                        <div className="mt-1 w-5 h-5 rounded-full bg-violet-50 flex items-center justify-center shrink-0 group-hover:bg-violet-600 transition-colors">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-violet-600 group-hover:bg-white transition-colors" />
                                         </div>
                                         <p className="text-[10px] md:text-xs font-bold text-slate-600 leading-relaxed uppercase tracking-wide">
                                             {tip}
@@ -399,12 +399,12 @@ const WorkoutPlans = ({ role }) => {
                             </ul>
 
                             <div className="mt-8 md:mt-10 pt-6 md:pt-8 border-t border-slate-100">
-                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-indigo-600 text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 shrink-0">
+                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-violet-50/50 rounded-2xl border border-violet-100/50">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-violet-600 text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-violet-100 shrink-0">
                                         <Target size={18} className="md:w-5 md:h-5" />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-[9px] md:text-[10px] font-black text-indigo-600 uppercase tracking-widest">Pro Tip</p>
+                                        <p className="text-[9px] md:text-[10px] font-black text-violet-600 uppercase tracking-widest">Pro Tip</p>
                                         <p className="text-[10px] md:text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate">Consistency beats intensity.</p>
                                     </div>
                                 </div>
@@ -443,7 +443,7 @@ const WorkoutPlans = ({ role }) => {
                                 <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">No templates saved yet</p>
                             </div>
                         ) : templates.map((tpl) => (
-                            <div key={tpl.id} className="p-5 bg-white border border-gray-100 rounded-2xl hover:border-indigo-100 hover:shadow-md transition-all group">
+                            <div key={tpl.id} className="p-5 bg-white border border-gray-100 rounded-2xl hover:border-violet-100 hover:shadow-md transition-all group">
                                 <div className="flex justify-between items-start mb-3">
                                     <h4 className="font-black text-gray-900 uppercase tracking-tight truncate flex-1">{tpl.name}</h4>
                                     <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase border shrink-0 ${tpl.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100'
@@ -465,7 +465,7 @@ const WorkoutPlans = ({ role }) => {
                                     </button>
                                     <button
                                         onClick={() => navigate('/trainer/members/assigned')}
-                                        className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all"
+                                        className="px-4 py-1.5 bg-violet-50 text-violet-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-violet-600 hover:text-white transition-all"
                                     >
                                         Assign
                                     </button>
@@ -491,7 +491,7 @@ const WorkoutPlans = ({ role }) => {
                                 Template
                             </button>
                             <button
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-violet-100 hover:bg-violet-700 hover:-translate-y-0.5 transition-all whitespace-nowrap"
                             >
                                 <User size={16} />
                                 Assign
@@ -507,7 +507,7 @@ const WorkoutPlans = ({ role }) => {
                                 placeholder="e.g. Muscle Gain - Phase 1"
                                 value={planName}
                                 onChange={(e) => setPlanName(e.target.value)}
-                                className="w-full h-11 md:h-12 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                className="w-full h-11 md:h-12 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                             />
                         </div>
                         <div className="space-y-1.5 md:space-y-2">
@@ -517,7 +517,7 @@ const WorkoutPlans = ({ role }) => {
                                 placeholder="Brief protocol overview..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full h-11 md:h-12 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                className="w-full h-11 md:h-12 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                             />
                         </div>
                     </div>
@@ -532,7 +532,7 @@ const WorkoutPlans = ({ role }) => {
                                 key={day.key}
                                 onClick={() => setActiveDay(day.key)}
                                 className={`flex-shrink-0 px-8 py-5 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap ${activeDay === day.key
-                                    ? 'text-indigo-600 border-indigo-600 bg-white'
+                                    ? 'text-violet-600 border-violet-600 bg-white'
                                     : 'text-gray-400 border-transparent hover:text-gray-600 hover:bg-white/60'
                                     }`}
                             >
@@ -545,21 +545,21 @@ const WorkoutPlans = ({ role }) => {
                         {/* Day Header Info */}
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600">
                                     <Dumbbell size={24} />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight leading-tight">
                                         {DAY_LABELS.find(d => d.key === activeDay).label}
                                     </h3>
-                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mt-0.5">
+                                    <p className="text-[10px] font-black text-violet-500 uppercase tracking-[0.2em] mt-0.5">
                                         {DAY_LABELS.find(d => d.key === activeDay).focus}
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => addExercise(activeDay)}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-violet-50 text-violet-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-100 transition-all"
                             >
                                 <Plus size={16} strokeWidth={3} />
                                 Add Exercise
@@ -589,7 +589,7 @@ const WorkoutPlans = ({ role }) => {
                                                     placeholder="e.g. Bench Press"
                                                     value={ex.name}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'name', e.target.value)}
-                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                                 />
                                             </td>
                                             <td className="py-3 px-2">
@@ -597,7 +597,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.sets}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'sets', e.target.value)}
-                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm mx-auto"
+                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm mx-auto"
                                                 />
                                             </td>
                                             <td className="py-3 px-2">
@@ -605,7 +605,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.reps}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'reps', e.target.value)}
-                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm mx-auto"
+                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm mx-auto"
                                                 />
                                             </td>
                                             <td className="py-3 px-2">
@@ -613,7 +613,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.rest}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'rest', e.target.value)}
-                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm mx-auto"
+                                                    className="w-16 h-11 px-2 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm mx-auto"
                                                 />
                                             </td>
                                             <td className="py-3 px-2">
@@ -622,7 +622,7 @@ const WorkoutPlans = ({ role }) => {
                                                     placeholder="Equipment"
                                                     value={ex.equipment}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'equipment', e.target.value)}
-                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                                 />
                                             </td>
                                             <td className="py-3 px-2">
@@ -631,7 +631,7 @@ const WorkoutPlans = ({ role }) => {
                                                     placeholder="Notes"
                                                     value={ex.notes}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'notes', e.target.value)}
-                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                    className="w-full h-11 px-4 bg-[#F9FAFB] border border-gray-100 rounded-xl text-sm font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                                 />
                                             </td>
                                             <td className="py-3 px-2 text-right">
@@ -653,7 +653,7 @@ const WorkoutPlans = ({ role }) => {
                             {workoutExercises[activeDay].map((ex, idx) => (
                                 <div key={ex.id} className="p-5 border-2 border-slate-50 rounded-2xl bg-[#FCFCFE] space-y-4 relative group">
                                     <div className="flex items-center justify-between">
-                                        <span className="w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center text-[10px] font-black text-indigo-600 border border-indigo-100 italic">
+                                        <span className="w-6 h-6 rounded-full bg-violet-50 flex items-center justify-center text-[10px] font-black text-violet-600 border border-violet-100 italic">
                                             {idx + 1}
                                         </span>
                                         <button
@@ -672,7 +672,7 @@ const WorkoutPlans = ({ role }) => {
                                                 placeholder="e.g. Bench Press"
                                                 value={ex.name}
                                                 onChange={(e) => updateExercise(activeDay, ex.id, 'name', e.target.value)}
-                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                             />
                                         </div>
 
@@ -683,7 +683,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.sets}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'sets', e.target.value)}
-                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm"
+                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm"
                                                 />
                                             </div>
                                             <div className="space-y-1">
@@ -692,7 +692,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.reps}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'reps', e.target.value)}
-                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm"
+                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm"
                                                 />
                                             </div>
                                             <div className="space-y-1">
@@ -701,7 +701,7 @@ const WorkoutPlans = ({ role }) => {
                                                     type="text"
                                                     value={ex.rest}
                                                     onChange={(e) => updateExercise(activeDay, ex.id, 'rest', e.target.value)}
-                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all text-center shadow-sm"
+                                                    className="w-full h-10 px-2 bg-white border border-gray-100 rounded-xl text-xs font-bold text-gray-900 outline-none focus:border-violet-200 transition-all text-center shadow-sm"
                                                 />
                                             </div>
                                         </div>
@@ -712,14 +712,14 @@ const WorkoutPlans = ({ role }) => {
                                                 placeholder="Equipment"
                                                 value={ex.equipment}
                                                 onChange={(e) => updateExercise(activeDay, ex.id, 'equipment', e.target.value)}
-                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                             />
                                             <input
                                                 type="text"
                                                 placeholder="Notes"
                                                 value={ex.notes}
                                                 onChange={(e) => updateExercise(activeDay, ex.id, 'notes', e.target.value)}
-                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-gray-900 outline-none focus:border-indigo-200 transition-all shadow-sm"
+                                                className="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-gray-900 outline-none focus:border-violet-200 transition-all shadow-sm"
                                             />
                                         </div>
                                     </div>
@@ -733,7 +733,7 @@ const WorkoutPlans = ({ role }) => {
                                 <p className="text-sm font-bold text-center px-4 uppercase tracking-widest">No exercises added for this day.</p>
                                 <button
                                     onClick={() => addExercise(activeDay)}
-                                    className="mt-4 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:underline"
+                                    className="mt-4 text-[10px] font-black uppercase tracking-widest text-violet-600 hover:underline"
                                 >
                                     Add your first exercise
                                 </button>

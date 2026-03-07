@@ -82,7 +82,7 @@ const WebhookLogs = () => {
                         >
                             <Download size={14} /> Export
                         </button>
-                        <button onClick={loadLogs} className="p-3 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-500/20 hover:scale-110 active:scale-95 transition-all">
+                        <button onClick={loadLogs} className="p-3 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-500/30/20 hover:scale-110 active:scale-95 transition-all">
                             <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
                         </button>
                     </div>

@@ -52,7 +52,7 @@ const StaffAttendanceLog = () => {
                 return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-black shadow-lg shadow-red-500/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Absent</span>;
             case 'checked-out':
             case 'Checked Out':
-                return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-black shadow-lg shadow-blue-500/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Checked Out</span>;
+                return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-black shadow-lg shadow-violet-500/30/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Checked Out</span>;
             default:
                 return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-400 to-slate-500 text-white text-xs font-black shadow-lg hover:scale-110 transition-all duration-300 cursor-pointer">{status}</span>;
         }
@@ -61,9 +61,9 @@ const StaffAttendanceLog = () => {
     const getRoleBadge = (role) => {
         const roleColors = {
             'Trainer': 'from-purple-500 to-purple-600 shadow-purple-500/50',
-            'Receptionist': 'from-blue-500 to-blue-600 shadow-blue-500/50',
+            'Receptionist': 'from-violet-500 to-purple-600 shadow-violet-500/30/50',
             'Cleaning': 'from-teal-500 to-teal-600 shadow-teal-500/50',
-            'Manager': 'from-violet-500 to-violet-600 shadow-violet-500/50'
+            'Manager': 'from-violet-500 to-purple-600 shadow-violet-500/30/50'
         };
         const colorClass = roleColors[role] || 'from-slate-500 to-slate-600 shadow-slate-500/50';
 
@@ -100,7 +100,7 @@ const StaffAttendanceLog = () => {
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             <button
                                 onClick={handleExport}
-                                className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all"
+                                className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all"
                             >
                                 <Download size={18} strokeWidth={2.5} className="transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-0.5" />
                                 Export Report
@@ -108,7 +108,7 @@ const StaffAttendanceLog = () => {
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
                                 className={`group flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all ${showFilters
-                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-violet-500/50'
+                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-violet-500/30/50'
                                     : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300'
                                     }`}
                             >
@@ -194,7 +194,7 @@ const StaffAttendanceLog = () => {
                                         <tr key={record.id} className="group/row hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-violet-100 text-purple-600 flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-purple-500 group-hover/row:to-violet-600 group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-violet-100 text-purple-600 flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-purple-500 group-hover/row:to-purple-600 group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
                                                         <Briefcase size={18} strokeWidth={2.5} />
                                                     </div>
                                                     <span className="font-bold text-slate-800 group-hover/row:text-violet-700 group-hover/row:translate-x-1 transition-all duration-300">

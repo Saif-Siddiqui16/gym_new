@@ -26,7 +26,7 @@ const getInitials = (name = '') =>
 const STATUS_BADGE = {
     Active: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     Inactive: 'bg-slate-50 text-slate-500 border-slate-100',
-    Frozen: 'bg-blue-50 text-blue-600 border-blue-100',
+    Frozen: 'bg-violet-50 text-violet-600 border-violet-100',
     Expired: 'bg-rose-50 text-rose-600 border-rose-100',
 };
 
@@ -297,7 +297,7 @@ const StaffMemberList = () => {
                             type="button"
                             onClick={handleAddMember}
                             disabled={saving}
-                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all disabled:opacity-60 flex items-center gap-2"
+                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all disabled:opacity-60 flex items-center gap-2"
                         >
                             {saving && <Loader size={16} className="animate-spin" />}
                             Add Member

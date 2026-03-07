@@ -87,7 +87,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                     <div className="p-8 space-y-6 bg-white flex-1 overflow-y-auto">
                         <button
                             onClick={() => setIsCreating(false)}
-                            className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors mb-4"
+                            className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-violet-600 transition-colors mb-4"
                         >
                             <ArrowLeft size={14} /> Back to list
                         </button>
@@ -99,7 +99,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                                     required
                                     type="text"
                                     placeholder="e.g., Welcome Message"
-                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-semibold focus:border-indigo-500 transition-all outline-none"
+                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-semibold focus:border-violet-500 transition-all outline-none"
                                     value={newTemplate.title}
                                     onChange={(e) => setNewTemplate({ ...newTemplate, title: e.target.value })}
                                 />
@@ -108,7 +108,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                             <div className="space-y-2">
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Category / Tag</label>
                                 <select
-                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-semibold focus:border-indigo-500 transition-all outline-none"
+                                    className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-semibold focus:border-violet-500 transition-all outline-none"
                                     value={newTemplate.tag}
                                     onChange={(e) => setNewTemplate({ ...newTemplate, tag: e.target.value })}
                                 >
@@ -126,7 +126,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                                     required
                                     rows={8}
                                     placeholder="Hi {{name}}, welcome to..."
-                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:border-indigo-500 transition-all outline-none resize-none"
+                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:border-violet-500 transition-all outline-none resize-none"
                                     value={newTemplate.body}
                                     onChange={(e) => setNewTemplate({ ...newTemplate, body: e.target.value })}
                                 />
@@ -136,7 +136,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="w-full h-14 bg-indigo-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                                className="w-full h-14 bg-violet-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
                             >
                                 {submitting ? <Loader2 className="animate-spin" /> : "Save Template"}
                             </button>
@@ -150,7 +150,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Channel Overview</h3>
                                 <button
                                     onClick={() => setIsCreating(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                                    className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all shadow-lg shadow-violet-100"
                                 >
                                     <Plus size={14} /> New Template
                                 </button>
@@ -196,7 +196,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                         <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar">
                             {loading ? (
                                 <div className="h-64 flex flex-col items-center justify-center gap-4">
-                                    <Loader2 className="animate-spin text-indigo-600" size={32} />
+                                    <Loader2 className="animate-spin text-violet-600" size={32} />
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading branch templates...</p>
                                 </div>
                             ) : filteredTemplates.length > 0 ? (
@@ -209,7 +209,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${template.category === 'Welcome' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                 template.category === 'Reminder' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                     template.category === 'Promotion' ? 'bg-violet-50 text-violet-600 border-violet-100' :
-                                                        template.category === 'Followup' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                                        template.category === 'Followup' ? 'bg-violet-50 text-violet-600 border-violet-100' :
                                                             'bg-slate-50 text-slate-600 border-slate-100'
                                                 }`}>
                                                 {template.category}

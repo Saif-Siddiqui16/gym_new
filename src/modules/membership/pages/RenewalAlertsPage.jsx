@@ -208,7 +208,7 @@ const RenewalAlertsPage = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleCallMember(member)}
-                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all border border-transparent hover:border-blue-200"
+                                                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-violet-50 hover:text-violet-600 transition-all border border-transparent hover:border-violet-200"
                                                     title="Call Member"
                                                 >
                                                     <Phone size={18} />

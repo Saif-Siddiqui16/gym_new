@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Filter, FileText, Calendar, DollarSign, Search, Receipt, TrendingDown, PieChart, Users, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
+import Button from '../../../components/ui/Button';
 import '../../../styles/GlobalDesign.css';
 import { fetchExpenses, addExpense, fetchExpenseCategories } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
@@ -124,13 +125,14 @@ const Expenses = () => {
                             Manage operational costs and track spending categories.
                         </p>
                     </div>
-                    <button
+                    <Button
                         onClick={() => setShowAddDrawer(true)}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-4 bg-violet-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-violet-200 hover:bg-violet-700 transition-all hover:scale-105 active:scale-95 uppercase tracking-widest"
+                        variant="primary"
+                        className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                        icon={Plus}
                     >
-                        <Plus size={18} />
                         Log New Expense
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Summary Section */}

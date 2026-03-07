@@ -5,6 +5,7 @@ const Button = ({
     variant = 'primary', // primary, success, outline, secondary, danger
     className = '',
     icon: Icon,
+    loading = false,
     ...props
 }) => {
     const variantClasses = {
@@ -20,10 +21,17 @@ const Button = ({
     return (
         <button
             className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${selectedVariant} ${className}`}
+            disabled={loading}
             {...props}
         >
-            {Icon && <Icon size={18} />}
-            {children}
+            {loading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+                <>
+                    {Icon && <Icon size={18} />}
+                    {children}
+                </>
+            )}
         </button>
     );
 };

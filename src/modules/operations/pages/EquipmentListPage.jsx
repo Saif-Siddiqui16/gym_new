@@ -148,7 +148,7 @@ const EquipmentListPage = () => {
                 </div>
 
                 {/* YTD Maintenance Cost */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-blue-100 transition-all">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-violet-100 transition-all">
                     <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">YTD Maintenance Cost</p>
                     <div className="flex justify-between items-end">
                         <h2 className="text-2xl font-black text-slate-900 leading-none tracking-tight">₹{stats.ytdCost.toLocaleString()}</h2>
@@ -318,7 +318,7 @@ const EquipmentListPage = () => {
                                                 <td className="px-6 py-4" data-label="Priority">
                                                     <div className="flex justify-end sm:justify-start">
                                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${log.priority === 'High' || log.priority === 'Critical' ? 'bg-rose-50 text-rose-600' :
-                                                            log.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                                                            log.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-violet-50 text-violet-600'
                                                             }`}>
                                                             {log.priority}
                                                         </span>

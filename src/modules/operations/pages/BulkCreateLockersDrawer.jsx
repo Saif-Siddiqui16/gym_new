@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Plus, X, Monitor, ChevronRight, Layers, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useBranchContext } from '../../../context/BranchContext';
 
 const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
+    const { selectedBranch } = useBranchContext();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         prefix: 'L',
@@ -10,6 +12,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
         endNumber: '10',
         size: 'Medium',
         isChargeable: false,
+        price: '0',
     });
 
     const handleSubmit = async (e) => {
@@ -17,9 +20,12 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
         setLoading(true);
         try {
             const { bulkCreateLockers } = await import('../../../api/staff/lockerApi');
-            const result = await bulkCreateLockers(formData);
+            const result = await bulkCreateLockers({
+                ...formData,
+                tenantId: selectedBranch
+            });
             if (result.success) {
-                toast.success(`${previewCount} lockers created successfully`);
+                toast.success(result.message || `${previewCount} lockers created successfully`);
                 if (onSuccess) onSuccess();
                 onClose();
             } else {
@@ -48,20 +54,6 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white font-sans animate-in slide-in-from-right-4">
-            {/* Header */}
-            <div className="p-8 border-b border-slate-50 sticky top-0 bg-white/80 backdrop-blur-md z-10">
-                <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-3">
-                        <Box className="text-orange-500" size={24} />
-                        <h2 className="text-xl font-black text-slate-800 tracking-tight">Bulk Create Lockers</h2>
-                    </div>
-                    <button type="button" onClick={onClose} className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-600">
-                        <X size={20} />
-                    </button>
-                </div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Create multiple lockers at once with a common prefix and numbering</p>
-            </div>
-
             <div className="flex-1 overflow-y-auto p-8 space-y-10">
                 {/* Prefix & Range */}
                 <div className="space-y-6">
@@ -118,7 +110,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
 
                     <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-300">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                            <div className="w-10 h-10 bg-violet-50 border border-violet-100 rounded-xl flex items-center justify-center text-violet-500 group-hover:scale-110 transition-transform">
                                 <CreditCard size={18} />
                             </div>
                             <div>
@@ -133,9 +125,28 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                                 checked={formData.isChargeable}
                                 onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
                             />
-                            <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 shadow-inner"></div>
+                            <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600 shadow-inner"></div>
                         </label>
                     </div>
+
+                    {formData.isChargeable && (
+                        <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 italic flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+                                Monthly Rental Fee (per branch)
+                            </label>
+                            <div className="relative group">
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors font-black text-sm">₹</div>
+                                <input
+                                    type="number"
+                                    value={formData.price}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    placeholder="0.00"
+                                    className="w-full h-14 pl-10 pr-5 bg-white border-2 border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Preview Section */}
@@ -185,7 +196,7 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                 <button
                     type="submit"
                     disabled={loading || isNaN(previewCount) || previewCount <= 0}
-                    className="flex-[1.5] h-12 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 transition-all disabled:opacity-50"
+                    className="flex-[1.5] h-12 bg-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-violet-700 hover:scale-105 transition-all disabled:opacity-50"
                 >
                     {loading ? 'Creating...' : `Create ${isNaN(previewCount) ? 0 : previewCount} Lockers`}
                 </button>

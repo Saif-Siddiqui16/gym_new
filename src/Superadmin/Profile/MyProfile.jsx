@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save } from 'lucide-react';
 import { fetchAdminProfile, updateAdminProfile } from '../../api/superadmin/superAdminApi';
+import NotificationsList from '../../components/notifications/NotificationsList';
+import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -275,7 +277,7 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/50"
+                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                             {isSaving ? (
@@ -331,15 +333,7 @@ const MyProfile = () => {
 
                             {/* Notifications Tab */}
                             {activeTab === 'notifications' && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center text-violet-600 mb-6 shadow-lg">
-                                        <Bell size={48} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Notification Preferences</h3>
-                                    <p className="text-slate-600 max-w-md font-medium">
-                                        Customize how you receive alerts and system updates.
-                                    </p>
-                                </div>
+                                <NotificationsList />
                             )}
                         </div>
                     </div>

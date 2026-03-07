@@ -141,10 +141,10 @@ const PlanBenefitTemplates = () => {
         <div className="space-y-8 p-0 md:p-6 animate-fadeIn">
             {/* Header */}
             <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-indigo-500/10 border border-white/50 p-6 sm:p-10">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-violet-600 to-purple-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-purple-500/10 border border-white/50 p-6 sm:p-10">
                     <div className="flex items-start gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shrink-0">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg shrink-0">
                             <Sparkles size={26} />
                         </div>
                         <div>
@@ -153,7 +153,7 @@ const PlanBenefitTemplates = () => {
                                 Select and import ready-made membership plans and benefit types into your branch. Items that already exist are marked and cannot be re-imported.
                             </p>
                             {selectedBranch && (
-                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-xl text-xs font-black text-indigo-600">
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-violet-50 rounded-xl text-xs font-black text-violet-600">
                                     <GitBranch size={12} /> Importing into: {selectedBranch.name}
                                 </div>
                             )}
@@ -180,7 +180,7 @@ const PlanBenefitTemplates = () => {
             <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                        <div className="w-9 h-9 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
                             <Crown size={18} />
                         </div>
                         <div>
@@ -188,7 +188,7 @@ const PlanBenefitTemplates = () => {
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Select plans to import into your branch</p>
                         </div>
                     </div>
-                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${selectedPlans.length > 0 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${selectedPlans.length > 0 ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                         {selectedPlans.length} selected
                     </span>
                 </div>
@@ -205,22 +205,22 @@ const PlanBenefitTemplates = () => {
                                     exists
                                         ? 'border-slate-100 bg-slate-50/70 cursor-not-allowed opacity-70'
                                         : selected
-                                        ? 'border-indigo-500 bg-indigo-50/30 shadow-md -translate-y-0.5 cursor-pointer'
-                                        : 'border-slate-100 bg-white hover:border-indigo-200 hover:shadow-sm cursor-pointer'
+                                        ? 'border-violet-500 bg-violet-50/30 shadow-md -translate-y-0.5 cursor-pointer'
+                                        : 'border-slate-100 bg-white hover:border-violet-200 hover:shadow-sm cursor-pointer'
                                 }`}
                             >
                                 <div className="flex items-start gap-4">
                                     <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
                                         exists ? 'bg-emerald-500 border-emerald-500 text-white'
-                                        : selected ? 'bg-indigo-600 border-indigo-600 text-white'
-                                        : 'border-slate-200 text-transparent group-hover:border-indigo-300'
+                                        : selected ? 'bg-violet-600 border-violet-600 text-white'
+                                        : 'border-slate-200 text-transparent group-hover:border-violet-300'
                                     }`}>
                                         <CheckCircle2 size={13} strokeWidth={3} />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between gap-3 mb-1">
                                             <h3 className="font-black text-slate-800 text-sm">{plan.name}</h3>
-                                            <span className={`shrink-0 px-2.5 py-1 rounded-lg text-xs font-black ${selected ? 'bg-indigo-600 text-white' : 'bg-slate-50 border border-slate-100 text-indigo-600'}`}>
+                                            <span className={`shrink-0 px-2.5 py-1 rounded-lg text-xs font-black ${selected ? 'bg-violet-600 text-white' : 'bg-slate-50 border border-slate-100 text-violet-600'}`}>
                                                 ₹{plan.price.toLocaleString('en-IN')}
                                             </span>
                                         </div>
@@ -315,7 +315,7 @@ const PlanBenefitTemplates = () => {
                     disabled={totalSelected === 0 || importing}
                     className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 ${
                         totalSelected > 0 && !importing
-                            ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-2xl shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]'
+                            ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-2xl shadow-purple-500/25 hover:scale-[1.01] active:scale-[0.99]'
                             : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                     }`}
                 >

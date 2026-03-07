@@ -88,7 +88,7 @@ const Announcements = () => {
                             </div>
 
                             <div className="flex items-center gap-2 md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all">
+                                <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all">
                                     <Edit2 size={18} />
                                 </button>
                                 <button className="p-3 text-slate-400 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all">

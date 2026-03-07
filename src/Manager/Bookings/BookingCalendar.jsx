@@ -199,13 +199,13 @@ const BookingCalendar = () => {
                         <div
                             key={b.id}
                             className={`flex flex-col p-2 rounded-lg border shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer group/booking ${b.color === 'blue'
-                                ? 'bg-blue-50/60 text-blue-700 border-blue-100/50 hover:bg-blue-100/80 hover:border-blue-200'
+                                ? 'bg-violet-50/60 text-violet-700 border-violet-100/50 hover:bg-violet-100/80 hover:border-violet-200'
                                 : 'bg-green-50/60 text-green-700 border-green-100/50 hover:bg-green-100/80 hover:border-green-200'
                                 }`}
                             title={`${b.slot} - ${b.type} (${b.member})`}
                         >
                             <div className="flex items-center gap-1.5 mb-1 pointer-events-none">
-                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${b.color === 'blue' ? 'bg-blue-500' : 'bg-green-500'}`}></span>
+                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${b.color === 'blue' ? 'bg-violet-500' : 'bg-green-500'}`}></span>
                                 <span className="font-bold tracking-tight uppercase text-[8px] opacity-70 truncate">{b.slot}</span>
                             </div>
                             <div className="font-bold text-[10px] leading-tight truncate px-0.5 pointer-events-none text-gray-800">
@@ -237,7 +237,7 @@ const BookingCalendar = () => {
                     />
                     <button
                         onClick={() => setIsSettingsOpen(true)}
-                        className="p-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-indigo-600 transition-all shadow-sm"
+                        className="p-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-violet-600 transition-all shadow-sm"
                         title="Booking Settings"
                     >
                         <Settings2 size={20} />
@@ -246,7 +246,7 @@ const BookingCalendar = () => {
                         onClick={() => {
                             setIsAddDrawerOpen(true);
                         }}
-                        className="saas-btn saas-btn-primary shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center"
+                        className="saas-btn saas-btn-primary shadow-sm bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center"
                     >
                         <Plus size={18} className="mr-1" /> New Booking
                     </button>
@@ -262,21 +262,21 @@ const BookingCalendar = () => {
                         <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-100">
                             <button
                                 onClick={handlePrev}
-                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-indigo-600 group active:scale-95"
+                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-violet-600 group active:scale-95"
                             >
                                 <ChevronLeft size={18} />
                             </button>
                             <div className="w-[1px] h-4 bg-gray-200 mx-1"></div>
                             <button
                                 onClick={handleNext}
-                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-indigo-600 group active:scale-95"
+                                className="p-2 hover:bg-white hover:shadow-sm rounded-md transition-all duration-200 text-gray-600 hover:text-violet-600 group active:scale-95"
                             >
                                 <ChevronRight size={18} />
                             </button>
                         </div>
                         <button
                             onClick={handleToday}
-                            className="hidden sm:block px-4 py-2 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+                            className="hidden sm:block px-4 py-2 text-sm font-bold text-violet-600 hover:bg-violet-50 rounded-xl transition-colors"
                         >
                             Today
                         </button>
@@ -284,21 +284,21 @@ const BookingCalendar = () => {
                     <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 self-start sm:self-center">
                         <button
                             onClick={() => setCalendarView('Month')}
-                            className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${calendarView === 'Month' ? 'bg-white shadow-sm text-indigo-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all ${calendarView === 'Month' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Month
                         </button>
                         <button
                             onClick={() => setCalendarView('Week')}
-                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Week' ? 'bg-white shadow-sm text-indigo-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Week' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-gray-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Week
                         </button>
                         <button
                             onClick={() => setCalendarView('Day')}
-                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Day' ? 'bg-white shadow-sm text-indigo-700 border border-gray-100 ring-1 ring-950/5' : 'text-gray-500 hover:text-gray-700'
+                            className={`px-5 py-2 text-sm font-medium rounded-lg transition-all ${calendarView === 'Day' ? 'bg-white shadow-sm text-violet-700 border border-gray-100 ring-1 ring-950/5' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Day
@@ -317,21 +317,21 @@ const BookingCalendar = () => {
                         {calendarGrid.map((dayObj, idx) => (
                             <div
                                 key={idx}
-                                className={`bg-white min-h-[140px] p-4 transition-all duration-200 hover:bg-indigo-50/30 flex flex-col group/cell relative ${dayObj && dayObj.date.toDateString() === new Date().toDateString() ? 'bg-indigo-50/20' : ''
+                                className={`bg-white min-h-[140px] p-4 transition-all duration-200 hover:bg-violet-50/30 flex flex-col group/cell relative ${dayObj && dayObj.date.toDateString() === new Date().toDateString() ? 'bg-violet-50/20' : ''
                                     }`}
                             >
                                 {dayObj && dayObj.date.toDateString() === new Date().toDateString() && (
-                                    <div className="absolute inset-x-0 top-0 h-[2px] bg-indigo-500 animate-pulse"></div>
+                                    <div className="absolute inset-x-0 top-0 h-[2px] bg-violet-500 animate-pulse"></div>
                                 )}
                                 <span className={`text-sm font-bold flex items-center justify-center w-8 h-8 rounded-full mb-1 transition-all duration-300 ${dayObj && dayObj.date.toDateString() === new Date().toDateString()
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 scale-110'
-                                    : 'text-gray-700 group-hover/cell:text-indigo-600 group-hover/cell:scale-110'
+                                    ? 'bg-violet-600 text-white shadow-md shadow-violet-200 scale-110'
+                                    : 'text-gray-700 group-hover/cell:text-violet-600 group-hover/cell:scale-110'
                                     } ${!dayObj ? 'invisible' : ''}`}>
                                     {dayObj && dayObj.day}
                                 </span>
                                 {loading ? (
                                     <div className="flex-1 flex items-center justify-center">
-                                        <div className="w-4 h-4 border-2 border-indigo-200 border-t-indigo-500 rounded-full animate-spin"></div>
+                                        <div className="w-4 h-4 border-2 border-violet-200 border-t-violet-500 rounded-full animate-spin"></div>
                                     </div>
                                 ) : getDayContent(dayObj)}
                             </div>
@@ -343,7 +343,7 @@ const BookingCalendar = () => {
             {/* Legend */}
             <div className="mt-6 flex gap-6 items-center px-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-violet-500"></div>
                     <span className="text-xs text-gray-600 font-medium">Group Class</span>
                 </div>
                 <div className="flex items-center gap-2">

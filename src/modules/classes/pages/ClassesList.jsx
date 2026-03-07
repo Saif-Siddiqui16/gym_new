@@ -261,7 +261,7 @@ const ClassesList = () => {
 
                 <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
                             <Dumbbell size={28} />
                         </div>
                         <div>
@@ -286,7 +286,7 @@ const ClassesList = () => {
                     title="Upcoming Classes"
                     value={filteredClasses.filter(c => c.status === 'Scheduled').length}
                     icon={<Calendar size={22} />}
-                    gradient="from-blue-500 to-indigo-600"
+                    gradient="from-violet-500 to-purple-600"
                 />
                 <KPICard
                     title="Today's Classes"
@@ -390,13 +390,13 @@ const ClassesList = () => {
                 <div className="px-4 py-3 flex items-center gap-6 border-b border-slate-50">
                     <button
                         onClick={() => setContentTab('Schedule')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Schedule' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Schedule' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Schedule ({filteredClasses.length})
                     </button>
                     <button
                         onClick={() => setContentTab('Attendance')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Attendance' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Attendance' ? 'text-violet-600 border-b-2 border-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Attendance
                     </button>
@@ -655,7 +655,7 @@ const ClassesList = () => {
                                             placeholder="What will members learn in this class?"
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full flex-1 min-h-[120px] px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-gray-400 resize-none"
+                                            className="w-full flex-1 min-h-[120px] px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-gray-900 focus:bg-white focus:ring-2 focus:ring-violet-500 outline-none transition-all placeholder:text-gray-400 resize-none"
                                         />
                                     </div>
 
@@ -674,7 +674,7 @@ const ClassesList = () => {
                                             type="submit"
                                             variant="primary"
                                             disabled={submitting}
-                                            className="h-12 rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-lg shadow-primary/20"
+                                            className="h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
                                         >
                                             {submitting ? (
                                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

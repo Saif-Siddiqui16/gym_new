@@ -69,7 +69,7 @@ const TrainerAnnouncements = () => {
         const currentStyle = colorClasses[color] || colorClasses.primary;
 
         return (
-            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 md:p-5 h-full">
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/30/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 md:p-5 h-full">
                 <div className="flex justify-between items-start mb-2 relative z-10">
                     <div className="min-w-0">
                         <div className="text-gray-400 font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-1 truncate">{title}</div>

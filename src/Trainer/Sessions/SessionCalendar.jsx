@@ -124,7 +124,7 @@ const SessionCalendar = () => {
                             setFormData({ clientId: '', sessionDate: '', sessionTime: '10:00', duration: 60, notes: '' });
                             setSelectedClient(null);
                         }}
-                        className="mt-4 px-6 py-3 bg-gradient-to-r from-violet-600 to-violet-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/20 transition-all"
+                        className="mt-4 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/20 transition-all"
                     >
                         Schedule Another
                     </button>
@@ -272,7 +272,7 @@ const SessionCalendar = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-violet-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/25 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-violet-500/30/25 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                                 >
                                     <Calendar size={16} strokeWidth={2.5} />
                                     {loading ? 'Scheduling...' : 'Schedule Session'}
@@ -350,7 +350,7 @@ const SessionCalendar = () => {
                                                 </div>
                                                 <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-gradient-to-r from-violet-500 to-violet-500 rounded-full transition-all"
+                                                        className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all"
                                                         style={{ width: `${Math.max(progress, 4)}%` }}
                                                     />
                                                 </div>

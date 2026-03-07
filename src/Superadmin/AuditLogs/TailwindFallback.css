@@ -194,11 +194,11 @@
     background-color: #e5e7eb;
 }
 
-.bg-blue-500 {
+.bg-violet-500 {
     background-color: #3b82f6;
 }
 
-.bg-blue-600 {
+.bg-violet-600 {
     background-color: #2563eb;
 }
 
@@ -259,7 +259,7 @@
     color: #111827;
 }
 
-.text-blue-600 {
+.text-violet-600 {
     color: #2563eb;
 }
 
@@ -429,7 +429,7 @@
     background-color: #f3f4f6;
 }
 
-.hover\:bg-blue-600:hover {
+.hover\:bg-violet-600:hover {
     background-color: #2563eb;
 }
 
@@ -446,7 +446,7 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
-.focus\:ring-blue-500:focus {
+.focus\:ring-violet-500:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 

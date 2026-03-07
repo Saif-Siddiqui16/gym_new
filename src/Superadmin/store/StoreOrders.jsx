@@ -243,8 +243,8 @@ const StoreOrders = () => {
                                         </td>
                                         <td className="px-8 py-6 text-sm font-black text-slate-900">₹{parseFloat(o.totalAmount).toLocaleString()}</td>
                                         <td className="px-8 py-6">
-                                            <span className={`inline-flex px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${o.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : o.status === 'Processing' ? 'bg-blue-50 text-blue-600 border border-blue-100' : o.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${o.status === 'Completed' ? 'bg-emerald-500' : o.status === 'Processing' ? 'bg-blue-500' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                                            <span className={`inline-flex px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${o.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : o.status === 'Processing' ? 'bg-violet-50 text-violet-600 border border-violet-100' : o.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full mr-2 ${o.status === 'Completed' ? 'bg-emerald-500' : o.status === 'Processing' ? 'bg-violet-500' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
                                                 {o.status}
                                             </span>
                                         </td>
@@ -347,7 +347,7 @@ const StoreOrders = () => {
 
                             {/* Summary */}
                             <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
-                                <div className="flex justify-between items-center bg-gradient-to-r from-violet-600 to-indigo-600 p-6 rounded-2xl text-white shadow-xl shadow-violet-200">
+                                <div className="flex justify-between items-center bg-gradient-to-r from-violet-600 to-purple-600 p-6 rounded-2xl text-white shadow-xl shadow-violet-200">
                                     <div className="flex gap-4 items-center">
                                         <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
                                             <ReceiptText size={24} className="text-white" />

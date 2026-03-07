@@ -34,7 +34,7 @@ const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
         <div className="h-full flex flex-col bg-white">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
                         <CalendarIcon size={20} className="text-white" />
                     </div>
                     <div>
@@ -75,7 +75,7 @@ const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
                         <input
                             required
                             type="date"
-                            className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-semibold text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-300"
+                            className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-semibold text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition-all duration-300"
                             value={newBooking.date}
                             onChange={(e) => setNewBooking({ ...newBooking, date: e.target.value })}
                         />
@@ -93,7 +93,7 @@ const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="flex-1 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-indigo-500/50 transition-all duration-300"
+                        className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-violet-700 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300"
                     >
                         Create Booking
                     </button>

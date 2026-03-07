@@ -115,7 +115,7 @@ const MemberBookings = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b-2 border-slate-100">
                 <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100 animate-in zoom-in duration-500">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
                         <Calendar size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -137,7 +137,7 @@ const MemberBookings = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === tab
-                                ? 'bg-white text-indigo-600 shadow-md ring-1 ring-slate-200'
+                                ? 'bg-white text-violet-600 shadow-md ring-1 ring-slate-200'
                                 : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
                                 }`}
                         >
@@ -149,7 +149,7 @@ const MemberBookings = () => {
 
                 <button
                     onClick={handleOpenBookingModal}
-                    className="px-8 h-12 bg-indigo-600 text-white rounded-[20px] text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-1 transition-all flex items-center gap-2"
+                    className="px-8 h-12 bg-violet-600 text-white rounded-[20px] text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-violet-700 hover:-translate-y-1 transition-all flex items-center gap-2"
                 >
                     <Plus size={16} strokeWidth={3} /> My Booking
                 </button>
@@ -158,7 +158,7 @@ const MemberBookings = () => {
             {/* My Bookings Section */}
             <div className="space-y-6 pt-4">
                 <div className="flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
+                    <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm border border-violet-100">
                         <Zap size={16} />
                     </div>
                     <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Bookings</h2>
@@ -166,17 +166,17 @@ const MemberBookings = () => {
 
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
-                        <Loader className="w-8 h-8 animate-spin text-indigo-600" />
+                        <Loader className="w-8 h-8 animate-spin text-violet-600" />
                     </div>
                 ) : filteredBookings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredBookings.map((booking) => (
-                            <Card key={booking.id} className="p-6 border-slate-100 hover:border-indigo-100 transition-all duration-300 rounded-3xl group relative overflow-hidden">
+                            <Card key={booking.id} className="p-6 border-slate-100 hover:border-violet-100 transition-all duration-300 rounded-3xl group relative overflow-hidden">
                                 {/* Decorator */}
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110" />
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50/50 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110" />
 
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
                                         <Activity size={24} />
                                     </div>
                                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
@@ -195,16 +195,16 @@ const MemberBookings = () => {
 
                                     <div className="space-y-3 pt-4 border-t border-slate-50">
                                         <div className="flex items-center gap-3 text-slate-500">
-                                            <Calendar size={16} className="text-indigo-400" />
+                                            <Calendar size={16} className="text-violet-400" />
                                             <span className="text-sm font-bold">{new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-slate-500">
-                                            <Clock size={16} className="text-indigo-400" />
+                                            <Clock size={16} className="text-violet-400" />
                                             <span className="text-sm font-bold">{formatTime(booking.class?.startTime)} - {formatTime(booking.class?.endTime)}</span>
                                         </div>
                                         {booking.class?.trainer && (
                                             <div className="flex items-center gap-3 text-slate-500">
-                                                <Users size={16} className="text-indigo-400" />
+                                                <Users size={16} className="text-violet-400" />
                                                 <span className="text-sm font-bold">{booking.class.trainer.name}</span>
                                             </div>
                                         )}
@@ -214,7 +214,7 @@ const MemberBookings = () => {
                         ))}
                     </div>
                 ) : (
-                    <Card className="p-20 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[3rem] bg-white flex flex-col items-center justify-center text-center group hover:border-indigo-100 transition-all duration-500">
+                    <Card className="p-20 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[3rem] bg-white flex flex-col items-center justify-center text-center group hover:border-violet-100 transition-all duration-500">
                         <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4 leading-none">
                             No upcoming bookings
                         </h3>
@@ -238,7 +238,7 @@ const MemberBookings = () => {
                         <div className="p-6 space-y-6">
                             {loadingClasses ? (
                                 <div className="flex justify-center py-10">
-                                    <Loader className="w-8 h-8 animate-spin text-indigo-600" />
+                                    <Loader className="w-8 h-8 animate-spin text-violet-600" />
                                 </div>
                             ) : (
                                 <>
@@ -247,7 +247,7 @@ const MemberBookings = () => {
                                         <select
                                             value={selectedClassId}
                                             onChange={(e) => setSelectedClassId(e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
                                         >
                                             <option value="">-- Choose an option --</option>
                                             {availableClasses.map(c => (
@@ -264,13 +264,13 @@ const MemberBookings = () => {
                                             value={bookingDate}
                                             onChange={(e) => setBookingDate(e.target.value)}
                                             min={new Date().toISOString().split('T')[0]}
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
                                         />
                                     </div>
                                     <button
                                         onClick={handleBookClass}
                                         disabled={isSubmitting || !selectedClassId || !bookingDate}
-                                        className="w-full py-4 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full py-4 rounded-xl bg-violet-600 text-white text-xs font-black uppercase tracking-widest hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                                     </button>

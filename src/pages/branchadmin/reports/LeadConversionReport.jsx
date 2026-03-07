@@ -17,7 +17,7 @@ const LeadConversionReport = () => {
     const [stats, setStats] = useState([
         { label: 'Total Leads', value: '0', icon: MousePointer2, bg: 'bg-orange-50', color: 'text-orange-600' },
         { label: 'Converted Leads', value: '0', icon: Target, bg: 'bg-purple-50', color: 'text-purple-600' },
-        { label: 'Conversion rate', value: '0%', icon: Percent, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'Conversion rate', value: '0%', icon: Percent, bg: 'bg-violet-50', color: 'text-violet-600' },
     ]);
 
     const [leadData, setLeadData] = useState([]);
@@ -203,7 +203,7 @@ const LeadConversionReport = () => {
                                             <td className="px-6 py-4 text-sm text-slate-500">{row.date}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${row.status === 'Converted' ? 'bg-emerald-100 text-emerald-700' :
-                                                    row.status === 'Follow-up' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                                    row.status === 'Follow-up' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-700'
                                                     }`}>
                                                     {row.status}
                                                 </span>

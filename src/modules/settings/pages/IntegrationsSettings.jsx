@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     CreditCard,
     Phone,
@@ -19,6 +19,8 @@ import {
     Save
 } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
+import { getTenantSettings, updateTenantSettings } from '../../../api/admin/settingsApi';
+import toast from 'react-hot-toast';
 
 const IntegrationsSettings = () => {
     const [activeTab, setActiveTab] = useState('Payment');
@@ -164,13 +166,38 @@ const IntegrationsSettings = () => {
     });
     const [googleBusinessConfig, setGoogleBusinessConfig] = useState({
         enabled: false,
-        accountId: '',
-        locationId: '',
-        autoSyncApproved: '',
-        apiKey: '',
-        clientId: '',
-        clientSecret: ''
+        reviewLink: ''
     });
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const settings = await getTenantSettings();
+                setGoogleBusinessConfig({
+                    enabled: settings.googleBusinessEnabled || false,
+                    reviewLink: settings.googleReviewLink || ''
+                });
+            } catch (error) {
+                console.error('Error fetching settings:', error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const handleSaveGoogle = async () => {
+        try {
+            toast.loading('Saving Google settings...', { id: 'save-google' });
+            await updateTenantSettings({
+                googleBusinessEnabled: googleBusinessConfig.enabled,
+                googleReviewLink: googleBusinessConfig.reviewLink
+            });
+            toast.success('Google Business settings saved!', { id: 'save-google' });
+            setIsGoogleBusinessDrawerOpen(false);
+        } catch (error) {
+            console.error('Error saving Google settings:', error);
+            toast.error('Failed to save Google settings', { id: 'save-google' });
+        }
+    };
 
     const stats = [
         { label: 'Payment Gateways', value: 0, icon: CreditCard },
@@ -231,7 +258,7 @@ const IntegrationsSettings = () => {
                         <div key={idx} className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col justify-between group hover:shadow-md transition-all h-[130px]">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="text-slate-500 text-xs font-bold leading-tight max-w-[80px]">{stat.label}</span>
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors border border-slate-100/50">
+                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors border border-slate-100/50">
                                     <Icon size={20} />
                                 </div>
                             </div>
@@ -279,7 +306,7 @@ const IntegrationsSettings = () => {
                                             <div className="flex items-center gap-6">
                                                 <div className={`w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center p-2.5 shadow-inner`}>
                                                     <div className={`w-full h-full rounded-full bg-gradient-to-br transition-transform group-hover:scale-110
-                                                        ${gw.color === 'blue' ? 'from-blue-400 to-blue-600' :
+                                                        ${gw.color === 'blue' ? 'from-violet-400 to-purple-600' :
                                                             gw.color === 'purple' ? 'from-purple-400 to-purple-600' :
                                                                 gw.color === 'emerald' ? 'from-emerald-400 to-emerald-600' :
                                                                     'from-amber-400 to-amber-600'
@@ -302,7 +329,7 @@ const IntegrationsSettings = () => {
                                                 if (gw.name === 'CCAvenue') setIsCCAvenueDrawerOpen(true);
                                                 if (gw.name === 'PayU') setIsPayUDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-indigo-700 hover:to-violet-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Setup
@@ -336,7 +363,7 @@ const IntegrationsSettings = () => {
                                                     ) : (
                                                         <div className={`w-full h-full rounded-full bg-gradient-to-br transition-transform group-hover:scale-110
                                                             ${provider.color === 'rose' ? 'from-rose-400 to-rose-600' :
-                                                                provider.color === 'blue' ? 'from-blue-400 to-blue-600' :
+                                                                provider.color === 'blue' ? 'from-violet-400 to-purple-600' :
                                                                     provider.color === 'red' ? 'from-red-400 to-red-600' :
                                                                         'from-slate-400 to-slate-600'
                                                             } shadow-lg`} />
@@ -359,7 +386,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Twilio') setIsTwilioDrawerOpen(true);
                                                 if (provider.name === 'Custom API') setIsCustomSMSDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-indigo-700 hover:to-violet-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -407,7 +434,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Amazon SES') setIsSESDrawerOpen(true);
                                                 if (provider.name === 'Mailgun') setIsMailgunDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-indigo-700 hover:to-violet-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -455,7 +482,7 @@ const IntegrationsSettings = () => {
                                                 if (provider.name === 'Gupshup') setIsGupshupWhatsappDrawerOpen(true);
                                                 if (provider.name === 'Custom API') setIsCustomWhatsappDrawerOpen(true);
                                             }}
-                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-indigo-700 hover:to-violet-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-auto"
+                                            className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98] mt-auto"
                                         >
                                             <Settings size={18} />
                                             Configure
@@ -469,7 +496,7 @@ const IntegrationsSettings = () => {
                     {activeTab === 'Google' && (
                         <div className="space-y-10">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
+                                <div className="p-3 bg-violet-50 rounded-xl text-violet-600">
                                     <Globe size={24} />
                                 </div>
                                 <div>
@@ -482,7 +509,7 @@ const IntegrationsSettings = () => {
                                 <div className="flex flex-col sm:flex-row items-start justify-between gap-8 mb-8">
                                     <div className="flex items-center gap-6">
                                         <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center p-3.5 shadow-inner">
-                                            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-400 via-red-400 to-yellow-400 shadow-lg shadow-blue-100 animate-pulse transition-transform group-hover:scale-110" />
+                                            <div className="w-full h-full rounded-full bg-gradient-to-br from-violet-400 via-red-400 to-yellow-400 shadow-lg shadow-violet-100 animate-pulse transition-transform group-hover:scale-110" />
                                         </div>
                                         <div>
                                             <h3 className="text-xl font-bold text-slate-900 leading-tight mb-2">Google Business Profile</h3>
@@ -503,7 +530,7 @@ const IntegrationsSettings = () => {
 
                                 <button
                                     onClick={() => setIsGoogleBusinessDrawerOpen(true)}
-                                    className="w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-indigo-700 hover:to-violet-700 transition-all shadow-2xl shadow-indigo-100 active:scale-95 flex items-center justify-center gap-3"
+                                    className="w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:from-violet-700 hover:to-violet-700 transition-all shadow-2xl shadow-violet-100 active:scale-95 flex items-center justify-center gap-3"
                                 >
                                     <Share2 size={18} />
                                     Setup
@@ -517,8 +544,8 @@ const IntegrationsSettings = () => {
                                     { title: 'Maps Presence', desc: 'Boost local SEO visibility', icon: MapPin },
                                     { title: 'Approved Only', desc: 'Control which reviews show', icon: Settings }
                                 ].map((feature, i) => (
-                                    <div key={i} className="p-6 rounded-2xl bg-white border border-slate-50 group hover:border-indigo-100 transition-all">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                    <div key={i} className="p-6 rounded-2xl bg-white border border-slate-50 group hover:border-violet-100 transition-all">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-violet-50 group-hover:text-violet-600 transition-colors">
                                             <feature.icon size={20} />
                                         </div>
                                         <h4 className="text-sm font-bold text-slate-900 mb-1">{feature.title}</h4>
@@ -547,7 +574,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setRazorpayConfig({ ...razorpayConfig, enabled: !razorpayConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${razorpayConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${razorpayConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${razorpayConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -565,7 +592,7 @@ const IntegrationsSettings = () => {
                                     placeholder="Enter webhook url"
                                     value={razorpayConfig.webhookUrl}
                                     onChange={(e) => setRazorpayConfig({ ...razorpayConfig, webhookUrl: e.target.value })}
-                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                 />
                             </div>
                         </div>
@@ -582,7 +609,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key id"
                                         value={razorpayConfig.keyId}
                                         onChange={(e) => setRazorpayConfig({ ...razorpayConfig, keyId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -593,7 +620,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key secret"
                                         value={razorpayConfig.keySecret}
                                         onChange={(e) => setRazorpayConfig({ ...razorpayConfig, keySecret: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -604,7 +631,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter merchant id"
                                         value={razorpayConfig.merchantId}
                                         onChange={(e) => setRazorpayConfig({ ...razorpayConfig, merchantId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -615,7 +642,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={handleSaveRazorpay}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -640,7 +667,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setPhonepeConfig({ ...phonepeConfig, enabled: !phonepeConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${phonepeConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${phonepeConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${phonepeConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -658,7 +685,7 @@ const IntegrationsSettings = () => {
                                     placeholder="Enter webhook url"
                                     value={phonepeConfig.webhookUrl}
                                     onChange={(e) => setPhonepeConfig({ ...phonepeConfig, webhookUrl: e.target.value })}
-                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                 />
                             </div>
                         </div>
@@ -675,7 +702,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key id"
                                         value={phonepeConfig.keyId}
                                         onChange={(e) => setPhonepeConfig({ ...phonepeConfig, keyId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -686,7 +713,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key secret"
                                         value={phonepeConfig.keySecret}
                                         onChange={(e) => setPhonepeConfig({ ...phonepeConfig, keySecret: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -697,7 +724,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter merchant id"
                                         value={phonepeConfig.merchantId}
                                         onChange={(e) => setPhonepeConfig({ ...phonepeConfig, merchantId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -708,7 +735,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsPhonePeDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -733,7 +760,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCcavenueConfig({ ...ccavenueConfig, enabled: !ccavenueConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${ccavenueConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${ccavenueConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${ccavenueConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -751,7 +778,7 @@ const IntegrationsSettings = () => {
                                     placeholder="Enter webhook url"
                                     value={ccavenueConfig.webhookUrl}
                                     onChange={(e) => setCcavenueConfig({ ...ccavenueConfig, webhookUrl: e.target.value })}
-                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                 />
                             </div>
                         </div>
@@ -768,7 +795,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key id"
                                         value={ccavenueConfig.keyId}
                                         onChange={(e) => setCcavenueConfig({ ...ccavenueConfig, keyId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -779,7 +806,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key secret"
                                         value={ccavenueConfig.keySecret}
                                         onChange={(e) => setCcavenueConfig({ ...ccavenueConfig, keySecret: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -790,7 +817,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter merchant id"
                                         value={ccavenueConfig.merchantId}
                                         onChange={(e) => setCcavenueConfig({ ...ccavenueConfig, merchantId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -801,7 +828,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCCAvenueDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -826,7 +853,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setPayuConfig({ ...payuConfig, enabled: !payuConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${payuConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${payuConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${payuConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -844,7 +871,7 @@ const IntegrationsSettings = () => {
                                     placeholder="Enter webhook url"
                                     value={payuConfig.webhookUrl}
                                     onChange={(e) => setPayuConfig({ ...payuConfig, webhookUrl: e.target.value })}
-                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                    className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                 />
                             </div>
                         </div>
@@ -861,7 +888,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key id"
                                         value={payuConfig.keyId}
                                         onChange={(e) => setPayuConfig({ ...payuConfig, keyId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -872,7 +899,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter key secret"
                                         value={payuConfig.keySecret}
                                         onChange={(e) => setPayuConfig({ ...payuConfig, keySecret: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -883,7 +910,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter merchant id"
                                         value={payuConfig.merchantId}
                                         onChange={(e) => setPayuConfig({ ...payuConfig, merchantId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -894,7 +921,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsPayUDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -919,7 +946,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setMsg91Config({ ...msg91Config, enabled: !msg91Config.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${msg91Config.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${msg91Config.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${msg91Config.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -938,7 +965,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter sender id"
                                         value={msg91Config.senderId}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, senderId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -949,7 +976,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt entity id"
                                         value={msg91Config.dltEntityId}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, dltEntityId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -960,7 +987,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt template id"
                                         value={msg91Config.dltTemplateId}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, dltTemplateId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -971,7 +998,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api url"
                                         value={msg91Config.apiUrl}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, apiUrl: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -989,7 +1016,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={msg91Config.apiKey}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1000,7 +1027,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter auth token"
                                         value={msg91Config.authToken}
                                         onChange={(e) => setMsg91Config({ ...msg91Config, authToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1011,7 +1038,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsMSG91DrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1036,7 +1063,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGupshupConfig({ ...gupshupConfig, enabled: !gupshupConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${gupshupConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1055,7 +1082,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter sender id"
                                         value={gupshupConfig.senderId}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, senderId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1066,7 +1093,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt entity id"
                                         value={gupshupConfig.dltEntityId}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, dltEntityId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1077,7 +1104,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt template id"
                                         value={gupshupConfig.dltTemplateId}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, dltTemplateId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1088,7 +1115,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api url"
                                         value={gupshupConfig.apiUrl}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, apiUrl: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1106,7 +1133,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={gupshupConfig.apiKey}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1117,7 +1144,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter auth token"
                                         value={gupshupConfig.authToken}
                                         onChange={(e) => setGupshupConfig({ ...gupshupConfig, authToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1128,7 +1155,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsGupshupDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1153,7 +1180,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setTwilioConfig({ ...twilioConfig, enabled: !twilioConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${twilioConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${twilioConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${twilioConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1172,7 +1199,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter sender id"
                                         value={twilioConfig.senderId}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, senderId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1183,7 +1210,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt entity id"
                                         value={twilioConfig.dltEntityId}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, dltEntityId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1194,7 +1221,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt template id"
                                         value={twilioConfig.dltTemplateId}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, dltTemplateId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1205,7 +1232,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api url"
                                         value={twilioConfig.apiUrl}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, apiUrl: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1223,7 +1250,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={twilioConfig.apiKey}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1234,7 +1261,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter auth token"
                                         value={twilioConfig.authToken}
                                         onChange={(e) => setTwilioConfig({ ...twilioConfig, authToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1245,7 +1272,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsTwilioDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1270,7 +1297,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCustomSMSConfig({ ...customSMSConfig, enabled: !customSMSConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${customSMSConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${customSMSConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${customSMSConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1289,7 +1316,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter sender id"
                                         value={customSMSConfig.senderId}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, senderId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1300,7 +1327,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt entity id"
                                         value={customSMSConfig.dltEntityId}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, dltEntityId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1311,7 +1338,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter dlt template id"
                                         value={customSMSConfig.dltTemplateId}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, dltTemplateId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1322,7 +1349,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api url"
                                         value={customSMSConfig.apiUrl}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, apiUrl: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1340,7 +1367,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={customSMSConfig.apiKey}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1351,7 +1378,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter auth token"
                                         value={customSMSConfig.authToken}
                                         onChange={(e) => setCustomSMSConfig({ ...customSMSConfig, authToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1362,7 +1389,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCustomSMSDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1387,7 +1414,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSmtpConfig({ ...smtpConfig, enabled: !smtpConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${smtpConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${smtpConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${smtpConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1406,7 +1433,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter host"
                                         value={smtpConfig.host}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, host: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1417,7 +1444,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter port"
                                         value={smtpConfig.port}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, port: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1428,7 +1455,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from email"
                                         value={smtpConfig.fromEmail}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, fromEmail: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1439,7 +1466,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from name"
                                         value={smtpConfig.fromName}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, fromName: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1457,7 +1484,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter username"
                                         value={smtpConfig.username}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, username: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1468,7 +1495,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter password"
                                         value={smtpConfig.password}
                                         onChange={(e) => setSmtpConfig({ ...smtpConfig, password: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1479,7 +1506,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSMTPDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1504,7 +1531,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSendGridConfig({ ...sendGridConfig, enabled: !sendGridConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${sendGridConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${sendGridConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${sendGridConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1523,7 +1550,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from email"
                                         value={sendGridConfig.fromEmail}
                                         onChange={(e) => setSendGridConfig({ ...sendGridConfig, fromEmail: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1534,7 +1561,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from name"
                                         value={sendGridConfig.fromName}
                                         onChange={(e) => setSendGridConfig({ ...sendGridConfig, fromName: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1552,7 +1579,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={sendGridConfig.apiKey}
                                         onChange={(e) => setSendGridConfig({ ...sendGridConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1563,7 +1590,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSendGridDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1588,7 +1615,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setSesConfig({ ...sesConfig, enabled: !sesConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${sesConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${sesConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${sesConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1607,7 +1634,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from email"
                                         value={sesConfig.fromEmail}
                                         onChange={(e) => setSesConfig({ ...sesConfig, fromEmail: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1618,7 +1645,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from name"
                                         value={sesConfig.fromName}
                                         onChange={(e) => setSesConfig({ ...sesConfig, fromName: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1636,7 +1663,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={sesConfig.apiKey}
                                         onChange={(e) => setSesConfig({ ...sesConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1647,7 +1674,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsSESDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1672,7 +1699,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setMailgunConfig({ ...mailgunConfig, enabled: !mailgunConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${mailgunConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${mailgunConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${mailgunConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1691,7 +1718,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from email"
                                         value={mailgunConfig.fromEmail}
                                         onChange={(e) => setMailgunConfig({ ...mailgunConfig, fromEmail: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1702,7 +1729,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter from name"
                                         value={mailgunConfig.fromName}
                                         onChange={(e) => setMailgunConfig({ ...mailgunConfig, fromName: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1720,7 +1747,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={mailgunConfig.apiKey}
                                         onChange={(e) => setMailgunConfig({ ...mailgunConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1731,7 +1758,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsMailgunDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1756,7 +1783,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setWatiConfig({ ...watiConfig, enabled: !watiConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${watiConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${watiConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${watiConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1775,7 +1802,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter phone number id"
                                         value={watiConfig.phoneNumberId}
                                         onChange={(e) => setWatiConfig({ ...watiConfig, phoneNumberId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1786,7 +1813,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter business account id"
                                         value={watiConfig.businessAccountId}
                                         onChange={(e) => setWatiConfig({ ...watiConfig, businessAccountId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1797,7 +1824,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter webhook verify token"
                                         value={watiConfig.webhookVerifyToken}
                                         onChange={(e) => setWatiConfig({ ...watiConfig, webhookVerifyToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1815,7 +1842,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter access token"
                                         value={watiConfig.accessToken}
                                         onChange={(e) => setWatiConfig({ ...watiConfig, accessToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1826,7 +1853,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={watiConfig.apiKey}
                                         onChange={(e) => setWatiConfig({ ...watiConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1837,7 +1864,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsWATIDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1862,7 +1889,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setInteraktConfig({ ...interaktConfig, enabled: !interaktConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${interaktConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${interaktConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${interaktConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1881,7 +1908,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter phone number id"
                                         value={interaktConfig.phoneNumberId}
                                         onChange={(e) => setInteraktConfig({ ...interaktConfig, phoneNumberId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1892,7 +1919,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter business account id"
                                         value={interaktConfig.businessAccountId}
                                         onChange={(e) => setInteraktConfig({ ...interaktConfig, businessAccountId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1903,7 +1930,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter webhook verify token"
                                         value={interaktConfig.webhookVerifyToken}
                                         onChange={(e) => setInteraktConfig({ ...interaktConfig, webhookVerifyToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1921,7 +1948,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter access token"
                                         value={interaktConfig.accessToken}
                                         onChange={(e) => setInteraktConfig({ ...interaktConfig, accessToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1932,7 +1959,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={interaktConfig.apiKey}
                                         onChange={(e) => setInteraktConfig({ ...interaktConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -1943,7 +1970,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsInteraktDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -1968,7 +1995,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, enabled: !gupshupWhatsappConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupWhatsappConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${gupshupWhatsappConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${gupshupWhatsappConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -1987,7 +2014,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter phone number id"
                                         value={gupshupWhatsappConfig.phoneNumberId}
                                         onChange={(e) => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, phoneNumberId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -1998,7 +2025,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter business account id"
                                         value={gupshupWhatsappConfig.businessAccountId}
                                         onChange={(e) => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, businessAccountId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -2009,7 +2036,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter webhook verify token"
                                         value={gupshupWhatsappConfig.webhookVerifyToken}
                                         onChange={(e) => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, webhookVerifyToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -2027,7 +2054,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter access token"
                                         value={gupshupWhatsappConfig.accessToken}
                                         onChange={(e) => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, accessToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -2038,7 +2065,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={gupshupWhatsappConfig.apiKey}
                                         onChange={(e) => setGupshupWhatsappConfig({ ...gupshupWhatsappConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -2049,7 +2076,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsGupshupWhatsappDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -2074,7 +2101,7 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setCustomWhatsappConfig({ ...customWhatsappConfig, enabled: !customWhatsappConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${customWhatsappConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${customWhatsappConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${customWhatsappConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
@@ -2093,7 +2120,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter phone number id"
                                         value={customWhatsappConfig.phoneNumberId}
                                         onChange={(e) => setCustomWhatsappConfig({ ...customWhatsappConfig, phoneNumberId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -2104,7 +2131,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter business account id"
                                         value={customWhatsappConfig.businessAccountId}
                                         onChange={(e) => setCustomWhatsappConfig({ ...customWhatsappConfig, businessAccountId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -2115,7 +2142,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter webhook verify token"
                                         value={customWhatsappConfig.webhookVerifyToken}
                                         onChange={(e) => setCustomWhatsappConfig({ ...customWhatsappConfig, webhookVerifyToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -2133,7 +2160,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter access token"
                                         value={customWhatsappConfig.accessToken}
                                         onChange={(e) => setCustomWhatsappConfig({ ...customWhatsappConfig, accessToken: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
 
@@ -2144,7 +2171,7 @@ const IntegrationsSettings = () => {
                                         placeholder="Enter api key"
                                         value={customWhatsappConfig.apiKey}
                                         onChange={(e) => setCustomWhatsappConfig({ ...customWhatsappConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
+                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
                                     />
                                 </div>
                             </div>
@@ -2155,7 +2182,7 @@ const IntegrationsSettings = () => {
                     <div className="pt-6">
                         <button
                             onClick={() => setIsCustomWhatsappDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration
@@ -2180,99 +2207,31 @@ const IntegrationsSettings = () => {
                         </div>
                         <button
                             onClick={() => setGoogleBusinessConfig({ ...googleBusinessConfig, enabled: !googleBusinessConfig.enabled })}
-                            className={`w-14 h-7 rounded-full transition-all relative ${googleBusinessConfig.enabled ? 'bg-blue-600 shadow-lg shadow-blue-100' : 'bg-slate-200'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${googleBusinessConfig.enabled ? 'bg-violet-600 shadow-lg shadow-violet-100' : 'bg-slate-200'}`}
                         >
                             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-all shadow-md ${googleBusinessConfig.enabled ? 'left-8' : 'left-1'}`} />
                         </button>
                     </div>
 
-                    <div className="space-y-8">
-                        {/* Configuration Section */}
-                        <div className="space-y-6">
-                            <h4 className="text-lg font-bold text-slate-800 tracking-tight border-b border-slate-100 pb-2">Configuration</h4>
-
-                            <div className="space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">Account ID</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter account id"
-                                        value={googleBusinessConfig.accountId}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, accountId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">Location ID</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter location id"
-                                        value={googleBusinessConfig.locationId}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, locationId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">Auto Sync Approved</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter auto sync approved"
-                                        value={googleBusinessConfig.autoSyncApproved}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, autoSyncApproved: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Credentials Section */}
-                        <div className="space-y-6">
-                            <h4 className="text-lg font-bold text-slate-800 tracking-tight border-b border-slate-100 pb-2">Credentials</h4>
-
-                            <div className="space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">API Key</label>
-                                    <input
-                                        type="password"
-                                        placeholder="Enter api key"
-                                        value={googleBusinessConfig.apiKey}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, apiKey: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">Client ID</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter client id"
-                                        value={googleBusinessConfig.clientId}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, clientId: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-base font-bold text-slate-800 ml-1">Client Secret</label>
-                                    <input
-                                        type="password"
-                                        placeholder="Enter client secret"
-                                        value={googleBusinessConfig.clientSecret}
-                                        onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, clientSecret: e.target.value })}
-                                        className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:bg-white transition-all shadow-sm"
-                                    />
-                                </div>
-                            </div>
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-base font-bold text-slate-800 ml-1">Google Review Link</label>
+                            <input
+                                type="text"
+                                placeholder="Enter your Google Maps review link"
+                                value={googleBusinessConfig.reviewLink}
+                                onChange={(e) => setGoogleBusinessConfig({ ...googleBusinessConfig, reviewLink: e.target.value })}
+                                className="w-full px-5 py-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-slate-700 font-medium placeholder:text-slate-300 focus:outline-none focus:border-violet-400 focus:bg-white transition-all shadow-sm"
+                            />
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1 mt-1">Found in your Google Business Profile under "Ask for reviews"</p>
                         </div>
                     </div>
 
                     {/* Submit Button */}
                     <div className="pt-6">
                         <button
-                            onClick={() => setIsGoogleBusinessDrawerOpen(false)}
-                            className="w-full flex items-center justify-center gap-3 py-5 bg-blue-600 text-white rounded-[16px] text-base font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98]"
+                            onClick={handleSaveGoogle}
+                            className="w-full flex items-center justify-center gap-3 py-5 bg-violet-600 text-white rounded-[16px] text-base font-bold hover:bg-violet-700 transition-all shadow-xl shadow-violet-100 active:scale-[0.98]"
                         >
                             <Save size={20} />
                             Save Configuration

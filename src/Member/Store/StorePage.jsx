@@ -80,7 +80,7 @@ const StorePage = () => {
             {/* Header Section - Restored Premium Style */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
                 <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <ShoppingBag size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -92,11 +92,11 @@ const StorePage = () => {
 
             {/* Search Bar - Premium Refined */}
             <div className="relative group w-full">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors" size={20} />
                 <input
                     type="text"
                     placeholder="Search products..."
-                    className="w-full h-16 pl-16 pr-8 bg-white border-2 border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all shadow-sm placeholder:text-slate-300"
+                    className="w-full h-16 pl-16 pr-8 bg-white border-2 border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 transition-all shadow-sm placeholder:text-slate-300"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -106,7 +106,7 @@ const StorePage = () => {
                 {/* Left Column: Products Grid */}
                 <div className="lg:col-span-2 space-y-8">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                             <Sparkles size={16} />
                         </div>
                         <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Available Gear</h2>
@@ -148,18 +148,18 @@ const StorePage = () => {
                             <div className="flex-1 flex flex-col h-full">
                                 <div className="flex-1 space-y-6 overflow-y-auto custom-scrollbar pr-2 mb-8">
                                     {cart.map(item => (
-                                        <div key={item.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 group transition-all hover:bg-white hover:shadow-xl hover:shadow-indigo-500/5">
+                                        <div key={item.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 group transition-all hover:bg-white hover:shadow-xl hover:shadow-purple-500/5">
                                             <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-white">
                                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0 py-1">
                                                 <h4 className="font-bold text-slate-900 text-xs truncate uppercase tracking-tight leading-tight">{item.name}</h4>
-                                                <p className="text-indigo-600 font-black text-sm mt-1">₹{item.price.toLocaleString()}</p>
+                                                <p className="text-violet-600 font-black text-sm mt-1">₹{item.price.toLocaleString()}</p>
                                                 <div className="flex items-center gap-4 mt-3">
                                                     <div className="flex items-center bg-white border border-slate-200 rounded-lg p-1 px-3 gap-4">
-                                                        <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-indigo-600 font-black">-</button>
+                                                        <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-violet-600 font-black">-</button>
                                                         <span className="text-xs font-black text-slate-900">{item.quantity}</span>
-                                                        <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-indigo-600 font-black">+</button>
+                                                        <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-violet-600 font-black">+</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -176,7 +176,7 @@ const StorePage = () => {
                                     </div>
                                     <button
                                         onClick={handleCheckout}
-                                        className="w-full h-14 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                        className="w-full h-14 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95 flex items-center justify-center gap-3"
                                     >
                                         Complete Checkout
                                         <ChevronRight size={16} />
@@ -210,7 +210,7 @@ const StorePage = () => {
                         </div>
                         <div className="space-y-4">
                             <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{selectedProduct.name}</h3>
-                            <div className="inline-block px-4 py-1.5 bg-indigo-50 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em]">
+                            <div className="inline-block px-4 py-1.5 bg-violet-50 rounded-full text-[10px] font-black text-violet-600 uppercase tracking-[0.2em]">
                                 Premium Selection
                             </div>
                             <p className="text-slate-500 font-medium leading-relaxed pt-2">
@@ -220,7 +220,7 @@ const StorePage = () => {
                         <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</span>
-                                <span className="text-4xl font-black text-indigo-600 tracking-tight">₹{selectedProduct.price.toLocaleString()}</span>
+                                <span className="text-4xl font-black text-violet-600 tracking-tight">₹{selectedProduct.price.toLocaleString()}</span>
                             </div>
                             <button
                                 onClick={() => {
@@ -228,7 +228,7 @@ const StorePage = () => {
                                     setIsProductDrawerOpen(false);
                                     toast.success("Added to Gear Bag");
                                 }}
-                                className="px-8 h-14 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
+                                className="px-8 h-14 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95"
                             >
                                 Add to Cart
                             </button>

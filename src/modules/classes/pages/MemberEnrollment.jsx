@@ -86,7 +86,7 @@ const MemberEnrollment = () => {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+            <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
         </div>
     );
 
@@ -98,7 +98,7 @@ const MemberEnrollment = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-6)' }}>
                 <button
                     onClick={() => navigate(`/classes/${classId}`)}
-                    className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 text-gray-400 hover:text-indigo-600"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 text-gray-400 hover:text-violet-600"
                 >
                     <ArrowLeft size={24} />
                 </button>
@@ -115,14 +115,14 @@ const MemberEnrollment = () => {
                             placeholder="Search members to enroll..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-indigo-500 focus:outline-none transition-all duration-200 shadow-sm"
+                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-violet-500 focus:outline-none transition-all duration-200 shadow-sm"
                         />
                     </div>
                     <div style={{ maxHeight: '450px', overflowY: 'auto' }} className="custom-scrollbar pr-2">
                         {filteredAvailable.map(member => (
-                            <div key={member.id} className="group flex justify-between items-center p-4 border-b border-gray-100 hover:bg-indigo-50/50 rounded-xl transition-all duration-200">
+                            <div key={member.id} className="group flex justify-between items-center p-4 border-b border-gray-100 hover:bg-violet-50/50 rounded-xl transition-all duration-200">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-600">
+                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-violet-100 group-hover:text-violet-600">
                                         <User size={18} />
                                     </div>
                                     <div>
@@ -135,7 +135,7 @@ const MemberEnrollment = () => {
                                     size="small"
                                     onClick={() => handleEnroll(member.id)}
                                     disabled={actionLoading}
-                                    className="group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600"
+                                    className="group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600"
                                 >
                                     <Plus size={16} className="mr-1" /> Enroll
                                 </Button>
@@ -152,9 +152,9 @@ const MemberEnrollment = () => {
                     <div style={{ maxHeight: '520px', overflowY: 'auto' }} className="custom-scrollbar pr-2 pt-2">
                         {enrolledMembers.length > 0 ? (
                             enrolledMembers.map(member => (
-                                <div key={member.id} className="flex justify-between items-center p-4 bg-gray-50/80 border border-gray-100 rounded-2xl mb-4 group hover:border-indigo-100 transition-all duration-300">
+                                <div key={member.id} className="flex justify-between items-center p-4 bg-gray-50/80 border border-gray-100 rounded-2xl mb-4 group hover:border-violet-100 transition-all duration-300">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center text-violet-600">
                                             <User size={18} />
                                         </div>
                                         <div>

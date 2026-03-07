@@ -102,7 +102,7 @@ const StaffList = () => {
                                 <tr key={staff.id} className="group hover:bg-gray-50/50 transition-colors">
                                     <td className="py-4 pl-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+                                            <div className="w-10 h-10 bg-violet-50 rounded-full flex items-center justify-center text-violet-600">
                                                 <User size={20} />
                                             </div>
                                             <div>
@@ -133,7 +133,7 @@ const StaffList = () => {
                                     <td className="py-4 pr-4 text-right">
                                         <button
                                             onClick={() => navigate(`/hr/staff/edit/${staff.id}`)}
-                                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                            className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
                                             title="Edit Staff"
                                         >
                                             <Edit size={18} />

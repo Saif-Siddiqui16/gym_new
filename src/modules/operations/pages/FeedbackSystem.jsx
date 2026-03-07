@@ -12,7 +12,9 @@ import {
     Loader2,
     Check,
     X,
-    ExternalLink
+    ExternalLink,
+    Share2,
+    MapPin
 } from 'lucide-react';
 import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import { feedbackApi } from '../../../api/feedbackApi';
@@ -27,6 +29,8 @@ const FeedbackSystem = ({ role }) => {
     const [activeMenu, setActiveMenu] = useState(null);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [newFeedback, setNewFeedback] = useState({ rating: 5, comment: '' });
+    const [googleConfig, setGoogleConfig] = useState({ enabled: false, link: '' });
+    const [showGoogleSuccess, setShowGoogleSuccess] = useState(false);
 
     useEffect(() => {
         fetchFeedback();
@@ -36,11 +40,26 @@ const FeedbackSystem = ({ role }) => {
         try {
             setLoading(true);
             const data = await feedbackApi.getAllFeedback();
-            setFeedback(data);
+            setFeedback(data.feedback || []);
+            setGoogleConfig({
+                enabled: data.googleBusinessEnabled,
+                link: data.googleReviewLink
+            });
         } catch (error) {
             console.error('Error fetching feedback:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePublishToGoogle = async (id) => {
+        try {
+            await feedbackApi.publishToGoogle(id);
+            fetchFeedback();
+            toast.success('Feedback marked as published to Google');
+        } catch (error) {
+            console.error('Error publishing to Google:', error);
+            toast.error('Failed to mark as published');
         }
     };
 
@@ -65,6 +84,9 @@ const FeedbackSystem = ({ role }) => {
             setIsSubmitModalOpen(false);
             setNewFeedback({ rating: 5, comment: '' });
             fetchFeedback();
+            if (newFeedback.rating >= 4 && googleConfig.enabled && googleConfig.link) {
+                setShowGoogleSuccess(true);
+            }
         } catch (error) {
             console.error('Error submitting feedback:', error);
             toast.error('Failed to submit feedback. Try again.', { id: 'submit-feedback' });
@@ -93,7 +115,7 @@ const FeedbackSystem = ({ role }) => {
         switch (status) {
             case 'Resolved': return 'bg-emerald-50 text-emerald-600';
             case 'Pending': return 'bg-amber-50 text-amber-600';
-            case 'Reviewed': return 'bg-blue-50 text-blue-600';
+            case 'Reviewed': return 'bg-violet-50 text-violet-600';
             default: return 'bg-slate-50 text-slate-600';
         }
     };
@@ -207,6 +229,12 @@ const FeedbackSystem = ({ role }) => {
                                             <div className="flex items-center gap-1">
                                                 <span className="text-sm font-bold text-slate-900">{item.rating}</span>
                                                 <Star size={14} className="text-amber-400 fill-amber-400" />
+                                                {item.isPublishedToGoogle && (
+                                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-violet-50 text-violet-600 rounded-md ml-2 border border-violet-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                                                        <ExternalLink size={10} className="animate-pulse" />
+                                                        <span className="text-[8px] font-black uppercase tracking-tighter">Google</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
@@ -226,7 +254,7 @@ const FeedbackSystem = ({ role }) => {
                                                         <>
                                                             <button
                                                                 onClick={() => handleStatusUpdate(item.id, 'Reviewed')}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
                                                             >
                                                                 <Check size={14} />
                                                                 Review
@@ -248,7 +276,19 @@ const FeedbackSystem = ({ role }) => {
                                                             Resolve
                                                         </button>
                                                     ) : (
-                                                        <span className="text-xs font-bold text-slate-400 italic">Resolved</span>
+                                                        <div className="flex items-center gap-2">
+                                                            {item.rating >= 4 && !item.isPublishedToGoogle && googleConfig.enabled && (
+                                                                <button
+                                                                    onClick={() => handlePublishToGoogle(item.id)}
+                                                                    className="flex items-center gap-1.5 px-4 py-1.5 bg-violet-600 text-white hover:bg-violet-700 rounded-lg text-xs font-bold transition-all shadow-md shadow-violet-100 active:scale-95"
+                                                                    title="Mark as published to Google"
+                                                                >
+                                                                    <Share2 size={14} className="animate-pulse" />
+                                                                    Publish to Google
+                                                                </button>
+                                                            )}
+                                                            <span className="text-xs font-bold text-slate-400 italic bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">Resolved</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </td>
@@ -337,8 +377,85 @@ const FeedbackSystem = ({ role }) => {
                 </div>
             )}
 
+            {/* Google Success Modal */}
+            <GoogleSuccessModal
+                isOpen={showGoogleSuccess}
+                onClose={() => setShowGoogleSuccess(false)}
+                link={googleConfig.link}
+            />
         </div>
     );
 };
+
+/* Google Success Modal */
+const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-50 rounded-full -mr-16 -mt-16 blur-2xl opacity-50"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-50 rounded-full -ml-16 -mb-16 blur-2xl opacity-50"></div>
+
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all border border-slate-100 shadow-sm z-10"
+                >
+                    <X size={20} />
+                </button>
+
+                <div className="text-center space-y-8 relative">
+                    <div className="flex justify-center">
+                        <div className="relative">
+                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center text-white shadow-xl shadow-violet-200 animate-bounce-subtle">
+                                <Star size={44} fill="white" />
+                            </div>
+                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-lg">
+                                <Check size={16} strokeWidth={4} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">Thank You!</h2>
+                        <p className="text-slate-500 font-bold text-sm tracking-wide leading-relaxed">
+                            We're thrilled you had a great experience! Would you mind sharing your review on Google to help others find us?
+                        </p>
+                    </div>
+
+                    <div className="pt-4 space-y-4">
+                        <a
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={onClose}
+                            className="w-full h-16 rounded-[1.25rem] bg-slate-900 text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-slate-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-95 group"
+                        >
+                            <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center shadow-sm group-hover:rotate-12 transition-transform">
+                                <MapPin size={14} className="text-violet-600" />
+                            </div>
+                            Review us on Google Maps
+                        </a>
+
+                        <button
+                            onClick={onClose}
+                            className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            Maybe Later
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center gap-1">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export default FeedbackSystem;

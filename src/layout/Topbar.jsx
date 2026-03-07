@@ -1,16 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Menu, User, LogOut, UserCircle, Building, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROLES } from '../config/roles';
 import { useBranchContext } from '../context/BranchContext';
 import { useAuth } from '../context/AuthContext';
+import NotificationDropdown from '../components/notifications/NotificationDropdown';
+import apiClient from '../api/apiClient';
 
 const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
     const { branches, selectedBranch, setSelectedBranch } = useBranchContext();
     const { user, logout } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [notifOpen, setNotifOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+
+    // Fetch unread count for badge
+    const fetchUnreadCount = useCallback(async () => {
+        try {
+            const res = await apiClient.get('/notifications');
+            const notifications = res.data.notifications || [];
+            const chats = res.data.unreadChatCount || 0;
+            const notifs = notifications.filter(n => !n.read).length;
+            setUnreadCount(notifs + chats);
+        } catch (error) {
+            console.error('Badge fetch error:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000); // 30s poll
+        return () => clearInterval(interval);
+    }, [fetchUnreadCount]);
 
     useEffect(() => {
         console.log('[Topbar] Current state:', { role, branchesCount: branches?.length, selectedBranch });
@@ -117,14 +140,20 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
 
                 {/* Icons removed */}
                 {/* Notification Bell */}
-                <button
-                    onClick={() => role === ROLES.MEMBER ? navigate('/member/notifications') : null}
-                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all relative"
-                >
-                    <Bell size={20} />
-                    {/* Badge placeholder - logic can be added later */}
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-                </button>
+                <div className="relative">
+                    <button
+                        onClick={() => setNotifOpen(!notifOpen)}
+                        className={`p-2 rounded-xl transition-all relative ${notifOpen ? 'bg-violet-50 text-violet-600 shadow-sm' : 'text-slate-400 hover:text-violet-600 hover:bg-slate-50'}`}
+                    >
+                        <Bell size={20} />
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-white tabular-nums">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
+                    {notifOpen && <NotificationDropdown onClose={() => setNotifOpen(false)} />}
+                </div>
 
                 {/* Profile Dropdown */}
                 <div style={{ position: 'relative' }} ref={dropdownRef}>
@@ -149,7 +178,7 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             overflow: 'hidden',
-                            border: '2px solid var(--indigo-600, #4f46e5)'
+                            border: '2px solid var(--violet-600, #4f46e5)'
                         }}>
                             {user?.avatar && user.avatar.length > 1 ? (
                                 <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -232,9 +232,9 @@ const PettyCashPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-xl group hover:border-blue-200 transition-all">
+                        <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-xl group hover:border-violet-200 transition-all">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 rounded-2xl bg-blue-50 text-blue-500 group-hover:scale-110 transition-transform">
+                                <div className="p-3 rounded-2xl bg-violet-50 text-violet-500 group-hover:scale-110 transition-transform">
                                     <CreditCard size={24} />
                                 </div>
                                 <div>
@@ -462,7 +462,7 @@ const PettyCashPage = () => {
                                         </div>
                                         <div className="text-right">
                                             <span className="text-xl font-black text-slate-900 tabular-nums block leading-none">₹{Number(exp.amount).toLocaleString()}</span>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border mt-2 inline-block ${exp.paymentMethod === 'Cash' ? 'bg-orange-50 border-orange-100 text-orange-600' : 'bg-blue-50 border-blue-100 text-blue-600'
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border mt-2 inline-block ${exp.paymentMethod === 'Cash' ? 'bg-orange-50 border-orange-100 text-orange-600' : 'bg-violet-50 border-violet-100 text-violet-600'
                                                 }`}>
                                                 {exp.paymentMethod}
                                             </span>

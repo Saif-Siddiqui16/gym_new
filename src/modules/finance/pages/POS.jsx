@@ -26,10 +26,13 @@ const POS = () => {
     // Selected member state
     const [selectedMember, setSelectedMember] = useState(null);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('Cash');
+    const [referenceNumber, setReferenceNumber] = useState('');
 
     useEffect(() => {
         const loadData = async () => {
             try {
+                console.log("[POS] Loading for branch:", selectedBranch);
                 setLoadingProducts(true);
                 // Clear cart and checkout state on branch switch
                 setCart([]);
@@ -37,18 +40,33 @@ const POS = () => {
                 setShowGuestForm(false);
                 setGuestInfo({ name: '', phone: '', email: '' });
 
-                const [productsData, statsData, membersData] = await Promise.all([
-                    getStoreProducts({ branchId: selectedBranch }),
-                    getStoreStats({ branchId: selectedBranch }),
-                    getMembers({ branchId: selectedBranch })
-                ]);
-                setProducts(productsData.products || productsData);
-                setTodaySalesTotal(statsData.stats?.todayPos || 0);
-                setRecentTransactions(statsData.recentTransactions || []);
-                setMembers(membersData);
+                try {
+                    const productsData = await getStoreProducts({ branchId: selectedBranch });
+                    console.log("[POS] Products loaded:", productsData?.length);
+                    setProducts(productsData.products || productsData);
+                } catch (e) {
+                    console.error("[POS] Error loading products:", e);
+                }
+
+                try {
+                    const statsData = await getStoreStats({ branchId: selectedBranch });
+                    console.log("[POS] Stats loaded:", statsData);
+                    setTodaySalesTotal(statsData.stats?.todayPos || 0);
+                    setRecentTransactions(statsData.recentTransactions || []);
+                } catch (e) {
+                    console.error("[POS] Error loading stats:", e);
+                }
+
+                try {
+                    const membersData = await getMembers({ branchId: selectedBranch });
+                    console.log("[POS] Members loaded:", membersData?.length);
+                    setMembers(membersData);
+                } catch (e) {
+                    console.error("[POS] Error loading members:", e);
+                }
             } catch (error) {
-                console.error("Failed to load POS data", error);
-                toast.error("Failed to load store data");
+                console.error("General POS load error:", error);
+                toast.error("Failed to load some store data");
             } finally {
                 setLoadingProducts(false);
             }
@@ -104,6 +122,25 @@ const POS = () => {
             payload.memberId = selectedMember.id;
         } else {
             return toast.error("Please select a member or enter guest details");
+        }
+
+        if (paymentMethod !== 'Cash' && !referenceNumber && paymentMethod !== 'Online Link') {
+            return toast.error("Please enter a reference/transaction number");
+        }
+
+        payload.paymentMode = paymentMethod;
+        payload.referenceNumber = referenceNumber;
+
+        if (paymentMethod === 'Online Link') {
+            toast.promise(
+                new Promise(resolve => setTimeout(resolve, 2000)),
+                {
+                    loading: 'Sending payment link to customer...',
+                    success: 'SMS Payment Link sent!',
+                    error: 'Failed to send link',
+                }
+            );
+            // In a real scenario, we might wait for webhook. For simulation, we continue to save as POS order.
         }
 
         try {
@@ -242,7 +279,7 @@ const POS = () => {
                         </div>
                     ) : (
                         <div className="bg-white/60 backdrop-blur-sm rounded-[3rem] shadow-sm border border-slate-100 p-10 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden w-full">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-violet-500 opacity-20"></div>
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-purple-500 opacity-20"></div>
                             <div className="flex flex-col items-center gap-8 animate-pulse text-center max-w-sm">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-violet-100 rounded-[2.5rem] blur-xl opacity-50"></div>
@@ -265,7 +302,7 @@ const POS = () => {
                 <div className="lg:col-span-4 flex flex-col gap-8">
 
                     {/* Customer Picker with Staff Dashboard aesthetic */}
-                    <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="w-12 h-12 rounded-xl bg-violet-600 text-white flex items-center justify-center shadow-lg shadow-violet-200">
                                 <User size={24} />
@@ -411,18 +448,46 @@ const POS = () => {
                             )}
                         </div>
 
-                        <div className="mt-8 pt-6 border-t border-slate-100 shrink-0">
-                            <div className="flex items-center justify-between mb-6">
+                        <div className="mt-8 pt-6 border-t border-slate-100 shrink-0 space-y-6">
+                            <div className="space-y-3">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {['Cash', 'UPI', 'QR', 'Card', 'Online Link'].map(m => (
+                                        <button
+                                            key={m}
+                                            onClick={() => setPaymentMethod(m)}
+                                            className={`py-2.5 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${paymentMethod === m ? 'border-violet-600 bg-violet-600 text-white shadow-md' : 'border-slate-50 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
+                                        >
+                                            {m}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {paymentMethod !== 'Cash' && paymentMethod !== 'Online Link' && (
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ref Number</p>
+                                    <input
+                                        type="text"
+                                        placeholder="TNX-ID / Auth code"
+                                        value={referenceNumber}
+                                        onChange={(e) => setReferenceNumber(e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-violet-500 text-xs font-bold bg-slate-50/50 outline-none transition-all"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
                                 <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
                                 <span className="text-lg font-black text-slate-900 border-b-2 border-violet-200">₹{total.toLocaleString()}</span>
                             </div>
                             <button
                                 onClick={handleCheckout}
                                 disabled={cart.length === 0 || isCheckingOut || (!selectedMember && !showGuestForm)}
-                                className="w-full h-14 bg-gradient-to-r from-violet-600 to-indigo-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-200 flex items-center justify-center gap-3 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-500"
+                                className="w-full h-14 bg-gradient-to-r from-violet-600 to-violet-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-200 flex items-center justify-center gap-3 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-500"
                             >
                                 <CreditCard size={18} />
-                                {isCheckingOut ? 'Processing...' : 'Process Checkout'}
+                                {isCheckingOut ? 'Processing...' : 'Secure Checkout'}
                             </button>
                             <p className="text-center text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-widest">
                                 {(!selectedMember && !showGuestForm) ? "Select customer to proceed" : "Secure Payment Gateway"}

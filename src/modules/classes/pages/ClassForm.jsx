@@ -144,20 +144,20 @@ const ClassForm = () => {
     if (initialLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-violet-50/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
             {/* Page Header - Back Button */}
             <div className="w-full max-w-4xl mb-6">
                 <button
                     onClick={handleCancel}
-                    className="group flex items-center text-gray-500 hover:text-indigo-600 transition-all duration-300 hover:scale-105"
+                    className="group flex items-center text-gray-500 hover:text-violet-600 transition-all duration-300 hover:scale-105"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-indigo-50 transition-all duration-300 mr-2 group-hover:scale-110 group-hover:-translate-x-1">
+                    <div className="p-1 rounded-full group-hover:bg-violet-50 transition-all duration-300 mr-2 group-hover:scale-110 group-hover:-translate-x-1">
                         <ArrowLeft className="w-5 h-5" />
                     </div>
                     <span className="font-medium">Back to Classes</span>
@@ -166,8 +166,8 @@ const ClassForm = () => {
 
             {/* Form Card with Scrolling */}
             <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-gray-300/50 transition-all duration-500 max-h-[calc(100vh-120px)] flex flex-col">
-                <div className="px-6 py-6 sm:px-10 border-b border-gray-100 bg-gradient-to-r from-indigo-50/30 to-purple-50/30 flex-shrink-0">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <div className="px-6 py-6 sm:px-10 border-b border-gray-100 bg-gradient-to-r from-violet-50/30 to-purple-50/30 flex-shrink-0">
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                         {isEditMode ? 'Edit Class' : 'Create New Class'}
                     </h2>
                     <p className="text-sm text-gray-500 mt-2">Define the details and schedule for this class.</p>
@@ -177,14 +177,14 @@ const ClassForm = () => {
 
                     {/* Class Name */}
                     <div className="space-y-3 group">
-                        <label className="block text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        <label className="block text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                             Class Name <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                             <input
                                 type="text"
                                 name="name"
-                                className={`block w-full px-5 py-4 bg-gradient-to-br from-white to-indigo-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-300 hover:shadow-lg transition-all duration-300 shadow-md focus:scale-[1.02] group-hover:border-indigo-200 ${errors.name ? 'border-red-500 bg-red-50/30 focus:ring-red-500/20' : ''}`}
+                                className={`block w-full px-5 py-4 bg-gradient-to-br from-white to-violet-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300 hover:shadow-lg transition-all duration-300 shadow-md focus:scale-[1.02] group-hover:border-violet-200 ${errors.name ? 'border-red-500 bg-red-50/30 focus:ring-red-500/20' : ''}`}
                                 placeholder="e.g., Morning Yoga"
                                 value={formData.name}
                                 onChange={handleInputChange}
@@ -195,12 +195,12 @@ const ClassForm = () => {
 
                     {/* Description */}
                     <div className="space-y-3 group">
-                        <label className="block text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                        <label className="block text-sm font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
                             Description
                         </label>
                         <textarea
                             name="description"
-                            className="block w-full px-5 py-4 bg-gradient-to-br from-white to-blue-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 hover:border-blue-300 hover:shadow-lg transition-all duration-300 shadow-md resize-none focus:scale-[1.01] group-hover:border-blue-200"
+                            className="block w-full px-5 py-4 bg-gradient-to-br from-white to-violet-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300 hover:shadow-lg transition-all duration-300 shadow-md resize-none focus:scale-[1.01] group-hover:border-violet-200"
                             placeholder="Describe the class activities and benefits..."
                             value={formData.description}
                             onChange={handleInputChange}
@@ -212,13 +212,13 @@ const ClassForm = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Schedule */}
                         <div className="space-y-3 group">
-                            <label className="block text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            <label className="block text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                                 Schedule <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="schedule"
-                                className={`block w-full px-5 py-4 bg-gradient-to-br from-white to-indigo-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 hover:border-indigo-300 hover:shadow-lg transition-all duration-300 shadow-md focus:scale-[1.02] group-hover:border-indigo-200 ${errors.schedule ? 'border-red-500 bg-red-50/30 focus:ring-red-500/20' : ''}`}
+                                className={`block w-full px-5 py-4 bg-gradient-to-br from-white to-violet-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 hover:border-violet-300 hover:shadow-lg transition-all duration-300 shadow-md focus:scale-[1.02] group-hover:border-violet-200 ${errors.schedule ? 'border-red-500 bg-red-50/30 focus:ring-red-500/20' : ''}`}
                                 placeholder="e.g., Mon 7AM"
                                 value={formData.schedule}
                                 onChange={handleInputChange}
@@ -270,7 +270,7 @@ const ClassForm = () => {
 
                         {/* Location */}
                         <div className="space-y-3 group">
-                            <label className="block text-sm font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                            <label className="block text-sm font-bold bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
                                 Location / Studio
                             </label>
                             <input
@@ -344,9 +344,9 @@ const ClassForm = () => {
                     </div>
 
                     {/* Info Box */}
-                    <div className="p-4 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-2xl border-2 border-indigo-100">
+                    <div className="p-4 bg-gradient-to-br from-violet-50/50 to-purple-50/50 rounded-2xl border-2 border-violet-100">
                         <p className="text-xs text-gray-600">
-                            <span className="font-semibold text-indigo-700">Booking Rule:</span> If a required benefit is selected, only members with that benefit in their plan can book this class.
+                            <span className="font-semibold text-violet-700">Booking Rule:</span> If a required benefit is selected, only members with that benefit in their plan can book this class.
                         </p>
                     </div>
 
@@ -363,7 +363,7 @@ const ClassForm = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full md:w-auto flex items-center justify-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl text-sm font-semibold text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/50 hover:scale-105 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full md:w-auto flex items-center justify-center px-8 py-3 bg-gradient-to-r from-violet-600 to-purple-600 border border-transparent rounded-xl text-sm font-semibold text-white hover:from-violet-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/50 hover:scale-105 group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />

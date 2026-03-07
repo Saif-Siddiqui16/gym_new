@@ -19,13 +19,16 @@ const MainLayout = ({ role }) => {
     const [collapsed, setCollapsed] = useState(window.innerWidth < 1024);
     const location = useLocation();
 
-    // Responsive Sidebar Logic
+    // Responsive Sidebar Logic: Auto-collapse on mobile, expand on desktop
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth < 1024) {
                 setCollapsed(true);
+            } else {
+                setCollapsed(false);
             }
         };
+        handleResize(); // Initial check
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);

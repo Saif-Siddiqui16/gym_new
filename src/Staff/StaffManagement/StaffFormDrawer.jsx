@@ -86,8 +86,8 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                 {/* Intro Section */}
                 <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex items-center gap-4 relative overflow-hidden group">
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl relative z-10">
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-xl relative z-10">
                         <User size={32} />
                     </div>
                     <div className="relative z-10">
@@ -101,7 +101,7 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 {/* Personal Info */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-2 px-2">
-                        <BadgeCheck size={18} className="text-indigo-600" />
+                        <BadgeCheck size={18} className="text-violet-600" />
                         <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest">Personal Details</h4>
                     </div>
 
@@ -109,12 +109,12 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Full Name *</label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={20} />
                                 <input
                                     required
                                     type="text"
                                     placeholder="Enter full name"
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-violet-500 transition-all"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
@@ -125,12 +125,12 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Email Address *</label>
                                 <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={18} />
                                     <input
                                         required
                                         type="email"
                                         placeholder="email@gym.com"
-                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-violet-500 transition-all"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
@@ -139,12 +139,12 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Phone Number *</label>
                                 <div className="relative group">
-                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={18} />
                                     <input
                                         required
                                         type="tel"
                                         placeholder="+91 XXXXX XXXXX"
-                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 transition-all"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-violet-500 transition-all"
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     />
@@ -191,7 +191,7 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                         type="button"
                                         onClick={() => setFormData({ ...formData, status: s })}
                                         className={`flex-1 py-4 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${formData.status === s
-                                            ? 'bg-indigo-50 border-indigo-500 text-indigo-600 shadow-sm'
+                                            ? 'bg-violet-50 border-violet-500 text-violet-600 shadow-sm'
                                             : 'bg-slate-50 border-slate-50 text-slate-400'
                                             }`}
                                     >
@@ -217,7 +217,7 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-[2] py-5 bg-indigo-600 text-white rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-[2] py-5 bg-violet-600 text-white rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-purple-500/30 hover:bg-violet-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     <Save size={18} />
                     {isSubmitting ? 'Saving...' : (editId ? 'Update Profile' : 'Create Account')}

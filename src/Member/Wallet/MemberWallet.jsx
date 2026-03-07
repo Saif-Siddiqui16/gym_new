@@ -213,13 +213,13 @@ const MemberWallet = () => {
                             <div className="relative z-10 space-y-8">
                                 <div className="flex justify-between items-center">
                                     <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                                        <Wallet size={24} className="text-indigo-300" />
+                                        <Wallet size={24} className="text-violet-300" />
                                     </div>
                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Balance</span>
                                 </div>
                                 <div>
                                     <h2 className="text-5xl font-black tracking-tight flex items-baseline gap-1">
-                                        <span className="text-2xl text-indigo-400 font-bold">₹</span> {walletBalance.toLocaleString()}
+                                        <span className="text-2xl text-violet-400 font-bold">₹</span> {walletBalance.toLocaleString()}
                                     </h2>
                                     <p className="text-slate-400 text-xs font-bold mt-2 flex items-center gap-1">
                                         <Plus size={14} className="text-green-400" /> ₹{addedThisMonth.toLocaleString()} added this month
@@ -228,16 +228,16 @@ const MemberWallet = () => {
                                 <div className="flex items-center gap-4 pt-4">
                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
                                         <p className="text-[10px] uppercase font-bold text-slate-500">Loyalty Pts</p>
-                                        <p className="text-lg font-black text-indigo-300">{loyaltyPts}</p>
+                                        <p className="text-lg font-black text-violet-300">{loyaltyPts}</p>
                                     </div>
                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
                                         <p className="text-[10px] uppercase font-bold text-slate-500">Credits</p>
-                                        <p className="text-lg font-black text-indigo-300">{classCredits}</p>
+                                        <p className="text-lg font-black text-violet-300">{classCredits}</p>
                                     </div>
                                 </div>
                             </div>
                             {/* Abstract background blobs */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl"></div>
                             <div className="absolute bottom-0 left-0 w-24 h-24 bg-violet-500/10 rounded-full blur-2xl"></div>
                         </div>
 
@@ -392,7 +392,7 @@ const MemberWallet = () => {
                                     </div>
                                     <div className="flex justify-between items-center text-sm font-bold">
                                         <span className="text-xs text-slate-500 font-bold">Available</span>
-                                        <span className="text-lg font-black text-indigo-400">₹{walletBalance.toLocaleString()}</span>
+                                        <span className="text-lg font-black text-violet-400">₹{walletBalance.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -526,7 +526,7 @@ const MemberWallet = () => {
                                 {savedCards.map((card, index) => (
                                     <div key={card.id} className={`p-6 rounded-[32px] border-2 transition-all ${index === 0 ? 'border-violet-200 bg-violet-50/20' : 'border-gray-50 bg-white hover:border-violet-100'} flex items-center justify-between group`}>
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-8 ${card.brand === 'HDFC' ? 'bg-slate-900' : card.brand === 'ICICI' ? 'bg-blue-600' : 'bg-slate-500'} rounded-lg flex items-center justify-center text-[8px] text-white font-black shadow-lg`}>
+                                            <div className={`w-12 h-8 ${card.brand === 'HDFC' ? 'bg-slate-900' : card.brand === 'ICICI' ? 'bg-violet-600' : 'bg-slate-500'} rounded-lg flex items-center justify-center text-[8px] text-white font-black shadow-lg`}>
                                                 {card.brand}
                                             </div>
                                             <div>
@@ -635,7 +635,7 @@ const MemberWallet = () => {
                 maxWidth="max-w-md"
             >
                 <div className="h-full flex flex-col">
-                    <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-white">
+                    <div className="bg-gradient-to-br from-violet-600 to-violet-700 p-8 text-white">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">Total Available</p>
                         <h2 className="text-4xl font-black flex items-center gap-2">
                             {loyaltyPts} <Star className="fill-white" size={24} />

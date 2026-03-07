@@ -69,7 +69,7 @@ const CashierMode = () => {
         { id: 'renewal', label: 'Renewal', icon: History, color: 'text-amber-500' },
         { id: 'pt', label: 'Personal Training', icon: Zap, color: 'text-rose-500' },
         { id: 'diet', label: 'Diet Plan', icon: Tag, color: 'text-emerald-500' },
-        { id: 'addon', label: 'Add-On', icon: Plus, color: 'text-blue-500' },
+        { id: 'addon', label: 'Add-On', icon: Plus, color: 'text-violet-500' },
         { id: 'other', label: 'Other', icon: Calculator, color: 'text-slate-500' }
     ];
 
@@ -77,7 +77,8 @@ const CashierMode = () => {
         { id: 'Cash', label: 'Cash', icon: Banknote },
         { id: 'Card', label: 'Card', icon: CreditCard },
         { id: 'UPI', label: 'UPI / QR', icon: Smartphone },
-        { id: 'Bank Transfer', label: 'Bank Transfer', icon: Building }
+        { id: 'Bank Transfer', label: 'Bank Transfer', icon: Building },
+        { id: 'Online Link', label: 'Online Link', icon: Smartphone }
     ];
 
     const filteredMembers = members.filter(m =>

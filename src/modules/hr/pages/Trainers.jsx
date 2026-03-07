@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { useBranchContext } from '../../../context/BranchContext';
+import { ROLES } from '../../../config/roles';
 import * as managerApi from '../../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
 
@@ -59,9 +60,23 @@ const Trainers = () => {
 
             // Filter trainers and handle branch scoping manually if needed
             const trainerList = allStaff.filter(s => {
-                const isTrainer = s.role === 'TRAINER';
+                const isTrainer = s.role === ROLES.TRAINER || s.role === 'TRAINER';
                 const branchMatch = !branchId || s.tenantId === parseInt(branchId);
                 return isTrainer && branchMatch;
+            }).map(s => {
+                let config = {};
+                try {
+                    config = typeof s.config === 'string' ? JSON.parse(s.config) : (s.config || {});
+                } catch (e) { }
+
+                return {
+                    ...s,
+                    baseSalary: (s.baseSalary !== null && s.baseSalary !== undefined) ? Number(s.baseSalary) : null,
+                    commissionPercent: s.commissionPercent ?? config.commission ?? config.commissionPercent ?? 0,
+                    ptSharePercent: s.ptSharePercent ?? config.ptSharePercent ?? 0,
+                    salaryType: config.salaryType || (s.hourlyRate > 0 ? 'Hourly' : 'Monthly'),
+                    hourlyRate: s.hourlyRate || config.hourlyRate || 0
+                };
             });
 
             setTrainers(trainerList);
@@ -221,7 +236,7 @@ const Trainers = () => {
                             </button>
                             <button
                                 onClick={() => { resetForm(); setIsDrawerOpen(true); }}
-                                className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="h-11 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/30/20 hover:shadow-violet-500/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <Plus size={18} /> Add Trainer
                             </button>
@@ -243,7 +258,7 @@ const Trainers = () => {
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{kpi.label}</p>
                                     <h3 className="text-3xl font-black text-slate-900 truncate">{kpi.value}</h3>
                                 </div>
-                                <div className={`w-12 h-12 flex-shrink-0 rounded-xl ${kpi.variant === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600'} flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                <div className={`w-12 h-12 flex-shrink-0 rounded-xl ${kpi.variant === 'blue' ? 'bg-violet-50 text-violet-600' : 'bg-violet-50 text-violet-600'} flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                                     <kpi.icon size={20} />
                                 </div>
                             </div>
@@ -260,7 +275,7 @@ const Trainers = () => {
                             <input
                                 type="text"
                                 placeholder="Search by name or email..."
-                                className="w-full pl-12 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm focus:border-blue-500 transition-all outline-none"
+                                className="w-full pl-12 pr-4 py-2.5 bg-white border-2 border-slate-100 rounded-xl text-sm focus:border-violet-500 transition-all outline-none"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -283,19 +298,20 @@ const Trainers = () => {
                                     <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Specialization</th>
                                     <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
                                     <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="text-left py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Salary Info</th>
                                     <th className="text-right py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-12 text-center text-slate-400 italic pointer-events-none" data-label="Status">
+                                        <td colSpan="6" className="px-8 py-12 text-center text-slate-400 italic pointer-events-none" data-label="Status">
                                             Loading trainers...
                                         </td>
                                     </tr>
                                 ) : filteredTrainers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-12 text-center text-slate-400 italic pointer-events-none" data-label="Status">
+                                        <td colSpan="6" className="px-8 py-12 text-center text-slate-400 italic pointer-events-none" data-label="Status">
                                             No trainers found.
                                         </td>
                                     </tr>
@@ -303,12 +319,12 @@ const Trainers = () => {
                                     <tr key={trainer.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="py-4 px-6" data-label="Trainer Details">
                                             <div className="flex items-center gap-4 justify-end sm:justify-start">
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center text-violet-600 font-bold text-lg">
                                                     {trainer.name?.charAt(0)}
                                                 </div>
                                                 <div className="text-right sm:text-left">
                                                     <p className="font-bold text-slate-900">{trainer.name}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{trainer.salaryType} Plan</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{trainer.salaryType || 'Monthly'} Plan</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -337,9 +353,24 @@ const Trainers = () => {
                                                 </div>
                                             </div>
                                         </td>
+                                        <td className="py-4 px-6" data-label="Salary Info">
+                                            <div className="text-right sm:text-left">
+                                                {trainer.salaryType === 'Hourly' ? (
+                                                    <div>
+                                                        <p className="font-bold text-slate-900">₹{trainer.hourlyRate || 0}/hr</p>
+                                                        <p className="text-[10px] font-bold text-emerald-600">{trainer.ptSharePercent || 0}% PT Share</p>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <p className="font-bold text-slate-900">₹{trainer.baseSalary != null ? Number(trainer.baseSalary).toLocaleString('en-IN') : '0'}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400">Monthly Base</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="py-4 px-6 text-right" data-label="Actions">
                                             <div className="flex items-center justify-end gap-2 sm:opacity-0 group-hover:opacity-100 sm:transition-all">
-                                                <button onClick={() => openEditDrawer(trainer)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-600 transition-all shadow-sm border border-transparent hover:border-slate-100">
+                                                <button onClick={() => openEditDrawer(trainer)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-violet-600 transition-all shadow-sm border border-transparent hover:border-slate-100">
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button onClick={() => handleDelete(trainer.id)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-rose-600 transition-all shadow-sm border border-transparent hover:border-slate-100">
@@ -378,7 +409,7 @@ const Trainers = () => {
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name *</label>
                                 <input
                                     required
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="John Doe"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -387,7 +418,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone</label>
                                 <input
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="+91 000 000 0000"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -398,7 +429,7 @@ const Trainers = () => {
                                 <input
                                     required
                                     type="email"
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all text-sm font-medium"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-sm font-medium"
                                     placeholder="john@example.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -410,7 +441,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">ID Type</label>
                                 <select
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none bg-white"
                                     value={formData.idType}
                                     onChange={(e) => setFormData({ ...formData, idType: e.target.value })}
                                 >
@@ -423,7 +454,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">ID Number</label>
                                 <input
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
                                     placeholder="Enter ID number"
                                     value={formData.idNumber}
                                     onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
@@ -434,7 +465,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Specialization</label>
                             <input
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
                                 placeholder="Yoga, HIIT, Strength (comma separated)"
                                 value={formData.specialization}
                                 onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
@@ -444,7 +475,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Certifications</label>
                             <textarea
-                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none min-h-[80px]"
+                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none min-h-[80px]"
                                 placeholder="ACE, NASM, CPR Certified"
                                 value={formData.certifications}
                                 onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
@@ -455,7 +486,7 @@ const Trainers = () => {
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Salary Type</label>
                                 <select
-                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none bg-white"
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none bg-white"
                                     value={formData.salaryType}
                                     onChange={(e) => setFormData({ ...formData, salaryType: e.target.value })}
                                 >
@@ -469,7 +500,7 @@ const Trainers = () => {
                                         <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Base Salary</label>
                                         <input
                                             type="number"
-                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none"
+                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
                                             placeholder="0"
                                             value={formData.baseSalary}
                                             onChange={(e) => setFormData({ ...formData, baseSalary: e.target.value })}
@@ -480,7 +511,7 @@ const Trainers = () => {
                                         <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Hourly Rate ($)</label>
                                         <input
                                             type="number"
-                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none"
+                                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
                                             placeholder="0"
                                             value={formData.hourlyRate}
                                             onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
@@ -494,7 +525,7 @@ const Trainers = () => {
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">PT Share Percentage (%)</label>
                             <input
                                 type="number"
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none"
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none"
                                 placeholder="40"
                                 value={formData.ptSharePercent}
                                 onChange={(e) => setFormData({ ...formData, ptSharePercent: e.target.value })}
@@ -505,7 +536,7 @@ const Trainers = () => {
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Bio</label>
                             <textarea
-                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-blue-500 transition-all text-sm font-medium outline-none min-h-[100px]"
+                                className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 transition-all text-sm font-medium outline-none min-h-[100px]"
                                 placeholder="Say something about your experience..."
                                 value={formData.bio}
                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -524,7 +555,7 @@ const Trainers = () => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2"
+                            className="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold uppercase tracking-widest text-xs shadow-xl shadow-violet-500/30/20 hover:shadow-violet-500/30/40 transition-all flex items-center justify-center gap-2"
                         >
                             <Check size={18} strokeWidth={3} />
                             {editingTrainer ? 'Update Trainer' : 'Create Trainer'}

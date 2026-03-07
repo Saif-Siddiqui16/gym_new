@@ -64,7 +64,7 @@ const BenefitDetailsDrawer = ({ isOpen, onClose, benefit }) => {
                             </div>
                         </div>
                         <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center shrink-0">
                                 <CheckCircle2 size={20} />
                             </div>
                             <div>

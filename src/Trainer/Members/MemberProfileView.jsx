@@ -616,7 +616,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
                                                         </div>
                                                         <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full transition-all duration-1000"
+                                                                className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-1000"
                                                                 style={{ width: `${progressPercent}%` }}
                                                             />
                                                         </div>

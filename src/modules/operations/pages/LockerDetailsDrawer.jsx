@@ -29,6 +29,7 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
     const [members, setMembers] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState('');
     const [searchMember, setSearchMember] = useState('');
+    const [isPaid, setIsPaid] = useState(false);
 
     useEffect(() => {
         if (locker?.status === 'Available') {
@@ -49,7 +50,10 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
         if (!selectedMemberId) return toast.error('Please select a member');
         try {
             setLoading(true);
-            await lockerApi.assignLocker(locker.id, { memberId: selectedMemberId });
+            await lockerApi.assignLocker(locker.id, {
+                memberId: selectedMemberId,
+                isPaid: isPaid
+            });
             toast.success('Locker assigned successfully');
             onSuccess();
             onClose();
@@ -138,8 +142,8 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
                     <div className="w-16 h-16 bg-[#0a1b2e] flex items-center justify-center rounded-[1.5rem] shadow-xl relative ring-4 ring-white">
                         <Lock size={28} className="text-white" />
                         <div className={`w-4 h-4 rounded-full absolute -top-1 -right-1 border-4 border-white ${locker.status === 'Available' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
-                                locker.status === 'Assigned' ? 'bg-[#7c3aed] shadow-[0_0_10px_rgba(124,58,237,0.5)]' :
-                                    'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                            locker.status === 'Assigned' ? 'bg-[#7c3aed] shadow-[0_0_10px_rgba(124,58,237,0.5)]' :
+                                'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
                             }`} />
                     </div>
                     <div>
@@ -148,6 +152,11 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
                             <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm ${getStatusStyle(locker.status)}`}>
                                 {locker.status}
                             </span>
+                            {locker.isChargeable && locker.status === 'Assigned' && (
+                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm ${locker.isPaid ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'}`}>
+                                    {locker.isPaid ? 'Paid' : 'Unpaid'}
+                                </span>
+                            )}
                         </div>
                         <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
                             <MapPin size={12} strokeWidth={3} className="text-[#7c3aed]/40" /> {locker.area || 'Main Facility'}
@@ -159,15 +168,22 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
                 <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
                         <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                            <Hash size={10} className="text-indigo-400" /> Size
+                            <Hash size={10} className="text-violet-400" /> Size
                         </span>
                         <span className="text-xs font-black text-slate-900 uppercase tracking-wide">{locker.size || 'Medium'}</span>
                     </div>
                     <div className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
                         <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                            <Shield size={10} className="text-indigo-400" /> Type
+                            <Shield size={10} className="text-violet-400" /> Type
                         </span>
-                        <span className="text-xs font-black text-slate-900 uppercase tracking-wide">{locker.isChargeable ? 'Premium' : 'Standard'}</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-slate-900 uppercase tracking-wide">{locker.isChargeable ? 'Premium' : 'Standard'}</span>
+                            {locker.isChargeable && (
+                                <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded-lg border border-violet-100">
+                                    ₹{locker.price}/mo
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -274,6 +290,24 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
                                     </div>
                                 )}
                             </div>
+
+                            {locker.isChargeable && selectedMemberId && (
+                                <div className="mt-4 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex items-center justify-between animate-in slide-in-from-bottom-2">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-black text-slate-900 tracking-tight">Initial Payment Collected?</span>
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Mark as paid for the first month</span>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={isPaid}
+                                            onChange={(e) => setIsPaid(e.target.checked)}
+                                        />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    </label>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-center p-12 bg-slate-50/80 rounded-[3rem] border-2 border-dashed border-slate-200 shadow-inner">
@@ -289,7 +323,7 @@ const LockerDetailsDrawer = ({ locker, onClose, onSuccess }) => {
 
                     {/* Meta Notes */}
                     {locker.notes && (
-                        <div className="p-6 bg-slate-50/50 border border-slate-100 rounded-[2rem] border-l-4 border-l-indigo-400">
+                        <div className="p-6 bg-slate-50/50 border border-slate-100 rounded-[2rem] border-l-4 border-l-violet-400">
                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">System Log / Notes</span>
                             <p className="text-xs font-bold text-slate-600 tracking-tight leading-relaxed italic line-clamp-3">
                                 {locker.notes}

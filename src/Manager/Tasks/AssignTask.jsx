@@ -38,17 +38,17 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
     return (
         <div className="space-y-2 relative" ref={dropdownRef}>
             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                <Icon size={16} className="text-indigo-500" />
+                <Icon size={16} className="text-violet-500" />
                 {label}
             </label>
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-indigo-300 hover:shadow-md ${isOpen ? 'ring-2 ring-indigo-500 border-indigo-500 bg-white' : ''}`}
+                className={`saas-input w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50/50 flex items-center justify-between cursor-pointer transition-all duration-300 hover:border-violet-300 hover:shadow-md ${isOpen ? 'ring-2 ring-violet-500 border-violet-500 bg-white' : ''}`}
             >
                 <span className={`text-sm ${value ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                     {getDisplayValue()}
                 </span>
-                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-500' : ''}`} />
+                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-violet-500' : ''}`} />
             </div>
 
             {/* Animated Dropdown Menu */}
@@ -61,10 +61,10 @@ const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, place
                             <div
                                 key={optVal}
                                 onClick={() => handleSelect(option)}
-                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
+                                className={`px-4 py-3 text-sm font-medium cursor-pointer flex items-center justify-between transition-colors ${value === optVal ? 'bg-violet-50 text-violet-600' : 'text-gray-700 hover:bg-gray-50 hover:text-violet-600'}`}
                             >
                                 {optLabel}
-                                {value === optVal && <Check size={16} className="text-indigo-600" />}
+                                {value === optVal && <Check size={16} className="text-violet-600" />}
                             </div>
                         );
                     })}
@@ -145,15 +145,15 @@ const AssignTask = () => {
                         <div className="space-y-6">
                             {/* Task Title */}
                             <div className="space-y-2 group">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-indigo-600">
-                                    <FileText size={16} className="text-indigo-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
+                                    <FileText size={16} className="text-violet-500" />
                                     Task Title
                                 </label>
                                 <input
                                     type="text"
                                     name="title"
                                     placeholder="e.g., Equipment Maintenance"
-                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
                                     value={formData.title}
                                     onChange={handleChange}
                                     required
@@ -162,15 +162,15 @@ const AssignTask = () => {
 
                             {/* Description */}
                             <div className="space-y-2 group">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-indigo-600">
-                                    <BarChart size={16} className="text-indigo-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
+                                    <BarChart size={16} className="text-violet-500" />
                                     Description
                                 </label>
                                 <textarea
                                     name="description"
                                     placeholder="Enter detailed task instructions..."
                                     rows="4"
-                                    className="saas-input w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-sm bg-gray-50/50 resize-none hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full p-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 resize-none hover:bg-white hover:shadow-md"
                                     value={formData.description}
                                     onChange={handleChange}
                                     required
@@ -203,14 +203,14 @@ const AssignTask = () => {
 
                             {/* Due Date */}
                             <div className="space-y-2 group relative z-10">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-indigo-600">
-                                    <Calendar size={16} className="text-indigo-500" />
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2 transition-colors group-hover:text-violet-600">
+                                    <Calendar size={16} className="text-violet-500" />
                                     Due Date
                                 </label>
                                 <input
                                     type="date"
                                     name="dueDate"
-                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
+                                    className="saas-input w-full h-11 px-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300 text-sm bg-gray-50/50 hover:bg-white hover:shadow-md"
                                     value={formData.dueDate}
                                     onChange={handleChange}
                                     required
@@ -230,7 +230,7 @@ const AssignTask = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`saas-btn w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`saas-btn w-full h-12 bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-lg shadow-violet-200 font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:scale-[0.98] flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {loading ? (
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

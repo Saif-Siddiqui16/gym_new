@@ -111,7 +111,7 @@ const HardwareLogs = () => {
             <div className="saas-card mb-6" style={{ overflow: 'visible', zIndex: 100, position: 'relative' }}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div className="relative group" style={{ zIndex: 300 }}>
-                        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-indigo-600 group-focus-within:scale-110" />
+                        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-violet-600 group-focus-within:scale-110" />
                         <input
                             type="text"
                             name="search"
@@ -174,10 +174,10 @@ const HardwareLogs = () => {
                                     <tr key={log.id} className="hover:bg-gray-50 hover:shadow-sm transition-all duration-200 cursor-pointer group">
                                         <td data-label="Device Name">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-600 transition-all duration-300 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110">
+                                                <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-600 transition-all duration-300 group-hover:bg-violet-50 group-hover:text-violet-600 group-hover:scale-110">
                                                     <Server size={16} />
                                                 </div>
-                                                <span className="font-medium text-gray-800 transition-colors duration-200 group-hover:text-indigo-600">{log.name}</span>
+                                                <span className="font-medium text-gray-800 transition-colors duration-200 group-hover:text-violet-600">{log.name}</span>
                                             </div>
                                         </td>
                                         <td data-label="Device Type" className="text-sm text-gray-600">{log.type}</td>

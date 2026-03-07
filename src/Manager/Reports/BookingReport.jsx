@@ -5,6 +5,7 @@ import { useBranchContext } from '../../context/BranchContext';
 import '../../styles/GlobalDesign.css';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useRef, useState } from 'react';
+import Button from '../../components/ui/Button';
 
 // Reusable Custom Dropdown Component
 const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
@@ -294,7 +295,7 @@ const BookingReport = () => {
     };
 
     const stats = [
-        { label: 'Total Bookings', value: bookingStats.total, icon: ClipboardList, bg: 'bg-indigo-50', color: 'text-indigo-600', border: 'border-indigo-100' },
+        { label: 'Total Bookings', value: bookingStats.total, icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600', border: 'border-violet-100' },
         { label: 'Completed', value: bookingStats.completed, icon: ClipboardList, bg: 'bg-green-50', color: 'text-green-600', border: 'border-green-100' },
         { label: 'Cancelled', value: bookingStats.cancelled, icon: ClipboardList, bg: 'bg-red-50', color: 'text-red-600', border: 'border-red-100' },
     ];
@@ -426,12 +427,12 @@ const BookingReport = () => {
                                     <tr key={row.id} className="flex flex-col sm:table-row hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/30 transition-colors duration-200 group p-4 sm:p-0 border-b sm:border-0 border-slate-100">
                                         <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Booking ID">
                                             <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking ID</span>
-                                            <span className="text-xs font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md">#{row.id}</span>
+                                            <span className="text-xs font-mono text-violet-600 font-bold bg-violet-50 px-2 py-1 rounded-md">#{row.id}</span>
                                         </td>
                                         <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Member">
                                             <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Member</span>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                                <div className="h-8 w-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-xs">
                                                     {(row.memberName || 'U').charAt(0).toUpperCase()}
                                                 </div>
                                                 <p className="text-sm font-bold text-gray-800">{row.memberName || 'Unknown'}</p>
@@ -537,11 +538,11 @@ const BookingReport = () => {
                 {selectedBooking && (
                     <div className="space-y-6">
                         <div className="flex flex-col items-center py-6 bg-slate-50 rounded-2xl border border-slate-100 mx-2">
-                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-xl md:text-2xl mb-3 shadow-lg ring-4 ring-indigo-50 ring-offset-4">
+                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-black text-xl md:text-2xl mb-3 shadow-lg ring-4 ring-violet-50 ring-offset-4">
                                 {(selectedBooking.memberName || 'U').charAt(0).toUpperCase()}
                             </div>
                             <h4 className="text-lg md:text-xl font-bold text-gray-900">{selectedBooking.memberName || 'Unknown Member'}</h4>
-                            <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
+                            <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-violet-50 text-violet-600 border border-violet-100">
                                 {selectedBooking.classType || 'Booking'}
                             </span>
                         </div>
@@ -571,24 +572,25 @@ const BookingReport = () => {
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                     <MapPin size={12} /> Booking ID
                                 </p>
-                                <p className="text-sm font-bold text-indigo-600">#{selectedBooking.id}</p>
+                                <p className="text-sm font-bold text-violet-600">#{selectedBooking.id}</p>
                             </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex gap-3 text-sm text-indigo-900 mx-2">
-                            <div className="p-1.5 bg-white rounded-lg h-fit border border-indigo-200">
-                                <Calendar size={14} className="text-indigo-600" />
+                        <div className="mt-6 p-4 bg-violet-50/50 rounded-xl border border-violet-100 flex gap-3 text-sm text-violet-900 mx-2">
+                            <div className="p-1.5 bg-white rounded-lg h-fit border border-violet-200">
+                                <Calendar size={14} className="text-violet-600" />
                             </div>
                             <p className="text-xs md:text-sm">Scheduled for <span className="font-bold">{selectedBooking.date || 'N/A'}</span> at <span className="font-bold">{selectedBooking.time || 'N/A'}</span>.</p>
                         </div>
 
                         <div className="px-2 pb-6">
-                            <button
+                            <Button
                                 onClick={() => setIsViewModalOpen(false)}
-                                className="w-full py-3.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg active:scale-95"
+                                variant="primary"
+                                className="w-full h-12 rounded-xl shadow-xl shadow-violet-200"
                             >
                                 Close Details
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}

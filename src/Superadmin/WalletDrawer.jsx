@@ -119,20 +119,20 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
                 {/* Drawer Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Section 1: Wallet Summary Card */}
-                    <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100">
-                        <p className="text-indigo-100 text-sm font-medium">Current Balance</p>
+                    <div className="bg-violet-600 rounded-2xl p-6 text-white shadow-lg shadow-violet-100">
+                        <p className="text-violet-100 text-sm font-medium">Current Balance</p>
                         <h3 className="text-3xl font-bold mt-1">
                             {Number(currentWallet.balance) < 0 ? `-$${Math.abs(Number(currentWallet.balance)).toFixed(2)}` : `$${Number(currentWallet.balance).toFixed(2)}`}
                         </h3>
                         <div className="grid grid-cols-2 gap-4 mt-6">
                             <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                                <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-wider">Total Credit</p>
+                                <p className="text-violet-100 text-[10px] font-bold uppercase tracking-wider">Total Credit</p>
                                 <p className="text-base font-bold text-white">
                                     ${(currentWallet.transactions || []).filter(tx => tx.type === 'Credit').reduce((acc, tx) => acc + Number(tx.amount), 0).toFixed(2)}
                                 </p>
                             </div>
                             <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                                <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-wider">Total Debit</p>
+                                <p className="text-violet-100 text-[10px] font-bold uppercase tracking-wider">Total Debit</p>
                                 <p className="text-base font-bold text-white">
                                     ${(currentWallet.transactions || []).filter(tx => tx.type === 'Debit').reduce((acc, tx) => acc + Number(tx.amount), 0).toFixed(2)}
                                 </p>
@@ -195,7 +195,7 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
                     {/* Section 2: Transaction Table */}
                     <div>
                         <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <div className="w-1.5 h-4 bg-indigo-600 rounded-full" />
+                            <div className="w-1.5 h-4 bg-violet-600 rounded-full" />
                             Recent Transactions
                         </h4>
                         <div className="saas-card p-0 overflow-hidden border border-gray-100 shadow-none">

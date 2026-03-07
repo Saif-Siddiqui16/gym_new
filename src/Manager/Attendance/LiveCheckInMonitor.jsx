@@ -145,7 +145,7 @@ const LiveCheckInMonitor = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border shadow-sm transition-all duration-300 inline-block group-hover/row:scale-110 group-hover/row:shadow-lg ${log.type === 'Member'
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-300 shadow-blue-500/50'
+                                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white border-violet-300 shadow-violet-500/30/50'
                                                     : log.type === 'Staff'
                                                         ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-300 shadow-purple-500/50'
                                                         : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white border-orange-300 shadow-orange-500/50'

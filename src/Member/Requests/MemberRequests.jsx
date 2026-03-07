@@ -68,7 +68,7 @@ const MemberRequests = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
                 <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <ClipboardList size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -82,10 +82,10 @@ const MemberRequests = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Freeze Membership Card */}
                 <div className="group relative overflow-hidden bg-white p-10 rounded-[3rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:scale-110 transition-all" />
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-violet-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:scale-110 transition-all" />
                     <div className="relative space-y-8">
                         <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-[2rem] bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <div className="w-16 h-16 rounded-[2rem] bg-violet-50 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
                                 <Snowflake size={32} strokeWidth={2.5} />
                             </div>
                             <div>
@@ -96,7 +96,7 @@ const MemberRequests = () => {
                         <div className="pt-4">
                             <button
                                 onClick={() => handleOpenDrawer('Freeze Membership')}
-                                className="w-full h-14 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 group/btn"
+                                className="w-full h-14 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all flex items-center justify-center gap-3 group/btn"
                             >
                                 Request Freeze
                                 <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
@@ -107,10 +107,10 @@ const MemberRequests = () => {
 
                 {/* Trainer Request Card */}
                 <div className="group relative overflow-hidden bg-white p-10 rounded-[3rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:scale-110 transition-all" />
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-violet-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50 group-hover:scale-110 transition-all" />
                     <div className="relative space-y-8">
                         <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-[2rem] bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <div className="w-16 h-16 rounded-[2rem] bg-violet-50 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
                                 <UserPlus size={32} strokeWidth={2.5} />
                             </div>
                             <div>
@@ -134,7 +134,7 @@ const MemberRequests = () => {
             {/* Request History Section */}
             <div className="bg-white rounded-[3rem] border-2 border-slate-100 p-10 shadow-xl shadow-slate-200/50 min-h-[400px]">
                 <div className="flex items-center gap-4 mb-10">
-                    <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                    <div className="p-3 bg-violet-50 rounded-2xl text-violet-600">
                         <History size={24} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -146,11 +146,11 @@ const MemberRequests = () => {
                 {requests.length > 0 ? (
                     <div className="space-y-4">
                         {requests.map((request) => (
-                            <div key={request.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border-2 border-slate-100 group hover:bg-white hover:border-indigo-100 transition-all">
+                            <div key={request.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border-2 border-slate-100 group hover:bg-white hover:border-violet-100 transition-all">
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${request.type === 'Freeze Membership' ? 'bg-blue-100 text-blue-600' :
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${request.type === 'Freeze Membership' ? 'bg-violet-100 text-violet-600' :
                                         request.type === 'Diet Plan' ? 'bg-emerald-100 text-emerald-600' :
-                                            request.type === 'Workout Plan' ? 'bg-indigo-100 text-indigo-600' :
+                                            request.type === 'Workout Plan' ? 'bg-violet-100 text-violet-600' :
                                                 'bg-purple-100 text-purple-600'
                                         }`}>
                                         {request.type === 'Freeze Membership' ? <Snowflake size={20} /> :
@@ -172,7 +172,7 @@ const MemberRequests = () => {
                                         }`}>
                                         {request.status || 'Pending'}
                                     </div>
-                                    <button className="p-2.5 text-slate-300 hover:text-indigo-600 hover:bg-white rounded-xl transition-all">
+                                    <button className="p-2.5 text-slate-300 hover:text-violet-600 hover:bg-white rounded-xl transition-all">
                                         <ChevronRight size={20} />
                                     </button>
                                 </div>

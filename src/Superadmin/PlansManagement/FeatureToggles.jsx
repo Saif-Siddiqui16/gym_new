@@ -108,9 +108,9 @@ const FeatureToggles = () => {
             <div className="w-full max-w-5xl mb-6">
                 <button
                     onClick={() => navigate('/superadmin/plans/list')}
-                    className="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors duration-200"
+                    className="group flex items-center text-gray-500 hover:text-violet-600 transition-colors duration-200"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-indigo-50 transition-colors duration-200 mr-2">
+                    <div className="p-1 rounded-full group-hover:bg-violet-50 transition-colors duration-200 mr-2">
                         {/* ChevronLeft or ArrowLeft - keeping consistent with other pages if possible, using whatever was imported or standard icon */}
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>
                     </div>
@@ -158,10 +158,10 @@ const FeatureToggles = () => {
                                 {features.map((feature) => (
                                     <div
                                         key={feature.id}
-                                        className={`p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-4 ${feature.enabled ? 'bg-indigo-50/30 border-indigo-200' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}
+                                        className={`p-4 rounded-2xl border transition-all duration-200 flex items-start justify-between gap-4 ${feature.enabled ? 'bg-violet-50/30 border-violet-200' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}
                                     >
                                         <div className="flex-1">
-                                            <h3 className={`text-sm font-bold ${feature.enabled ? 'text-indigo-900' : 'text-gray-700'}`}>
+                                            <h3 className={`text-sm font-bold ${feature.enabled ? 'text-violet-900' : 'text-gray-700'}`}>
                                                 {feature.name}
                                             </h3>
                                             <p className="text-xs text-gray-500 mt-1 leading-relaxed">
@@ -177,7 +177,7 @@ const FeatureToggles = () => {
                                                     onChange={() => handleFeatureToggle(feature.id)}
                                                     className="sr-only peer"
                                                 />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
                                             </label>
                                         </div>
                                     </div>
@@ -196,7 +196,7 @@ const FeatureToggles = () => {
                                 <button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="w-full md:w-auto flex items-center justify-center px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 border border-transparent rounded-xl text-sm font-semibold text-white hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg shadow-indigo-500/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full md:w-auto flex items-center justify-center px-8 py-2.5 bg-gradient-to-r from-violet-600 to-violet-700 border border-transparent rounded-xl text-sm font-semibold text-white hover:from-violet-700 hover:to-violet-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 shadow-lg shadow-purple-500/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Save size={18} className="mr-2" />
                                     {isSaving ? 'Saving...' : 'Save Changes'}
@@ -206,7 +206,7 @@ const FeatureToggles = () => {
                     ) : (
                         <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
                             <div className="p-4 bg-white rounded-full shadow-sm mb-4">
-                                <SettingsIcon className="w-8 h-8 text-indigo-400" />
+                                <SettingsIcon className="w-8 h-8 text-violet-400" />
                             </div>
                             <h3 className="text-lg font-medium text-gray-900">No Plan Selected</h3>
                             <p className="text-sm text-gray-500 max-w-sm mt-1">

@@ -92,7 +92,7 @@ const CouponDrawer = ({ isOpen, onClose, coupon, mode = 'add', onSuccess }) => {
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div>
                         <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                            {mode === 'add' ? <Zap className="text-amber-500" size={20} /> : <Info className="text-blue-500" size={20} />}
+                            {mode === 'add' ? <Zap className="text-amber-500" size={20} /> : <Info className="text-violet-500" size={20} />}
                             {mode === 'add' ? 'Create New Coupon' : 'Edit Coupon Details'}
                         </h2>
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">

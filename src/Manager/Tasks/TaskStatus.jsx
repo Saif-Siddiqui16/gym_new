@@ -29,9 +29,9 @@ const TaskStatus = () => {
 
             if (statData) {
                 setStats([
-                    { label: 'Total Tasks', value: (statData.total || 0).toString(), icon: ClipboardList, bg: 'bg-indigo-50', color: 'text-indigo-600' },
+                    { label: 'Total Tasks', value: (statData.total || 0).toString(), icon: ClipboardList, bg: 'bg-violet-50', color: 'text-violet-600' },
                     { label: 'Pending', value: (statData.pending || 0).toString(), icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
-                    { label: 'In Progress', value: (statData.inProgress || 0).toString(), icon: Activity, bg: 'bg-blue-50', color: 'text-blue-600' },
+                    { label: 'In Progress', value: (statData.inProgress || 0).toString(), icon: Activity, bg: 'bg-violet-50', color: 'text-violet-600' },
                     { label: 'Completed', value: (statData.completed || 0).toString(), icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
                 ]);
             }
@@ -45,7 +45,7 @@ const TaskStatus = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'Pending': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100 italic">Pending</span>;
-            case 'In Progress': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100 flex items-center gap-1 w-fit"><Activity size={10} /> In Progress</span>;
+            case 'In Progress': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-100 flex items-center gap-1 w-fit"><Activity size={10} /> In Progress</span>;
             case 'Completed': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-100 flex items-center gap-1 w-fit"><CheckCircle size={10} /> Completed</span>;
             default: return null;
         }
@@ -61,7 +61,7 @@ const TaskStatus = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl border border-gray-100 flex items-center gap-4 relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-indigo-100">
+                    <div key={idx} className="bg-white p-6 rounded-2xl border border-gray-100 flex items-center gap-4 relative overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:border-violet-100">
                         {/* Decorative Blob */}
                         <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} rounded-full -mr-8 -mt-8 opacity-20 group-hover:scale-150 transition-transform duration-500 blur-2xl`}></div>
 
@@ -80,13 +80,13 @@ const TaskStatus = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
                 <div className="p-6 border-b border-gray-50 flex items-center justify-between">
                     <h3 className="text-sm font-bold text-gray-800 tracking-tight flex items-center gap-2">
-                        <Activity size={16} className="text-indigo-500" />
+                        <Activity size={16} className="text-violet-500" />
                         Live Status
                     </h3>
                     <div className="flex gap-2">
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`saas-btn p-2 border rounded-lg transition-all ${showFilters ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-100 text-indigo-600' : 'saas-btn-secondary text-gray-500 border-gray-200'}`}
+                            className={`saas-btn p-2 border rounded-lg transition-all ${showFilters ? 'bg-violet-50 border-violet-200 ring-2 ring-violet-100 text-violet-600' : 'saas-btn-secondary text-gray-500 border-gray-200'}`}
                         >
                             <Filter size={18} />
                         </button>
@@ -101,7 +101,7 @@ const TaskStatus = () => {
                                 <button
                                     key={status}
                                     onClick={() => setStatusFilter(status)}
-                                    className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === status ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === status ? 'bg-violet-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
                                 >
                                     {status}
                                 </button>
@@ -124,24 +124,24 @@ const TaskStatus = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="4" className="px-6 py-10 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-indigo-600">
-                                            <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="flex items-center justify-center gap-2 text-violet-600">
+                                            <div className="w-4 h-4 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
                                             <span className="text-xs font-bold uppercase tracking-widest">Synchronizing...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : tasks.length > 0 ? (
                                 tasks.map((task) => (
-                                    <tr key={task.id} className="hover:bg-indigo-50/60 transition-colors duration-200 group cursor-pointer">
+                                    <tr key={task.id} className="hover:bg-violet-50/60 transition-colors duration-200 group cursor-pointer">
                                         <td className="px-6 py-5">
-                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-indigo-700 transition-colors">{task.title}</p>
+                                            <p className="text-sm font-bold text-gray-800 tracking-tight group-hover:text-violet-700 transition-colors">{task.title}</p>
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                                                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors">
                                                     {(task.assignedTo || '?').charAt(0)}
                                                 </div>
-                                                <p className="text-xs font-bold text-gray-600 group-hover:text-indigo-600 transition-colors">{task.assignedTo}</p>
+                                                <p className="text-xs font-bold text-gray-600 group-hover:text-violet-600 transition-colors">{task.assignedTo}</p>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">

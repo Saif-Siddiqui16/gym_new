@@ -66,30 +66,10 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
     return (
         <aside className={`sidebar ${collapsed ? 'collapsed' : ''} `}>
             {/* Logo Area */}
-            <div style={{
-                height: 'var(--topbar-height)',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0 1.5rem',
-                borderBottom: '1px solid var(--border-color)',
-                marginBottom: '1rem'
-            }}>
-                <div style={{
-                    width: '32px',
-                    height: '32px',
-                    background: 'var(--primary)',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    flexShrink: 0,
-                    marginRight: collapsed ? 0 : '12px'
-                }}>G</div>
-
+            <div className="sidebar-header">
+                <div className="sidebar-logo">G</div>
                 {!collapsed && (
-                    <span className="text-title" style={{ fontSize: '1.125rem', whiteSpace: 'nowrap' }}>
+                    <span className="sidebar-brand">
                         {user?.branchName || 'Gym CRM'}
                     </span>
                 )}
@@ -129,32 +109,13 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
 
                                     {/* Submenu items */}
                                     {!collapsed && isExpanded(item) && (
-                                        <ul style={{
-                                            listStyle: 'none',
-                                            padding: '4px 0 4px 20px',
-                                            margin: 0,
-                                            background: 'rgba(0,0,0,0.02)',
-                                            borderLeft: '2px solid var(--border-color)',
-                                            marginLeft: '24px'
-                                        }}>
+                                        <ul className="sidebar-submenu">
                                             {item.children.map((child) => (
                                                 <li key={child.path}>
                                                     <NavLink
                                                         to={child.path}
                                                         end={child.path === '/settings' || child.path === '/operations'}
-                                                        className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''} `}
-                                                        style={({ isActive }) => ({
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px',
-                                                            padding: '8px 12px',
-                                                            fontSize: '0.85rem',
-                                                            textDecoration: 'none',
-                                                            color: isActive ? 'var(--primary)' : 'var(--text)',
-                                                            fontWeight: isActive ? 600 : 400,
-                                                            borderRadius: '6px',
-                                                            transition: 'all 0.2s'
-                                                        })}
+                                                        className={({ isActive }) => `sidebar-submenu-item ${isActive ? 'active' : ''}`}
                                                         onClick={child.label === 'Logout' ? handleLogout : handleItemClick}
                                                     >
                                                         <child.icon size={16} />

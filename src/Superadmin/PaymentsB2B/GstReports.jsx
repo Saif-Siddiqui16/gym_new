@@ -55,14 +55,14 @@ const GstReports = () => {
                 <div className="flex gap-3">
                     <button
                         onClick={handleExportCSV}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
+                        className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
                     >
                         <Download className="w-4 h-4" />
                         Export CSV
                     </button>
                     <button
                         onClick={handleExportPDF}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
+                        className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
                     >
                         <FileText className="w-4 h-4" />
                         Export PDF

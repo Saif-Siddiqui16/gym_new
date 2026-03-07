@@ -83,7 +83,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                         type="submit"
                         form="locker-assign-form"
                         disabled={isSubmitting}
-                        className="flex-[2] px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-[2] px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         <CheckCircle size={18} />
                         {isSubmitting ? 'Processing...' : 'Save Assignment'}
@@ -141,7 +141,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
 
                         {formData.isPaid && (
                             <div className="pt-3 border-t border-slate-200 flex items-center justify-between animate-in fade-in duration-300">
-                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Monthly Rate</span>
+                                <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Monthly Rate</span>
                                 <span className="text-sm font-black text-slate-800">₹{selectedLocker?.price || 500}</span>
                             </div>
                         )}

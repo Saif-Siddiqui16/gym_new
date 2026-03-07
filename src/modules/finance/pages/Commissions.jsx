@@ -69,7 +69,7 @@ const Commissions = () => {
                 <div className="group bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300">
                     <div className="flex items-center justify-between mb-2">
                         <div className="text-slate-500 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Total Sessions</div>
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                             <Target size={16} className="sm:w-5 sm:h-5" />
                         </div>
                     </div>

@@ -70,7 +70,7 @@ const MyTasks = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending': return 'text-amber-500';
-            case 'In Progress': return 'text-indigo-500';
+            case 'In Progress': return 'text-violet-500';
             case 'Completed': return 'text-emerald-500';
             case 'Overdue': return 'text-rose-500';
             default: return 'text-slate-500';
@@ -82,7 +82,7 @@ const MyTasks = () => {
             {/* Premium Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 text-white cursor-pointer hover:scale-105 transition-transform">
+                    <div className="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-200 text-white cursor-pointer hover:scale-105 transition-transform">
                         <ClipboardList size={28} />
                     </div>
                     <div>
@@ -92,7 +92,7 @@ const MyTasks = () => {
                 </div>
                 <button
                     onClick={() => setIsCreateOpen(true)}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white rounded-xl md:rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 text-white rounded-xl md:rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all shadow-xl shadow-violet-200"
                 >
                     <Plus size={16} /> New Task
                 </button>
@@ -103,7 +103,7 @@ const MyTasks = () => {
                 {[
                     { label: 'Total Tasks', value: stats.total, color: 'text-slate-900', bg: 'bg-slate-50' },
                     { label: 'Pending', value: stats.pending, color: 'text-amber-500', bg: 'bg-amber-50' },
-                    { label: 'In Progress', value: stats.inProgress, color: 'text-blue-500', bg: 'bg-blue-50' },
+                    { label: 'In Progress', value: stats.inProgress, color: 'text-violet-500', bg: 'bg-violet-50' },
                     { label: 'Completed', value: stats.completed, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                     { label: 'Overdue', value: stats.overdue, color: 'text-rose-500', bg: 'bg-rose-50' }
                 ].map((item, idx) => (
@@ -125,7 +125,7 @@ const MyTasks = () => {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-indigo-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat shadow-inner"
+                                className="w-full h-12 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat shadow-inner"
                             >
                                 <option>All</option>
                                 <option>Pending</option>
@@ -151,7 +151,7 @@ const MyTasks = () => {
                 <div className="flex-1">
                     {loading ? (
                         <div className="flex items-center justify-center h-full p-20 text-center">
-                            <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mx-auto" />
+                            <Loader2 className="w-10 h-10 text-violet-500 animate-spin mx-auto" />
                         </div>
                     ) : tasks.length === 0 ? (
                         <div className="flex flex-col items-center justify-center p-6 sm:p-12 text-center">
@@ -208,11 +208,11 @@ const MyTasks = () => {
                                                                     handleStatusUpdate(task.id, status);
                                                                     setOpenMenuId(null);
                                                                 }}
-                                                                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${task.status === status ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'
+                                                                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${task.status === status ? 'bg-violet-50 text-violet-600' : 'text-slate-600 hover:bg-slate-50'
                                                                     }`}
                                                             >
                                                                 <div className={`w-1.5 h-1.5 rounded-full ${status === 'Completed' ? 'bg-emerald-500' :
-                                                                    status === 'In Progress' ? 'bg-indigo-500' : 'bg-amber-500'
+                                                                    status === 'In Progress' ? 'bg-violet-500' : 'bg-amber-500'
                                                                     }`} />
                                                                 {status}
                                                             </button>

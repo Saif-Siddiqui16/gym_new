@@ -91,7 +91,7 @@ const TrainerRequests = ({ role }) => {
             <div className="max-w-7xl mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent">
                             Trainer Approvals
                         </h1>
                         <p className="text-slate-500 font-bold mt-1">Review and process trainer signup requests</p>

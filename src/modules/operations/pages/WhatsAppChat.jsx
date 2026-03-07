@@ -206,15 +206,15 @@ const WhatsAppChat = () => {
                     {/* Sidebar Search Area */}
                     <div className="p-6 border-b border-slate-50">
                         <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search by name, phone or role..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full h-12 pl-12 pr-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-indigo-500 transition-all shadow-inner"
+                                className="w-full h-12 pl-12 pr-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all shadow-inner"
                             />
-                            {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2"><Loader2 size={16} className="animate-spin text-indigo-500" /></div>}
+                            {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2"><Loader2 size={16} className="animate-spin text-violet-500" /></div>}
                         </div>
                     </div>
 
@@ -225,17 +225,17 @@ const WhatsAppChat = () => {
                                 <button
                                     key={`${contact.type}-${contact.id}`}
                                     onClick={() => setSelectedMember(contact)}
-                                    className={`w-full p-4 rounded-[1.5rem] flex items-start gap-4 transition-all duration-300 group ${selectedMember?.id === contact.id && selectedMember?.type === contact.type ? 'bg-indigo-50 shadow-sm border border-indigo-100' : 'hover:bg-slate-50'}`}
+                                    className={`w-full p-4 rounded-[1.5rem] flex items-start gap-4 transition-all duration-300 group ${selectedMember?.id === contact.id && selectedMember?.type === contact.type ? 'bg-violet-50 shadow-sm border border-violet-100' : 'hover:bg-slate-50'}`}
                                 >
                                     <div className="relative">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md group-hover:scale-110 transition-transform ${contact.type === 'MEMBER' ? 'bg-gradient-to-br from-indigo-500 to-violet-600' : 'bg-gradient-to-br from-emerald-400 to-teal-500'}`}>
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md group-hover:scale-110 transition-transform ${contact.type === 'MEMBER' ? 'bg-gradient-to-br from-violet-500 to-purple-600' : 'bg-gradient-to-br from-emerald-400 to-teal-500'}`}>
                                             {contact.name.charAt(0)}
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
                                     </div>
                                     <div className="flex-1 text-left min-w-0">
                                         <div className="flex justify-between items-center mb-0.5">
-                                            <span className={`text-[13px] font-black tracking-tight ${selectedMember?.id === contact.id ? 'text-indigo-900' : 'text-slate-800'}`}>
+                                            <span className={`text-[13px] font-black tracking-tight ${selectedMember?.id === contact.id ? 'text-violet-900' : 'text-slate-800'}`}>
                                                 {contact.name}
                                             </span>
                                         </div>
@@ -269,7 +269,7 @@ const WhatsAppChat = () => {
                             {/* Chat Header */}
                             <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black shadow-inner">
+                                    <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 font-black shadow-inner">
                                         {selectedMember.name.charAt(0)}
                                     </div>
                                     <div>
@@ -282,7 +282,7 @@ const WhatsAppChat = () => {
                                     <div ref={optionsRef}>
                                         <button
                                             onClick={() => setShowOptions(!showOptions)}
-                                            className={`p-3 rounded-2xl transition-all ${showOptions ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                                            className={`p-3 rounded-2xl transition-all ${showOptions ? 'bg-violet-600 text-white shadow-lg shadow-violet-100' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
                                         >
                                             <MoreHorizontal size={20} />
                                         </button>
@@ -302,14 +302,14 @@ const WhatsAppChat = () => {
                             <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30 custom-scrollbar relative">
                                 {fetchingMessages ? (
                                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
-                                        <Loader2 className="animate-spin text-indigo-600" size={32} />
+                                        <Loader2 className="animate-spin text-violet-600" size={32} />
                                     </div>
                                 ) : messages.length > 0 ? (
                                     messages.map(msg => (
                                         <div key={msg.id} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4 duration-500`}>
-                                            <div className={`max-w-[70%] p-5 rounded-[2rem] shadow-sm border ${msg.type === 'sent' ? 'bg-indigo-600 text-white border-indigo-500 rounded-tr-none' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
+                                            <div className={`max-w-[70%] p-5 rounded-[2rem] shadow-sm border ${msg.type === 'sent' ? 'bg-violet-600 text-white border-violet-500 rounded-tr-none' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
                                                 <p className="text-[13px] font-bold leading-relaxed">{msg.text}</p>
-                                                <div className={`mt-2 flex items-center gap-2 ${msg.type === 'sent' ? 'text-indigo-200' : 'text-slate-400'}`}>
+                                                <div className={`mt-2 flex items-center gap-2 ${msg.type === 'sent' ? 'text-violet-200' : 'text-slate-400'}`}>
                                                     <span className="text-[9px] font-black uppercase tracking-widest">{msg.time}</span>
                                                     {msg.type === 'sent' && (
                                                         msg.status === 'Pending' ? <Clock size={12} className="animate-pulse" /> : <CheckCheck size={14} />
@@ -331,11 +331,11 @@ const WhatsAppChat = () => {
 
                             {/* Input Area */}
                             <div className="p-8 border-t border-slate-50 bg-white">
-                                <form onSubmit={handleSendMessage} className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-[2rem] px-6 py-3 shadow-inner group focus-within:border-indigo-400 transition-all relative">
+                                <form onSubmit={handleSendMessage} className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-[2rem] px-6 py-3 shadow-inner group focus-within:border-violet-400 transition-all relative">
                                     <div ref={emojiRef} className="relative">
                                         <button
                                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                            className={`p-2 transition-colors ${showEmojiPicker ? 'text-indigo-600' : 'text-slate-300 hover:text-indigo-500'}`}
+                                            className={`p-2 transition-colors ${showEmojiPicker ? 'text-violet-600' : 'text-slate-300 hover:text-violet-500'}`}
                                         >
                                             <Smile size={22} />
                                         </button>
@@ -357,7 +357,7 @@ const WhatsAppChat = () => {
 
                                     <button
                                         onClick={triggerFileSelect}
-                                        className="p-2 text-slate-300 hover:text-indigo-500 transition-colors"
+                                        className="p-2 text-slate-300 hover:text-violet-500 transition-colors"
                                     >
                                         <Paperclip size={22} />
                                     </button>
@@ -377,7 +377,7 @@ const WhatsAppChat = () => {
                                     <button
                                         type="submit"
                                         disabled={!messageInput.trim()}
-                                        className={`p-3 rounded-2xl transition-all ${messageInput.trim() ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-110 active:scale-95' : 'bg-slate-200 text-slate-400'}`}
+                                        className={`p-3 rounded-2xl transition-all ${messageInput.trim() ? 'bg-violet-600 text-white shadow-lg shadow-violet-100 scale-110 active:scale-95' : 'bg-slate-200 text-slate-400'}`}
                                     >
                                         <Send size={18} />
                                     </button>
@@ -390,7 +390,7 @@ const WhatsAppChat = () => {
                             <div className="space-y-6 animate-in fade-in zoom-in duration-1000">
                                 <div className="w-24 h-24 bg-slate-50 rounded-[3rem] border border-slate-100 flex items-center justify-center text-slate-200 mx-auto shadow-inner relative group cursor-default">
                                     <MessageSquare size={44} strokeWidth={1.5} className="group-hover:scale-110 transition-transform duration-500" />
-                                    <div className="absolute -inset-4 bg-indigo-500/5 rounded-full blur-3xl animate-pulse"></div>
+                                    <div className="absolute -inset-4 bg-violet-500/5 rounded-full blur-3xl animate-pulse"></div>
                                 </div>
                                 <div className="space-y-2">
                                     <h4 className="text-slate-400 text-sm font-black uppercase tracking-[0.2em]">Select a conversation to start chatting</h4>

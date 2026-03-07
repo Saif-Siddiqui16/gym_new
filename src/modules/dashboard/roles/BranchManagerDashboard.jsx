@@ -136,7 +136,7 @@ const BranchManagerDashboard = () => {
                         { gradient: 'from-violet-500 to-purple-600', text: 'text-violet-600', trendColor: 'text-emerald-500' },
                         { gradient: 'from-emerald-500 to-emerald-600', text: 'text-emerald-600', trendColor: 'text-emerald-500' },
                         { gradient: 'from-fuchsia-500 to-fuchsia-600', text: 'text-fuchsia-600', trendColor: 'text-amber-500' }
-                    ][i] || { gradient: 'from-blue-500 to-blue-600', text: 'text-blue-600', trendColor: 'text-emerald-500' };
+                    ][i] || { gradient: 'from-violet-500 to-purple-600', text: 'text-violet-600', trendColor: 'text-emerald-500' };
 
                     return (
                         <div key={stat.id || i} className="group relative bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5 overflow-hidden">
@@ -337,7 +337,7 @@ const BranchManagerDashboard = () => {
                 {/* Membership Distribution */}
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
                             <TrendingUp size={20} />
                         </div>
                         <h3 className="text-lg font-bold text-slate-900">Membership Status</h3>
@@ -451,7 +451,7 @@ const BranchManagerDashboard = () => {
                     </div>
 
                     <div className="bg-white rounded-[24px] p-4 md:p-6 border border-slate-100 shadow-xl flex items-center gap-4 transition-all duration-200 md:hover:shadow-2xl md:hover:-translate-y-0.5 group">
-                        <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center transition-transform">
+                        <div className="w-14 h-14 rounded-2xl bg-violet-50 text-violet-500 flex items-center justify-center transition-transform">
                             <CreditCard size={28} />
                         </div>
                         <div>

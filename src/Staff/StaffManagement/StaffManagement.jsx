@@ -94,7 +94,7 @@ const StaffManagement = ({ role }) => {
                             <Users size={28} />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+                            <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
                                 Staff Attendance
                             </h1>
                             <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">
@@ -123,7 +123,7 @@ const StaffManagement = ({ role }) => {
                         <button
                             onClick={loadData}
                             disabled={loading}
-                            className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-indigo-500/30 transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                            className="h-11 px-6 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-purple-500/30 transition-all disabled:opacity-50 shadow-lg shadow-violet-500/30/20 flex items-center justify-center gap-2"
                         >
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                             Refresh
@@ -263,9 +263,9 @@ const StaffManagement = ({ role }) => {
                 <section>
                     <div className="mb-6">
                         <h2 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                            <CalendarDays size={20} className="text-indigo-500" />
+                            <CalendarDays size={20} className="text-violet-500" />
                             Today's Attendance Log
-                            <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-black rounded-full">
+                            <span className="ml-2 px-2 py-0.5 bg-violet-100 text-violet-700 text-xs font-black rounded-full">
                                 {loading ? '…' : todayLog.length}
                             </span>
                         </h2>
@@ -376,8 +376,8 @@ const StaffManagement = ({ role }) => {
 const StatCard = ({ icon: Icon, label, value, color, pulse }) => {
     const colorMap = {
         emerald: 'bg-emerald-50 text-emerald-600',
-        blue: 'bg-blue-50 text-blue-600',
-        indigo: 'bg-indigo-50 text-indigo-600',
+        blue: 'bg-violet-50 text-violet-600',
+        indigo: 'bg-violet-50 text-violet-600',
     };
     return (
         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow">
@@ -397,7 +397,7 @@ const RoleBadge = ({ role }) => {
     const map = {
         STAFF: 'bg-slate-100 text-slate-600',
         TRAINER: 'bg-violet-100 text-violet-700',
-        MANAGER: 'bg-indigo-100 text-indigo-700',
+        MANAGER: 'bg-violet-100 text-violet-700',
         BRANCH_ADMIN: 'bg-orange-100 text-orange-700',
     };
     return (

@@ -51,7 +51,7 @@ const MemberAttendanceLog = () => {
                 return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-black shadow-lg shadow-red-500/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Absent</span>;
             case 'checked-out':
             case 'Checked Out':
-                return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-black shadow-lg shadow-blue-500/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Checked Out</span>;
+                return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-black shadow-lg shadow-violet-500/30/50 hover:scale-110 hover:shadow-xl transition-all duration-300 cursor-pointer">Checked Out</span>;
             default:
                 return <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-400 to-slate-500 text-white text-xs font-black shadow-lg hover:scale-110 transition-all duration-300 cursor-pointer">{status}</span>;
         }
@@ -83,7 +83,7 @@ const MemberAttendanceLog = () => {
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             <button
                                 onClick={handleExport}
-                                className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all"
+                                className="group flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all"
                             >
                                 <Download size={18} strokeWidth={2.5} className="transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-0.5" />
                                 Export Report
@@ -91,7 +91,7 @@ const MemberAttendanceLog = () => {
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
                                 className={`group flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all ${showFilters
-                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-violet-500/50'
+                                    ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-violet-500/30/50'
                                     : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300'
                                     }`}
                             >

@@ -17,7 +17,7 @@ const MembershipReport = () => {
 
     const [stats, setStats] = useState([
         { label: 'Active Members', value: '0', icon: UserCheck, bg: 'bg-emerald-50', color: 'text-emerald-600' },
-        { label: 'New Joins (MTD)', value: '0', icon: UserPlus, bg: 'bg-blue-50', color: 'text-blue-600' },
+        { label: 'New Joins (MTD)', value: '0', icon: UserPlus, bg: 'bg-violet-50', color: 'text-violet-600' },
         { label: 'Expired (MTD)', value: '0', icon: UserMinus, bg: 'bg-rose-50', color: 'text-rose-600' },
     ]);
 

@@ -99,7 +99,7 @@ const MemberDashboard = () => {
 
     const StatCard = ({ title, value, subtitle, icon: Icon, color = 'primary' }) => {
         const colorClasses = {
-            primary: { bg: 'bg-indigo-50', text: 'text-indigo-600', iconBg: 'group-hover:bg-indigo-600 group-hover:text-white' },
+            primary: { bg: 'bg-violet-50', text: 'text-violet-600', iconBg: 'group-hover:bg-violet-600 group-hover:text-white' },
             success: { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'group-hover:bg-emerald-600 group-hover:text-white' },
             warning: { bg: 'bg-amber-50', text: 'text-amber-600', iconBg: 'group-hover:bg-amber-600 group-hover:text-white' },
             danger: { bg: 'bg-rose-50', text: 'text-rose-600', iconBg: 'group-hover:bg-rose-600 group-hover:text-white' },
@@ -107,7 +107,7 @@ const MemberDashboard = () => {
         const currentStyle = colorClasses[color] || colorClasses.primary;
 
         return (
-            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 border border-transparent hover:border-indigo-100 cursor-pointer p-5 h-full">
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10 border border-transparent hover:border-violet-100 cursor-pointer p-5 h-full">
                 <div className="flex justify-between items-start mb-2 relative z-10">
                     <div>
                         <div className="text-slate-400 font-black text-[10px] uppercase tracking-widest mb-1">{title}</div>
@@ -131,9 +131,9 @@ const MemberDashboard = () => {
     const QuickAction = ({ icon: Icon, label, onClick, color = 'bg-slate-50' }) => (
         <button
             onClick={onClick}
-            className={`w-full p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 group ${color} text-left`}
+            className={`w-full p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 group ${color} text-left`}
         >
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm mb-3 group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm mb-3 group-hover:scale-110 transition-transform">
                 <Icon size={18} />
             </div>
             <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none block">{label}</span>
@@ -143,7 +143,7 @@ const MemberDashboard = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
-                <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+                <Loader2 className="w-12 h-12 text-violet-600 animate-spin" />
             </div>
         );
     }
@@ -157,15 +157,15 @@ const MemberDashboard = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
                 <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <User size={24} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
                     </div>
                     <div className="min-w-0">
                         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1 truncate">
-                            Welcome, <span className="text-indigo-600">{memberInfo.name || 'Member'}!</span>
+                            Welcome, <span className="text-violet-600">{memberInfo.name || 'Member'}!</span>
                         </h1>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-indigo-50 text-indigo-600 rounded-lg sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border border-indigo-100 whitespace-nowrap">Member ID: {memberInfo.memberId}</span>
+                            <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-violet-50 text-violet-600 rounded-lg sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border border-violet-100 whitespace-nowrap">Member ID: {memberInfo.memberId}</span>
                             <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-300" />
                             <p className="text-slate-500 font-bold text-[9px] sm:text-xs uppercase tracking-widest">
                                 {memberInfo.branchName}
@@ -174,7 +174,7 @@ const MemberDashboard = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 bg-white rounded-xl sm:rounded-2xl border-2 border-slate-100 shadow-sm self-start sm:self-auto">
-                    <Calendar size={16} className="text-indigo-600 shrink-0" />
+                    <Calendar size={16} className="text-violet-600 shrink-0" />
                     <span className="text-[9px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
             </div>
@@ -271,8 +271,8 @@ const MemberDashboard = () => {
                         {/* Membership Details */}
                         <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col justify-between">
                             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-indigo-600">Membership Details</h3>
-                                <Shield size={16} className="text-indigo-200" />
+                                <h3 className="text-xs font-black uppercase tracking-widest text-violet-600">Membership Details</h3>
+                                <Shield size={16} className="text-violet-200" />
                             </div>
                             <div className="space-y-4">
                                 {[
@@ -287,9 +287,9 @@ const MemberDashboard = () => {
                                     </div>
                                 ))}
                                 <div className="pt-4 border-t border-slate-50">
-                                    <div className="flex justify-between items-center bg-indigo-50/50 p-4 rounded-xl border border-indigo-50">
-                                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Days Remaining</span>
-                                        <span className="text-xs font-black text-indigo-700 uppercase">{membership.daysRemaining} days</span>
+                                    <div className="flex justify-between items-center bg-violet-50/50 p-4 rounded-xl border border-violet-50">
+                                        <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Days Remaining</span>
+                                        <span className="text-xs font-black text-violet-700 uppercase">{membership.daysRemaining} days</span>
                                     </div>
                                 </div>
                             </div>
@@ -338,7 +338,7 @@ const MemberDashboard = () => {
                             </div>
                             <button
                                 onClick={() => navigate('/member/benefits')}
-                                className="w-full h-11 mt-4 bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-2"
+                                className="w-full h-11 mt-4 bg-violet-50 text-violet-600 border border-violet-100 hover:bg-violet-600 hover:text-white transition-all rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-2"
                             >
                                 VIEW DETAILS <ChevronRight size={14} strokeWidth={3} />
                             </button>
@@ -349,19 +349,19 @@ const MemberDashboard = () => {
                     <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                <div className="w-5 h-[2px] bg-indigo-600"></div> Recent Attendance
+                                <div className="w-5 h-[2px] bg-violet-600"></div> Recent Attendance
                             </h2>
                             <button
                                 onClick={() => navigate('/member/attendance')}
-                                className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-1"
+                                className="text-[10px] font-black text-violet-600 uppercase tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-1"
                             >
                                 VIEW ALL <ChevronRight size={14} strokeWidth={3} />
                             </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {recentAttendance.length > 0 ? recentAttendance.map((att, idx) => (
-                                <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-indigo-100 transition-all flex items-center gap-3 group">
-                                    <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-indigo-600 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-violet-100 transition-all flex items-center gap-3 group">
+                                    <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-violet-600 shadow-sm group-hover:bg-violet-600 group-hover:text-white transition-all">
                                         <Calendar size={16} />
                                     </div>
                                     <span className="text-[11px] font-black text-slate-700 uppercase">
@@ -380,10 +380,10 @@ const MemberDashboard = () => {
                     {/* Latest Announcements */}
                     <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl">
                         <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-indigo-600">Announcements</h3>
+                            <h3 className="text-xs font-black uppercase tracking-widest text-violet-600">Announcements</h3>
                             <button
                                 onClick={() => navigate('/member/announcements')}
-                                className="text-[10px] font-black text-indigo-600"
+                                className="text-[10px] font-black text-violet-600"
                             >
                                 ALL
                             </button>
@@ -393,7 +393,7 @@ const MemberDashboard = () => {
                                 <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
                                     <h4 className="text-[11px] font-black text-slate-900 uppercase mb-1">{item.title}</h4>
                                     <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{item.content}</p>
-                                    <span className="text-[9px] font-black text-indigo-600 uppercase mt-2 block tracking-widest">
+                                    <span className="text-[9px] font-black text-violet-600 uppercase mt-2 block tracking-widest">
                                         {new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                                     </span>
                                 </div>
@@ -432,7 +432,7 @@ const MemberDashboard = () => {
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No upcoming classes</p>
                                 <button
                                     onClick={() => navigate('/member/bookings')}
-                                    className="mt-4 text-[10px] font-black text-indigo-600 border-b border-indigo-200"
+                                    className="mt-4 text-[10px] font-black text-violet-600 border-b border-violet-200"
                                 >
                                     BOOK NOW
                                 </button>
@@ -493,7 +493,7 @@ const MemberDashboard = () => {
                         {/* Modal Header */}
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
+                                <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-bold">
                                     {data.trainer.name.charAt(0)}
                                 </div>
                                 <div>
@@ -520,12 +520,12 @@ const MemberDashboard = () => {
                                     <div
                                         key={msg.id || idx}
                                         className={`p-4 rounded-2xl border shadow-sm max-w-[85%] ${isMe
-                                            ? 'bg-indigo-600 border-indigo-500 !text-white rounded-tr-none self-end ml-auto'
+                                            ? 'bg-violet-600 border-violet-500 !text-white rounded-tr-none self-end ml-auto'
                                             : 'bg-white border-slate-100 rounded-tl-none self-start'
                                             }`}
                                     >
                                         <p className={`text-sm ${isMe ? 'text-white' : 'text-slate-700'}`}>{msg.message}</p>
-                                        <span className={`text-[10px] font-bold mt-2 block ${isMe ? 'text-indigo-100' : 'text-slate-400'}`}>
+                                        <span className={`text-[10px] font-bold mt-2 block ${isMe ? 'text-violet-100' : 'text-slate-400'}`}>
                                             {formatTime(msg.createdAt)}
                                         </span>
                                     </div>
@@ -542,13 +542,13 @@ const MemberDashboard = () => {
                             <input
                                 type="text"
                                 placeholder="Type a message..."
-                                className="flex-1 px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                className="flex-1 px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                                 value={chatMessage}
                                 onChange={(e) => setChatMessage(e.target.value)}
                             />
                             <button
                                 type="submit"
-                                className="w-10 h-10 bg-indigo-600 !text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 active:scale-90 transition-all shadow-lg shadow-indigo-100"
+                                className="w-10 h-10 bg-violet-600 !text-white rounded-xl flex items-center justify-center hover:bg-violet-700 active:scale-90 transition-all shadow-lg shadow-violet-100"
                             >
                                 <Send size={18} />
                             </button>

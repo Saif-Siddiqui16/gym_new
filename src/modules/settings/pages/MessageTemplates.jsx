@@ -4,8 +4,8 @@ import apiClient from '../../../api/apiClient';
 import { toast } from 'react-hot-toast';
 
 const CHANNELS = [
-    { key: 'SMS', label: 'SMS Templates', icon: Phone, color: 'blue', bg: 'bg-blue-50', text: 'text-blue-600' },
-    { key: 'Email', label: 'Email Templates', icon: Mail, color: 'indigo', bg: 'bg-indigo-50', text: 'text-indigo-600' },
+    { key: 'SMS', label: 'SMS Templates', icon: Phone, color: 'blue', bg: 'bg-violet-50', text: 'text-violet-600' },
+    { key: 'Email', label: 'Email Templates', icon: Mail, color: 'indigo', bg: 'bg-violet-50', text: 'text-violet-600' },
     { key: 'WhatsApp', label: 'WhatsApp Templates', icon: MessageSquare, color: 'emerald', bg: 'bg-emerald-50', text: 'text-emerald-600' },
 ];
 
@@ -87,7 +87,7 @@ const MessageTemplates = () => {
             {/* Header */}
             <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-violet-500/30/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div>
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent font-black tracking-tighter">
                             Communication Templates
@@ -98,7 +98,7 @@ const MessageTemplates = () => {
                     </div>
                     <button
                         onClick={() => setShowForm(true)}
-                        className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest"
+                        className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-violet-500/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest"
                     >
                         <Plus size={18} strokeWidth={3} /> Add Template
                     </button>

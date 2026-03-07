@@ -17,6 +17,7 @@ import '../../../styles/GlobalDesign.css';
 import AnnouncementFormDrawer from './AnnouncementFormDrawer';
 import BroadcastMessageDrawer from './BroadcastMessageDrawer';
 import MessageTemplatesDrawer from './MessageTemplatesDrawer';
+import Button from '../../../components/ui/Button';
 
 const Announcements = () => {
     const { user } = useAuth();
@@ -60,7 +61,7 @@ const Announcements = () => {
     const statItems = [
         { label: 'Total Announcements', value: stats.totalAnnouncements, icon: Megaphone, color: 'text-slate-900', iconBg: 'bg-slate-50', iconColor: 'text-slate-400' },
         { label: 'Active', value: stats.activeAnnouncements, icon: Megaphone, color: 'text-emerald-500', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500' },
-        { label: 'Messages Sent', value: stats.messagesSent, icon: Send, color: 'text-blue-500', iconBg: 'bg-blue-50', iconColor: 'text-blue-500' },
+        { label: 'Messages Sent', value: stats.messagesSent, icon: Send, color: 'text-violet-500', iconBg: 'bg-violet-50', iconColor: 'text-violet-500' },
         { label: 'Templates', value: stats.templates, icon: FileText, color: 'text-orange-500', iconBg: 'bg-orange-50', iconColor: 'text-orange-500' }
     ];
 
@@ -72,7 +73,7 @@ const Announcements = () => {
                 {statItems.map((stat, idx) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={idx} className="bg-white rounded-[1.25rem] p-5 md:p-6 shadow-sm border border-slate-100 flex flex-col justify-between h-[110px] md:h-[130px] relative group hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-500 cursor-pointer">
+                        <div key={idx} className="bg-white rounded-[1.25rem] p-5 md:p-6 shadow-sm border border-slate-100 flex flex-col justify-between h-[110px] md:h-[130px] relative group hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 transition-all duration-500 cursor-pointer">
                             <div className="flex justify-between items-start w-full">
                                 <span className="text-slate-400 text-[10px] md:text-[11px] font-black uppercase tracking-widest">{stat.label}</span>
                                 <div className={`w-8 h-8 md:w-10 md:h-10 ${stat.iconBg} ${stat.iconColor} rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-500`}>
@@ -90,7 +91,7 @@ const Announcements = () => {
             {/* Title & Action Buttons Row */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-100">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-lg shadow-violet-100">
                         <Megaphone size={24} />
                     </div>
                     <div>
@@ -114,13 +115,14 @@ const Announcements = () => {
                         <Send size={14} />
                         Broadcast
                     </button>
-                    <button
+                    <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                        variant="primary"
+                        className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                        icon={Plus}
                     >
-                        <Plus size={16} />
                         New Announcement
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -129,7 +131,7 @@ const Announcements = () => {
                 <button
                     onClick={() => setActiveTab('Announcements')}
                     className={`flex-1 md:flex-none px-6 md:px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'Announcements'
-                        ? 'bg-white text-indigo-600 shadow-md border border-slate-100'
+                        ? 'bg-white text-violet-600 shadow-md border border-slate-100'
                         : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
@@ -138,7 +140,7 @@ const Announcements = () => {
                 <button
                     onClick={() => setActiveTab('Communication Logs')}
                     className={`flex-1 md:flex-none px-6 md:px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'Communication Logs'
-                        ? 'bg-white text-indigo-600 shadow-md border border-slate-100'
+                        ? 'bg-white text-violet-600 shadow-md border border-slate-100'
                         : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
@@ -150,7 +152,7 @@ const Announcements = () => {
             <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 min-h-[450px] overflow-hidden">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-[450px] gap-4">
-                        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                        <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Loading dynamic data...</p>
                     </div>
                 ) : activeTab === 'Announcements' ? (
@@ -158,9 +160,9 @@ const Announcements = () => {
                         {announcements.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {announcements.map((ann) => (
-                                    <div key={ann.id} className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-6 hover:bg-white hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 group">
+                                    <div key={ann.id} className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-6 hover:bg-white hover:shadow-2xl hover:shadow-purple-500/5 transition-all duration-500 group">
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                                                 <Bell size={20} />
                                             </div>
                                             <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${ann.priority >= 7 ? 'bg-rose-100 text-rose-600' : ann.priority >= 4 ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-600'}`}>
@@ -209,7 +211,7 @@ const Announcements = () => {
                                         {logs.map((log) => (
                                             <tr key={log.id} className="hover:bg-white transition-colors">
                                                 <td className="px-6 py-4">
-                                                    <span className="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-widest">
+                                                    <span className="px-2 py-1 rounded-lg bg-violet-50 text-violet-600 text-[9px] font-black uppercase tracking-widest">
                                                         {log.channel}
                                                     </span>
                                                 </td>

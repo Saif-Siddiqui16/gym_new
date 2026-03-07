@@ -4,6 +4,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
+import Button from '../../../components/ui/Button';
 
 const LeadsPipeline = () => {
     const { selectedBranch } = useBranchContext();
@@ -25,6 +26,16 @@ const LeadsPipeline = () => {
         source: 'Walk-in',
         notes: '',
         status: 'New'
+    });
+
+    const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+    const [showLogDrawer, setShowLogDrawer] = useState(false);
+    const [leadHistory, setLeadHistory] = useState(null);
+    const [logData, setLogData] = useState({
+        notes: '',
+        nextDate: '',
+        nextTime: '',
+        status: ''
     });
 
     useEffect(() => {
@@ -144,6 +155,48 @@ const LeadsPipeline = () => {
         setActiveMenu(activeMenu === leadId ? null : leadId);
     };
 
+    const fetchLeadHistory = async (leadId) => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get(`/crm/leads/${leadId}`);
+            setLeadHistory(response.data);
+            setShowHistoryDrawer(true);
+            setActiveMenu(null);
+        } catch (error) {
+            console.error('History fetch error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogContact = async (e) => {
+        e.preventDefault();
+        try {
+            setSubmitting(true);
+            const nextFollowUp = logData.nextDate ? `${logData.nextDate}T${logData.nextTime || '10:00'}:00` : null;
+            await apiClient.post(`/crm/leads/${selectedLeadId}/followups`, {
+                notes: logData.notes,
+                nextDate: nextFollowUp,
+                status: logData.status
+            });
+            setShowLogDrawer(false);
+            setLogData({ notes: '', nextDate: '', nextTime: '', status: '' });
+            fetchLeads();
+        } catch (error) {
+            console.error('Log contact error:', error);
+            alert('Failed to log contact');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const openLogDrawer = (lead) => {
+        setSelectedLeadId(lead.id);
+        setLogData({ ...logData, status: lead.status });
+        setShowLogDrawer(true);
+        setActiveMenu(null);
+    };
+
     const stats = {
         total: leads.length,
         new: leads.filter(l => l.status === 'New').length,
@@ -182,13 +235,14 @@ const LeadsPipeline = () => {
                                 </p>
                             </div>
                         </div>
-                        <button
+                        <Button
                             onClick={openAddDrawer}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-violet-600 !text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:scale-105 transition-all"
+                            variant="primary"
+                            className="w-full sm:w-auto px-8 h-12 rounded-2xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all font-bold"
+                            icon={UserPlus}
                         >
-                            <UserPlus size={18} className="!text-white" />
-                            <span className="!text-white">Add Lead</span>
-                        </button>
+                            Add Lead
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -316,7 +370,7 @@ const LeadsPipeline = () => {
                                         </td>
                                         <td className="px-8 py-4" data-label="Status">
                                             <div className="flex flex-col gap-1">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
+                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-violet-50 text-violet-600' :
                                                     lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
                                                         lead.status === 'Contacted' ? 'bg-orange-50 text-orange-600' :
                                                             'bg-slate-100 text-slate-600'
@@ -332,7 +386,9 @@ const LeadsPipeline = () => {
                                         <td className="px-8 py-4" data-label="Follow-up">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-slate-700">{lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'No date'}</span>
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{lead.followUpTime || 'Time not set'}</span>
+                                                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">
+                                                    {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Time not set'}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-4 text-right" data-label="Actions">
@@ -377,6 +433,22 @@ const LeadsPipeline = () => {
                                                             >
                                                                 <Edit3 size={14} className="text-slate-400 group-hover:text-violet-500" />
                                                                 Edit Profile
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => openLogDrawer(lead)}
+                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all group"
+                                                            >
+                                                                <Phone size={14} className="text-slate-400 group-hover:text-violet-500" />
+                                                                Log Contact
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => fetchLeadHistory(lead.id)}
+                                                                className="flex items-center gap-3 w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all group"
+                                                            >
+                                                                <TrendingUp size={14} className="text-slate-400 group-hover:text-violet-500" />
+                                                                View Profile
                                                             </button>
 
                                                             <div className="h-px bg-slate-100 mx-2 my-1"></div>
@@ -447,20 +519,23 @@ const LeadsPipeline = () => {
                 maxWidth="max-w-md"
                 footer={
                     <div className="flex gap-3 w-full justify-end">
-                        <button
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => setShowAddDrawer(false)}
-                            className="px-6 h-11 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all font-sans"
+                            className="px-6 h-11 rounded-xl"
                         >
                             Cancel
-                        </button>
-                        <button
-                            disabled={submitting}
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            loading={submitting}
                             onClick={handleAddLead}
-                            className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-200 hover:scale-105 transition-all font-sans disabled:opacity-50 flex items-center gap-2"
+                            className="px-6 h-11 rounded-xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all"
                         >
-                            {submitting && <Loader2 size={16} className="animate-spin" />}
-                            {submitting ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Lead' : 'Add Lead')}
-                        </button>
+                            {isEdit ? 'Update Lead' : 'Add Lead'}
+                        </Button>
                     </div>
                 }
             >
@@ -525,6 +600,123 @@ const LeadsPipeline = () => {
                             />
                         </div>
                     </div>
+                </div>
+            </RightDrawer>
+
+            {/* Log Contact Drawer */}
+            <RightDrawer
+                isOpen={showLogDrawer}
+                onClose={() => setShowLogDrawer(false)}
+                title="Log Contact"
+                subtitle="Record call/meeting notes and schedule next follow-up"
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowLogDrawer(false)}
+                            className="px-6 h-11 rounded-xl"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            loading={submitting}
+                            onClick={handleLogContact}
+                            className="px-6 h-11 rounded-xl shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all"
+                        >
+                            Save Log
+                        </Button>
+                    </div>
+                }
+            >
+                <div className="p-8 space-y-6">
+                    <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">What happened? (Notes)</label>
+                        <textarea
+                            placeholder="Customer is interested, asked for a trial session..."
+                            rows={4}
+                            value={logData.notes}
+                            onChange={(e) => setLogData({ ...logData, notes: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Next Follow-up Date</label>
+                            <input
+                                type="date"
+                                value={logData.nextDate}
+                                onChange={(e) => setLogData({ ...logData, nextDate: e.target.value })}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Time</label>
+                            <input
+                                type="time"
+                                value={logData.nextTime}
+                                onChange={(e) => setLogData({ ...logData, nextTime: e.target.value })}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Update Status</label>
+                        <select
+                            value={logData.status}
+                            onChange={(e) => setLogData({ ...logData, status: e.target.value })}
+                            className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                        >
+                            <option value="New">New</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Interested">Interested</option>
+                            <option value="Converted">Converted</option>
+                            <option value="Lost">Lost</option>
+                        </select>
+                    </div>
+                </div>
+            </RightDrawer>
+
+            {/* History Drawer */}
+            <RightDrawer
+                isOpen={showHistoryDrawer}
+                onClose={() => setShowHistoryDrawer(false)}
+                title="Lead History"
+                subtitle={`Timeline for ${leadHistory?.name}`}
+                maxWidth="max-w-lg"
+            >
+                <div className="p-8">
+                    {leadHistory?.followUps?.length > 0 ? (
+                        <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-slate-100">
+                            {leadHistory.followUps.map((log, idx) => (
+                                <div key={log.id} className="relative pl-10">
+                                    <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-white border-4 border-violet-500 shadow-sm z-10 flex items-center justify-center">
+                                        <div className="w-2 h-2 rounded-full bg-violet-500"></div>
+                                    </div>
+                                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-2">
+                                        <div className="flex justify-between items-start">
+                                            <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Contact Logged</span>
+                                            <span className="text-[10px] font-bold text-slate-400">{new Date(log.createdAt).toLocaleString()}</span>
+                                        </div>
+                                        <p className="text-sm font-semibold text-slate-700 leading-relaxed italic">"{log.notes}"</p>
+                                        {log.nextDate && (
+                                            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Scheduled Next: {new Date(log.nextDate).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No history logs found</p>
+                        </div>
+                    )}
                 </div>
             </RightDrawer>
 

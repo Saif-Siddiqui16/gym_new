@@ -101,20 +101,20 @@ const CommunicationPage = () => {
                             <div className="p-8 pb-0">
                                 <div className="flex items-center justify-between mb-6">
                                     <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                                        <MessageSquare className="text-indigo-600" />
+                                        <MessageSquare className="text-violet-600" />
                                         Chats
                                     </h1>
-                                    <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-sm">
+                                    <div className="p-2.5 bg-violet-50 text-violet-600 rounded-xl hover:bg-violet-600 hover:text-white transition-all cursor-pointer shadow-sm">
                                         <Plus size={20} />
                                     </div>
                                 </div>
 
                                 <div className="relative group mb-6">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-all" size={18} />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-all" size={18} />
                                     <input
                                         type="text"
                                         placeholder="Search members..."
-                                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-indigo-500 transition-all shadow-sm"
+                                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-violet-500 transition-all shadow-sm"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
@@ -125,10 +125,10 @@ const CommunicationPage = () => {
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
-                                            className={`pb-4 text-xs font-black uppercase tracking-widest relative transition-all ${activeTab === tab ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                            className={`pb-4 text-xs font-black uppercase tracking-widest relative transition-all ${activeTab === tab ? 'text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
                                             {tab}
-                                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full" />}
+                                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-violet-600 rounded-t-full" />}
                                         </button>
                                     ))}
                                 </div>
@@ -149,12 +149,12 @@ const CommunicationPage = () => {
                                                 setView('chat');
                                             }}
                                             className={`p-4 rounded-[24px] cursor-pointer transition-all flex items-center gap-4 group ${selectedChat?.id === chat.id
-                                                ? 'bg-white shadow-xl shadow-indigo-500/10 border border-slate-100 scale-[1.02]'
+                                                ? 'bg-white shadow-xl shadow-purple-500/10 border border-slate-100 scale-[1.02]'
                                                 : 'hover:bg-white/60'
                                                 }`}
                                         >
                                             <div className="relative">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black shadow-lg">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black shadow-lg">
                                                     {chat.avatar}
                                                 </div>
                                                 {chat.status === 'online' ? (
@@ -171,7 +171,7 @@ const CommunicationPage = () => {
                                                 <div className="flex justify-between items-center">
                                                     <p className="text-xs text-slate-500 truncate font-medium">{chat.lastMsg}</p>
                                                     {chat.unread > 0 && (
-                                                        <span className="min-w-[20px] h-5 px-1.5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg animate-pulse">
+                                                        <span className="min-w-[20px] h-5 px-1.5 bg-violet-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-lg animate-pulse">
                                                             {chat.unread}
                                                         </span>
                                                     )}
@@ -193,7 +193,7 @@ const CommunicationPage = () => {
                                             <button onClick={() => setView('list')} className="md:hidden p-2 text-slate-400 hover:text-slate-600">
                                                 <ChevronLeft />
                                             </button>
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-400 flex items-center justify-center text-white font-black shadow-lg">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white font-black shadow-lg">
                                                 {selectedChat.avatar}
                                             </div>
                                             <div>
@@ -207,10 +207,10 @@ const CommunicationPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all" title="Audio Call"><Phone size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all" title="Video Call"><Video size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all" title="Member Info"><Info size={20} /></button>
-                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 rounded-xl transition-all" title="More Options"><MoreVertical size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Audio Call"><Phone size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Video Call"><Video size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="Member Info"><Info size={20} /></button>
+                                            <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-violet-600 rounded-xl transition-all" title="More Options"><MoreVertical size={20} /></button>
                                         </div>
                                     </div>
 
@@ -232,7 +232,7 @@ const CommunicationPage = () => {
                                                             {msg.time}
                                                         </span>
                                                         {msg.sender === 'me' && (
-                                                            <CheckCheck size={14} className={msg.status === 'read' ? 'text-indigo-400' : 'text-slate-600'} />
+                                                            <CheckCheck size={14} className={msg.status === 'read' ? 'text-violet-400' : 'text-slate-600'} />
                                                         )}
                                                     </div>
                                                 </div>
@@ -242,11 +242,11 @@ const CommunicationPage = () => {
 
                                     {/* Chat Input */}
                                     <div className="p-6 md:p-8 border-t border-slate-50 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
-                                        <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-[28px] border-2 border-slate-50 focus-within:border-indigo-100 focus-within:bg-white transition-all shadow-sm">
+                                        <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-[28px] border-2 border-slate-50 focus-within:border-violet-100 focus-within:bg-white transition-all shadow-sm">
                                             <div className="flex items-center gap-1 pl-2">
-                                                <button className="p-2.5 text-slate-400 hover:text-indigo-600 transition-colors"><Smile size={22} /></button>
-                                                <button className="p-2.5 text-slate-400 hover:text-indigo-600 transition-colors"><Paperclip size={22} /></button>
-                                                <button className="p-2.5 text-slate-400 hover:text-indigo-600 transition-colors hidden md:block"><Image size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"><Smile size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors"><Paperclip size={22} /></button>
+                                                <button className="p-2.5 text-slate-400 hover:text-violet-600 transition-colors hidden md:block"><Image size={22} /></button>
                                             </div>
                                             <input
                                                 type="text"
@@ -258,7 +258,7 @@ const CommunicationPage = () => {
                                             />
                                             <button
                                                 onClick={handleSend}
-                                                className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:scale-110 active:scale-95 transition-all"
+                                                className="w-12 h-12 bg-violet-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-violet-100 hover:bg-violet-700 hover:scale-110 active:scale-95 transition-all"
                                             >
                                                 <Send size={20} />
                                             </button>
@@ -267,7 +267,7 @@ const CommunicationPage = () => {
                                 </>
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-slate-50/10">
-                                    <div className="w-24 h-24 bg-white rounded-[32px] shadow-2xl flex items-center justify-center text-indigo-100 mb-8 animate-bounce delay-700 duration-[3000ms]">
+                                    <div className="w-24 h-24 bg-white rounded-[32px] shadow-2xl flex items-center justify-center text-violet-100 mb-8 animate-bounce delay-700 duration-[3000ms]">
                                         <MessageSquare size={48} />
                                     </div>
                                     <h2 className="text-3xl font-black text-slate-800 tracking-tight">Select a Conversation</h2>

@@ -85,7 +85,7 @@ const SecuritySettings = () => {
     const Toggle = ({ active, onToggle }) => (
         <button
             onClick={onToggle}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${active ? 'bg-blue-600' : 'bg-slate-200'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${active ? 'bg-violet-600' : 'bg-slate-200'}`}
         >
             <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${active ? 'translate-x-6' : 'translate-x-1'}`}
@@ -173,7 +173,7 @@ const SecuritySettings = () => {
                 <button
                     onClick={handleSave}
                     disabled={saving || isReadOnly}
-                    className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black rounded-xl shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black rounded-xl shadow-xl shadow-violet-500/30/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                     {saving ? <Loader size={20} className="animate-spin" /> : <Save size={20} />}
                     {saving ? 'Saving Security Policy...' : 'Save Security Policy'}

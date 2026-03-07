@@ -63,6 +63,15 @@ export const deleteInvoice = async (id) => {
     }
 };
 
+export const settleInvoice = async (id, settlementData) => {
+    try {
+        const response = await apiClient.patch(`/finance/invoices/${id}/settle`, settlementData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const submitCashierPayment = async (paymentData) => {
     try {
         const response = await apiClient.post('/finance/cashier', paymentData);

@@ -101,9 +101,9 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                         type="submit"
                         form="add-gym-form"
                         disabled={loading}
-                        className="group relative px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
+                        className="group relative px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <span className="relative flex items-center justify-center gap-2">
                             {loading ? (
                                 <>
@@ -154,8 +154,8 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
 
                         {/* Branch Name */}
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                                <MapPin size={14} className="sm:w-4 sm:h-4 text-blue-500" />
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+                                <MapPin size={14} className="sm:w-4 sm:h-4 text-violet-500" />
                                 Branch Name
                             </label>
                             <input
@@ -164,7 +164,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.branchName}
                                 onChange={handleChange}
                                 placeholder="e.g. Downtown Hub"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-blue-300 transition-all duration-300 shadow-sm"
+                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
                                 required
                             />
                         </div>
@@ -237,17 +237,17 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 {/* Location & Status Section */}
                 <div className="space-y-4 sm:space-y-6">
                     <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center flex-shrink-0">
-                            <Home size={16} className="sm:w-5 sm:h-5 text-indigo-600" strokeWidth={2.5} />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center flex-shrink-0">
+                            <Home size={16} className="sm:w-5 sm:h-5 text-violet-600" strokeWidth={2.5} />
                         </div>
-                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">Location & Status</h2>
+                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Location & Status</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         {/* Address */}
                         <div className="md:col-span-2 space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                                <MapPin size={14} className="sm:w-4 sm:h-4 text-indigo-500" />
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                                <MapPin size={14} className="sm:w-4 sm:h-4 text-violet-500" />
                                 Physical Address
                             </label>
                             <textarea
@@ -256,7 +256,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.address}
                                 onChange={handleChange}
                                 placeholder="Full street address, City, State, ZIP"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 hover:border-indigo-300 transition-all duration-300 shadow-sm resize-none"
+                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 hover:border-violet-300 transition-all duration-300 shadow-sm resize-none"
                                 required
                             />
                         </div>
@@ -278,7 +278,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
 
                         {/* SaaS Plan Dropdown */}
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                                 <CreditCard size={14} className="sm:w-4 sm:h-4 text-violet-500" />
                                 SaaS Plan
                             </label>

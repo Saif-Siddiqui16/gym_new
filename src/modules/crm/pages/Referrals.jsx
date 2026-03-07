@@ -141,12 +141,12 @@ const Referrals = ({ role }) => {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-8 sm:pb-10 border-b-2 border-slate-100">
                     <div className="flex items-center gap-4 sm:gap-6">
-                        <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-100 animate-in zoom-in duration-500 shrink-0">
+                        <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-3xl bg-violet-600 flex items-center justify-center text-white shadow-2xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
                             <Gift size={28} className="sm:w-10 sm:h-10" strokeWidth={2.5} />
                         </div>
                         <div>
                             <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1 uppercase">
-                                Refer & <span className="text-indigo-600">Earn</span>
+                                Refer & <span className="text-violet-600">Earn</span>
                             </h1>
                             <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">
                                 Invite friends and earn rewards
@@ -159,7 +159,7 @@ const Referrals = ({ role }) => {
                     {/* Referral Code Section */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                                 <Share2 size={16} />
                             </div>
                             <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Referral Link</h2>
@@ -182,7 +182,7 @@ const Referrals = ({ role }) => {
                                         onClick={handleCopyCode}
                                         className="flex-1 min-w-[160px] h-12 bg-white border-2 border-slate-100 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-slate-100/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group"
                                     >
-                                        <Copy size={14} strokeWidth={3} className="text-indigo-600 group-hover:scale-110 transition-transform" /> Copy Link
+                                        <Copy size={14} strokeWidth={3} className="text-violet-600 group-hover:scale-110 transition-transform" /> Copy Link
                                     </button>
                                     <button
                                         onClick={handleWhatsAppShare}
@@ -193,7 +193,7 @@ const Referrals = ({ role }) => {
                                 </div>
                             </div>
                             {/* Decorative element */}
-                            <div className="absolute -top-10 -right-10 p-20 text-indigo-600/[0.02] rotate-12">
+                            <div className="absolute -top-10 -right-10 p-20 text-violet-600/[0.02] rotate-12">
                                 <UserPlus size={400} strokeWidth={0.5} />
                             </div>
                         </Card>
@@ -202,14 +202,14 @@ const Referrals = ({ role }) => {
                     {/* Stats Section */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                                 <Award size={16} />
                             </div>
                             <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Stats Overview</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                <div className="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <Users size={20} />
                                 </div>
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Referrals Sent</h4>
@@ -223,7 +223,7 @@ const Referrals = ({ role }) => {
                                 <p className="text-3xl font-black text-slate-900 tracking-tight">{memberStats.successfulSignups}</p>
                             </Card>
                             <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                <div className="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <IndianRupee size={20} />
                                 </div>
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rewards Earned</h4>
@@ -235,7 +235,7 @@ const Referrals = ({ role }) => {
                     {/* Referral History Section */}
                     <div className="space-y-6 pb-10">
                         <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                                 <History size={16} />
                             </div>
                             <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Referral History</h2>
@@ -284,7 +284,7 @@ const Referrals = ({ role }) => {
 
     // Existing Admin/Staff UI
     const kpiCards = [
-        { label: 'Total Referrals', value: referrals.length, icon: Users, color: 'from-blue-500 to-indigo-600', iconColor: 'text-blue-600' },
+        { label: 'Total Referrals', value: referrals.length, icon: Users, color: 'from-violet-500 to-purple-600', iconColor: 'text-violet-600' },
         { label: 'Converted', value: referrals.filter(r => r.status === 'Converted').length, icon: CheckCircle, color: 'from-emerald-500 to-teal-600', iconColor: 'text-emerald-600' },
         { label: 'Pending', value: referrals.filter(r => r.status === 'Pending').length, icon: Clock, color: 'from-amber-500 to-orange-600', iconColor: 'text-amber-600' },
         { label: 'Total Rewards', value: `₹${referrals.filter(r => r.status === 'Converted').length * 500}`, subtext: 'Potential', icon: Gift, color: 'from-violet-500 to-purple-600', iconColor: 'text-violet-600' }
@@ -311,7 +311,7 @@ const Referrals = ({ role }) => {
                         </div>
                         <button
                             onClick={() => setIsDrawerOpen(true)}
-                            className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-violet-500/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
                             <Plus size={18} /> Create Referral
                         </button>
@@ -439,10 +439,10 @@ const Referrals = ({ role }) => {
                                                     <div className="text-xs font-medium text-slate-600">Referred: {ref.referredName}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm font-black text-indigo-600">₹500 Reward</div>
+                                                    <div className="text-sm font-black text-violet-600">₹500 Reward</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase tracking-tighter">
+                                                    <span className="px-2 py-1 rounded-full bg-violet-50 text-violet-700 text-[10px] font-black uppercase tracking-tighter">
                                                         Unclaimed
                                                     </span>
                                                 </td>
@@ -479,7 +479,7 @@ const Referrals = ({ role }) => {
                             required
                             value={formData.referrerId}
                             onChange={(e) => setFormData({ ...formData, referrerId: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm bg-white"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all text-sm bg-white"
                         >
                             <option value="">Select member who referred</option>
                             {members.map(member => (
@@ -498,7 +498,7 @@ const Referrals = ({ role }) => {
                             placeholder="Name of the referred person"
                             value={formData.referredName}
                             onChange={(e) => setFormData({ ...formData, referredName: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all text-sm"
                         />
                     </div>
 
@@ -510,7 +510,7 @@ const Referrals = ({ role }) => {
                             placeholder="Phone number"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all text-sm"
                         />
                     </div>
 
@@ -521,7 +521,7 @@ const Referrals = ({ role }) => {
                             placeholder="Email address"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
+                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all text-sm"
                         />
                     </div>
 
@@ -535,7 +535,7 @@ const Referrals = ({ role }) => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30/30 transition-all"
                         >
                             Create Referral
                         </button>

@@ -235,7 +235,7 @@ const PTSessions = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
             </div>
         );
     }
@@ -343,12 +343,12 @@ const PTSessions = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm font-bold transition-all relative whitespace-nowrap flex items-center justify-center ${activeTab === tab.id ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+                                className={`px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm font-bold transition-all relative whitespace-nowrap flex items-center justify-center ${activeTab === tab.id ? 'text-violet-600' : 'text-slate-500 hover:text-slate-700'
                                     }`}
                             >
                                 {tab.label}
                                 {activeTab === tab.id && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-full" />
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full" />
                                 )}
                             </button>
                         ))}
@@ -358,7 +358,7 @@ const PTSessions = () => {
                         <div className="py-2 xs:py-0 w-full xs:w-auto flex justify-center xs:justify-end">
                             <button
                                 onClick={() => setIsSessionDrawerOpen(true)}
-                                className="w-full xs:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-indigo-500/30 transition-all"
+                                className="w-full xs:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
                             >
                                 <Calendar size={16} strokeWidth={2.5} />
                                 Schedule Session
@@ -375,7 +375,7 @@ const PTSessions = () => {
                             <input
                                 type="text"
                                 placeholder={`Search ${activeTab}...`}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 outline-none transition-all text-[11px] md:text-sm font-semibold"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 outline-none transition-all text-[11px] md:text-sm font-semibold"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -386,7 +386,7 @@ const PTSessions = () => {
                         {activeTab === 'packages' && (
                             <div className="flex items-center gap-3">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${showInactive ? 'bg-indigo-600' : 'bg-slate-200'}`}>
+                                    <div className={`w-8 h-4 rounded-full relative transition-colors ${showInactive ? 'bg-violet-600' : 'bg-slate-200'}`}>
                                         <input
                                             type="checkbox"
                                             className="sr-only"
@@ -399,7 +399,7 @@ const PTSessions = () => {
                                 </label>
                             </div>
                         )}
-                        <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <button className="p-2 text-slate-400 hover:text-violet-600 hover:bg-slate-100 rounded-lg transition-colors">
                             <Filter size={18} />
                         </button>
                     </div>
@@ -449,7 +449,7 @@ const PTSessions = () => {
                                                 <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => handleEdit(pkg)}
-                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
                                                     >
                                                         <Edit2 size={16} />
                                                     </button>
@@ -504,7 +504,7 @@ const PTSessions = () => {
                                                     {acc.remainingSessions} / {acc.totalSessions}
                                                     <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                         <div
-                                                            className="h-full bg-blue-500 rounded-full"
+                                                            className="h-full bg-violet-500 rounded-full"
                                                             style={{ width: `${(acc.remainingSessions / acc.totalSessions) * 100}%` }}
                                                         />
                                                     </div>
@@ -559,7 +559,7 @@ const PTSessions = () => {
                                             </td>
                                             <td className="px-6 py-4" data-label="Status">
                                                 <div className="flex justify-end sm:justify-start">
-                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sess.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sess.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600'
                                                         }`}>
                                                         {sess.status}
                                                     </span>
@@ -605,7 +605,7 @@ const PTSessions = () => {
                                         required
                                         type="text"
                                         placeholder="e.g. 10 Sessions Package"
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
@@ -614,7 +614,7 @@ const PTSessions = () => {
                                 <div className="space-y-1">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Session Type *</label>
                                     <select
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-white"
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all bg-white"
                                         value={formData.sessionType}
                                         onChange={(e) => setFormData({ ...formData, sessionType: e.target.value })}
                                     >
@@ -630,7 +630,7 @@ const PTSessions = () => {
                                         <input
                                             required
                                             type="number"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                                             value={formData.totalSessions}
                                             onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
                                         />
@@ -640,7 +640,7 @@ const PTSessions = () => {
                                         <input
                                             required
                                             type="number"
-                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                         />
@@ -652,14 +652,14 @@ const PTSessions = () => {
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">GST %</label>
                                         <input
                                             type="number"
-                                            className="w-20 px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-blue-500"
+                                            className="w-20 px-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-violet-500"
                                             value={formData.gstPercent}
                                             onChange={(e) => setFormData({ ...formData, gstPercent: e.target.value })}
                                         />
                                     </div>
                                     <label className="flex items-center gap-3 cursor-pointer group">
                                         <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">GST Inclusive</span>
-                                        <div className={`w-12 h-6 rounded-full relative transition-colors ${formData.gstInclusive ? 'bg-blue-600' : 'bg-slate-200'}`}>
+                                        <div className={`w-12 h-6 rounded-full relative transition-colors ${formData.gstInclusive ? 'bg-violet-600' : 'bg-slate-200'}`}>
                                             <input
                                                 type="checkbox"
                                                 className="sr-only"
@@ -676,7 +676,7 @@ const PTSessions = () => {
                                     <input
                                         type="number"
                                         placeholder="e.g. 90"
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                                         value={formData.validityDays}
                                         onChange={(e) => setFormData({ ...formData, validityDays: e.target.value })}
                                     />
@@ -687,7 +687,7 @@ const PTSessions = () => {
                                     <textarea
                                         placeholder="Package details..."
                                         rows={3}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all resize-none"
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     />
@@ -706,7 +706,7 @@ const PTSessions = () => {
                             <button
                                 onClick={handleCreatePackage}
                                 disabled={isSubmitting}
-                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold hover:shadow-lg hover:shadow-indigo-500/30 disabled:opacity-50 transition-all"
+                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 transition-all"
                             >
                                 {isSubmitting ? 'Processing...' : (editingPackage ? 'Update Package' : 'Add Package')}
                             </button>
@@ -735,7 +735,7 @@ const PTSessions = () => {
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Member Package *</label>
                                 <select
                                     required
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all bg-white"
                                     value={sessionData.ptAccountId}
                                     onChange={(e) => {
                                         const aid = e.target.value;
@@ -763,14 +763,14 @@ const PTSessions = () => {
                                     <input
                                         type="date"
                                         required
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
                                         value={sessionData.date}
                                         onChange={(e) => setSessionData({ ...sessionData, date: e.target.value })}
                                     />
                                     <input
                                         type="time"
                                         required
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
                                         value={sessionData.time}
                                         onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
                                     />
@@ -782,7 +782,7 @@ const PTSessions = () => {
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Duration (minutes)</label>
                                 <input
                                     type="number"
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
                                     value={sessionData.duration}
                                     onChange={(e) => setSessionData({ ...sessionData, duration: e.target.value })}
                                 />
@@ -799,7 +799,7 @@ const PTSessions = () => {
                             <button
                                 onClick={handleLogSession}
                                 disabled={isSubmitting}
-                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold hover:shadow-lg hover:shadow-indigo-500/30 disabled:opacity-50 transition-all text-sm shadow-md"
+                                className="flex-[2] px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 transition-all text-sm shadow-md"
                             >
                                 {isSubmitting ? 'Processing...' : 'Schedule'}
                             </button>
@@ -813,8 +813,8 @@ const PTSessions = () => {
 
 const KPICard = ({ title, value, icon: Icon, color = 'blue' }) => {
     const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        indigo: 'bg-indigo-50 text-indigo-600',
+        blue: 'bg-violet-50 text-violet-600',
+        indigo: 'bg-violet-50 text-violet-600',
         emerald: 'bg-emerald-50 text-emerald-600',
         amber: 'bg-amber-50 text-amber-600',
         rose: 'bg-rose-50 text-rose-600'
@@ -828,7 +828,7 @@ const KPICard = ({ title, value, icon: Icon, color = 'blue' }) => {
                 </div>
                 <div className="min-w-0 text-center md:text-left">
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{title}</h3>
-                    <p className="text-xl md:text-2xl font-black text-slate-800 group-hover:text-indigo-600 transition-colors truncate">{value}</p>
+                    <p className="text-xl md:text-2xl font-black text-slate-800 group-hover:text-violet-600 transition-colors truncate">{value}</p>
                 </div>
             </div>
 

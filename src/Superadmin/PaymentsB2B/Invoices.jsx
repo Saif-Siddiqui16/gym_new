@@ -99,11 +99,11 @@ const Invoices = () => {
                 <div className="flex flex-col md:flex-row gap-4">
                     {/* Search */}
                     <div className="flex-1 relative group">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 transition-all duration-300 group-focus-within:scale-110 group-focus-within:text-blue-500" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 transition-all duration-300 group-focus-within:scale-110 group-focus-within:text-violet-500" />
                         <input
                             type="text"
                             placeholder="Search by invoice number or gym name..."
-                            className="superadmindashboard-invoices-search w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 focus:scale-[1.02] focus:shadow-lg hover:border-blue-300"
+                            className="superadmindashboard-invoices-search w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-300 focus:scale-[1.02] focus:shadow-lg hover:border-violet-300"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -144,19 +144,19 @@ const Invoices = () => {
                         <tbody className="divide-y divide-gray-200">
                             {paginatedInvoices.length > 0 ? (
                                 paginatedInvoices.map((invoice) => (
-                                    <tr key={invoice.invoiceNo} className="hover:bg-blue-50/30 hover:shadow-md hover:scale-[1.005] transition-all duration-300 cursor-pointer group">
+                                    <tr key={invoice.invoiceNo} className="hover:bg-violet-50/30 hover:shadow-md hover:scale-[1.005] transition-all duration-300 cursor-pointer group">
                                         <td data-label="Invoice No">
-                                            <span className="text-sm font-semibold text-blue-600 transition-all duration-300 group-hover:scale-105 group-hover:text-blue-700">
+                                            <span className="text-sm font-semibold text-violet-600 transition-all duration-300 group-hover:scale-105 group-hover:text-violet-700">
                                                 {invoice.invoiceNo}
                                             </span>
                                         </td>
                                         <td data-label="Gym Name">
-                                            <span className="text-sm text-gray-800 font-medium transition-colors duration-300 group-hover:text-blue-600">
+                                            <span className="text-sm text-gray-800 font-medium transition-colors duration-300 group-hover:text-violet-600">
                                                 {invoice.gymName}
                                             </span>
                                         </td>
                                         <td data-label="Amount">
-                                            <span className="text-sm font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
+                                            <span className="text-sm font-semibold text-gray-900 transition-colors duration-300 group-hover:text-violet-600">
                                                 {invoice.amount}
                                             </span>
                                         </td>
@@ -171,7 +171,7 @@ const Invoices = () => {
                                         <td data-label="Actions" className="text-right">
                                             <div className="flex gap-2 justify-end">
                                                 <button
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 flex items-center gap-1 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5 group/btn"
+                                                    className="bg-violet-500 hover:bg-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 flex items-center gap-1 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5 group/btn"
                                                     onClick={() => handleView(invoice)}
                                                 >
                                                     <Eye className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:scale-110" />
@@ -222,7 +222,7 @@ const Invoices = () => {
                                 {[...Array(totalPages)].map((_, index) => (
                                     <button
                                         key={index + 1}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1 ? 'bg-blue-500 text-white shadow-md hover:shadow-lg' : 'border border-gray-300 text-gray-700 hover:bg-gray-100 hover:shadow-sm'}`}
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1 ? 'bg-violet-500 text-white shadow-md hover:shadow-lg' : 'border border-gray-300 text-gray-700 hover:bg-gray-100 hover:shadow-sm'}`}
                                         onClick={() => handlePageClick(index + 1)}
                                     >
                                         {index + 1}
@@ -247,8 +247,8 @@ const Invoices = () => {
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
                         <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all duration-500 hover:scale-[1.02] sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slide-up">
                             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div className="sm:flex sm:items-start text-indigo-600 border-b border-gray-100 pb-4 mb-4">
-                                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10 transition-all duration-300 hover:scale-125 hover:rotate-12 hover:shadow-lg">
+                                <div className="sm:flex sm:items-start text-violet-600 border-b border-gray-100 pb-4 mb-4">
+                                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-violet-100 sm:mx-0 sm:h-10 sm:w-10 transition-all duration-300 hover:scale-125 hover:rotate-12 hover:shadow-lg">
                                         <Eye size={20} />
                                     </div>
                                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
@@ -262,21 +262,21 @@ const Invoices = () => {
                                 <div className="space-y-6">
                                     {/* Info Grid */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                                        <div className="p-3 rounded-lg hover:bg-blue-50/50 transition-all duration-300">
+                                        <div className="p-3 rounded-lg hover:bg-violet-50/50 transition-all duration-300">
                                             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Gym Name</label>
                                             <p className="text-sm font-bold text-gray-900">{selectedInvoice.gymName}</p>
                                         </div>
-                                        <div className="p-3 rounded-lg hover:bg-blue-50/50 transition-all duration-300">
+                                        <div className="p-3 rounded-lg hover:bg-violet-50/50 transition-all duration-300">
                                             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Status</label>
                                             <div>{getStatusBadge(selectedInvoice.status)}</div>
                                         </div>
-                                        <div className="p-3 rounded-lg hover:bg-blue-50/50 transition-all duration-300">
+                                        <div className="p-3 rounded-lg hover:bg-violet-50/50 transition-all duration-300">
                                             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Invoice Date</label>
                                             <p className="text-sm font-medium text-gray-900">{new Date(selectedInvoice.date).toLocaleDateString('en-IN')}</p>
                                         </div>
-                                        <div className="p-3 rounded-lg hover:bg-blue-50/50 transition-all duration-300">
+                                        <div className="p-3 rounded-lg hover:bg-violet-50/50 transition-all duration-300">
                                             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Amount Due</label>
-                                            <p className="text-sm font-bold text-indigo-600">{selectedInvoice.amount}</p>
+                                            <p className="text-sm font-bold text-violet-600">{selectedInvoice.amount}</p>
                                         </div>
                                     </div>
 
@@ -296,7 +296,7 @@ const Invoices = () => {
                                         </div>
                                         <div className="border-t border-gray-200 mt-2 pt-2 flex justify-between items-center">
                                             <span className="text-sm font-bold text-gray-900">Total</span>
-                                            <span className="text-sm font-bold text-indigo-600">{selectedInvoice.amount}</span>
+                                            <span className="text-sm font-bold text-violet-600">{selectedInvoice.amount}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -305,7 +305,7 @@ const Invoices = () => {
                                 <button
                                     type="button"
                                     onClick={() => handleDownload(selectedInvoice.invoiceNo)}
-                                    className="w-full inline-flex justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium shadow-sm px-4 py-2 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 flex items-center gap-2 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5 group/btn"
+                                    className="w-full inline-flex justify-center rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-base font-medium shadow-sm px-4 py-2 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 flex items-center gap-2 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5 group/btn"
                                 >
                                     <Download size={16} className="transition-transform duration-300 group-hover/btn:translate-y-0.5" />
                                     Download PDF
@@ -313,7 +313,7 @@ const Invoices = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsViewModalOpen(false)}
-                                    className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5"
+                                    className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5"
                                 >
                                     Close
                                 </button>

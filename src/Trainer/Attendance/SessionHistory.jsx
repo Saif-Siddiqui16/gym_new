@@ -160,7 +160,7 @@ const SessionHistory = () => {
                                 <div key={session.id} className="p-4 flex flex-col gap-4 active:bg-gray-50 transition-colors">
                                     <div className="flex justify-between items-start">
                                         <div className="flex gap-3">
-                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white shadow-md">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
                                                 <Calendar size={22} />
                                             </div>
                                             <div>
@@ -263,7 +263,7 @@ const SessionHistory = () => {
                             <button className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-2xl transition-colors" onClick={() => setShowDetails(null)}>
                                 Close
                             </button>
-                            <button className="flex-1 py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/20 transition-all">
+                            <button className="flex-1 py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-2xl shadow-lg shadow-violet-500/30/20 transition-all">
                                 Edit Record
                             </button>
                         </div>

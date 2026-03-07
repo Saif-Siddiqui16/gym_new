@@ -52,9 +52,9 @@ const ServiceRequests = () => {
     const getIcon = (type) => {
         switch (type) {
             case 'Diet Plan': return <Utensils className="text-emerald-500" size={20} />;
-            case 'Workout Plan': return <Dumbbell className="text-indigo-500" size={20} />;
+            case 'Workout Plan': return <Dumbbell className="text-violet-500" size={20} />;
             case 'Freeze Membership': return <Shield className="text-amber-500" size={20} />;
-            case 'Unfreeze Membership': return <Shield className="text-blue-500" size={20} />;
+            case 'Unfreeze Membership': return <Shield className="text-violet-500" size={20} />;
             case 'Request Trainer Change': return <UserPlus className="text-purple-500" size={20} />;
             default: return <ClipboardList className="text-slate-400" size={20} />;
         }
@@ -102,14 +102,14 @@ const ServiceRequests = () => {
                         <input
                             type="text"
                             placeholder="Search member..."
-                            className="w-full h-11 pl-11 pr-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-sm transition-all"
+                            className="w-full h-11 pl-11 pr-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-violet-500 outline-none font-bold text-sm transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div>
                         <select
-                            className="w-full h-11 px-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-sm transition-all"
+                            className="w-full h-11 px-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-violet-500 outline-none font-bold text-sm transition-all"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
@@ -121,7 +121,7 @@ const ServiceRequests = () => {
                     </div>
                     <div>
                         <select
-                            className="w-full h-11 px-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-sm transition-all"
+                            className="w-full h-11 px-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-violet-500 outline-none font-bold text-sm transition-all"
                             value={filterType}
                             onChange={(e) => setFilterType(e.target.value)}
                         >
@@ -135,7 +135,7 @@ const ServiceRequests = () => {
                     </div>
                     <Button
                         onClick={loadRequests}
-                        className="h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+                        className="h-11 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-100 flex items-center justify-center gap-2"
                     >
                         <Filter size={18} /> Apply Filters
                     </Button>
@@ -146,7 +146,7 @@ const ServiceRequests = () => {
             <div className="grid gap-4">
                 {loading ? (
                     <div className="py-20 flex flex-col items-center justify-center space-y-4">
-                        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Fetching requests...</p>
                     </div>
                 ) : filteredRequests.length === 0 ? (
@@ -159,7 +159,7 @@ const ServiceRequests = () => {
                     </div>
                 ) : (
                     filteredRequests.map(request => (
-                        <Card key={request.id} className="p-0 overflow-hidden border border-slate-100 hover:border-indigo-200 hover:shadow-xl transition-all duration-300 bg-white group">
+                        <Card key={request.id} className="p-0 overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all duration-300 bg-white group">
                             <div className="flex flex-col md:flex-row">
                                 {/* Type Icon & Status Bar */}
                                 <div className={`w-2 shrink-0 ${request.status === 'Pending' ? 'bg-amber-400' : 'bg-emerald-400'}`} />
@@ -175,7 +175,7 @@ const ServiceRequests = () => {
                                                 <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded-lg text-slate-500 uppercase tracking-widest">{request.member?.memberId}</span>
                                             </div>
                                             <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest items-center">
-                                                <span className="flex items-center gap-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                                                <span className="flex items-center gap-1.5 text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md">
                                                     {request.type}
                                                 </span>
                                                 <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-md">
@@ -220,7 +220,7 @@ const ServiceRequests = () => {
                                         {(request.type === 'Diet Plan' || request.type === 'Workout Plan') && request.status === 'Accepted' && (
                                             <button
                                                 onClick={() => {/* Navigate to plan builder */ }}
-                                                className="px-6 h-10 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+                                                className="px-6 h-10 bg-violet-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all active:scale-95 flex items-center gap-2"
                                             >
                                                 <ClipboardList size={18} /> Build Plan
                                             </button>

@@ -11,6 +11,7 @@ import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
 import { useBranchContext } from '../../context/BranchContext';
 import toast from 'react-hot-toast';
+import Button from '../../components/ui/Button';
 
 
 const MemberList = () => {
@@ -207,7 +208,7 @@ const MemberList = () => {
         switch (status) {
             case 'Active': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Active</span>;
             case 'Inactive': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200 hover:scale-110 transition-all duration-300 cursor-pointer">Inactive</span>;
-            case 'Frozen': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Frozen</span>;
+            case 'Frozen': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-violet-50 text-violet-600 border border-violet-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Frozen</span>;
             case 'Expired': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Expired</span>;
             default: return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 hover:scale-110 transition-all duration-300 cursor-pointer">Unknown</span>;
         }
@@ -280,9 +281,13 @@ const MemberList = () => {
                                 <p className="text-slate-600 text-xs sm:text-sm mt-1">Manage your gym members and their memberships</p>
                             </div>
                         </div>
-                        <button onClick={() => setIsAddDrawerOpen(true)} className="flex justify-center items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-violet-500/30 w-full sm:w-auto">
+                        <Button
+                            onClick={() => setIsAddDrawerOpen(true)}
+                            variant="primary"
+                            className="w-full sm:w-auto px-6 h-11"
+                        >
                             <User size={18} /> Add Member
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -371,7 +376,7 @@ const MemberList = () => {
                                         <td className="p-4 sm:px-6 sm:py-4" data-label="Actions">
                                             <div className="flex items-center justify-end sm:justify-start gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200">
                                                 <button onClick={() => handleView(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="View"><Eye size={16} /></button>
-                                                <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
+                                                <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
                                                 <button onClick={() => handleDelete(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Delete"><Trash2 size={16} /></button>
                                             </div>
                                         </td>
@@ -458,9 +463,23 @@ const MemberList = () => {
             ───────────────────────────────────────────────────────────────── */}
             <RightDrawer isOpen={isAddDrawerOpen} onClose={() => setIsAddDrawerOpen(false)} title="Add New Member" subtitle="Register a new member to the branch" maxWidth="max-w-2xl"
                 footer={
-                    <div className="flex gap-3 w-full justify-end">
-                        <button type="button" onClick={() => setIsAddDrawerOpen(false)} className="px-6 h-11 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all">Cancel</button>
-                        <button type="submit" form="add-member-form" className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all">Add Member</button>
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button
+                            type="button"
+                            onClick={() => setIsAddDrawerOpen(false)}
+                            variant="outline"
+                            className="px-6 h-11"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="add-member-form"
+                            variant="primary"
+                            className="px-6 h-11 shadow-lg shadow-violet-200"
+                        >
+                            Add Member
+                        </Button>
                     </div>
                 }
             >
@@ -645,9 +664,21 @@ const MemberList = () => {
             {/* View Member Drawer */}
             <RightDrawer isOpen={isViewDrawerOpen} onClose={() => setIsViewDrawerOpen(false)} title="Member Details" subtitle={selectedMember?.memberId || ''} maxWidth="max-w-lg"
                 footer={
-                    <div className="flex gap-3 w-full">
-                        <button onClick={() => { setIsViewDrawerOpen(false); setTimeout(() => handleEdit(selectedMember), 200); }} className="flex-1 h-11 border-2 border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all">Edit Member</button>
-                        <button onClick={() => setIsViewDrawerOpen(false)} className="flex-1 h-11 bg-slate-100 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all">Close</button>
+                    <div className="flex gap-3 w-full px-2">
+                        <Button
+                            onClick={() => { setIsViewDrawerOpen(false); setTimeout(() => handleEdit(selectedMember), 200); }}
+                            variant="outline"
+                            className="flex-1 h-11"
+                        >
+                            Edit Member
+                        </Button>
+                        <Button
+                            onClick={() => setIsViewDrawerOpen(false)}
+                            variant="outline"
+                            className="flex-1 h-11"
+                        >
+                            Close
+                        </Button>
                     </div>
                 }
             >
@@ -713,7 +744,7 @@ const MemberList = () => {
                         {(selectedMember.idType || selectedMember.idNumber) && (
                             <div>
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span></span>
+                                    <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span></span>
                                     Government ID
                                 </h4>
                                 <div className="grid grid-cols-2 gap-3">
@@ -731,7 +762,7 @@ const MemberList = () => {
                         {selectedMember.address && (
                             <div>
                                 <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span></span>
+                                    <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span></span>
                                     Address
                                 </h4>
                                 <div className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
@@ -784,9 +815,23 @@ const MemberList = () => {
             {/* Edit Member Drawer */}
             <RightDrawer isOpen={isEditDrawerOpen} onClose={() => setIsEditDrawerOpen(false)} title="Edit Member" subtitle={`Updating info for ${selectedMember?.name || ''}`} maxWidth="max-w-2xl"
                 footer={
-                    <div className="flex gap-3 w-full justify-end">
-                        <button type="button" onClick={() => setIsEditDrawerOpen(false)} className="px-6 h-11 border-2 border-slate-200 bg-white text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all">Cancel</button>
-                        <button type="submit" form="edit-member-form" className="px-6 h-11 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-violet-500/30 transition-all">Save Changes</button>
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button
+                            type="button"
+                            onClick={() => setIsEditDrawerOpen(false)}
+                            variant="outline"
+                            className="px-6 h-11"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="edit-member-form"
+                            variant="primary"
+                            className="px-6 h-11 shadow-lg shadow-violet-200"
+                        >
+                            Save Changes
+                        </Button>
                     </div>
                 }
             >

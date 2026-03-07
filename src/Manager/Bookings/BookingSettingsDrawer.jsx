@@ -36,9 +36,9 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
         <form onSubmit={handleSubmit} className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                 {/* Intro Section */}
-                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex gap-3">
-                    <Info className="text-indigo-600 shrink-0" size={20} />
-                    <p className="text-xs text-indigo-700 leading-relaxed">
+                <div className="bg-violet-50 border border-violet-100 rounded-2xl p-4 flex gap-3">
+                    <Info className="text-violet-600 shrink-0" size={20} />
+                    <p className="text-xs text-violet-700 leading-relaxed">
                         Configure how members interact with the booking system. These limits apply globally unless overridden by specific membership plans.
                     </p>
                 </div>
@@ -58,12 +58,12 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                             <input
                                 type="number"
                                 name="creditsPerBooking"
-                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all font-bold"
                                 value={formData.creditsPerBooking}
                                 onChange={handleInputChange}
                                 min="0"
                             />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 group-focus-within:text-indigo-500 uppercase tracking-tighter">Credits</span>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 group-focus-within:text-violet-500 uppercase tracking-tighter">Credits</span>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                 {/* Booking Limits */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex items-center gap-2">
-                        <CalendarDays size={18} className="text-blue-600" />
+                        <CalendarDays size={18} className="text-violet-600" />
                         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Booking Limits</h3>
                     </div>
                     <div className="grid grid-cols-1 gap-6">
@@ -83,7 +83,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                             <input
                                 type="number"
                                 name="maxBookingsPerDay"
-                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all font-bold"
                                 value={formData.maxBookingsPerDay}
                                 onChange={handleInputChange}
                             />
@@ -96,7 +96,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                             <input
                                 type="number"
                                 name="maxBookingsPerWeek"
-                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-all font-bold"
                                 value={formData.maxBookingsPerWeek}
                                 onChange={handleInputChange}
                             />
@@ -146,7 +146,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                                 name="allowWaitlist"
                                 checked={formData.allowWaitlist}
                                 onChange={handleInputChange}
-                                className="w-5 h-5 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-0 transition-all"
+                                className="w-5 h-5 rounded-lg border-2 border-slate-300 text-violet-600 focus:ring-0 transition-all"
                             />
                         </label>
                         <label className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 transition-all">
@@ -159,7 +159,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                                 name="notifyOnCancellation"
                                 checked={formData.notifyOnCancellation}
                                 onChange={handleInputChange}
-                                className="w-5 h-5 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-0 transition-all"
+                                className="w-5 h-5 rounded-lg border-2 border-slate-300 text-violet-600 focus:ring-0 transition-all"
                             />
                         </label>
                     </div>   
@@ -178,7 +178,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-[2] px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-[2] px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     <Save size={18} />
                     {isSubmitting ? 'Saving...' : 'Save Settings'}

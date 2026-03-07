@@ -61,11 +61,11 @@ const MemberCheckIn = () => {
                                 <p className="text-sm font-black text-green-900">{profile.status || 'Active'}</p>
                             </div>
                         </div>
-                        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-3">
-                            <Clock className="text-blue-600" size={24} />
+                        <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 flex items-center gap-3">
+                            <Clock className="text-violet-600" size={24} />
                             <div>
-                                <p className="text-xs font-bold text-blue-700 uppercase">Late Entry</p>
-                                <p className="text-sm font-black text-blue-900">Allowed</p>
+                                <p className="text-xs font-bold text-violet-700 uppercase">Late Entry</p>
+                                <p className="text-sm font-black text-violet-900">Allowed</p>
                             </div>
                         </div>
                     </div>

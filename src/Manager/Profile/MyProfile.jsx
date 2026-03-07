@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity } from 'lucide-react';
 import { fetchManagerProfile, updateManagerProfile } from '../../api/manager/managerApi';
 import { useAuth } from '../../context/AuthContext';
+import NotificationsList from '../../components/notifications/NotificationsList';
 import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
@@ -159,12 +160,12 @@ const MyProfile = () => {
                                         <Activity size={14} className="text-green-500" /> {profile.status}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-bold uppercase">
-                                        <Calendar size={14} className="text-blue-400" /> Joined {profile.joinedDate}
+                                        <Calendar size={14} className="text-violet-400" /> Joined {profile.joinedDate}
                                     </span>
                                 </div>
                             </div>
 
-                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
+                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
                                 <CheckCircle2 size={18} /> Manager Account
                             </button>
                         </div>
@@ -181,7 +182,7 @@ const MyProfile = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-xl shadow-violet-500/50'
+                                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-xl shadow-violet-500/30/50'
                                     : 'text-gray-500 hover:bg-white border border-transparent hover:border-violet-100 hover:text-violet-600 hover:shadow-md'
                                     }`}
                             >
@@ -267,7 +268,7 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="px-8 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-8 py-3.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSaving ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -310,13 +311,7 @@ const MyProfile = () => {
                             )}
 
                             {activeTab === 'notifications' && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-4">
-                                        <Bell size={40} />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-800">Notification Preferences</h3>
-                                    <p className="text-gray-500 max-w-xs mt-2 font-medium">Customize how you receive alerts and system updates.</p>
-                                </div>
+                                <NotificationsList />
                             )}
                         </div>
                     </div>

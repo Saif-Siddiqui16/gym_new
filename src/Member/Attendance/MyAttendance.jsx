@@ -92,7 +92,7 @@ const MyAttendance = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-6rem)]">
-                <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+                <Loader2 className="w-12 h-12 text-violet-600 animate-spin" />
             </div>
         );
     }
@@ -102,7 +102,7 @@ const MyAttendance = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
                 <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-100">
+                    <div className="w-16 h-16 rounded-2xl bg-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <CalendarIcon size={32} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -115,7 +115,7 @@ const MyAttendance = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm">
-                    <CalendarIcon size={18} className="text-indigo-600" />
+                    <CalendarIcon size={18} className="text-violet-600" />
                     <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{monthName} {currentYear}</span>
                 </div>
             </div>
@@ -137,7 +137,7 @@ const MyAttendance = () => {
             {/* Calendar Section */}
             <div className="space-y-6">
                 <div className="flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
                         <CalendarIcon size={16} />
                     </div>
                     <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Attendance Calendar</h2>
@@ -179,10 +179,10 @@ const MyAttendance = () => {
                             return (
                                 <div
                                     key={date}
-                                    className={`aspect-square flex flex-col items-center justify-center rounded-[24px] border ${visited ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' : 'border-slate-100 bg-slate-50/30 text-slate-700 hover:border-indigo-200'} transition-all duration-300 group cursor-pointer relative`}
+                                    className={`aspect-square flex flex-col items-center justify-center rounded-[24px] border ${visited ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-100' : 'border-slate-100 bg-slate-50/30 text-slate-700 hover:border-violet-200'} transition-all duration-300 group cursor-pointer relative`}
                                 >
-                                    <span className={`text-sm font-black transition-colors ${visited ? 'text-white' : 'group-hover:text-indigo-600'}`}>{date}</span>
-                                    {visited && <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-200" />}
+                                    <span className={`text-sm font-black transition-colors ${visited ? 'text-white' : 'group-hover:text-violet-600'}`}>{date}</span>
+                                    {visited && <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-200" />}
                                 </div>
                             );
                         })}
@@ -205,7 +205,7 @@ const MyAttendance = () => {
                             {attendanceData.logs.map((log, idx) => (
                                 <div key={log.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 shadow-sm">
+                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-violet-600 shadow-sm">
                                             <CalendarIcon size={20} />
                                         </div>
                                         <div>
@@ -214,7 +214,7 @@ const MyAttendance = () => {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="flex items-center gap-2 text-indigo-600 font-black text-xs uppercase tracking-widest">
+                                        <div className="flex items-center gap-2 text-violet-600 font-black text-xs uppercase tracking-widest">
                                             <Clock size={14} />
                                             {log.checkInTime || 'No Time'}
                                         </div>

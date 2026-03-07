@@ -54,7 +54,22 @@ const Payroll = () => {
         setLoading(true);
         try {
             const data = await fetchStaffAPI(selectedBranch);
-            setStaffList(Array.isArray(data) ? data : []);
+            const normalized = (Array.isArray(data) ? data : []).map(s => {
+                let config = {};
+                try {
+                    config = typeof s.config === 'string' ? JSON.parse(s.config) : (s.config || {});
+                } catch (e) { }
+
+                return {
+                    ...s,
+                    // Ensure baseSalary is a number or null, not affected by falsy 0
+                    baseSalary: (s.baseSalary !== null && s.baseSalary !== undefined) ? Number(s.baseSalary) : null,
+                    // Use commission from config if commissionPercent is missing
+                    commissionPercent: s.commissionPercent ?? config.commission ?? config.commissionPercent ?? 0,
+                    position: config.position || s.role || 'Staff',
+                };
+            });
+            setStaffList(normalized);
         } catch (err) {
             console.error('[loadStaff]', err);
             toast.error('Failed to load staff list');
@@ -181,7 +196,7 @@ const Payroll = () => {
             <div className="max-w-7xl mx-auto mb-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
                             {activeTab === 'Attendance' ? 'Staff Attendance' : 'Human Resources'}
                         </h1>
                         <p className="text-slate-500 mt-2 font-medium">
@@ -190,7 +205,7 @@ const Payroll = () => {
                     </div>
                     <button
                         onClick={() => navigate('/hr/staff/create')}
-                        className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-violet-500/30 hover:scale-105 active:scale-95 transition-all shadow-xl"
+                        className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-violet-500/30/30 hover:scale-105 active:scale-95 transition-all shadow-xl"
                     >
                         <Plus size={20} strokeWidth={3} />
                         Add Employee
@@ -227,7 +242,7 @@ const Payroll = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-6 py-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === tab
-                                ? 'border-indigo-600 text-indigo-600'
+                                ? 'border-violet-600 text-violet-600'
                                 : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}`}
                         >
                             {tab}
@@ -248,7 +263,7 @@ const Payroll = () => {
                                 placeholder="Search employees..."
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 shadow-sm transition-all font-medium"
+                                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-violet-500 shadow-sm transition-all font-medium"
                             />
                         </div>
                     </div>
@@ -280,7 +295,7 @@ const Payroll = () => {
                                         <tr key={staff.id || idx} className="group hover:bg-white transition-all duration-300">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
+                                                    <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
                                                         {(staff.name || '?').charAt(0)}
                                                     </div>
                                                     <div>
@@ -301,7 +316,7 @@ const Payroll = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                {staff.baseSalary ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300">—</span>}
+                                                {staff.baseSalary != null ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300">—</span>}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <StatusBadge status={staff.status || 'Active'} />
@@ -309,16 +324,16 @@ const Payroll = () => {
                                             <td className="px-6 py-4 text-right relative">
                                                 <button
                                                     onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === staff.id ? null : staff.id); }}
-                                                    className="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                                                    className="p-2 text-slate-400 hover:text-violet-600 rounded-lg hover:bg-violet-50 transition-colors"
                                                 >
                                                     <MoreHorizontal size={18} />
                                                 </button>
                                                 {openMenuId === staff.id && (
                                                     <div className="absolute right-8 top-12 w-48 bg-white border border-slate-100 rounded-xl shadow-xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-600 transition-colors">
                                                             <Eye size={16} /> View Profile
                                                         </button>
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-violet-600 transition-colors">
                                                             <Edit2 size={16} /> Edit Profile
                                                         </button>
                                                         <button onClick={() => handleDeleteStaff(staff.id)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
@@ -371,7 +386,7 @@ const Payroll = () => {
                                         <tr key={staff.id} className="hover:bg-white transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
+                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
                                                         {(staff.name || '?').charAt(0)}
                                                     </div>
                                                     <div>
@@ -389,16 +404,16 @@ const Payroll = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                {staff.baseSalary ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300 font-normal italic text-xs">Not set</span>}
+                                                {staff.baseSalary != null ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300 font-normal italic text-xs">Not set</span>}
                                             </td>
                                             <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                {staff.commissionPercent != null ? `${staff.commissionPercent}%` : <span className="text-slate-300 font-normal italic text-xs">N/A</span>}
+                                                {(staff.commissionPercent != null && staff.commissionPercent > 0) ? `${staff.commissionPercent}%` : <span className="text-slate-300 font-normal italic text-xs">N/A</span>}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <StatusBadge status={staff.status || 'Active'} />
                                             </td>
                                             <td className="px-6 py-4">
-                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="text-indigo-600 hover:text-indigo-700 text-xs font-bold flex items-center gap-1 hover:underline">
+                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="text-violet-600 hover:text-violet-700 text-xs font-bold flex items-center gap-1 hover:underline">
                                                     <Edit2 size={14} /> Edit
                                                 </button>
                                             </td>
@@ -419,7 +434,7 @@ const Payroll = () => {
                         <button
                             onClick={loadAttendance}
                             disabled={attendanceLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-violet-600 transition-colors disabled:opacity-50"
                         >
                             <RefreshCw size={16} className={attendanceLoading ? 'animate-spin' : ''} />
                             Refresh
@@ -488,7 +503,7 @@ const Payroll = () => {
                     {/* Today's Full Log */}
                     <div>
                         <h3 className="text-base font-black text-slate-700 mb-4 flex items-center gap-2">
-                            <CalendarDays size={18} className="text-indigo-500" />
+                            <CalendarDays size={18} className="text-violet-500" />
                             Today's Full Log ({todayAttendance.length})
                         </h3>
                         <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 overflow-hidden">
@@ -564,7 +579,7 @@ const Payroll = () => {
                                 type="month"
                                 value={selectedMonth}
                                 onChange={e => setSelectedMonth(e.target.value)}
-                                className="h-10 pl-4 pr-3 rounded-lg border border-slate-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 text-sm font-medium text-slate-700 bg-white outline-none transition-all"
+                                className="h-10 pl-4 pr-3 rounded-lg border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-violet-50 text-sm font-medium text-slate-700 bg-white outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -604,7 +619,7 @@ const Payroll = () => {
                                             <tr key={staff.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
+                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
                                                             {(staff.name || '?').charAt(0)}
                                                         </div>
                                                         <div>
@@ -620,13 +635,13 @@ const Payroll = () => {
                                                     <span className="px-2 py-1 bg-slate-50 text-slate-600 rounded text-[10px] font-black uppercase tracking-widest border border-slate-100">{staff.role}</span>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                    {base > 0 ? `₹${base.toLocaleString('en-IN')}` : <span className="text-slate-300 italic text-xs">Not set</span>}
+                                                    {base >= 0 ? `₹${base.toLocaleString('en-IN')}` : <span className="text-slate-300 italic text-xs">Not set</span>}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm font-bold text-emerald-600">
                                                     {commission > 0 ? `${commission}%` : <span className="text-slate-300 italic text-xs">N/A</span>}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm font-black text-slate-800">
-                                                    {base > 0 ? `₹${net.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : <span className="text-slate-300 italic text-xs">—</span>}
+                                                    {base >= 0 ? `₹${net.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : <span className="text-slate-300 italic text-xs">—</span>}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <StatusBadge status={payRecord?.status || 'Pending'} />
@@ -649,7 +664,7 @@ const Payroll = () => {
                                 { label: 'Total Base Pay', val: `₹${totalMonthlyPayroll.toLocaleString('en-IN')}`, color: 'text-slate-800' },
                                 { label: 'Total PF (12%)', val: `₹${(totalMonthlyPayroll * 0.12).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-rose-500' },
                                 { label: 'Net Payable', val: `₹${(totalMonthlyPayroll * 0.88).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-emerald-600' },
-                                { label: 'Staff Count', val: staffList.length, color: 'text-indigo-600' },
+                                { label: 'Staff Count', val: staffList.length, color: 'text-violet-600' },
                             ].map(({ label, val, color }) => (
                                 <div key={label}>
                                     <p className="text-xs font-medium text-slate-400 mb-1">{label}</p>
@@ -667,11 +682,11 @@ const Payroll = () => {
 // ── Reusable Stat Card ────────────────────────────────────────────────────────
 const StatCard = ({ icon: Icon, label, value, color, isText }) => {
     const colorMap = {
-        indigo: 'bg-indigo-50 text-indigo-600',
+        indigo: 'bg-violet-50 text-violet-600',
         emerald: 'bg-emerald-50 text-emerald-600',
         amber: 'bg-amber-50 text-amber-600',
         purple: 'bg-purple-50 text-purple-600',
-        blue: 'bg-blue-50 text-blue-600',
+        blue: 'bg-violet-50 text-violet-600',
         rose: 'bg-rose-50 text-rose-600',
     };
     return (

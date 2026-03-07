@@ -148,11 +148,11 @@ const ManagerDashboard = () => {
 
                     {/* Petty Cash Widget */}
                     <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-blue-50/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-blue-100/50 transition-colors"></div>
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-violet-50/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-violet-100/50 transition-colors"></div>
                         <div className="relative z-10">
                             <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Local Expenses</p>
                             <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
-                                <span className="text-blue-500 font-bold">₹</span>
+                                <span className="text-violet-500 font-bold">₹</span>
                                 {data.financials?.localExpenses.toLocaleString()}
                             </h4>
                             <div className="mt-2 flex items-center gap-2">
@@ -183,7 +183,7 @@ const ManagerDashboard = () => {
                 {/* Today's Classes & Attendance */}
                 <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden group">
                     {/* Premium Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 via-purple-50/20 to-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-50/30 via-purple-50/20 to-violet-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                     <div className="relative z-10">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6 pb-4 border-b border-slate-100">
@@ -203,7 +203,7 @@ const ManagerDashboard = () => {
                             </div>
                             <button
                                 onClick={() => navigate('/classes')}
-                                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-violet-500/50 hover:shadow-xl hover:shadow-violet-500/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
+                                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-violet-500/30/50 hover:shadow-xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
                             >
                                 View Schedule <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
                             </button>
@@ -307,7 +307,7 @@ const ManagerDashboard = () => {
                                 const isUrgent = task.type === 'urgent';
                                 const colorTheme = isUrgent
                                     ? { bg: 'red', icon: AlertTriangle, txt: 'red', border: 'red-500' }
-                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'blue-500' };
+                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'violet-500' };
 
                                 const IconComponent = colorTheme.icon;
 
@@ -349,7 +349,7 @@ const ManagerDashboard = () => {
                         <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100">
                             <button
                                 onClick={() => navigate('/facility/maintenance')}
-                                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
+                                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
                             >
                                 View All Tasks <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
                             </button>

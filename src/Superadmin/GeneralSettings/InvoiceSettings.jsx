@@ -212,7 +212,7 @@ const InvoiceSettings = () => {
                         <button
                             onClick={handleSave}
                             disabled={isSaving || isReadOnly}
-                            className="group relative flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full md:w-auto bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/50"
+                            className="group relative flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full md:w-auto bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-violet-500/30/50"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-lg sm:rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             {isSaving ? (

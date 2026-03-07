@@ -76,7 +76,7 @@ const AddRewardDrawer = ({ isOpen, onClose, onAdd }) => {
                     <button
                         onClick={handleSubmit}
                         disabled={!newReward.name || !newReward.points}
-                        className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-violet-500/50 transition-all duration-300 disabled:opacity-50"
+                        className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl hover:shadow-violet-500/30/50 transition-all duration-300 disabled:opacity-50"
                     >
                         Create Reward
                     </button>

@@ -149,7 +149,7 @@ const AddEquipmentModal = ({ onClose, onAdd }) => {
                 </button>
                 <button
                     type="submit"
-                    className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+                    className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
                 >
                     Add Equipment
                 </button>

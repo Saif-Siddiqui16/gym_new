@@ -73,7 +73,7 @@ const ProductList = () => {
         { title: 'Total Products', value: products.length, icon: <Box size={24} />, iconGradient: 'bg-gradient-to-br from-violet-500 to-purple-600' },
         { title: 'Low Stock', value: products.filter(p => p.stock < 10).length, icon: <AlertTriangle size={24} />, iconGradient: 'bg-gradient-to-br from-amber-500 to-orange-600' },
         { title: 'Stock Value', value: `₹${products.reduce((acc, p) => acc + (parseFloat(p.price) * p.stock), 0).toLocaleString()}`, icon: <TrendingUp size={24} />, iconGradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600' },
-        { title: 'Categories', value: categories.length, icon: <Tag size={24} />, iconGradient: 'bg-gradient-to-br from-blue-500 to-indigo-600' }
+        { title: 'Categories', value: categories.length, icon: <Tag size={24} />, iconGradient: 'bg-gradient-to-br from-violet-500 to-purple-600' }
     ];
 
     return (

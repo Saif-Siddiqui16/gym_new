@@ -58,7 +58,7 @@ const MembershipDetails = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
             </div>
         );
     }
@@ -167,7 +167,7 @@ const MembershipDetails = () => {
                             </button>
                             <button
                                 onClick={() => navigate(`/memberships/${membership.id}/edit`)}
-                                className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all w-full sm:w-auto"
+                                className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all w-full sm:w-auto"
                             >
                                 <Edit2 size={16} strokeWidth={2.5} className="sm:w-[18px] sm:h-[18px] transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
                                 Edit Membership
@@ -223,11 +223,11 @@ const MembershipDetails = () => {
                 {/* Plan Details Card */}
                 <div className="group relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden">
                     {/* Gradient Background on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-violet-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 to-violet-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-100">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center text-blue-600 shadow-md flex-shrink-0">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center text-violet-600 shadow-md flex-shrink-0">
                                 <CreditCard size={16} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
                             </div>
                             <h3 className="text-base sm:text-lg font-black text-slate-900">Plan Details</h3>
@@ -278,11 +278,11 @@ const MembershipDetails = () => {
             {/* Biometric Access */}
             <div className="group relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden mb-4 sm:mb-6">
                 {/* Gradient Background on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-100">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 shadow-md flex-shrink-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-violet-600 shadow-md flex-shrink-0">
                             <User size={16} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
                         </div>
                         <h3 className="text-base sm:text-lg font-black text-slate-900">Biometric Access</h3>
@@ -301,7 +301,7 @@ const MembershipDetails = () => {
                         />
                         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                             <div className="relative flex-shrink-0">
-                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-500 flex items-center justify-center text-white shadow-xl group-hover/biometric:scale-110 transition-transform duration-300">
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-purple-500 flex items-center justify-center text-white shadow-xl group-hover/biometric:scale-110 transition-transform duration-300">
                                     <User size={28} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
                                 </div>
                                 {membership.hasFaceId && (
@@ -320,7 +320,7 @@ const MembershipDetails = () => {
                                 </div>
                             </div>
                         </div>
-                        <button className="group/btn px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/60 hover:scale-105 transition-all w-full sm:w-auto">
+                        <button className="group/btn px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 hover:scale-105 transition-all w-full sm:w-auto">
                             <span className="flex items-center justify-center gap-2">
                                 {membership.hasFaceId ? 'Update Photo' : 'Upload Photo'}
                                 <Sparkles size={14} className="sm:w-4 sm:h-4 transition-all duration-300 group-hover/btn:rotate-12" />

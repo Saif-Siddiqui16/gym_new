@@ -47,7 +47,7 @@ const ServiceRequestDrawer = ({ isOpen, onClose, onSubmit, memberData, initialTy
                         form="request-form"
                         type="submit"
                         disabled={loading || !reason}
-                        className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 border-transparent font-bold text-white flex items-center justify-center gap-2"
+                        className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-200 border-transparent font-bold text-white flex items-center justify-center gap-2"
                     >
                         {loading ? 'Sending...' : <><Send size={16} /> Submit Request</>}
                     </Button>
@@ -55,15 +55,15 @@ const ServiceRequestDrawer = ({ isOpen, onClose, onSubmit, memberData, initialTy
             }
         >
             <form id="request-form" onSubmit={handleSubmit} className="p-8 space-y-8">
-                <div className="bg-indigo-50 p-6 rounded-[24px] border border-indigo-100 flex gap-4 text-indigo-800 text-sm font-medium leading-relaxed">
-                    <AlertCircle className="shrink-0 text-indigo-600" size={24} />
+                <div className="bg-violet-50 p-6 rounded-[24px] border border-violet-100 flex gap-4 text-violet-800 text-sm font-medium leading-relaxed">
+                    <AlertCircle className="shrink-0 text-violet-600" size={24} />
                     <p>Your request will be prioritized. Track status updates in your member activity feed.</p>
                 </div>
 
                 <div className="space-y-3">
                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-1">Request Category</label>
                     <select
-                        className="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-indigo-500 outline-none font-bold text-sm transition-all text-slate-700"
+                        className="w-full h-14 px-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-violet-500 outline-none font-bold text-sm transition-all text-slate-700"
                         value={type}
                         onChange={(e) => setType(e.target.value)}
                     >
@@ -76,7 +76,7 @@ const ServiceRequestDrawer = ({ isOpen, onClose, onSubmit, memberData, initialTy
                 <div className="space-y-3">
                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-1">Reason for Request</label>
                     <textarea
-                        className="w-full p-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-indigo-500 outline-none font-medium text-sm transition-all resize-none h-48 placeholder:text-slate-300 text-slate-700"
+                        className="w-full p-6 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-violet-500 outline-none font-medium text-sm transition-all resize-none h-48 placeholder:text-slate-300 text-slate-700"
                         placeholder="Please elaborate on your request..."
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}

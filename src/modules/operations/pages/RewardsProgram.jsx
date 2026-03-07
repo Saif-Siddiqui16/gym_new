@@ -92,7 +92,7 @@ const RewardsProgram = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative z-10">
                         <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md">
                                 <Settings size={16} strokeWidth={2.5} />
                             </div>
                             Earning Rules
@@ -162,7 +162,7 @@ const RewardsProgram = () => {
                             <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors duration-300">
                                 <div className="flex justify-between items-center mb-2">
                                     <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
+                                        <div className="p-1.5 bg-violet-100 text-violet-600 rounded-lg">
                                             <Calendar size={14} />
                                         </div>
                                         Class Booking
@@ -180,7 +180,7 @@ const RewardsProgram = () => {
                             </div>
                         </div>
 
-                        <button className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 transition-all duration-300">
+                        <button className="w-full mt-6 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105 transition-all duration-300">
                             Save Configuration
                         </button>
                     </div>

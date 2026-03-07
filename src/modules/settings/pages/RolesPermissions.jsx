@@ -26,7 +26,7 @@ const RolesPermissions = () => {
                                 <p className="text-slate-600 text-xs sm:text-sm mt-0.5 sm:mt-1">Manage access control and user privileges</p>
                             </div>
                         </div>
-                        <button className="group flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/50 hover:shadow-2xl hover:shadow-violet-500/60 hover:scale-105 transition-all w-full lg:w-auto">
+                        <button className="group flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-violet-500/30/50 hover:shadow-2xl hover:shadow-violet-500/30/60 hover:scale-105 transition-all w-full lg:w-auto">
                             <Shield size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
                             Create New Role
                         </button>
@@ -56,7 +56,7 @@ const RolesPermissions = () => {
                                     <td className="py-5 px-6">
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2 rounded-lg ${role.role === 'Super Admin' ? 'bg-purple-100 text-purple-600' :
-                                                role.role === 'Manager' ? 'bg-indigo-100 text-indigo-600' :
+                                                role.role === 'Manager' ? 'bg-violet-100 text-violet-600' :
                                                     role.role === 'Trainer' ? 'bg-emerald-100 text-emerald-600' :
                                                         'bg-slate-100 text-slate-600'
                                                 }`}>

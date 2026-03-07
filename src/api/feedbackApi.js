@@ -12,5 +12,9 @@ export const feedbackApi = {
     updateFeedbackStatus: async (id, status) => {
         const response = await apiClient.patch(`/feedback/${id}/status`, { status });
         return response.data;
+    },
+    publishToGoogle: async (id) => {
+        const response = await apiClient.patch(`/feedback/${id}/publish`);
+        return response.data;
     }
 };

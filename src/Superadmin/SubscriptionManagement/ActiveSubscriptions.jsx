@@ -115,12 +115,12 @@ const ActiveSubscriptions = () => {
                             color: 'var(--text-secondary)',
                             transition: 'all 0.3s'
                         }}
-                        className="group-focus-within:scale-110 group-focus-within:text-indigo-500"
+                        className="group-focus-within:scale-110 group-focus-within:text-violet-500"
                     />
                     <input
                         type="text"
                         placeholder="Search by plan, subscriber, gym, or subscription ID..."
-                        className="activesub-search-input transition-all duration-300 focus:scale-[1.02] focus:shadow-lg hover:border-indigo-300"
+                        className="activesub-search-input transition-all duration-300 focus:scale-[1.02] focus:shadow-lg hover:border-violet-300"
                         style={{ paddingLeft: '2.5rem' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -160,11 +160,11 @@ const ActiveSubscriptions = () => {
                             </thead>
                             <tbody>
                                 {paginatedSubscriptions.map((subscription) => (
-                                    <tr key={subscription.id} className="hover:bg-indigo-50/30 hover:shadow-md hover:scale-[1.005] transition-all duration-300 cursor-pointer group">
-                                        <td data-label="Subscription ID" style={{ fontWeight: 500, color: '#8e68e5' }} className="transition-all duration-300 group-hover:scale-105 group-hover:text-indigo-700">
+                                    <tr key={subscription.id} className="hover:bg-violet-50/30 hover:shadow-md hover:scale-[1.005] transition-all duration-300 cursor-pointer group">
+                                        <td data-label="Subscription ID" style={{ fontWeight: 500, color: '#8e68e5' }} className="transition-all duration-300 group-hover:scale-105 group-hover:text-violet-700">
                                             {subscription.id}
                                         </td>
-                                        <td data-label="Plan Name" style={{ fontWeight: 500 }} className="transition-colors duration-300 group-hover:text-indigo-600">
+                                        <td data-label="Plan Name" style={{ fontWeight: 500 }} className="transition-colors duration-300 group-hover:text-violet-600">
                                             {subscription.planName}
                                         </td>
                                         <td data-label="Subscriber">{subscription.subscriberName}</td>
@@ -187,7 +187,7 @@ const ActiveSubscriptions = () => {
                                         <td data-label="Actions">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
-                                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
+                                                    className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
                                                     onClick={() => handleView(subscription)}
                                                     title="View Details"
                                                 >
@@ -233,7 +233,7 @@ const ActiveSubscriptions = () => {
                                     <button
                                         key={index + 1}
                                         className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1
-                                            ? 'bg-indigo-600 text-white shadow-md hover:shadow-lg'
+                                            ? 'bg-violet-600 text-white shadow-md hover:shadow-lg'
                                             : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm'
                                             }`}
                                         onClick={() => handlePageClick(index + 1)}
@@ -276,8 +276,8 @@ const ActiveSubscriptions = () => {
             >
                 {selectedSubscription && (
                     <div className="space-y-6">
-                        <div className="flex flex-col items-center py-6 bg-indigo-50/50 rounded-2xl border border-indigo-100">
-                            <div className="h-20 w-20 rounded-full bg-white text-indigo-600 flex items-center justify-center shadow-md mb-3">
+                        <div className="flex flex-col items-center py-6 bg-violet-50/50 rounded-2xl border border-violet-100">
+                            <div className="h-20 w-20 rounded-full bg-white text-violet-600 flex items-center justify-center shadow-md mb-3">
                                 <Eye size={32} />
                             </div>
                             <h4 className="text-xl font-bold text-gray-900">{selectedSubscription.subscriberName}</h4>
@@ -322,7 +322,7 @@ const ActiveSubscriptions = () => {
                                     handleRenew(selectedSubscription.id);
                                     setIsViewModalOpen(false);
                                 }}
-                                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
+                                className="flex-1 py-3 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-all shadow-md hover:shadow-lg"
                             >
                                 Renew Now
                             </button>

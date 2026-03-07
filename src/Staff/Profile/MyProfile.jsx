@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save, AlertTriangle } from 'lucide-react';
 import { fetchStaffProfile, updateStaffProfile } from '../../api/staff/staffApi';
+import NotificationsList from '../../components/notifications/NotificationsList';
 import '../../styles/GlobalDesign.css';
 
 const MyProfile = () => {
@@ -240,7 +241,7 @@ const MyProfile = () => {
                                         <button
                                             type="submit"
                                             disabled={isSaving}
-                                            className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-500/30/30 hover:shadow-2xl hover:shadow-violet-500/30/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSaving ? (
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -292,16 +293,7 @@ const MyProfile = () => {
                             )}
 
                             {activeTab === 'notifications' && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center relative z-10">
-                                    <div className="w-24 h-24 bg-violet-50 rounded-full flex items-center justify-center text-violet-300 mb-6 animate-bounce-slow">
-                                        <Bell size={48} strokeWidth={2.5} />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-slate-800 mb-2">Notification Preferences</h3>
-                                    <p className="text-slate-500 max-w-sm font-medium leading-relaxed">Customize how you receive alerts, system updates, and important announcements.</p>
-                                    <button className="mt-8 px-8 py-3 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold hover:bg-violet-50 hover:text-violet-600 transition-all">
-                                        Manage Settings
-                                    </button>
-                                </div>
+                                <NotificationsList />
                             )}
                         </div>
                     </div>

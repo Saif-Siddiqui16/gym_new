@@ -65,7 +65,7 @@ const MeasurementDrawer = ({ isOpen, onClose, onSave }) => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="group relative px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 hover:shadow-2xl hover:shadow-violet-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3 overflow-hidden"
+                        className="group relative px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl text-sm font-black shadow-xl shadow-violet-200 hover:shadow-2xl hover:shadow-violet-500/30/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3 overflow-hidden"
                     >
                         <span className="relative z-10 flex items-center gap-2">
                             INTEGRATE DATA <Save size={18} />

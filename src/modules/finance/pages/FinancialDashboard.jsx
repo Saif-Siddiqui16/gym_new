@@ -21,6 +21,7 @@ import {
 import { fetchFinanceStats, addExpense, fetchExpenseCategories } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
 
 const FinancialDashboard = () => {
@@ -186,12 +187,14 @@ const FinancialDashboard = () => {
                         <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mt-1">Core Financial Intelligence</p>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <button
+                        <Button
                             onClick={() => setIsExpenseDrawerOpen(true)}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#7c3aed] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-[#6d28d9] hover:-translate-y-0.5 transition-all"
+                            variant="primary"
+                            className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                            icon={Plus}
                         >
-                            <Plus size={18} /> Add Expense
-                        </button>
+                            Add Expense
+                        </Button>
                         <button
                             onClick={handleExport}
                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all active:scale-95"
@@ -206,7 +209,7 @@ const FinancialDashboard = () => {
                     <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col">
                         <div className="flex justify-between items-center mb-10">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+                                <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 shadow-sm">
                                     <BarChart3 size={24} />
                                 </div>
                                 <div>
@@ -385,7 +388,7 @@ const FinancialDashboard = () => {
                                                         <span className={`text-[11px] font-black uppercase tracking-widest ${txn.flow === 'in' ? 'text-slate-900' : 'text-red-600'}`}>{txn.type}</span>
                                                     </td>
                                                     <td className="py-5 pr-4">
-                                                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">{txn.branch}</span>
+                                                        <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-2.5 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">{txn.branch}</span>
                                                     </td>
                                                     <td className="py-5 pr-4 text-xs font-black text-slate-900">{txn.member}</td>
                                                     <td className="py-5 pr-4 text-center">
