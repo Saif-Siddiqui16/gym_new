@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, FileText, User } from 'lucide-react';
-import { getMembers, toggleMemberStatus, deleteMember, createMember, updateMember } from '../../api/manager/managerApi';
+import { Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, FileText, User, CreditCard, ShieldCheck } from 'lucide-react';
+import { getMembers, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
 import { membershipApi } from '../../api/membershipApi';
 import { referralApi } from '../../api/referralApi';
 import { exportCSV, exportPDF } from '../../api/manager/managerExport';
@@ -42,6 +42,9 @@ const MemberList = () => {
     const editProfileImageRef = React.useRef(null);
     const [isVerifyingReferral, setIsVerifyingReferral] = useState(false);
     const [referralVerified, setReferralVerified] = useState(false);
+    const [isRenewalDrawerOpen, setIsRenewalDrawerOpen] = useState(false);
+    const [renewalData, setRenewalData] = useState({ planId: '', duration: 1 });
+    const [isRenewing, setIsRenewing] = useState(false);
 
     const location = useLocation();
     const { selectedBranch } = useBranchContext();
@@ -52,14 +55,17 @@ const MemberList = () => {
         if (queryParams.get('add') === 'true') setIsAddDrawerOpen(true);
     }, [location.search]);
 
-    useEffect(() => { loadPlans(); }, []);
+    useEffect(() => { loadPlans(); }, [selectedBranch]);
     useEffect(() => { loadMembers(); }, [searchTerm, statusFilter, currentPage, itemsPerPage, selectedBranch]);
 
     // ─── HANDLERS (all logic preserved, untouched) ───
     const loadPlans = async () => {
         setPlansLoading(true);
         try {
-            const result = await membershipApi.getPlans();
+            const params = {
+                branchId: selectedBranch === 'all' ? undefined : selectedBranch
+            };
+            const result = await membershipApi.getPlans(params);
             setPlans(Array.isArray(result) ? result : []);
         } catch (error) {
             console.error("Error loading plans:", error);
@@ -78,6 +84,30 @@ const MemberList = () => {
             console.error("Error loading members:", error);
             toast.error("Failed to load members");
         } finally { setLoading(false); }
+    };
+
+    const handleRenewalSubmit = async (e) => {
+        e.preventDefault();
+        if (!renewalData.planId) {
+            toast.error("Please select a plan");
+            return;
+        }
+        try {
+            setIsRenewing(true);
+            const payload = {
+                memberId: selectedMember.id,
+                planId: parseInt(renewalData.planId),
+                duration: parseInt(renewalData.duration)
+            };
+            await renewMembership(payload);
+            toast.success("Membership assigned successfully!");
+            setIsRenewalDrawerOpen(false);
+            loadMembers();
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Failed to assign membership");
+        } finally {
+            setIsRenewing(false);
+        }
     };
 
     const handleSearch = (e) => { setSearchTerm(e.target.value); setCurrentPage(1); };
@@ -374,6 +404,7 @@ const MemberList = () => {
                                         </td>
                                         <td className="p-4 sm:px-6 sm:py-4" data-label="Actions">
                                             <div className="flex items-center justify-end sm:justify-start gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200">
+                                                <button onClick={() => { setSelectedMember(member); setRenewalData({ planId: '', duration: 1 }); setIsRenewalDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Assign Plan"><ShieldCheck size={16} /></button>
                                                 <button onClick={() => handleView(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="View"><Eye size={16} /></button>
                                                 <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
                                                 <button onClick={() => handleDelete(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Delete"><Trash2 size={16} /></button>
@@ -1016,6 +1047,87 @@ const MemberList = () => {
                         This will permanently delete the member record for <span className="text-slate-900 font-bold">{selectedMember?.name}</span> from the system. All associated data will be lost.
                     </p>
                 </div>
+            </RightDrawer>
+
+
+            {/* Assign Membership Drawer */}
+            <RightDrawer
+                isOpen={isRenewalDrawerOpen}
+                onClose={() => setIsRenewalDrawerOpen(false)}
+                title="Assign Membership"
+                subtitle={`Assigning plan to ${selectedMember?.name}`}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button type="button" onClick={() => setIsRenewalDrawerOpen(false)} variant="outline">Cancel</Button>
+                        <Button
+                            type="submit"
+                            form="renewal-form"
+                            variant="primary"
+                            disabled={isRenewing}
+                            className="shadow-lg shadow-emerald-200"
+                        >
+                            {isRenewing ? 'Assigning...' : 'Assign Plan'}
+                        </Button>
+                    </div>
+                }
+            >
+                <form id="renewal-form" onSubmit={handleRenewalSubmit} className="px-6 py-8 space-y-6">
+                    <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-emerald-500 shadow-sm">
+                            <ShieldCheck size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-0.5">Activation Flow</p>
+                            <h4 className="text-sm font-bold text-slate-800">Assign a new membership cycle</h4>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Select Plan <span className="text-rose-500">*</span></label>
+                            <div className="relative">
+                                <select
+                                    required
+                                    value={renewalData.planId}
+                                    onChange={(e) => setRenewalData({ ...renewalData, planId: e.target.value })}
+                                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-emerald-500 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                >
+                                    <option value="">Choose a plan...</option>
+                                    {plans.map(plan => (
+                                        <option key={plan.id} value={plan.id}>{plan.name} - ₹{plan.price} ({plan.duration} {plan.durationType})</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <ChevronRight size={16} className="rotate-90" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Quantity/Multiplier (Cycles)</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={renewalData.duration}
+                                onChange={(e) => setRenewalData({ ...renewalData, duration: e.target.value })}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-emerald-500 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            />
+                            <p className="text-[10px] text-slate-400 font-bold mt-2 ml-1 italic">Note: Duration will be multiplied based on the selected plan's period.</p>
+                        </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-slate-100">
+                        <div className="flex items-center justify-between px-2">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Amount</span>
+                            <span className="text-xl font-black text-slate-800">
+                                ₹{renewalData.planId && plans.find(p => p.id == renewalData.planId)
+                                    ? (plans.find(p => p.id == renewalData.planId).price * renewalData.duration).toLocaleString()
+                                    : '0'}
+                            </span>
+                        </div>
+                    </div>
+                </form>
             </RightDrawer>
 
         </div >

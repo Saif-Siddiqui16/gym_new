@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, ShieldCheck, Activity, RefreshCw, AlertCircle, CheckCircle, Wifi, WifiOff, Users, Search } from 'lucide-react';
+import { Smartphone, ShieldCheck, Activity, RefreshCw, AlertCircle, CheckCircle, Wifi, WifiOff, Users, Search, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { fetchDevices } from '../../../api/superadmin/superAdminApi';
+import { fetchDevices, deleteDevice } from '../../../api/superadmin/superAdminApi';
+import RightDrawer from '../../../components/common/RightDrawer';
+import AddDeviceDrawer from './AddDeviceDrawer';
+import Button from '../../../components/ui/Button';
+import { useBranchContext } from '../../../context/BranchContext';
+import { Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Devices = () => {
     const navigate = useNavigate();
+    const { selectedBranch } = useBranchContext();
     const [devices, setDevices] = useState([]);
     const [isRefreshing, setIsRefreshing] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     useEffect(() => {
         loadDevices();
-    }, []);
+    }, [selectedBranch]);
 
     const loadDevices = async () => {
         setIsRefreshing(true);
@@ -40,6 +48,19 @@ const Devices = () => {
 
     const handleMonitor = (device) => {
         navigate('/operations/live-monitor');
+    };
+
+    const handleDelete = async (id, name) => {
+        if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
+
+        try {
+            toast.loading('Deleting hardware...', { id: 'delete-device' });
+            await deleteDevice(id);
+            toast.success('Hardware decommissioned successfully', { id: 'delete-device' });
+            loadDevices();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to delete device', { id: 'delete-device' });
+        }
     };
 
     const getStatusBadge = (status) => {
@@ -82,14 +103,24 @@ const Devices = () => {
                                 <p className="text-slate-500 font-medium text-sm mt-1">Monitor entry hardware and sync status</p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleRefresh}
-                            disabled={isRefreshing}
-                            className={`group flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-violet-300 hover:text-primary transition-all duration-300 shadow-sm ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <RefreshCw size={18} strokeWidth={2.5} className={`${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-                            {isRefreshing ? 'Refreshing Hardware...' : 'Manual Refresh'}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={handleRefresh}
+                                disabled={isRefreshing}
+                                className={`group flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 rounded-2xl text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-violet-300 hover:text-primary transition-all duration-300 shadow-sm ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <RefreshCw size={18} strokeWidth={2.5} className={`${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+                                {isRefreshing ? 'Refreshing...' : 'Sync'}
+                            </button>
+                            <Button
+                                onClick={() => setIsDrawerOpen(true)}
+                                variant="primary"
+                                className="px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all transform active:scale-95 flex items-center gap-2"
+                                icon={Plus}
+                            >
+                                Add Device
+                            </Button>
+                        </div>
                     </div>
                     {/* Add Search Bar per requirement */}
                     <div className="mt-6 flex flex-col md:flex-row gap-4 items-center w-full max-w-lg">
@@ -186,9 +217,13 @@ const Devices = () => {
                                 >
                                     Monitor Activity
                                 </button>
-                                <div className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
-                                    <AlertCircle size={18} />
-                                </div>
+                                <button
+                                    onClick={() => handleDelete(device.id, device.name)}
+                                    className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300 active:scale-90"
+                                    title="Decommission Hardware"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -213,6 +248,19 @@ const Devices = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add Device Drawer */}
+            <RightDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                title="Initialize Hardware"
+                subtitle="Add a new entry monitoring device"
+            >
+                <AddDeviceDrawer
+                    onClose={() => setIsDrawerOpen(false)}
+                    onSuccess={loadDevices}
+                />
+            </RightDrawer>
         </div>
     );
 };

@@ -309,8 +309,8 @@ export const menuConfig = {
             label: 'System',
             icon: Settings,
             children: [
-                { label: 'System Health', path: '/settings/webhooks', icon: Activity },
-                { label: 'Audit Logs', path: '/settings/logs', icon: Shield },
+                { label: 'System Health', path: '/system/health', icon: Activity },
+                { label: 'Audit Logs', path: '/system/audit-logs', icon: Shield },
                 { label: 'Settings', path: '/branchadmin/settings/general', icon: Settings },
             ]
         },

@@ -11,6 +11,8 @@ const TITLE_MAP = {
     '/workout-plans': 'Workout Plans',
     '/progress': 'Progress Tracking',
     '/settings': 'Settings',
+    '/system/health': 'System Health',
+    '/system/audit-logs': 'Audit Logs',
     '/operations': 'Operations',
     '/profile/me': 'My Profile'
 };

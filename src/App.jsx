@@ -306,8 +306,8 @@ export default function App() {
                 <Route path="templates" element={<MessageTemplates />} />
                 <Route path="amenities" element={<AmenitySettings />} />
               </Route>
-              <Route path="/settings/logs" element={<AuditLogs />} />
-              <Route path="/settings/webhooks" element={<WebhookSettings />} />
+              <Route path="/system/audit-logs" element={<AuditLogs />} />
+              <Route path="/system/health" element={<WebhookSettings />} />
             </>
           )}
 
