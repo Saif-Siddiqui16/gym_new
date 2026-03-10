@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, DollarSign, ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
 import { updateMemberWallet } from '../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 import RightDrawer from '../components/common/RightDrawer';
 
 const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }) => {
@@ -10,7 +11,7 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
     // Form State
     const [transactionType, setTransactionType] = useState(null); // 'credit' | 'debit' | null
     const [amount, setAmount] = useState('');
-    const [description, setDescription] = useState('');
+    const [description] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -66,7 +67,7 @@ const WalletDrawer = ({ isOpen, onClose, memberData, walletData, setWalletData }
             setDescription('');
         } catch (error) {
             console.error("Wallet transaction failed:", error);
-            alert("Transaction failed: " + error);
+            toast.error("Transaction failed: " + error);
         } finally {
             setIsSubmitting(false);
         }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, Calendar, Clock, CreditCard, ArrowLeft, AlertCircle, Shield, Ban, Dumbbell, Gift } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { fetchBookingSettings, updateBookingSettings } from '../../api/superadmin/superAdminApi';
 
 const BookingSettings = () => {
@@ -51,10 +52,10 @@ const BookingSettings = () => {
         setLoading(true);
         try {
             await updateBookingSettings(settings);
-            alert('Booking rules updated successfully!');
+            toast.success('Booking rules updated successfully!');
         } catch (error) {
             console.error("Failed to save booking settings:", error);
-            alert("Failed to save: " + error.message);
+            toast.error("Failed to save: " + error.message);
         } finally {
             setLoading(false);
         }

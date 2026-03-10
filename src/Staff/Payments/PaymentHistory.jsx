@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Download, Filter, Search, Calendar, CreditCard, DollarSign, Eye, FileText, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { getPaymentHistory } from '../../api/staff/paymentApi';
+import { exportPdf } from '../../utils/exportPdf';
+import toast from 'react-hot-toast';
 
 const PaymentHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -51,42 +53,37 @@ const PaymentHistory = () => {
         if (currentPage < totalPages) setCurrentPage(currentPage + 1);
     };
 
-    const handleExportCSV = () => {
+    const handleExport = () => {
         if (payments.length === 0) {
-            alert('No payments to export');
+            toast.error('No payments to export');
             return;
         }
 
         const headers = ['Trans ID', 'Member', 'Plan', 'Amount', 'Mode', 'Date', 'Status'];
         const rows = payments.map(p => [
             p.id,
-            `"${p.member}"`,
-            `"${p.plan}"`,
-            p.amount,
+            p.member,
+            p.plan,
+            `₹${p.amount}`,
             p.mode,
             p.date,
             p.status
-        ].join(','));
+        ]);
 
-        const csvString = [headers.join(','), ...rows].join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `payments_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
-
-    const handleExportPDF = () => {
-        alert('PDF Export: This feature requires a PDF library like jspdf. CSV export is fully functional!');
+        exportPdf({
+            title: 'Payment History Report',
+            filename: `payments_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     const handleViewDetails = (payment) => {
-        alert(`Transaction Details:\nID: ${payment.id}\nMember: ${payment.member}\nAmount: ${payment.amount}\nMode: ${payment.mode}\nStatus: ${payment.status}\nDate: ${payment.date}`);
+        toast.success(`ID: ${payment.id} | Amount: ₹${payment.amount} | Status: ${payment.status}`, {
+            duration: 4000,
+            icon: '📄'
+        });
     };
 
     return (
@@ -97,13 +94,9 @@ const PaymentHistory = () => {
                     <p className="text-sm text-gray-500 mt-1">View and manage all recently collected membership payments.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button onClick={handleExportPDF} className="h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-                        <Download size={16} className="text-primary" />
-                        Export PDF
-                    </button>
-                    <button onClick={handleExportCSV} className="h-10 px-4 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary transition-all shadow-md">
-                        <FileText size={16} />
-                        Export CSV
+                    <button onClick={handleExport} className="h-10 px-6 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-primary transition-all shadow-md active:scale-95">
+                        <Download size={16} />
+                        Export as PDF
                     </button>
                 </div>
             </div>

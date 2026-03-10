@@ -170,7 +170,7 @@ const MemberBookings = () => {
                 ) : filteredBookings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredBookings.map((booking) => (
-                            <Card key={booking.id} className="p-6 border-slate-100 hover:border-violet-100 transition-all duration-300 rounded-3xl group relative overflow-hidden">
+                            <Card key={booking.id} className="p-8 sm:p-10 border-slate-100 hover:border-violet-100 transition-all duration-300 rounded-[2.5rem] group relative overflow-hidden bg-white shadow-sm">
                                 {/* Decorator */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light/50 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110" />
 
@@ -213,7 +213,10 @@ const MemberBookings = () => {
                         ))}
                     </div>
                 ) : (
-                    <Card className="p-20 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[3rem] bg-white flex flex-col items-center justify-center text-center group hover:border-violet-100 transition-all duration-500">
+                    <Card className="p-24 sm:p-32 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[4rem] bg-white flex flex-col items-center justify-center text-center group hover:border-violet-100 transition-all duration-500">
+                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-100 group-hover:scale-110 transition-transform duration-500">
+                            <Calendar size={48} strokeWidth={1} />
+                        </div>
                         <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4 leading-none">
                             No upcoming bookings
                         </h3>

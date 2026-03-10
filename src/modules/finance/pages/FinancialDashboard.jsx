@@ -24,6 +24,7 @@ import toast from 'react-hot-toast';
 import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const FinancialDashboard = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -122,41 +123,25 @@ const FinancialDashboard = () => {
         }
 
         try {
-            // Define CSV headers
             const headers = ["Date", "Type", "Flow", "Member/Entity", "Reference ID", "Branch", "Status", "Amount"];
-
-            // Map transaction data to CSV rows
             const rows = data.transactions.map(txn => [
                 txn.date,
                 txn.type,
                 txn.flow === 'in' ? 'Income' : 'Expense',
-                `"${txn.member.replace(/"/g, '""')}"`, // Handle names with commas
+                txn.member,
                 txn.id,
-                `"${txn.branch.replace(/"/g, '""')}"`,
+                txn.branch,
                 txn.status || 'Paid',
-                txn.amount
+                `₹${txn.amount}`
             ]);
 
-            // Combine into CSV string
-            const csvContent = [
-                headers.join(","),
-                ...rows.map(row => row.join(","))
-            ].join("\n");
-
-            // Create blob and download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            const filename = `Finance_Report_${selectedBranch}_${new Date().toISOString().split('T')[0]}.csv`;
-
-            link.setAttribute("href", url);
-            link.setAttribute("download", filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            toast.success("Financial report exported successfully!");
+            exportPdf({
+                title: 'Financial Report',
+                filename: `Finance_Report_${selectedBranch}_${new Date().toISOString().split('T')[0]}`,
+                headers,
+                rows,
+                gymName: "Gym Academy"
+            });
         } catch (error) {
             console.error("Export failed", error);
             toast.error("Failed to generate export file");
@@ -179,8 +164,8 @@ const FinancialDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen pb-20">
-            <div className="max-w-screen-2xl mx-auto space-y-10">
+        <div className="min-h-screen pb-20 w-full">
+            <div className="w-full px-4 space-y-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -200,14 +185,14 @@ const FinancialDashboard = () => {
                             onClick={handleExport}
                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all active:scale-95"
                         >
-                            <Download size={18} /> Export
+                            <Download size={18} /> Export as PDF
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* Revenue Report Chart Section */}
-                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10 flex flex-col transition-all duration-300 hover:shadow-md">
+                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-5 sm:p-8 md:p-10 flex flex-col transition-all duration-300 hover:shadow-md">
                         <div className="flex justify-between items-center mb-10">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
@@ -258,7 +243,7 @@ const FinancialDashboard = () => {
                     </div>
 
                     {/* Right Summary Card (Budget 2026) */}
-                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10 flex flex-col">
+                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-5 sm:p-8 md:p-10 flex flex-col">
                         <div className="mb-10 flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
@@ -306,7 +291,7 @@ const FinancialDashboard = () => {
                     </div>
 
                     {/* Bottom Left: Recent (Top 5) */}
-                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden h-[600px]">
+                    <div className="lg:col-span-4 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden" style={{ height: 'clamp(400px, 50vh, 600px)' }}>
                         <div className="p-8 pb-6 flex items-center gap-4">
                             <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 shadow-sm">
                                 <History size={20} />
@@ -350,7 +335,7 @@ const FinancialDashboard = () => {
                     </div>
 
                     {/* Bottom Right: Detailed Tabs */}
-                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden h-[600px]">
+                    <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden" style={{ height: 'clamp(400px, 50vh, 600px)' }}>
                         <div className="px-8 pt-8 flex items-center justify-between mb-8">
                             <div className="flex flex-wrap items-center gap-3">
                                 <button

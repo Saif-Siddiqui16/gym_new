@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Download, Filter, Search, Calendar, ChevronDown, Check, TrendingUp, CreditCard, Banknote, Wallet, Loader2 } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
+import toast from 'react-hot-toast';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const RevenueReport = () => {
     const getToday = () => {
@@ -61,59 +63,29 @@ const RevenueReport = () => {
         fetchReport();
     }, [selectedDate, searchTerm]);
 
-    const handleExportCSV = () => {
+    const handleExport = () => {
         if (allFilteredRevenue.length === 0) {
-            alert("No data available to export.");
+            toast.error("No data available to export.");
             return;
         }
 
         const headers = ["Date", "Member", "Service", "Amount", "Mode", "Status"];
-        const csvContent = [
-            headers.join(","),
-            ...allFilteredRevenue.map(row => [
-                `"${row.date}"`,
-                `"${row.member}"`,
-                `"${row.service}"`,
-                `"${row.amount}"`,
-                `"${row.mode}"`,
-                `"${row.status}"`
-            ].join(","))
-        ].join("\n");
+        const rows = allFilteredRevenue.map(row => [
+            row.date,
+            row.member,
+            row.service,
+            row.amount,
+            row.mode,
+            row.status
+        ]);
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `revenue_report_${selectedDate}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const handleExportPDF = () => {
-        if (allFilteredRevenue.length === 0) {
-            alert("No data available to export.");
-            return;
-        }
-
-        const rows = allFilteredRevenue.map(row =>
-            `<tr><td>${row.date}</td><td>${row.member}</td><td>${row.service}</td><td>${row.amount}</td><td>${row.mode}</td><td>${row.status}</td></tr>`
-        ).join('');
-
-        const html = `<html><head><title>Revenue Report</title><style>body{font-family:inherit;padding:20px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #ddd;padding:10px;text-align:left}th{background:#4f46e5;color:white}tr:nth-child(even){background:#f8fafc}</style></head><body><h2>Revenue Report</h2><p>Generated: ${new Date().toLocaleString()}</p><table><thead><tr><th>Date</th><th>Member</th><th>Service</th><th>Amount</th><th>Mode</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
-
-        const w = window.open('', '_blank');
-        if (w) {
-            w.document.write(html);
-            w.document.close();
-            // Allow time for styles to load before print
-            setTimeout(() => {
-                w.print();
-            }, 250);
-        } else {
-            alert('Please allow popups to export the PDF.');
-        }
+        exportPdf({
+            title: 'Revenue Report',
+            filename: `revenue_report_${selectedDate}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     return (
@@ -135,16 +107,10 @@ const RevenueReport = () => {
                         </div>
                         <div className="flex flex-wrap gap-2 md:gap-3">
                             <button
-                                onClick={handleExportCSV}
-                                className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2 text-sm font-semibold"
+                                onClick={handleExport}
+                                className="flex-1 md:flex-none bg-primary hover:bg-primary-hover hover:shadow-lg hover:shadow-purple-500/30 text-white flex items-center justify-center gap-2 shadow-sm transition-all rounded-xl px-6 py-3 text-[11px] font-black uppercase tracking-widest"
                             >
-                                <Download size={16} className="text-gray-500" /> Export CSV
-                            </button>
-                            <button
-                                onClick={handleExportPDF}
-                                className="flex-1 md:flex-none bg-primary hover:bg-primary-hover hover:shadow-lg hover:shadow-purple-500/30 text-white flex items-center justify-center gap-2 shadow-sm transition-all rounded-xl px-4 py-2 text-sm font-semibold"
-                            >
-                                Export PDF
+                                <Download size={18} /> Export as PDF
                             </button>
                         </div>
                     </div>

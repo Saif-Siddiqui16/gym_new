@@ -110,7 +110,7 @@ const BenefitsConfig = () => {
                                         <IconComp size={24} strokeWidth={2.5} />
                                     </div>
                                     <div className="flex gap-2">
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                        <div className="flex gap-2 transition-opacity">
                                             <button onClick={() => handleEdit(benefit)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-primary">
                                                 <Edit2 size={16} />
                                             </button>

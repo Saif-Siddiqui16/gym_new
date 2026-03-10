@@ -4,6 +4,7 @@ import '../SubscriptionManagement/SubscriptionManagement.css';
 import { fetchSubscriptions, toggleSubscriptionStatus } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
+import { toast } from 'react-hot-toast';
 
 const ActiveSubscriptions = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +81,7 @@ const ActiveSubscriptions = () => {
         if (window.confirm('Are you sure you want to renew this subscription?')) {
             // Mock renewal: toggle status twice or just log
             console.log('Renew subscription:', subId);
-            alert('Renewal initiated for ' + subId);
+            toast.success('Renewal initiated for ' + subId);
         }
     };
 

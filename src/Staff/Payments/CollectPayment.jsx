@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, User, Wallet, FileText, CheckCircle, AlertCircle, IndianRupee, Hash, ReceiptText } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { collectPayment } from '../../api/staff/paymentApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { INVOICES } from '../../modules/finance/data/mockFinance';
@@ -95,10 +96,10 @@ const CollectPayment = () => {
             });
 
             if (result.success) {
-                alert(`Payment of ₹${formData.paymentAmount} recorded successfully!`);
+                toast.success(`Payment of ₹${formData.paymentAmount} recorded successfully!`);
                 navigate('/modules/finance/invoices'); // Navigate to invoices page to see update
             } else {
-                alert("Payment failed");
+                toast.error("Payment failed");
             }
         }
     };

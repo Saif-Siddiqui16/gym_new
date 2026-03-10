@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Users, UserCheck, UserMinus, Download, Filter, Search, MoreVertical, ChevronLeft, ChevronRight, Eye, Trash2, X, Clock, MapPin, Smartphone, ChevronDown, Check, Loader2, Activity, ScanLine } from 'lucide-react';
 import toast from 'react-hot-toast';
 import apiClient from '../../api/apiClient';
-import { exportCSV } from '../../api/manager/managerExport';
+import { exportPDF } from '../../api/manager/managerExport';
 import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
 
@@ -150,8 +150,8 @@ const DailyAttendanceReport = () => {
             if (statsRes.data) {
                 setAttendanceStats({
                     totalToday: statsRes.data.totalToday || 0,
-                    membersToday: statsRes.data.memberCheckIns || 0,
-                    staffToday: statsRes.data.staffCheckIns || 0
+                    membersToday: statsRes.data.membersToday || 0,
+                    staffToday: statsRes.data.staffToday || 0
                 });
             }
         } catch (error) {
@@ -163,28 +163,7 @@ const DailyAttendanceReport = () => {
     };
 
     const handleExport = () => {
-        if (attendance.length === 0) {
-            alert("No data to export");
-            return;
-        }
-        const headers = ["Name", "Type", "Check-In", "Check-Out", "Status"];
-        const csvContent = [
-            headers.join(","),
-            ...attendance.map(row => [
-                `"${row.name}"`,
-                `"${row.type}"`,
-                `"${row.checkIn}"`,
-                `"${row.checkOut}"`,
-                `"${row.status}"`
-            ].join(","))
-        ].join("\n");
-
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `attendance_report_${selectedDate}.csv`;
-        link.click();
+        exportPDF(attendance, `Attendance_Report_${selectedDate}`);
     };
 
     const handleDelete = async (id) => {
@@ -240,8 +219,18 @@ const DailyAttendanceReport = () => {
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Attendance</h1>
-                    <p className="text-slate-600 text-sm font-medium mt-1">Quick check-in / check-out</p>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Attendance</h1>
+                            <p className="text-slate-600 text-sm font-medium mt-1">Quick check-in / check-out</p>
+                        </div>
+                        <button
+                            onClick={handleExport}
+                            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2.5 text-xs md:text-sm font-semibold"
+                        >
+                            <Download size={14} className="text-gray-500 md:w-4 md:h-4" /> Export as PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -363,13 +352,13 @@ const DailyAttendanceReport = () => {
             <div className="mb-10">
                 <div className="flex items-center justify-between mb-4 px-2">
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <UserCheck size={14} className="text-emerald-500" /> Currently In ({attendance.filter(a => a.status === 'checked-in').length})
+                        <UserCheck size={14} className="text-emerald-500" /> Currently In ({attendance.filter(a => a.status === 'Inside').length})
                     </h2>
                 </div>
 
-                {attendance.filter(a => a.status === 'checked-in').length > 0 ? (
+                {attendance.filter(a => a.status === 'Inside').length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {attendance.filter(a => a.status === 'checked-in').map((member) => (
+                        {attendance.filter(a => a.status === 'Inside').map((member) => (
                             <div key={member.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-violet-200 transition-all group">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-white transition-all">

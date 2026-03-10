@@ -29,6 +29,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import Button from '../../../components/ui/Button';
 import StatsCard from '../../dashboard/components/StatsCard';
 import toast from 'react-hot-toast';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const Invoices = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -246,14 +247,42 @@ const Invoices = () => {
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Invoices</h1>
                     <p className="text-slate-500 text-sm font-medium">Manage and track all invoices</p>
                 </div>
-                <Button
-                    onClick={() => setIsCreateDrawerOpen(true)}
-                    variant="primary"
-                    className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
-                    icon={Plus}
-                >
-                    Create Invoice
-                </Button>
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <button
+                        onClick={() => {
+                            if (data.invoices.length === 0) {
+                                toast.error("No invoices to export");
+                                return;
+                            }
+                            const headers = ["Invoice #", "Member", "Amount", "Date", "Status"];
+                            const rows = data.invoices.map(inv => [
+                                inv.invoiceNumber,
+                                inv.member?.name || 'Walk-in Guest',
+                                `₹${Number(inv.amount).toLocaleString()}`,
+                                new Date(inv.dueDate).toLocaleDateString(),
+                                inv.status
+                            ]);
+                            exportPdf({
+                                title: 'Invoices Report',
+                                filename: `Invoices_Report_${new Date().toISOString().split('T')[0]}`,
+                                headers,
+                                rows,
+                                gymName: "Gym Academy"
+                            });
+                        }}
+                        className="h-11 px-6 bg-white text-primary border border-violet-100 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-primary-light transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <Download size={18} /> Export as PDF
+                    </button>
+                    <Button
+                        onClick={() => setIsCreateDrawerOpen(true)}
+                        variant="primary"
+                        className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                        icon={Plus}
+                    >
+                        Create Invoice
+                    </Button>
+                </div>
             </div>
 
             {/* Stats Grid */}
@@ -772,7 +801,30 @@ const Invoices = () => {
 
                             <div className="pt-8">
                                 <button
-                                    onClick={() => window.print()}
+                                    onClick={() => {
+                                        if (!selectedInvoice) return;
+                                        const headers = ["Description", "Quantity", "Rate", "Total"];
+                                        const rows = (selectedInvoice.items || []).map(item => [
+                                            item.description,
+                                            item.quantity.toString(),
+                                            `₹${Number(item.rate).toLocaleString()}`,
+                                            `₹${(Number(item.rate) * Number(item.quantity)).toLocaleString()}`
+                                        ]);
+
+                                        // Add summary rows
+                                        rows.push(["", "", "Subtotal", `₹${Number(selectedInvoice.subtotal || selectedInvoice.amount).toLocaleString()}`]);
+                                        if (selectedInvoice.discount) rows.push(["", "", "Discount", `-₹${Number(selectedInvoice.discount).toLocaleString()}`]);
+                                        if (selectedInvoice.taxAmount) rows.push(["", "", "Tax", `₹${Number(selectedInvoice.taxAmount).toLocaleString()}`]);
+                                        rows.push(["", "", "Total Amount", `₹${Number(selectedInvoice.totalAmount || selectedInvoice.amount).toLocaleString()}`]);
+
+                                        exportPdf({
+                                            title: `Invoice ${selectedInvoice.invoiceNumber}`,
+                                            filename: `Invoice_${selectedInvoice.invoiceNumber}`,
+                                            headers,
+                                            rows,
+                                            gymName: "Gym Academy"
+                                        });
+                                    }}
                                     className="w-full h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-sm font-black text-slate-900 hover:border-violet-200 hover:bg-primary-light/30 transition-all active:scale-[0.98]"
                                 >
                                     <Download size={18} className="text-primary" />

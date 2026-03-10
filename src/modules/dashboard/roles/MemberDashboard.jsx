@@ -26,6 +26,8 @@ import toast from 'react-hot-toast';
 import { X, Send, MessageSquare } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
+import QRScannerModal from '../../../components/common/QRScannerModal';
+import { scanAttendance } from '../../../api/member/attendanceApi';
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -35,6 +37,7 @@ const MemberDashboard = () => {
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [chatHistory, setChatHistory] = useState([]);
     const [chatMessage, setChatMessage] = useState('');
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
@@ -92,6 +95,22 @@ const MemberDashboard = () => {
         } catch (error) {
             console.error('Failed to send message:', error);
             toast.error('Failed to send message');
+        }
+    };
+
+    const handleScanSuccess = async (decodedText) => {
+        setIsScannerOpen(false);
+        const loadingToast = toast.loading('Marking attendance...');
+        try {
+            const result = await scanAttendance(decodedText);
+            if (result.success) {
+                toast.success(result.message, { id: loadingToast });
+                fetchDashboardData(); // Refresh stats
+            } else {
+                toast.error(result.message, { id: loadingToast });
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred', { id: loadingToast });
         }
     };
 
@@ -234,9 +253,9 @@ const MemberDashboard = () => {
                     {/* Quick Actions Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} />
+                        <QuickAction icon={Activity} label="Scan QR" onClick={() => setIsScannerOpen(true)} color="bg-emerald-50" />
                         <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} />
                         <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} />
-                        <QuickAction icon={UserPlus} label="Refer & Earn" onClick={() => navigate('/referrals')} />
                     </div>
 
                     {/* Membership Details & Entitlements */}
@@ -448,7 +467,7 @@ const MemberDashboard = () => {
                             {!locker && (
                                 <button
                                     onClick={() => navigate('/member/requests')}
-                                    className="w-full h-11 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
+                                    className="w-full py-3 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
                                 >
                                     Request Locker
                                 </button>
@@ -457,6 +476,7 @@ const MemberDashboard = () => {
                     </Card>
                 </div>
             </div>
+
             {/* Premium Chat Modal */}
             <RightDrawer
                 isOpen={isChatModalOpen && !!data?.trainer}
@@ -516,6 +536,13 @@ const MemberDashboard = () => {
                     </div>
                 </div>
             </RightDrawer>
+
+            <QRScannerModal
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScanSuccess={handleScanSuccess}
+                title="Member Attendance Scan"
+            />
         </div>
     );
 };

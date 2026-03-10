@@ -195,11 +195,11 @@ const MyMembership = ({ role }) => {
                                 }
 
                                 return benefitList.map((benefit, idx) => (
-                                    <div key={idx} className="p-6 bg-white border-2 border-slate-100 rounded-3xl flex items-center gap-4 group hover:border-violet-100 transition-all">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                                            <CheckCircle2 size={20} />
+                                    <div key={idx} className="p-8 sm:p-10 bg-white border-2 border-slate-100 rounded-[2.5rem] flex items-center gap-6 group hover:border-violet-100 transition-all shadow-sm">
+                                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm transition-transform group-hover:scale-110">
+                                            <CheckCircle2 size={24} />
                                         </div>
-                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tight">{benefit.trim()}</span>
+                                        <span className="text-base font-bold text-slate-700 uppercase tracking-tight">{benefit.trim()}</span>
                                     </div>
                                 ));
                             })()}

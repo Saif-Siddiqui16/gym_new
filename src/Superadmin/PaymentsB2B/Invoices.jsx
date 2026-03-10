@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, Download, Filter } from 'lucide-react';
+import { Search, Download, Eye, Mail, Filter, ArrowUpRight, CheckCircle, Clock } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { fetchInvoices } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -60,9 +61,8 @@ const Invoices = () => {
     };
 
     const handleDownload = (invoiceNo) => {
-        // Triggering mock download as per API exportTable
-        console.log('Downloading invoice:', invoiceNo);
-        alert(`Initiating download for Invoice: ${invoiceNo}`);
+        toast.success(`Initiating download for Invoice: ${invoiceNo}`);
+        // In real app: window.open(`/api/invoices/download/${invoiceNo}`);
     };
 
     const getStatusBadge = (status) => {

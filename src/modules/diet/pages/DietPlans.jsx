@@ -620,7 +620,7 @@ const TrainerDietBuilder = () => {
                             <div key={meal.id} className="bg-white border-2 border-slate-50 rounded-2xl p-5 md:p-6 shadow-sm relative group hover:border-violet-100 transition-all">
                                 <button
                                     onClick={() => removeMeal(meal.id)}
-                                    className="absolute top-4 right-4 p-2 text-red-100 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors md:opacity-0 md:group-hover:opacity-100"
+                                    className="absolute top-4 right-4 p-2 text-red-100 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                 >
                                     ✕
                                 </button>

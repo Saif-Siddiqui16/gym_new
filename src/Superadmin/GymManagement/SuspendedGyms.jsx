@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Ban, AlertCircle } from 'lucide-react';
 import { fetchAllGyms, toggleGymStatus } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 
 const SuspendedGyms = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,7 +38,7 @@ const SuspendedGyms = () => {
                 await toggleGymStatus(id);
                 loadSuspendedGyms();
             } catch (error) {
-                alert('Failed to reactivate gym');
+                toast.error('Failed to reactivate gym');
             }
         }
     };

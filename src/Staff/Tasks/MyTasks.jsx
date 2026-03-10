@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, Plus, Search, Filter, CheckSquare, Clock, AlertCircle, CheckCircle2, LayoutGrid, List, Box, MoreHorizontal, Loader2 } from 'lucide-react';
 import CreateTaskDrawer from './CreateTaskDrawer';
+import { toast } from 'react-hot-toast';
 import { getAllTasks, getTaskStats, updateTaskStatus } from '../../api/staff/taskApi';
 
 const MyTasks = () => {
@@ -53,7 +54,7 @@ const MyTasks = () => {
             await updateTaskStatus(taskId, newStatus);
             fetchData();
         } catch (error) {
-            alert(error);
+            toast.error(error?.message || 'Failed to update task');
         }
     };
 

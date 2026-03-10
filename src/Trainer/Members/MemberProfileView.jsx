@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMemberById, getMemberPayments } from '../../api/trainer/trainerApi';
+import { toast } from 'react-hot-toast';
 import { getChatMessages, sendChatMessage } from '../../api/communication/communicationApi';
 import { useAuth } from '../../context/AuthContext';
 import { getProgress } from '../../api/progressApi';
@@ -86,7 +87,7 @@ const MemberProfileView = ({ memberId: propMemberId, onClose }) => {
             loadChatHistory();
         } catch (error) {
             console.error('Failed to send message:', error);
-            alert('Failed to send message');
+            toast.error('Failed to send message');
         }
     };
 

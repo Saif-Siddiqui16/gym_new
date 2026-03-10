@@ -4,6 +4,7 @@ import { Save } from 'lucide-react';
 
 import { fetchPlans, togglePlanFeature, updatePlanFeatures } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
+import { toast } from 'react-hot-toast';
 
 const FeatureToggles = () => {
     const navigate = useNavigate();
@@ -69,7 +70,7 @@ const FeatureToggles = () => {
 
     const handleSave = async () => {
         if (!selectedPlan) {
-            alert('Please select a plan first');
+            toast.error('Please select a plan first');
             return;
         }
 
@@ -83,11 +84,11 @@ const FeatureToggles = () => {
             await updatePlanFeatures(planId, enabledFeatures);
 
             setIsSaving(false);
-            alert('Features updated successfully!');
+            toast.success('Features updated successfully!');
             navigate('/superadmin/plans/list');
         } catch (error) {
             console.error('Error saving features:', error);
-            alert('Failed to save features');
+            toast.error('Failed to save features');
             setIsSaving(false);
         }
     };

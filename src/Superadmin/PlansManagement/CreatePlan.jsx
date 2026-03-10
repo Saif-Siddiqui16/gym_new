@@ -12,6 +12,7 @@ import {
     Wrench,
     Infinity
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 import { addPlan, editPlan, fetchPlans } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
@@ -148,7 +149,7 @@ const CreatePlan = () => {
 
         if (!validateForm()) {
             setActiveSections(prev => ({ ...prev, basic: true }));
-            alert("Please fill in all required fields (Name, Price, Description).");
+            toast.error("Please fill in all required fields (Name, Price, Description).");
             return;
         }
 
@@ -174,7 +175,7 @@ const CreatePlan = () => {
             navigate('/superadmin/plans/list');
         } catch (error) {
             console.error('Error saving plan:', error);
-            alert('Failed to save plan');
+            toast.error('Failed to save plan');
         } finally {
             setIsSubmitting(false);
         }

@@ -129,7 +129,7 @@ const ActivityLogs = () => {
                                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-md hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group w-full sm:w-auto"
                             >
                                 <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                                Export
+                                Export as PDF
                             </button>
                             <button
                                 onClick={() => setShowFilters(!showFilters)}

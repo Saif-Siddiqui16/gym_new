@@ -14,6 +14,7 @@ import {
     Settings,
     Coffee
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const AvailabilitySettingsPage = () => {
     // --- STATE ---
@@ -52,7 +53,7 @@ const AvailabilitySettingsPage = () => {
         try {
             await updateTrainerAvailability({ preferences: updatedPrefs });
         } catch (error) {
-            alert('Failed to save preference');
+            toast.error('Failed to save preference');
             setPreferences(preferences); // revert on fail
         }
     };
@@ -62,9 +63,9 @@ const AvailabilitySettingsPage = () => {
         try {
             await deleteTrainerTimeOff(id);
             setTimeOff(timeOff.filter(t => t.id !== id));
-            alert('Time off removed successfully!');
+            toast.success('Time off removed successfully!');
         } catch (error) {
-            alert('Failed to remove time off');
+            toast.error('Failed to remove time off');
         }
     };
 
@@ -94,14 +95,14 @@ const AvailabilitySettingsPage = () => {
                 await updateTrainerAvailability({ schedule: updatedAvailability });
                 setAvailability(updatedAvailability);
                 setIsSlotDrawerOpen(false);
-                alert('Schedule updated successfully!');
+                toast.success('Schedule updated successfully!');
             } catch (error) {
-                alert('Failed to update schedule');
+                toast.error('Failed to update schedule');
             }
         };
 
         const handleAddSlot = () => {
-            if (!newStart || !newEnd) return alert('Please specify start and end times');
+            if (!newStart || !newEnd) return toast.error('Please specify start and end times');
 
             // Format time properly (basic conversion to AM/PM)
             const formatTime = (timeStr) => {
@@ -193,14 +194,14 @@ const AvailabilitySettingsPage = () => {
         const [end, setEnd] = useState('');
 
         const handleSave = async () => {
-            if (!start || !end || !reason) return alert('Fill all fields');
+            if (!start || !end || !reason) return toast.error('Fill all fields');
             try {
                 await updateTrainerAvailability({ newTimeOff: { start, end, reason } });
-                alert('Dates blocked successfully!');
+                toast.success('Dates blocked successfully!');
                 setIsTimeOffDrawerOpen(false);
                 loadData(); // refresh
             } catch (error) {
-                alert('Error updating availability');
+                toast.error('Error updating availability');
             }
         };
 

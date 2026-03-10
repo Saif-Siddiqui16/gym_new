@@ -152,7 +152,7 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
                             </span>
                         )}
                     </button>
-                    {notifOpen && <NotificationDropdown onClose={() => setNotifOpen(false)} />}
+                    {notifOpen && <NotificationDropdown onClose={() => setNotifOpen(false)} onRefresh={fetchUnreadCount} />}
                 </div>
 
                 {/* Profile Dropdown */}

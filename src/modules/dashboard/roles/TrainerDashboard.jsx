@@ -15,6 +15,9 @@ import { useAuth } from '../../../context/AuthContext';
 import { useBranchContext } from '../../../context/BranchContext';
 import * as trainerApi from '../../../api/trainer/trainerApi';
 import { toast } from 'react-hot-toast';
+import QRScannerModal from '../../../components/common/QRScannerModal';
+import { scanAttendance } from '../../../api/member/attendanceApi';
+import { Activity } from 'lucide-react';
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
@@ -22,6 +25,7 @@ const TrainerDashboard = () => {
 
     const { selectedBranch } = useBranchContext();
     const [loading, setLoading] = useState(true);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [data, setData] = useState({
         stats: {
             activeGeneralClients: 0,
@@ -51,6 +55,22 @@ const TrainerDashboard = () => {
             toast.error('Failed to load dashboard data');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleScanSuccess = async (decodedText) => {
+        setIsScannerOpen(false);
+        const loadingToast = toast.loading('Marking attendance...');
+        try {
+            const result = await scanAttendance(decodedText);
+            if (result.success) {
+                toast.success(result.message, { id: loadingToast });
+                loadDashboardData(); // Refresh stats
+            } else {
+                toast.error(result.message, { id: loadingToast });
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred', { id: loadingToast });
         }
     };
 
@@ -139,6 +159,13 @@ const TrainerDashboard = () => {
                     className="h-12 px-8 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 hover:border-slate-200 transition-all flex items-center justify-center"
                 >
                     Create Fitness Plan
+                </button>
+                <button
+                    onClick={() => setIsScannerOpen(true)}
+                    className="h-12 px-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/10 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                >
+                    <Activity size={16} strokeWidth={3} />
+                    Scan Attendance
                 </button>
             </div>
 
@@ -306,6 +333,12 @@ const TrainerDashboard = () => {
 */}
                 </div>
             </div>
+            <QRScannerModal
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScanSuccess={handleScanSuccess}
+                title="Trainer Attendance Scan"
+            />
         </div>
     );
 };

@@ -4,6 +4,7 @@ import { Search, Plus, Download, Eye, Ban, Trash2, MapPin, Phone } from 'lucide-
 import RightDrawer from '../../components/common/RightDrawer';
 import AddGymDrawer from './AddGymDrawer';
 import { fetchAllGyms, deleteGym, toggleGymStatus, exportTable } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 
 const AllGyms = () => {
     const navigate = useNavigate();
@@ -54,7 +55,7 @@ const AllGyms = () => {
                 await deleteGym(id);
                 loadGyms();
             } catch (error) {
-                alert('Failed to delete gym');
+                toast.error('Failed to delete gym');
             }
         }
     };
@@ -64,7 +65,7 @@ const AllGyms = () => {
             await toggleGymStatus(id);
             loadGyms();
         } catch (error) {
-            alert('Failed to update status');
+            toast.error('Failed to update status');
         }
     };
 
@@ -106,7 +107,7 @@ const AllGyms = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:shadow-md hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
                     >
                         <Download className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                        Export
+                        Export as PDF
                     </button>
                     <button
                         onClick={() => setIsAddDrawerOpen(true)}

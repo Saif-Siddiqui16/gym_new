@@ -129,7 +129,7 @@ const MemberNotifications = () => {
                     {notifications.map((notif) => (
                         <Card
                             key={notif.id}
-                            className={`p-6 border-2 transition-all hover:shadow-xl hover:-translate-y-1 group relative ${getTypeStyles(notif.type)}`}
+                            className={`p-8 sm:p-10 border-2 transition-all hover:shadow-xl hover:-translate-y-1 group relative rounded-[2.5rem] ${getTypeStyles(notif.type)}`}
                         >
                             <div className="flex items-start gap-4">
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${getIconBg(notif.type)}`}>

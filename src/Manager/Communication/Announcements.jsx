@@ -87,7 +87,7 @@ const Announcements = () => {
                                 <p className="text-slate-500 text-sm font-medium leading-relaxed">{item.message}</p>
                             </div>
 
-                            <div className="flex items-center gap-2 md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 md:self-center transition-opacity">
                                 <button className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all">
                                     <Edit2 size={18} />
                                 </button>

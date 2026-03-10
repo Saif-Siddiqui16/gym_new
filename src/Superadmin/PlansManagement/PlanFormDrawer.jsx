@@ -15,6 +15,7 @@ import {
     Wrench,
     Users
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { addPlan, editPlan, fetchPlans } from '../../api/superadmin/superAdminApi';
@@ -98,17 +99,30 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
         const allPlans = await fetchPlans();
         const plan = allPlans.find(p => p.id === id);
         if (plan) {
-            setFormData({
+            setFormData(prev => ({
+                ...prev,
                 planName: plan.name,
                 price: plan.price,
                 billingCycle: plan.period,
                 description: plan.description || '',
                 status: plan.status === 'Active',
                 features: plan.features || [],
-                limits: plan.limits || formData.limits,
-                opsLimits: plan.opsLimits || formData.opsLimits,
+                limits: {
+                    branches: plan.limits?.branches || prev.limits.branches,
+                    managers: plan.limits?.managers || prev.limits.managers,
+                    staff: plan.limits?.staff || prev.limits.staff,
+                    trainers: plan.limits?.trainers || prev.limits.trainers,
+                    members: plan.limits?.members || prev.limits.members
+                },
+                opsLimits: {
+                    workouts: plan.opsLimits?.workouts || prev.opsLimits.workouts,
+                    diets: plan.opsLimits?.diets || prev.opsLimits.diets,
+                    classes: plan.opsLimits?.classes || prev.opsLimits.classes,
+                    checkins: plan.opsLimits?.checkins || prev.opsLimits.checkins,
+                    leads: plan.opsLimits?.leads || prev.opsLimits.leads
+                },
                 benefits: plan.benefits || []
-            });
+            }));
         }
     };
 
@@ -175,7 +189,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
 
         if (!validateForm()) {
             setActiveSections(prev => ({ ...prev, basic: true }));
-            alert("Please fill in all required fields (Name, Price, Description).");
+            toast.error("Please fill in all required fields (Name, Price, Description).");
             return;
         }
 
@@ -202,7 +216,7 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             onClose();
         } catch (error) {
             console.error('Error saving plan:', error);
-            alert('Failed to save plan');
+            toast.error('Failed to save plan');
         } finally {
             setIsSubmitting(false);
         }

@@ -193,7 +193,7 @@ const PlansList = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                        <div className="flex items-center justify-end gap-2 transition-all">
                                             <button onClick={() => handleEdit(plan.id)} className="p-2.5 text-slate-400 hover:text-primary hover:bg-primary-light hover:scale-110 rounded-xl transition-all shadow-sm bg-white border border-slate-100">
                                                 <Edit size={16} />
                                             </button>

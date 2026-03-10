@@ -3,6 +3,7 @@ import { Search, Eye, RefreshCw, Trash2 } from 'lucide-react';
 import '../SubscriptionManagement/SubscriptionManagement.css';
 import { fetchSubscriptions, toggleSubscriptionStatus } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
+import { toast } from 'react-hot-toast';
 
 const ExpiredSubscriptions = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -84,8 +85,9 @@ const ExpiredSubscriptions = () => {
     const handleDelete = async (subId) => {
         if (window.confirm('Are you sure you want to delete this subscription record?')) {
             // Mock delete: just log and alert
-            console.log('Delete subscription:', subId);
-            alert('Record ' + subId + ' deleted (mock)');
+            console.log('Record ' + subId + ' deleted (mock)');
+            toast.success('Record ' + subId + ' deleted (mock)');
+            // For production: await deleteSubscription(subId); loadSubscriptions();
         }
     };
 

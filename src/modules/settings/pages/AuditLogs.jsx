@@ -25,6 +25,7 @@ import { fetchAuditLogsAPI } from '../../../api/admin/adminApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
 import StatsCard from '../../dashboard/components/StatsCard';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const ACTION_ICONS = {
     CREATE: { icon: Plus, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
@@ -137,35 +138,26 @@ const AuditLogs = () => {
                 from: filters.from || undefined,
                 to: filters.to || undefined,
                 page: 1,
-                limit: 10000
+                limit: 1000 // Limit for PDF report to avoid crash but cover most recent
             };
             const data = await fetchAuditLogsAPI(params);
-            const rows = data.logs || [];
-            const headers = ['ID', 'Date', 'Actor', 'Branch', 'Role', 'Action', 'Module', 'Affected Entity', 'Details', 'IP'];
-            const csvContent = [
-                headers.join(','),
-                ...rows.map(log => [
-                    log.id,
-                    `"${formatDate(log.createdAt)}"`,
-                    `"${log.user?.name || 'Unknown'}"`,
-                    `"${log.user?.branch || 'Main'}"`,
-                    `"${log.user?.role || ''}"`,
-                    `"${log.action || ''}"`,
-                    `"${log.module || ''}"`,
-                    `"${log.affectedEntity || ''}"`,
-                    `"${(log.details || '').replace(/"/g, "'")}"`,
-                    `"${log.ip || ''}"`
-                ].join(','))
-            ].join('\n');
+            const rows = (data.logs || []).map(log => [
+                formatDate(log.createdAt),
+                log.user?.name || 'Unknown',
+                log.action || '',
+                log.module || '',
+                log.affectedEntity || '',
+                log.details || ''
+            ]);
+            const headers = ['Date', 'Actor', 'Action', 'Module', 'Entity', 'Details'];
 
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast.success('Exported successfully');
+            exportPdf({
+                title: 'Audit Logs Report',
+                filename: `audit-logs-${new Date().toISOString().split('T')[0]}`,
+                headers,
+                rows,
+                gymName: "Gym Academy"
+            });
         } catch (error) {
             toast.error('Failed to export');
         } finally {
@@ -223,10 +215,10 @@ const AuditLogs = () => {
                         <button
                             onClick={handleExport}
                             disabled={exporting || logs.length === 0}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-primary/30/30 transition-all shadow-md active:scale-95 disabled:opacity-50"
                         >
                             {exporting ? <Loader size={18} className="animate-spin" /> : <Download size={18} />}
-                            Export CSV
+                            Export as PDF
                         </button>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Calendar, LogOut, Search, Plus, Filter, AlertTriangle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import MobileCard from '../../components/common/MobileCard';
 import { getLockers, releaseLocker } from '../../api/staff/lockerApi';
 
@@ -28,10 +29,10 @@ const ReleaseLocker = () => {
         if (window.confirm("Are you sure you want to release this locker?")) {
             const result = await releaseLocker(id);
             if (result.success) {
-                alert(result.message);
+                toast.success(result.message);
                 loadLockers();
             } else {
-                alert(result.message);
+                toast.error(result.message);
             }
         }
     };

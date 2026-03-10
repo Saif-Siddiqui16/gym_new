@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, AlertTriangle, AlertCircle, FileText, Download } from 'lucide-react';
-import { fetchErrorLogs, exportTable, generatePDF } from '../../api/superadmin/superAdminApi';
+import { fetchErrorLogs, exportTable } from '../../api/superadmin/superAdminApi';
 import './TailwindFallback.css';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -36,11 +36,7 @@ const ErrorLogs = () => {
     };
 
     const handleExport = () => {
-        exportTable('Error Logs');
-    };
-
-    const handleGeneratePDF = () => {
-        generatePDF('Error Logs');
+        exportTable('Error Logs', errorLogs);
     };
 
     const filteredLogs = errorLogs.filter(log => {
@@ -95,18 +91,11 @@ const ErrorLogs = () => {
                 </div>
                 <div className="flex gap-3 flex-col sm:flex-row w-full md:w-auto">
                     <button
-                        onClick={handleGeneratePDF}
-                        className="saas-btn saas-btn-secondary shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group"
-                    >
-                        <FileText size={16} className="mr-2 transition-transform duration-300 group-hover:scale-110" />
-                        <span>PDF Report</span>
-                    </button>
-                    <button
                         onClick={handleExport}
                         className="saas-btn saas-btn-primary shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group"
                     >
-                        <Download size={16} className="mr-2 transition-transform duration-300 group-hover:translate-y-0.5" />
-                        <span>Export CSV</span>
+                        <FileText size={16} className="mr-2 transition-transform duration-300 group-hover:scale-110" />
+                        <span>Export as PDF</span>
                     </button>
                 </div>
             </div>

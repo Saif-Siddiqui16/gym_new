@@ -19,6 +19,7 @@ import {
     Edit,
     Save
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getSessions, updateSessionStatus, createSession } from '../../api/trainer/trainerApi';
 import RightDrawer from '../../components/common/RightDrawer';
 
@@ -80,7 +81,7 @@ const UpcomingSessions = () => {
             loadSessions();
         } catch (error) {
             console.error('Error creating slot:', error);
-            alert(error);
+            toast.error(error?.message || 'Failed to create slot');
         } finally {
             setIsSaving(false);
         }

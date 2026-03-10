@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles, CreditCard } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { addGym, fetchPlans } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -49,7 +50,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
         e.preventDefault();
 
         if (!formData.planId) {
-            alert('Please select a SaaS Plan');
+            toast.error('Please select a SaaS Plan');
             return;
         }
 
@@ -60,6 +61,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 owner: formData.ownerName,
                 location: formData.address
             });
+            toast.success('Gym added successfully!');
             onSuccess();
             onClose();
             // Reset form
@@ -75,7 +77,7 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
             });
         } catch (error) {
             console.error('Error adding gym:', error);
-            alert(typeof error === 'string' ? error : 'Failed to add gym');
+            toast.error(typeof error === 'string' ? error : 'Failed to add gym');
         } finally {
             setLoading(false);
         }

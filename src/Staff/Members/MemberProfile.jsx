@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Phone, CreditCard, Activity, Calendar, LogOut, Lock } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getMemberById } from '../../api/staff/memberApi';
 
 const MemberProfile = () => {
@@ -37,7 +38,7 @@ const MemberProfile = () => {
         const file = e.target.files?.[0];
         if (file) {
             console.log('Selected file for Face ID:', file.name);
-            alert(`Selected file: ${file.name}\nIn a real app, this would be uploaded for member Face ID.`);
+            toast.success(`Selected file: ${file.name}. Ready for upload.`);
         }
     };
 

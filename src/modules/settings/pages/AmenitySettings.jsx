@@ -191,7 +191,7 @@ const AmenitySettings = () => {
                                 <div className="p-3 bg-primary-light text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                                     {getIcon(amenity.icon)}
                                 </div>
-                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-2 transition-opacity">
                                     <button
                                         onClick={() => handleOpenModal(amenity)}
                                         className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all"

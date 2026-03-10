@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Users,
-    UserCheck,
-    ShoppingCart,
     UserPlus,
-    FileText,
+    Calendar,
     CheckCircle,
+    Clock,
+    TrendingUp,
+    Search,
+    IndianRupee,
+    ArrowUpRight,
+    MessageCircle,
+    Activity,
+    LogOut,
+    Plus,
+    ShoppingCart,
+    FileText,
     Receipt,
     GitBranch,
-    Clock,
     LayoutDashboard,
     ChevronRight,
     Loader
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import QRScannerModal from '../../../components/common/QRScannerModal';
+import { scanAttendance } from '../../../api/member/attendanceApi';
 import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
@@ -28,56 +39,74 @@ const StaffDashboard = () => {
 
     const [dashData, setDashData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     const today = new Date().toLocaleDateString('en-IN', {
         weekday: 'long', day: '2-digit', month: 'short', year: 'numeric'
     });
 
-    // Fetch all dashboard data from the unified staff dashboard endpoint
-    useEffect(() => {
-        const fetchAll = async () => {
-            try {
-                setLoading(true);
-                const queryParams = selectedBranch !== 'all' ? { tenantId: selectedBranch } : {};
+    const fetchAll = async () => {
+        try {
+            setLoading(true);
+            const queryParams = selectedBranch !== 'all' ? { tenantId: selectedBranch } : {};
 
-                const response = await apiClient.get('/dashboard/staff', { params: queryParams });
-                const data = response.data;
+            const response = await apiClient.get('/dashboard/staff', { params: queryParams });
+            const data = response.data;
 
-                // Try to get branch name
-                let branchName = 'All Branches';
-                if (selectedBranch !== 'all') {
-                    try {
-                        const branchesRes = await apiClient.get('/branches');
-                        const myBranch = branchesRes.data?.find(b => b.id === parseInt(selectedBranch));
-                        if (myBranch) branchName = myBranch.name || myBranch.branchName;
-                    } catch { /* Silent */ }
-                }
-
-                setDashData({
-                    branchName,
-                    todayCheckIns: data.checkinsToday || 0,
-                    checkIns: data.checkins || [],
-                    invoicesCount: data.pendingPayments || 0,
-                    leads: data.newEnquiries || 0,
-                    activeLeads: data.newEnquiries || 0, // Using new enquiries as active leads
-                    pendingActions: data.pendingActions || [],
-                    expiring: data.renewalAlerts?.expiringSoon || [],
-                    tasks: data.equipmentAlerts || [], // Using equipment alerts or fallback
-                });
-            } catch (err) {
-                console.error('StaffDashboard fetch error:', err);
-            } finally {
-                setLoading(false);
+            // Try to get branch name
+            let branchName = 'All Branches';
+            if (selectedBranch !== 'all') {
+                try {
+                    const branchesRes = await apiClient.get('/branches');
+                    const myBranch = branchesRes.data?.find(b => b.id === parseInt(selectedBranch));
+                    if (myBranch) branchName = myBranch.name || myBranch.branchName;
+                } catch { /* Silent */ }
             }
-        };
+
+            setDashData({
+                branchName,
+                todayCheckIns: data.checkinsToday || 0,
+                checkIns: data.checkins || [],
+                invoicesCount: data.pendingPayments || 0,
+                leads: data.newEnquiries || 0,
+                activeLeads: data.newEnquiries || 0,
+                pendingActions: data.pendingActions || [],
+                expiring: data.renewalAlerts?.expiringSoon || [],
+                tasks: data.equipmentAlerts || [],
+            });
+        } catch (err) {
+            console.error('StaffDashboard fetch error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchAll();
     }, [selectedBranch]);
 
+    const handleScanSuccess = async (decodedText) => {
+        setIsScannerOpen(false);
+        const loadingToast = toast.loading('Marking attendance...');
+        try {
+            const result = await scanAttendance(decodedText);
+            if (result.success) {
+                toast.success(result.message, { id: loadingToast });
+                fetchAll();
+            } else {
+                toast.error(result.message, { id: loadingToast });
+            }
+        } catch (error) {
+            toast.error('An unexpected error occurred', { id: loadingToast });
+        }
+    };
+
     const quickActions = [
-        { label: 'Check In Member', icon: UserCheck, path: '/staff/attendance/check-in', color: 'bg-emerald-50 text-emerald-600' },
-        { label: 'Open POS', customIcon: ShoppingCart, path: '/finance/pos', color: 'bg-primary-light text-primary' },
-        { label: 'Add Lead', customIcon: UserPlus, path: '/crm/inquiry', color: 'bg-amber-50 text-amber-600' },
-        { label: 'View Invoices', customIcon: FileText, path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
+        { icon: UserPlus, label: 'Add Member', path: '/staff/members/add', color: 'bg-emerald-50 text-emerald-600' },
+        { icon: CheckCircle, label: 'Check-in', path: '/staff/attendance/check-in', color: 'bg-blue-50 text-blue-600' },
+        { icon: Activity, label: 'Scan Attendance', onClick: () => setIsScannerOpen(true), color: 'bg-violet-50 text-violet-600' },
+        { icon: IndianRupee, label: 'Payments', path: '/finance/pos', color: 'bg-amber-50 text-amber-600' },
+        { icon: FileText, label: 'View Invoices', path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
     ];
 
     const getInitials = (name) => {
@@ -90,33 +119,32 @@ const StaffDashboard = () => {
         return new Date(dt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
-    const formatDue = (dt) => {
-        if (!dt) return '—';
-        return new Date(dt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-
     const daysUntilExpiry = (date) => {
         if (!date) return null;
         const diff = Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
         return diff;
     };
 
+    if (loading && !dashData) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader className="w-12 h-12 text-primary animate-spin" />
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen animate-fadeIn">
             {/* Header */}
             <div className="mb-6 sm:mb-10 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl sm:rounded-3xl blur-2xl opacity-10"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 p-2 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-1">
-                        {loading ? (
-                            <div className="h-8 w-48 bg-slate-100 rounded-xl animate-pulse" />
-                        ) : (
-                            <h1 className="text-xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                                Hello, {user?.name?.split(' ')[0] || 'Staff'}!
-                            </h1>
-                        )}
+                        <h1 className="text-xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                            Hello, {user?.name?.split(' ')[0] || 'Staff'}!
+                        </h1>
                         <p className="text-slate-500 font-black text-[9px] sm:text-[10px] uppercase tracking-[0.3em]">
-                            {loading ? '...' : dashData?.branchName || 'Main Branch'} • {today}
+                            {dashData?.branchName || 'Main Branch'} • {today}
                         </p>
                     </div>
                     <div className="flex items-center">
@@ -135,15 +163,15 @@ const StaffDashboard = () => {
                     </div>
                     <h2 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Quick Actions</h2>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 px-1 md:px-0">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-6 px-1 md:px-0">
                     {quickActions.map((action, idx) => (
                         <button
                             key={idx}
-                            onClick={() => navigate(action.path)}
-                            className="bg-white p-2 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-primary/30/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
+                            onClick={action.onClick || (() => navigate(action.path))}
+                            className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-primary/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
                         >
                             <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl ${action.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm`}>
-                                {action.customIcon ? <action.customIcon size={20} className="sm:w-6 sm:h-6" /> : <action.icon size={20} className="sm:w-6 sm:h-6" />}
+                                <action.icon size={20} className="sm:w-6 sm:h-6" />
                             </div>
                             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-primary leading-tight">{action.label}</span>
                         </button>
@@ -155,30 +183,30 @@ const StaffDashboard = () => {
             <DashboardGrid>
                 <StatsCard
                     title="Today's Check-ins"
-                    value={loading ? '—' : (dashData?.todayCheckIns ?? 0)}
-                    trend={loading ? '' : `${dashData?.checkIns?.length ?? 0} recent`}
+                    value={dashData?.todayCheckIns ?? 0}
+                    trend={`${dashData?.checkIns?.length ?? 0} recent`}
                     icon={CheckCircle}
                     color="primary"
                     isEarningsLayout={true}
                 />
                 <StatsCard
                     title="Pending Invoices"
-                    value={loading ? '—' : (dashData?.invoicesCount ?? 0)}
+                    value={dashData?.invoicesCount ?? 0}
                     icon={Receipt}
                     color="danger"
                     isEarningsLayout={true}
                 />
                 <StatsCard
                     title="Active Leads"
-                    value={loading ? '—' : (dashData?.activeLeads ?? 0)}
+                    value={dashData?.activeLeads ?? 0}
                     icon={GitBranch}
                     color="success"
                     isEarningsLayout={true}
                 />
                 <StatsCard
                     title="Expiring Soon"
-                    value={loading ? '—' : (dashData?.expiring?.length ?? 0)}
-                    trend={loading ? '' : `next 30 days`}
+                    value={dashData?.expiring?.length ?? 0}
+                    trend="next 30 days"
                     icon={Clock}
                     color="warning"
                     isEarningsLayout={true}
@@ -201,9 +229,7 @@ const StaffDashboard = () => {
                             </button>
                         </div>
                         <div className="space-y-4">
-                            {loading ? (
-                                [1, 2].map(i => <div key={i} className="h-20 bg-slate-50 rounded-[2rem] animate-pulse" />)
-                            ) : dashData?.checkIns?.length > 0 ? (
+                            {dashData?.checkIns?.length > 0 ? (
                                 dashData.checkIns.slice(0, 4).map((c, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-200 transition-all duration-500 cursor-pointer">
                                         <div className="flex items-center gap-5">
@@ -230,7 +256,7 @@ const StaffDashboard = () => {
                         </div>
                     </Card>
 
-                    {/* Follow-Up Leads */}
+                    {/* Pending Actions */}
                     <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Pending Actions</h3>
@@ -242,9 +268,7 @@ const StaffDashboard = () => {
                             </button>
                         </div>
                         <div className="space-y-4">
-                            {loading ? (
-                                [1, 2].map(i => <div key={i} className="h-20 bg-slate-50 rounded-[2rem] animate-pulse" />)
-                            ) : dashData?.pendingActions?.length > 0 ? (
+                            {dashData?.pendingActions?.length > 0 ? (
                                 dashData.pendingActions.slice(0, 4).map((action, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-primary/30/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
                                         <div className="flex items-center gap-5">
@@ -282,9 +306,7 @@ const StaffDashboard = () => {
                             </button>
                         </div>
                         <div className="space-y-4">
-                            {loading ? (
-                                [1, 2].map(i => <div key={i} className="h-20 bg-rose-50 rounded-[2rem] animate-pulse" />)
-                            ) : dashData?.expiring?.length > 0 ? (
+                            {dashData?.expiring?.length > 0 ? (
                                 dashData.expiring.slice(0, 4).map((m, idx) => {
                                     const days = daysUntilExpiry(m.endDate);
                                     return (
@@ -312,7 +334,7 @@ const StaffDashboard = () => {
                         </div>
                     </Card>
 
-                    {/* My Pending Tasks */}
+                    {/* Equipment Alerts */}
                     <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Equipment Alerts</h3>
@@ -324,9 +346,7 @@ const StaffDashboard = () => {
                             </button>
                         </div>
                         <div className="space-y-5">
-                            {loading ? (
-                                [1, 2].map(i => <div key={i} className="h-20 bg-slate-50 rounded-[2rem] animate-pulse" />)
-                            ) : dashData?.tasks?.length > 0 ? (
+                            {dashData?.tasks?.length > 0 ? (
                                 dashData.tasks.slice(0, 5).map((task, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-amber-500/5 hover:border-amber-200 transition-all duration-500 cursor-pointer">
                                         <div className="flex items-center gap-5">
@@ -352,6 +372,12 @@ const StaffDashboard = () => {
                     </Card>
                 </div>
             </div>
+            <QRScannerModal
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScanSuccess={handleScanSuccess}
+                title="Staff Attendance Scan"
+            />
         </div>
     );
 };

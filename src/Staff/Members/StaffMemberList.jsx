@@ -9,6 +9,7 @@ import StatsCard from '../../modules/dashboard/components/StatsCard';
 import RightDrawer from '../../components/common/RightDrawer';
 import apiClient from '../../api/apiClient';
 import { toast } from 'react-hot-toast';
+import { exportPdf } from '../../utils/exportPdf';
 
 const INPUT_CLASS = "w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50";
 const SELECT_CLASS = `${INPUT_CLASS} appearance-none cursor-pointer`;
@@ -102,23 +103,26 @@ const StaffMemberList = () => {
         }
     };
 
-    const handleExportCSV = () => {
+    const handleExport = () => {
         if (filtered.length === 0) return toast.error('No data to export');
         const headers = ['Member ID', 'Name', 'Email', 'Phone', 'Status', 'Join Date', 'Expiry'];
         const rows = filtered.map(m => [
-            m.memberId, m.name, m.email, m.phone, m.status,
+            m.memberId,
+            m.name,
+            m.email,
+            m.phone,
+            m.status,
             m.joinDate ? new Date(m.joinDate).toLocaleDateString('en-IN') : '—',
             m.expiryDate ? new Date(m.expiryDate).toLocaleDateString('en-IN') : '—'
         ]);
-        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `members-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('Exported');
+
+        exportPdf({
+            title: 'Staff Member List',
+            filename: `members-${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     return (
@@ -191,9 +195,9 @@ const StaffMemberList = () => {
                 </div>
                 <div className="flex gap-2">
                     <button
-                        onClick={handleExportCSV}
+                        onClick={handleExport}
                         className="h-14 px-4 bg-white border-2 border-slate-100 rounded-2xl text-slate-400 hover:text-primary hover:border-violet-100 transition-all shadow-sm"
-                        title="Export CSV"
+                        title="Export as PDF"
                     >
                         <Download size={20} />
                     </button>

@@ -22,6 +22,7 @@ import { fetchTransactions, fetchInvoiceById } from '../../../api/finance/financ
 import { fetchOrderById } from '../../../api/storeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import { exportPdf } from '../../../utils/exportPdf';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
 
@@ -77,30 +78,25 @@ const Payments = () => {
             return;
         }
 
-        try {
-            const headers = ["Member", "Branch", "Transaction Code", "Date", "Time", "Method", "Amount", "Status"];
-            const rows = data.transactions.map(txn => [
-                `"${(txn.member || 'Guest').toString().replace(/"/g, '""')}"`,
-                `"${(txn.branch || 'Main').toString().replace(/"/g, '""')}"`,
-                txn.id,
-                new Date(txn.date).toLocaleDateString(),
-                new Date(txn.date).toLocaleTimeString(),
-                txn.method,
-                txn.amount,
-                txn.status
-            ]);
+        const headers = ["Member", "Branch", "Transaction Code", "Date", "Time", "Method", "Amount", "Status"];
+        const rows = data.transactions.map(txn => [
+            txn.member || 'Guest',
+            txn.branch || 'Main',
+            txn.id,
+            new Date(txn.date).toLocaleDateString(),
+            new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            txn.method,
+            `₹${txn.amount.toLocaleString()}`,
+            txn.status
+        ]);
 
-            const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Payments_Report_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            toast.success("Report exported successfully");
-        } catch (err) {
-            toast.error("Failed to export report");
-        }
+        exportPdf({
+            title: 'Payments Report',
+            filename: `Payments_Report_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy" // This should ideally be dynamic
+        });
     };
 
     const handleViewReceipt = async (id) => {
@@ -149,8 +145,8 @@ const Payments = () => {
     };
 
     return (
-        <div className="min-h-screen pb-20">
-            <div className="max-w-screen-2xl mx-auto space-y-10">
+        <div className="min-h-screen pb-20 w-full">
+            <div className="w-full px-4 sm:px-6 lg:px-8 space-y-10">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -159,9 +155,9 @@ const Payments = () => {
                     </div>
                     <button
                         onClick={handleExport}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all active:scale-95"
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary border border-violet-100 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-primary-light transition-all active:scale-95"
                     >
-                        <Download size={18} /> Export Report
+                        <Download size={18} /> Export as PDF
                     </button>
                 </div>
 

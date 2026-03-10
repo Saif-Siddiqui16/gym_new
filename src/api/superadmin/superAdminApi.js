@@ -85,56 +85,206 @@ const toggleGymStatus = async (id) => {
     }
 };
 
-const exportTable = async (tableName) => {
+// PDF toast notification helper
+const showPdfToast = (message, type = 'success') => {
+    const toastId = `pdf-toast-${Date.now()}`;
+    const colors = {
+        success: { bg: '#f0fdf4', border: '#86efac', icon: '#16a34a', text: '#15803d' },
+        error: { bg: '#fef2f2', border: '#fca5a5', icon: '#dc2626', text: '#dc2626' },
+        loading: { bg: '#f5f3ff', border: '#c4b5fd', icon: '#7c3aed', text: '#6d28d9' }
+    };
+    const c = colors[type];
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 99999;
+        background: ${c.bg}; border: 1.5px solid ${c.border};
+        border-radius: 16px; padding: 14px 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
+        display: flex; align-items: center; gap: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 13px; font-weight: 600; color: ${c.text};
+        min-width: 260px; max-width: 360px;
+        animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform-origin: top right;
+    `;
+    const iconMap = {
+        success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c.icon}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+        error: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c.icon}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+        loading: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c.icon}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>`
+    };
+    toast.innerHTML = `${iconMap[type]}<span>${message}</span>`;
+    if (!document.getElementById('pdf-toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'pdf-toast-styles';
+        style.textContent = `@keyframes slideIn{from{opacity:0;transform:translateX(100%) scale(0.8)}to{opacity:1;transform:translateX(0) scale(1)}} @keyframes spin{to{transform:rotate(360deg)}}`;
+        document.head.appendChild(style);
+    }
+    document.body.appendChild(toast);
+    return toastId;
+};
+
+const removePdfToast = (toastId) => {
+    const el = document.getElementById(toastId);
+    if (el) {
+        el.style.animation = 'none';
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(100%) scale(0.8)';
+        el.style.transition = 'all 0.3s ease';
+        setTimeout(() => el?.remove(), 300);
+    }
+};
+
+const exportTable = async (tableName, data = null) => {
+    const loadingToastId = showPdfToast('Generating PDF, please wait...', 'loading');
     try {
-        let endpoint = '/superadmin/gyms';
-        if (tableName.toLowerCase().includes('plan')) endpoint = '/superadmin/plans';
-        if (tableName.toLowerCase().includes('subscription')) endpoint = '/superadmin/subscriptions';
-        if (tableName.toLowerCase().includes('payment')) endpoint = '/superadmin/payments';
-        if (tableName.toLowerCase().includes('log')) {
+        const jsPDFModule = await import('jspdf');
+        const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
+        const autoTableModule = await import('jspdf-autotable');
+        const autoTable = autoTableModule.default || autoTableModule.autoTable;
+
+        let exportData = data;
+
+        if (!exportData) {
+            let endpoint = '/superadmin/gyms';
+            if (tableName.toLowerCase().includes('plan')) endpoint = '/superadmin/plans';
+            if (tableName.toLowerCase().includes('subscription')) endpoint = '/superadmin/subscriptions';
+            if (tableName.toLowerCase().includes('payment')) endpoint = '/superadmin/payments';
+            if (tableName.toLowerCase().includes('gst')) endpoint = '/superadmin/reports/gst';
             if (tableName.toLowerCase().includes('activity')) endpoint = '/superadmin/logs/activity';
-            else if (tableName.toLowerCase().includes('error')) endpoint = '/superadmin/logs/error';
-            else endpoint = '/superadmin/audit-logs';
+            if (tableName.toLowerCase().includes('error')) endpoint = '/superadmin/logs/error';
+            if (tableName.toLowerCase().includes('webhook')) endpoint = '/superadmin/webhook-logs';
+
+            try {
+                const response = await api.get(endpoint);
+                exportData = response.data.gyms || response.data;
+            } catch (e) {
+                exportData = [];
+            }
         }
 
-        const response = await api.get(endpoint);
-        const data = response.data.gyms || response.data;
+        if (!Array.isArray(exportData)) exportData = [];
 
-        if (!Array.isArray(data) || data.length === 0) {
-            console.warn('No data available for export');
-            return;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // --- HEADER BAR ---
+        doc.setFillColor(88, 28, 235);
+        doc.rect(0, 0, pageWidth, 22, 'F');
+
+        // Logo circle
+        doc.setFillColor(255, 255, 255);
+        doc.circle(18, 11, 8, 'F');
+        doc.setTextColor(88, 28, 235);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('GA', 18, 12.5, { align: 'center' });
+
+        // Report Title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(tableName + ' Report', 32, 10);
+
+        // Date
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Generated: ' + new Date().toLocaleString(), 32, 16);
+
+        // Company name right
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Gym Administration', pageWidth - 15, 10, { align: 'right' });
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Confidential', pageWidth - 15, 16, { align: 'right' });
+
+        // --- TABLE ---
+        if (exportData.length > 0) {
+            const headers = Object.keys(exportData[0]).filter(k =>
+                !['id', 'createdAt', 'updatedAt', 'password', '__v'].includes(k)
+            );
+            const columns = headers.map(h => ({
+                header: h.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim(),
+                dataKey: h
+            }));
+
+            const rows = exportData.map(item =>
+                headers.reduce((acc, key) => {
+                    let val = item[key];
+                    if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
+                    if (typeof val === 'boolean') val = val ? 'Yes' : 'No';
+                    acc[key] = val ?? '-';
+                    return acc;
+                }, {})
+            );
+
+            autoTable(doc, {
+                startY: 28,
+                columns,
+                body: rows,
+                styles: {
+                    fontSize: 7,
+                    cellPadding: 3,
+                    font: 'helvetica',
+                    lineWidth: 0.1,
+                    lineColor: [230, 225, 255]
+                },
+                headStyles: {
+                    fillColor: [88, 28, 235],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    halign: 'center',
+                    fontSize: 7.5
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 243, 255]
+                },
+                theme: 'striped',
+                margin: { left: 10, right: 10 }
+            });
+        } else {
+            doc.setFillColor(245, 243, 255);
+            doc.rect(10, 28, pageWidth - 20, 20, 'F');
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(10);
+            doc.text('No data available to export.', pageWidth / 2, 40, { align: 'center' });
         }
 
-        const headers = Object.keys(data[0]);
-        const csvContent = [
-            headers.join(','),
-            ...data.map(row => headers.map(h => {
-                const val = row[h];
-                return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val;
-            }).join(','))
-        ].join('\n');
+        // --- FOOTER ---
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            doc.setFillColor(245, 243, 255);
+            doc.rect(0, pageHeight - 10, pageWidth, 10, 'F');
+            doc.setFontSize(7);
+            doc.setTextColor(88, 28, 235);
+            doc.setFont('helvetica', 'normal');
+            doc.text('© Gym Administration System', 10, pageHeight - 4);
+            doc.text(`Page ${i} of ${totalPages}`, pageWidth - 10, pageHeight - 4, { align: 'right' });
+        }
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `${tableName}_Export_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // --- SAVE ---
+        const safeName = tableName.replace(/[^a-zA-Z0-9_]/g, '_');
+        doc.save(`${safeName}_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+
+        removePdfToast(loadingToastId);
+        const successToastId = showPdfToast('PDF downloaded successfully!', 'success');
+        setTimeout(() => removePdfToast(successToastId), 3000);
+
     } catch (error) {
-        console.error('Export failed:', error);
+        console.error('PDF Export failed:', error);
+        removePdfToast(loadingToastId);
+        const errorToastId = showPdfToast('Failed to generate PDF. Please try again.', 'error');
+        setTimeout(() => removePdfToast(errorToastId), 5000);
     }
 };
 
-const generatePDF = async (reportName) => {
-    try {
-        console.log(`Generating PDF for ${reportName}...`);
-    } catch (error) {
-        console.error('PDF generation failed:', error);
-    }
-};
+const generatePDF = (reportName, data) => exportTable(reportName, data);
+
+
 
 // --- PLAN MANAGEMENT ---
 

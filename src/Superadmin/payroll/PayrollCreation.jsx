@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FilePlus, XCircle, Banknote, Users, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { ROLES } from '../../config/roles';
 import { fetchPayrollStaffAPI, createPayrollAPI } from '../../api/admin/adminApi';
@@ -47,7 +48,7 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedStaffId) {
-            alert("Please select a staff member");
+            toast.error("Please select a staff member");
             return;
         }
 
@@ -61,11 +62,11 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
 
         try {
             await createPayrollAPI(payrollData);
-            alert("Payroll created successfully!");
+            toast.success("Payroll created successfully!");
             navigate('/superadmin/payroll/history');
         } catch (error) {
             console.error("Error creating payroll:", error);
-            alert("Failed to create payroll: " + (error.response?.data?.message || error.message));
+            toast.error("Failed to create payroll: " + (error.response?.data?.message || error.message));
         }
     };
 

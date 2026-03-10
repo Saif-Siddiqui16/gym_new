@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Receipt, Download, Filter, Search, Calendar, CreditCard, ShoppingBag, Zap, PieChart, Loader2 } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
+import toast from 'react-hot-toast';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const ExpenseReport = () => {
     const getToday = () => {
@@ -54,31 +56,26 @@ const ExpenseReport = () => {
 
     const handleExport = () => {
         if (expenseData.length === 0) {
-            alert("No data available to export.");
+            toast.error("No data available to export.");
             return;
         }
 
         const headers = ["Date", "Category", "Description", "Amount", "Status"];
-        const csvContent = [
-            headers.join(","),
-            ...expenseData.map(row => [
-                `"${row.date}"`,
-                `"${row.category}"`,
-                `"${row.description.replace(/"/g, '""')}"`,
-                `"${row.amount}"`,
-                `"${row.status}"`
-            ].join(","))
-        ].join("\n");
+        const rows = expenseData.map(row => [
+            row.date,
+            row.category,
+            row.description,
+            row.amount,
+            row.status
+        ]);
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `expense_report_${selectedDate}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        exportPdf({
+            title: 'Expense Report',
+            filename: `expense_report_${selectedDate}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     return (
@@ -100,10 +97,10 @@ const ExpenseReport = () => {
                         </div>
                         <button
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-600 to-pink-600 hover:shadow-xl hover:shadow-rose-500/50 text-white rounded-xl text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-700 hover:shadow-xl hover:shadow-rose-500/50 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             <Download size={18} />
-                            Export Expenses
+                            Export as PDF
                         </button>
                     </div>
                 </div>
@@ -144,8 +141,12 @@ const ExpenseReport = () => {
                                     }, {});
                                     const breakdown = Object.entries(categories)
                                         .map(([cat, count]) => `${cat}: ${count}`)
-                                        .join('\n');
-                                    alert(`Category Distribution:\n\n${breakdown || 'No data available'}`);
+                                        .join(', ');
+                                    if (breakdown) {
+                                        toast.success(`Category Distribution: ${breakdown}`);
+                                    } else {
+                                        toast.error('No data available');
+                                    }
                                 }}
                                 className="flex items-center gap-2 px-4 py-2 bg-pink-50 border border-pink-100 rounded-xl text-pink-700 text-xs font-bold hover:bg-pink-100 transition-colors"
                             >

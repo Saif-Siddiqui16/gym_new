@@ -3,6 +3,7 @@ import { ShoppingCart, Search, Filter, Download, ChevronRight, Eye, Calendar, Cl
 import { getStoreOrders } from '../../api/storeApi';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
+import { exportPdf } from '../../utils/exportPdf';
 
 const StoreOrders = () => {
     const { selectedBranch } = useBranchContext();
@@ -36,66 +37,26 @@ const StoreOrders = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleExportCSV = () => {
+    const handleExport = () => {
         if (filteredOrders.length === 0) return toast.error('No orders to export');
+
         const headers = ['Order ID', 'Customer', 'Date', 'Items', 'Total', 'Status'];
         const rows = filteredOrders.map(o => [
             `#${o.id.toString().padStart(6, '0')}`,
             o.member?.name || o.guestName || 'Guest',
             o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A',
-            o.itemsCount || 0,
-            o.totalAmount || 0,
+            o.itemsCount ? o.itemsCount.toString() : '0',
+            `₹${(o.totalAmount || 0).toLocaleString()}`,
             o.status
         ]);
-        const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `store_orders_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('CSV exported successfully');
-    };
 
-    const handleGenerateReport = () => {
-        if (filteredOrders.length === 0) return toast.error('No orders to generate report');
-        const totalRev = filteredOrders.reduce((a, o) => a + (o.totalAmount || 0), 0);
-        const completed = filteredOrders.filter(o => o.status === 'Completed').length;
-        const pending = filteredOrders.filter(o => o.status === 'Pending').length;
-        const processing = filteredOrders.filter(o => o.status === 'Processing').length;
-        const reportHTML = `<!DOCTYPE html><html><head><title>Store Orders Report</title>
-        <style>body{font-family:Arial,sans-serif;padding:40px;color:#1e293b}h1{font-size:24px;margin-bottom:8px}
-        .meta{color:#64748b;font-size:13px;margin-bottom:24px}.stats{display:flex;gap:20px;margin-bottom:32px}
-        .stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 24px;text-align:center}
-        .stat h3{font-size:24px;margin:4px 0}.stat p{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
-        table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f1f5f9;text-align:left;padding:12px 16px;
-        font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#64748b}td{padding:12px 16px;border-bottom:1px solid #f1f5f9;
-        font-size:13px}.completed{color:#059669;font-weight:700}.processing{color:#2563eb;font-weight:700}
-        .pending{color:#d97706;font-weight:700}@media print{body{padding:20px}}</style></head><body>
-        <h1>Store Orders Report</h1>
-        <p class="meta">Generated on ${new Date().toLocaleDateString('en-IN', { dateStyle: 'full' })}</p>
-        <div class="stats">
-          <div class="stat"><p>Total Orders</p><h3>${filteredOrders.length}</h3></div>
-          <div class="stat"><p>Revenue</p><h3>₹${totalRev.toLocaleString()}</h3></div>
-          <div class="stat"><p>Completed</p><h3>${completed}</h3></div>
-          <div class="stat"><p>Pending</p><h3>${pending}</h3></div>
-          <div class="stat"><p>Processing</p><h3>${processing}</h3></div>
-        </div>
-        <table><thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
-        <tbody>${filteredOrders.map(o => `<tr>
-          <td>#${o.id.toString().padStart(6, '0')}</td>
-          <td>${o.member?.name || o.guestName || 'Guest'}</td>
-          <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
-          <td>${o.itemsCount || 0}</td>
-          <td>₹${(o.totalAmount || 0).toLocaleString()}</td>
-          <td class="${o.status?.toLowerCase()}">${o.status}</td>
-        </tr>`).join('')}</tbody></table></body></html>`;
-        const w = window.open('', '_blank');
-        w.document.write(reportHTML);
-        w.document.close();
-        w.print();
-        toast.success('Report generated');
+        exportPdf({
+            title: 'Store Orders Report',
+            filename: `store_orders_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     return (
@@ -114,11 +75,8 @@ const StoreOrders = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button onClick={handleExportCSV} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-all active:scale-95">
-                        <Download size={18} /> Export CSV
-                    </button>
-                    <button onClick={handleGenerateReport} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all active:scale-95">
-                        <ReceiptText size={18} /> Generate Report
+                    <button onClick={handleExport} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all active:scale-95">
+                        <Download size={18} /> Export as PDF
                     </button>
                 </div>
             </div>
@@ -249,7 +207,7 @@ const StoreOrders = () => {
                                             </span>
                                         </td>
                                         <td className="px-8 py-6 text-right">
-                                            <button 
+                                            <button
                                                 onClick={() => {
                                                     setSelectedOrder(o);
                                                     setShowModal(true);
@@ -290,7 +248,7 @@ const StoreOrders = () => {
                                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-0.5">#{selectedOrder.id.toString().padStart(6, '0')}</p>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setShowModal(false)}
                                 className="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors"
                             >

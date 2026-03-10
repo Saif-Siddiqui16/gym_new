@@ -83,52 +83,52 @@ const MemberAnnouncements = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-full">
+            <div className="max-w-5xl mx-auto px-4 sm:px-0">
                 {announcements.length > 0 ? (
                     <div className="grid grid-cols-1 gap-8">
                         {announcements.map((item) => {
                             const style = getPriorityStyle(item.priority);
                             const PriorityIcon = style.icon;
                             return (
-                                <div key={item.id} className="group relative bg-white rounded-[3rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16 blur-3xl opacity-50 transition-all group-hover:scale-110" />
+                                <div key={item.id} className="group relative bg-white rounded-[3.5rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1 p-8 sm:p-14 overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl transition-all group-hover:scale-110" />
 
                                     <div className="relative">
-                                        <div className="flex items-center justify-between mb-8">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-12 h-12 rounded-2xl ${style.bg} ${style.text} flex items-center justify-center`}>
-                                                    <PriorityIcon size={24} strokeWidth={2.5} />
+                                        <div className="flex items-center justify-between mb-10">
+                                            <div className="flex items-center gap-5">
+                                                <div className={`w-14 h-14 rounded-[1.5rem] ${style.bg} ${style.text} flex items-center justify-center shadow-sm`}>
+                                                    <PriorityIcon size={28} strokeWidth={2.5} />
                                                 </div>
-                                                <div className={`px-4 py-1.5 rounded-full ${style.badge} text-[10px] font-black uppercase tracking-widest`}>
+                                                <div className={`px-5 py-2 rounded-full ${style.badge} text-[11px] font-black uppercase tracking-[0.2em]`}>
                                                     {item.priority || 'Update'}
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                <Calendar size={14} />
+                                            <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                                <Calendar size={16} />
                                                 {new Date(item.createdAt).toLocaleDateString()}
                                             </div>
                                         </div>
 
-                                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-4 group-hover:text-primary transition-colors">
+                                        <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-6 group-hover:text-primary transition-colors leading-tight">
                                             {item.title}
                                         </h3>
 
-                                        <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8 max-w-3xl line-clamp-3">
+                                        <p className="text-slate-500 text-sm font-bold leading-[1.8] mb-10 max-w-4xl line-clamp-3">
                                             {item.content}
                                         </p>
 
-                                        <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
-                                                    <BellRing size={16} />
+                                        <div className="flex items-center justify-between pt-10 border-t-2 border-slate-50">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                                                    <BellRing size={18} />
                                                 </div>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Broadcasted to Members</span>
+                                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Broadcasted to Members</span>
                                             </div>
                                             <button
                                                 onClick={() => setSelectedAnnouncement(item)}
-                                                className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform"
+                                                className="flex items-center gap-3 text-[11px] font-black text-primary uppercase tracking-[0.2em] hover:translate-x-2 transition-transform py-3 px-8 rounded-2xl bg-primary/5 hover:bg-primary hover:text-white shadow-sm"
                                             >
-                                                Read More <ChevronRight size={14} />
+                                                Read More <ChevronRight size={16} strokeWidth={3} />
                                             </button>
                                         </div>
                                     </div>
@@ -154,7 +154,7 @@ const MemberAnnouncements = () => {
                 title="Announcement Detail"
             >
                 {selectedAnnouncement && (
-                    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-right-8 duration-300">
+                    <div className="p-10 sm:p-14 space-y-10 animate-in fade-in slide-in-from-right-8 duration-300">
                         <div className="flex items-center justify-between">
                             <div className={`px-4 py-1.5 rounded-full ${getPriorityStyle(selectedAnnouncement.priority).badge} text-[10px] font-black uppercase tracking-widest`}>
                                 {selectedAnnouncement.priority || 'Update'}

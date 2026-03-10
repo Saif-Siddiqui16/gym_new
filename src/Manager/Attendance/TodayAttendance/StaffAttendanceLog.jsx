@@ -3,7 +3,7 @@ import { Calendar, Search, Filter, Download, Clock, MapPin, User, FileText, Chev
 import CustomDropdown from '../../../components/common/CustomDropdown';
 import MobileCard from '../../../components/common/MobileCard';
 import { getCheckIns } from '../../../api/manager/managerApi';
-import { exportCSV } from '../../../api/manager/managerExport';
+import { exportPDF } from '../../../api/manager/managerExport';
 import '../TailwindFallback.css';
 
 const StaffAttendanceLog = () => {
@@ -38,7 +38,7 @@ const StaffAttendanceLog = () => {
     };
 
     const handleExport = () => {
-        exportCSV(staff, 'StaffAttendanceLog');
+        exportPDF(staff, 'StaffAttendanceLog');
     };
 
     const getStatusBadge = (status) => {

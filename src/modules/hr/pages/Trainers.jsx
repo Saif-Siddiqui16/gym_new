@@ -367,7 +367,7 @@ const Trainers = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-6 text-right" data-label="Actions">
-                                            <div className="flex items-center justify-end gap-2 sm:opacity-0 group-hover:opacity-100 sm:transition-all">
+                                            <div className="flex items-center justify-end gap-2 sm:transition-all">
                                                 <button onClick={() => openEditDrawer(trainer)} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-primary transition-all shadow-sm border border-transparent hover:border-slate-100">
                                                     <Edit2 size={16} />
                                                 </button>

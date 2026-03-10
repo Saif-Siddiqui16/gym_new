@@ -261,7 +261,7 @@ const EquipmentListPage = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-6 text-right" data-label="Actions">
-                                                    <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex items-center justify-end gap-2 opacity-100 transition-opacity">
                                                         <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl shadow-sm transition-all border border-transparent hover:border-slate-100">
                                                             <Edit2 size={16} />
                                                         </button>

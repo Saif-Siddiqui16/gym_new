@@ -12,7 +12,7 @@ import {
     Eye
 } from 'lucide-react';
 import { getSessionHistory } from '../../api/trainer/trainerApi';
-import { exportCSV } from '../../api/trainer/trainerExport';
+import { exportPDF } from '../../api/trainer/trainerExport';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
 const SessionHistory = () => {
@@ -42,7 +42,7 @@ const SessionHistory = () => {
 
     const handleExport = async () => {
         const result = await getSessionHistory({ limit: 1000 });
-        exportCSV(result?.data || [], 'Session_History_Report');
+        exportPDF(result?.data || [], 'Session_History_Report');
     };
 
     return (

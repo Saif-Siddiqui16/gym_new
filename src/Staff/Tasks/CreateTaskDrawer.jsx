@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, Building, Type, AlignLeft, Flag, Calendar, UserPlus, CheckCircle, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import RightDrawer from '../../components/common/RightDrawer';
 import { getBranchTeam, getMyBranch, createTask } from '../../api/staff/taskApi';
 import Button from '../../components/ui/Button';
@@ -60,7 +61,7 @@ const CreateTaskDrawer = ({ isOpen, onClose, onSuccess }) => {
                 assignedToId: ''
             });
         } catch (error) {
-            alert(error);
+            toast.error(error?.message || 'Failed to create task');
         } finally {
             setIsSubmitting(false);
         }

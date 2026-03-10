@@ -154,7 +154,7 @@ const StorePage = () => {
                                             </div>
                                             <div className="flex-1 min-w-0 py-1">
                                                 <h4 className="font-bold text-slate-900 text-xs truncate uppercase tracking-tight leading-tight">{item.name}</h4>
-                                                <p className="text-primary font-black text-sm mt-1">₹{item.price.toLocaleString()}</p>
+                                                <p className="text-primary font-black text-sm mt-1">₹{(item.price || 0).toLocaleString()}</p>
                                                 <div className="flex items-center gap-4 mt-3">
                                                     <div className="flex items-center bg-white border border-slate-200 rounded-lg p-1 px-3 gap-4">
                                                         <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-primary font-black">-</button>
@@ -172,7 +172,7 @@ const StorePage = () => {
                                 <div className="pt-8 border-t-2 border-slate-100 space-y-6">
                                     <div className="flex justify-between items-center px-1">
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Total</span>
-                                        <span className="text-2xl font-black text-slate-900 tracking-tight">₹{cartTotal.toLocaleString()}</span>
+                                        <span className="text-2xl font-black text-slate-900 tracking-tight">₹{(cartTotal || 0).toLocaleString()}</span>
                                     </div>
                                     <button
                                         onClick={handleCheckout}
@@ -220,7 +220,7 @@ const StorePage = () => {
                         <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</span>
-                                <span className="text-4xl font-black text-primary tracking-tight">₹{selectedProduct.price.toLocaleString()}</span>
+                                <span className="text-4xl font-black text-primary tracking-tight">₹{(selectedProduct.price || 0).toLocaleString()}</span>
                             </div>
                             <button
                                 onClick={() => {

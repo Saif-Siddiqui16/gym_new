@@ -47,6 +47,7 @@ const BranchManagerDashboard = () => {
     const [receivables, setReceivables] = useState(0);
     const [membershipDistribution, setMembershipDistribution] = useState([]);
     const [liveOccupancy, setLiveOccupancy] = useState({ current: 0, capacity: 50 });
+    const [checkInsByHour, setCheckInsByHour] = useState([]);
 
     const activeBranch = branches.find(b => b.id.toString() === selectedBranch.toString());
     const welcomeTitle = activeBranch ? `Welcome back, ${activeBranch.branchName || activeBranch.name}!` : 'Welcome back, All Branches!';
@@ -82,6 +83,7 @@ const BranchManagerDashboard = () => {
                 if (statsData.receivables !== undefined) setReceivables(statsData.receivables);
                 if (statsData.membershipDistribution) setMembershipDistribution(statsData.membershipDistribution);
                 if (statsData.liveOccupancy) setLiveOccupancy(statsData.liveOccupancy);
+                if (statsData.checkInsByHour) setCheckInsByHour(statsData.checkInsByHour);
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
             } finally {
@@ -179,27 +181,33 @@ const BranchManagerDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Revenue Overview Chart */}
                 <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                    <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
                         <Activity className="text-primary" size={18} />
                         Revenue Overview
                     </h3>
-                    <div className="h-48 flex items-end justify-between gap-2 px-4 pb-4 border-b border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Last 6 months</p>
+                    <div className="flex items-end gap-2 border-b border-slate-100" style={{ height: '160px', paddingBottom: '0' }}>
                         {revenueOverview.length > 0 ? revenueOverview.map((item, i) => {
-                            const maxValue = Math.max(...revenueOverview.map(r => r.value), 1000);
-                            const h = (item.value / maxValue) * 100;
+                            const maxValue = Math.max(...revenueOverview.map(r => r.value), 1);
+                            const pct = maxValue > 0 ? Math.max((item.value / maxValue) * 100, item.value > 0 ? 6 : 2) : 2;
                             return (
-                                <div key={i} className="w-full bg-primary-light rounded-t-lg relative group/bar">
+                                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar cursor-pointer" style={{ paddingBottom: '24px' }}>
+                                    {/* Amount label */}
+                                    {item.value > 0 && (
+                                        <span className="text-[9px] font-black text-primary mb-0.5 leading-none">
+                                            ₹{item.value >= 1000 ? (item.value / 1000).toFixed(1) + 'k' : item.value}
+                                        </span>
+                                    )}
+                                    {/* Bar */}
                                     <div
-                                        className="absolute bottom-0 w-full bg-gradient-to-t from-primary to-purple-500 rounded-t-lg transition-all duration-500 hover:from-primary-hover hover:to-primary cursor-pointer"
-                                        style={{ height: `${Math.max(h, 2)}%` }}
-                                    >
-                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                            ₹{item.value.toLocaleString()}
-                                        </div>
-                                    </div>
-                                    <div className="absolute -bottom-6 w-full text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        {item.month}
-                                    </div>
+                                        className={`w-full rounded-t-md transition-all duration-700 ${item.value > 0
+                                                ? 'bg-gradient-to-t from-primary to-purple-400'
+                                                : 'bg-slate-100'
+                                            }`}
+                                        style={{ height: `${pct}%` }}
+                                    />
+                                    {/* Month */}
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">{item.month}</span>
                                 </div>
                             );
                         }) : (
@@ -210,27 +218,33 @@ const BranchManagerDashboard = () => {
 
                 {/* Weekly Attendance Chart */}
                 <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                    <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
                         <Clock className="text-emerald-600" size={18} />
                         Weekly Attendance
                     </h3>
-                    <div className="h-48 flex items-end justify-between gap-2 px-4 pb-4 border-b border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Last 7 days</p>
+                    <div className="flex items-end gap-2 border-b border-slate-100" style={{ height: '160px' }}>
                         {weeklyAttendance.length > 0 ? weeklyAttendance.map((item, i) => {
-                            const maxCount = Math.max(...weeklyAttendance.map(a => a.count), 5);
-                            const h = (item.count / maxCount) * 100;
+                            const maxCount = Math.max(...weeklyAttendance.map(a => a.count), 1);
+                            const pct = maxCount > 0 ? Math.max((item.count / maxCount) * 100, item.count > 0 ? 6 : 2) : 2;
                             return (
-                                <div key={i} className="w-full bg-emerald-50 rounded-t-lg relative group/bar">
+                                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group/bar cursor-pointer" style={{ paddingBottom: '24px' }}>
+                                    {/* Count label */}
+                                    {item.count > 0 && (
+                                        <span className="text-[9px] font-black text-emerald-600 mb-0.5 leading-none">
+                                            {item.count}
+                                        </span>
+                                    )}
+                                    {/* Bar */}
                                     <div
-                                        className="absolute bottom-0 w-full bg-gradient-to-t from-emerald-600 to-teal-500 rounded-t-lg transition-all duration-500 hover:from-emerald-700 hover:to-teal-600 cursor-pointer"
-                                        style={{ height: `${Math.max(h, 2)}%` }}
-                                    >
-                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                            {item.count} Check-ins
-                                        </div>
-                                    </div>
-                                    <div className="absolute -bottom-6 w-full text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        {item.day}
-                                    </div>
+                                        className={`w-full rounded-t-md transition-all duration-700 ${item.count > 0
+                                                ? 'bg-gradient-to-t from-emerald-600 to-teal-400'
+                                                : 'bg-slate-100'
+                                            }`}
+                                        style={{ height: `${pct}%` }}
+                                    />
+                                    {/* Day */}
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 leading-none">{item.day}</span>
                                 </div>
                             );
                         }) : (
@@ -270,12 +284,38 @@ const BranchManagerDashboard = () => {
                         </div>
                         <h3 className="text-lg font-bold text-slate-900">Today's Check-ins by Hour</h3>
                     </div>
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                        <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
-                            <Activity size={32} />
+                    {checkInsByHour.length > 0 && checkInsByHour.some(h => h.count > 0) ? (
+                        <div className="flex-1 flex items-end gap-1 overflow-x-auto pb-6 border-b border-slate-100" style={{ minHeight: '120px' }}>
+                            {checkInsByHour.map((h, i) => {
+                                const maxCount = Math.max(...checkInsByHour.map(x => x.count), 1);
+                                const heightPct = (h.count / maxCount) * 100;
+                                return (
+                                    <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-0 group/bar">
+                                        <div className="relative w-full flex items-end" style={{ height: '80px' }}>
+                                            <div
+                                                className="absolute bottom-0 w-full rounded-t-md bg-gradient-to-t from-orange-500 to-amber-400 transition-all duration-500"
+                                                style={{ height: `${Math.max(heightPct, h.count > 0 ? 8 : 2)}%` }}
+                                            >
+                                                {h.count > 0 && (
+                                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                        {h.count}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider truncate w-full text-center">{h.label}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        <p className="text-slate-500 font-bold text-sm tracking-tight italic">No check-ins recorded today</p>
-                    </div>
+                    ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+                            <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
+                                <Activity size={32} />
+                            </div>
+                            <p className="text-slate-500 font-bold text-sm tracking-tight italic">No check-ins recorded today</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Accounts Receivable */}
@@ -303,7 +343,7 @@ const BranchManagerDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {/* Expiring in 48 Hours */}
+                {/* Expiring in Next 7 Days */}
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
@@ -316,6 +356,12 @@ const BranchManagerDashboard = () => {
                             <>
                                 <h4 className="text-4xl font-black text-rose-600 mb-2">{risks.expiringSoon}</h4>
                                 <p className="text-slate-500 font-black text-xs uppercase tracking-widest italic text-center">Memberships expiring soon</p>
+                                <button
+                                    onClick={() => navigate('/members?filter=expiring')}
+                                    className="mt-4 px-5 py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all border border-rose-200 flex items-center gap-2"
+                                >
+                                    <ChevronRight size={14} /> View Members
+                                </button>
                             </>
                         ) : (
                             <>

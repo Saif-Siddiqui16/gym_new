@@ -11,6 +11,7 @@ import MobileCard from '../../components/common/MobileCard';
 import { useBranchContext } from '../../context/BranchContext';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/Button';
+import { exportPdf } from '../../utils/exportPdf';
 
 
 const MemberList = () => {
@@ -32,7 +33,8 @@ const MemberList = () => {
     const initialNewMemberData = {
         name: '', phone: '', email: '', gender: '', dob: '', source: 'Walk-in',
         referralCode: '', idType: '', idNumber: '', address: '',
-        emergencyName: '', emergencyPhone: '', fitnessGoal: '', healthConditions: ''
+        emergencyName: '', emergencyPhone: '', fitnessGoal: '', healthConditions: '',
+        planId: '', duration: 1 // Default duration to 1 month
     };
     const [newMemberData, setNewMemberData] = useState(initialNewMemberData);
     const [editMemberData, setEditMemberData] = useState({ ...initialNewMemberData, status: '' });
@@ -149,8 +151,27 @@ const MemberList = () => {
             reader.readAsDataURL(file);
         }
     };
-    const handleExportCSV = () => { exportCSV(members, 'MemberList'); toast.success("CSV exported successfully"); };
-    const handleExportPDF = () => { exportPDF(members, 'MemberList'); toast.success("PDF exported successfully"); };
+    const handleExport = () => {
+        if (members.length === 0) return toast.error('No members to export');
+        const headers = ['Member ID', 'Name', 'Email', 'Phone', 'Branch', 'Status', 'Join Date'];
+        const rows = members.map(m => [
+            m.memberId,
+            m.name,
+            m.email,
+            m.phone,
+            m.branch || 'Main',
+            m.status,
+            m.joinDate ? new Date(m.joinDate).toLocaleDateString('en-IN') : '—'
+        ]);
+
+        exportPdf({
+            title: 'Member List Report',
+            filename: `members_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
+    };
     const handleView = (member) => { setSelectedMember(member); setIsViewDrawerOpen(true); };
     const handleEdit = (member) => {
         setSelectedMember(member);
@@ -199,6 +220,12 @@ const MemberList = () => {
                 memberPayload.branchId = 'all';
             } else if (selectedBranch) {
                 memberPayload.branchId = selectedBranch;
+            }
+
+            // Ensure plan values are passed directly (if chosen)
+            if (newMemberData.planId) {
+                memberPayload.planId = newMemberData.planId;
+                memberPayload.duration = newMemberData.duration || 1;
             }
 
             await createMember(memberPayload);
@@ -358,11 +385,8 @@ const MemberList = () => {
                         <p className="text-xs text-slate-500 font-semibold mt-0.5">{totalItems} members total</p>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-all">
-                            <Download size={14} /><span className="hidden sm:inline">CSV</span>
-                        </button>
-                        <button onClick={handleExportPDF} className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-all">
-                            <FileText size={14} /><span className="hidden sm:inline">PDF</span>
+                        <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-all">
+                            <FileText size={14} /><span>Export as PDF</span>
                         </button>
                     </div>
                 </div>
@@ -403,7 +427,7 @@ const MemberList = () => {
                                             {member.joinDate ? new Date(member.joinDate).toLocaleDateString('en-IN') : '—'}
                                         </td>
                                         <td className="p-4 sm:px-6 sm:py-4" data-label="Actions">
-                                            <div className="flex items-center justify-end sm:justify-start gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200">
+                                            <div className="flex items-center justify-end sm:justify-start gap-1 transition-all duration-200">
                                                 <button onClick={() => { setSelectedMember(member); setRenewalData({ planId: '', duration: 1 }); setIsRenewalDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Assign Plan"><ShieldCheck size={16} /></button>
                                                 <button onClick={() => handleView(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="View"><Eye size={16} /></button>
                                                 <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
@@ -575,7 +599,7 @@ const MemberList = () => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date of Birth</label>
-                                <input type="text" placeholder="dd-mm-yyyy" value={newMemberData.dob} onChange={(e) => setNewMemberData({ ...newMemberData, dob: e.target.value })}
+                                <input type="date" value={newMemberData.dob} onChange={(e) => setNewMemberData({ ...newMemberData, dob: e.target.value })}
                                     className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all" />
                             </div>
                             <div>
@@ -588,10 +612,42 @@ const MemberList = () => {
                         </div>
                     </div>
 
-                    {/* Section 2: Referral */}
+                    {/* Section 2: Membership Plan */}
                     <div>
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">2</span>
+                            Membership Plan
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign Plan</label>
+                                <select value={newMemberData.planId} onChange={(e) => setNewMemberData({ ...newMemberData, planId: e.target.value })}
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all">
+                                    <option value="">No Plan (Add Later)</option>
+                                    {plans.map(p => <option key={p.id} value={p.id}>{p.name} - ₹{p.price}/mo</option>)}
+                                </select>
+                            </div>
+                            {newMemberData.planId && (
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Duration (Months) <span className="text-rose-500">*</span></label>
+                                    <select value={newMemberData.duration} onChange={(e) => setNewMemberData({ ...newMemberData, duration: e.target.value })}
+                                        className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all">
+                                        <option value="1">1 Month</option>
+                                        <option value="3">3 Months</option>
+                                        <option value="6">6 Months</option>
+                                        <option value="12">12 Months</option>
+                                        <option value="24">24 Months</option>
+                                    </select>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Section 3: Referral */}
+                    <div>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">3</span>
+
                             Referral
                         </h3>
                         <div>
@@ -927,7 +983,7 @@ const MemberList = () => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date of Birth</label>
-                                <input type="text" placeholder="dd-mm-yyyy" value={editMemberData.dob || ''} onChange={(e) => setEditMemberData({ ...editMemberData, dob: e.target.value })}
+                                <input type="date" value={editMemberData.dob || ''} onChange={(e) => setEditMemberData({ ...editMemberData, dob: e.target.value })}
                                     className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all" />
                             </div>
                             <div>

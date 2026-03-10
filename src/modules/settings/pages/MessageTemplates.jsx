@@ -250,7 +250,7 @@ const MessageTemplates = () => {
                                                     <button
                                                         onClick={() => handleDelete(t.id)}
                                                         disabled={deleting === t.id}
-                                                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                                                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                                     >
                                                         {deleting === t.id ? <Loader size={14} className="animate-spin" /> : <Trash2 size={14} />}
                                                     </button>

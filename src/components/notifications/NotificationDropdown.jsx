@@ -3,13 +3,27 @@ import { Bell, MessageSquare, CheckCircle, AlertTriangle, X, Trash2, ExternalLin
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
-const NotificationDropdown = ({ onClose }) => {
+const NotificationDropdown = ({ onClose, onRefresh }) => {
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
+    const { role } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [unreadChatCount, setUnreadChatCount] = useState(0);
     const [loading, setLoading] = useState(true);
+
+    const getRoleBasedLink = (link) => {
+        if (!link) return '#';
+        if (link.startsWith('/members')) {
+            if (role === 'STAFF') return '/staff/members/list';
+            return '/branchadmin/members/list';
+        }
+        if (link.startsWith('/crm/leads')) {
+            return '/crm/pipeline';
+        }
+        return link;
+    };
 
     const fetchNotifications = async () => {
         try {
@@ -40,6 +54,7 @@ const NotificationDropdown = ({ onClose }) => {
         try {
             await apiClient.patch(`/notifications/${id}/read`);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+            if (onRefresh) onRefresh();
         } catch (error) {
             toast.error('Failed to mark as read');
         }
@@ -49,6 +64,7 @@ const NotificationDropdown = ({ onClose }) => {
         try {
             await apiClient.patch('/notifications/read-all');
             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+            if (onRefresh) onRefresh();
             toast.success('All marked as read');
         } catch (error) {
             toast.error('Failed to mark all as read');
@@ -109,7 +125,7 @@ const NotificationDropdown = ({ onClose }) => {
                         {notifications.map((n) => (
                             <div
                                 key={n.id}
-                                onClick={() => { if (!n.read) handleMarkAsRead(n.id); if (n.link) { navigate(n.link); onClose(); } }}
+                                onClick={() => { if (!n.read) handleMarkAsRead(n.id); if (n.link) { navigate(getRoleBasedLink(n.link)); onClose(); } }}
                                 className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer group relative ${!n.read ? 'bg-primary-light/40' : ''}`}
                             >
                                 <div className="flex gap-3">

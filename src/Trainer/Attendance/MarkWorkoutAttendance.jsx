@@ -11,6 +11,7 @@ import {
     Save,
     Dumbbell
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getSessions, saveAttendance, getAssignedMembers } from '../../api/trainer/trainerApi';
 
 const MarkWorkoutAttendance = () => {
@@ -58,7 +59,7 @@ const MarkWorkoutAttendance = () => {
         setSaving(true);
         const success = await saveAttendance(selectedSessionId, members.map(m => ({ id: m.id, status: m.status })));
         if (success) {
-            alert("Attendance saved successfully!");
+            toast.success("Attendance saved successfully!");
         }
         setSaving(false);
     };

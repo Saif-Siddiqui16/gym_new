@@ -88,6 +88,13 @@ const PTSessions = () => {
         notes: ''
     });
 
+    // Form State for Assign Package
+    const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
+    const [assignData, setAssignData] = useState({
+        memberId: '',
+        packageId: ''
+    });
+
     const [isSessionDrawerOpen, setIsSessionDrawerOpen] = useState(false);
 
     useEffect(() => {
@@ -133,6 +140,25 @@ const PTSessions = () => {
             loadData();
         } catch (error) {
             toast.error('Failed to log session');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleAssignPackage = async (e) => {
+        e.preventDefault();
+        try {
+            setSubmitting(true);
+            await ptApi.purchasePackage({
+                memberId: assignData.memberId,
+                packageId: assignData.packageId
+            });
+            toast.success('Package assigned successfully');
+            setIsAssignDrawerOpen(false);
+            setAssignData({ memberId: '', packageId: '' });
+            loadData();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to assign package');
         } finally {
             setSubmitting(false);
         }
@@ -257,6 +283,20 @@ const PTSessions = () => {
                             <p className="text-slate-500 text-sm font-medium mt-2">Manage personal training packages and sessions</p>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                resetForm();
+                                setIsSidebarOpen(true);
+                            }}
+                            className="w-full md:w-auto flex items-center justify-center gap-2"
+                        >
+                            <Plus size={18} />
+                            Create Package
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -343,7 +383,7 @@ const PTSessions = () => {
             {/* Main Content Area */}
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
                 {/* Tabs & Actions */}
-                <div className="flex flex-col xs:flex-row xs:items-center justify-between px-4 md:px-6 border-b border-slate-100 bg-white gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 md:px-6 border-b border-slate-100 bg-white gap-4">
                     <div className="flex items-center overflow-x-auto no-scrollbar scrollbar-hide -mb-px">
                         {[
                             { id: 'packages', label: 'Packages' },
@@ -364,14 +404,41 @@ const PTSessions = () => {
                         ))}
                     </div>
 
-                    {activeTab !== 'packages' && (
-                        <div className="py-2 xs:py-0 w-full xs:w-auto flex justify-center xs:justify-end">
+                    {activeTab === 'sessions' && (
+                        <div className="py-2 sm:py-0 w-full sm:w-auto flex justify-center sm:justify-end">
                             <button
                                 onClick={() => setIsSessionDrawerOpen(true)}
-                                className="w-full xs:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
+                                className="w-full sm:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
                             >
                                 <Calendar size={16} strokeWidth={2.5} />
                                 Schedule Session
+                            </button>
+                        </div>
+                    )}
+
+                    {activeTab === 'active' && (
+                        <div className="py-2 sm:py-0 w-full sm:w-auto flex justify-center sm:justify-end">
+                            <button
+                                onClick={() => setIsAssignDrawerOpen(true)}
+                                className="w-full sm:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
+                            >
+                                <UserCheck size={16} strokeWidth={2.5} />
+                                Assign Package
+                            </button>
+                        </div>
+                    )}
+
+                    {activeTab === 'packages' && (
+                        <div className="py-2 sm:py-0 w-full sm:w-auto flex justify-center sm:justify-end">
+                            <button
+                                onClick={() => {
+                                    resetForm();
+                                    setIsSidebarOpen(true);
+                                }}
+                                className="w-full sm:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
+                            >
+                                <Plus size={16} strokeWidth={2.5} />
+                                Create Package
                             </button>
                         </div>
                     )}
@@ -456,7 +523,7 @@ const PTSessions = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right" data-label="Actions">
-                                                <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center justify-end gap-2 opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => handleEdit(pkg)}
                                                         className="p-1.5 text-primary hover:bg-primary-light rounded-lg transition-colors"
@@ -710,6 +777,69 @@ const PTSessions = () => {
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
+                    </div>
+                </form>
+            </RightDrawer>
+
+            {/* Side Panel Drawer for Assigning Package */}
+            <RightDrawer
+                isOpen={isAssignDrawerOpen}
+                onClose={() => !isSubmitting && setIsAssignDrawerOpen(false)}
+                title="Assign PT Package"
+                subtitle="Assign a personal training package to a member"
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end">
+                        <Button
+                            variant="outline"
+                            disabled={isSubmitting}
+                            onClick={() => setIsAssignDrawerOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            loading={isSubmitting}
+                            onClick={handleAssignPackage}
+                        >
+                            Assign Package
+                        </Button>
+                    </div>
+                }
+            >
+                <form onSubmit={handleAssignPackage} className="space-y-6">
+                    <div className="saas-form-group">
+                        <label className="saas-label">Select Member *</label>
+                        <select
+                            required
+                            className="saas-input cursor-pointer"
+                            value={assignData.memberId}
+                            onChange={(e) => setAssignData({ ...assignData, memberId: e.target.value })}
+                        >
+                            <option value="">Choose a member</option>
+                            {members.map(member => (
+                                <option key={member.id} value={member.id}>
+                                    {member.name} ({member.memberId})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Select Package *</label>
+                        <select
+                            required
+                            className="saas-input cursor-pointer"
+                            value={assignData.packageId}
+                            onChange={(e) => setAssignData({ ...assignData, packageId: e.target.value })}
+                        >
+                            <option value="">Choose a package</option>
+                            {packages.filter(p => p.status === 'Active').map(pkg => (
+                                <option key={pkg.id} value={pkg.id}>
+                                    {pkg.name} - ₹{pkg.price} ({pkg.totalSessions} Sessions)
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </form>
             </RightDrawer>

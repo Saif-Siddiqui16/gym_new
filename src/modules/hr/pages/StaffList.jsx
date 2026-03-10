@@ -5,27 +5,89 @@ import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import MobileCard from '../../../components/common/MobileCard';
-import { STAFF_LIST } from '../data/mockHR';
+import { getAllStaff } from '../../../api/manager/managerApi';
+import { exportPdf } from '../../../utils/exportPdf';
+import { Download } from 'lucide-react';
+import { useBranchContext } from '../../../context/BranchContext';
+import toast from 'react-hot-toast';
 
 const StaffList = () => {
     const navigate = useNavigate();
+    const { selectedBranch } = useBranchContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [departmentFilter, setDepartmentFilter] = useState('All');
+    const [staffList, setStaffList] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredStaff = STAFF_LIST.filter(staff =>
+    const loadStaff = async () => {
+        try {
+            setLoading(true);
+            const data = await getAllStaff(selectedBranch);
+            setStaffList(data || []);
+        } catch (error) {
+            console.error("Failed to load staff", error);
+            toast.error("Failed to fetch staff directory");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        loadStaff();
+    }, [selectedBranch]);
+
+    const filteredStaff = staffList.filter(staff =>
         (departmentFilter === 'All' || staff.department === departmentFilter) &&
-        (staff.name.toLowerCase().includes(searchTerm.toLowerCase()) || staff.role.toLowerCase().includes(searchTerm.toLowerCase()))
+        ((staff.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (staff.role || '').toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    const handleExport = () => {
+        if (filteredStaff.length === 0) return toast.error("No staff data to export");
+        const headers = ["ID", "Name", "Role", "Department", "Salary", "Status"];
+        const rows = filteredStaff.map(s => [
+            s.id,
+            s.name,
+            s.role,
+            s.department,
+            `₹${s.salary?.toLocaleString() || 0}`,
+            s.status
+        ]);
+
+        exportPdf({
+            title: 'Staff Directory Report',
+            filename: `Staff_Report_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
+    };
 
     const departments = ['All', 'Training', 'Sales', 'Housekeeping', 'Operations'];
 
     return (
         <div className="fade-in space-y-4 sm:space-y-6 p-4 sm:p-0">
-            {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="min-w-0">
                     <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Staff Directory</h2>
                     <p className="text-gray-500 font-bold mt-1 text-sm sm:text-base">Manage employees, roles, and departments.</p>
+                </div>
+                <div className="flex gap-3">
+                    <Button
+                        onClick={handleExport}
+                        variant="outline"
+                        className="h-11 px-6 border-2 border-slate-100 hover:border-violet-100"
+                        icon={Download}
+                    >
+                        Export as PDF
+                    </Button>
+                    <Button
+                        onClick={() => navigate('/hr/staff/add')}
+                        variant="primary"
+                        className="h-11 px-6 shadow-lg shadow-violet-200"
+                        icon={Plus}
+                    >
+                        Add Staff
+                    </Button>
                 </div>
             </div>
 
@@ -156,7 +218,7 @@ const StaffList = () => {
                     </div>
                 )}
             </Card>
-        </div>
+        </div >
     );
 };
 

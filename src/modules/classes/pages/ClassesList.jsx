@@ -387,21 +387,6 @@ const ClassesList = () => {
                     </button>
                 </div>
 
-                {/* Sub-tabs */}
-                <div className="px-4 py-3 flex items-center gap-6 border-b border-slate-50">
-                    <button
-                        onClick={() => setContentTab('Schedule')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Schedule' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                        Schedule ({filteredClasses.length})
-                    </button>
-                    <button
-                        onClick={() => setContentTab('Attendance')}
-                        className={`text-sm font-bold pb-2 transition-all ${contentTab === 'Attendance' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                        Attendance
-                    </button>
-                </div>
 
                 {/* Main Content Area */}
                 <div className="p-6">

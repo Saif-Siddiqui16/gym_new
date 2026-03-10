@@ -155,7 +155,8 @@ import {
   PlanBenefitTemplates,
   ExpenseSettings,
   IntegrationsSettings,
-  WebsiteSettings
+  WebsiteSettings,
+  AttendanceQrSettings
 } from './modules/settings';
 
 // Module: Finance
@@ -209,6 +210,7 @@ export default function App() {
     <BranchProvider>
       <Toaster
         position="top-right"
+        containerStyle={{ zIndex: 999999 }}
         toastOptions={{
           duration: 2000,
           style: {
@@ -216,6 +218,7 @@ export default function App() {
             color: '#363636',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
             borderRadius: '12px',
+            zIndex: 999999,
           },
         }}
       />
@@ -450,6 +453,7 @@ export default function App() {
                 <Route path="/branchadmin/settings/security" element={<SecuritySettings role={currentRole} />} />
                 <Route path="/branchadmin/settings/website" element={<WebsiteSettings />} />
                 <Route path="/branchadmin/settings/integrations" element={<IntegrationsSettings />} />
+                <Route path="/branchadmin/settings/attendance-qr" element={<AttendanceQrSettings />} />
               </Route>
               <Route path="/branchadmin/profile/me" element={(currentRole === ROLES.BRANCH_ADMIN) ? <BranchAdminProfile /> : <ManagerProfile />} />
             </>

@@ -12,7 +12,8 @@ import {
     Puzzle,
     Bell,
     Shield,
-    Globe
+    Globe,
+    QrCode
 } from 'lucide-react';
 
 const SettingsLayout = ({ role }) => {
@@ -22,6 +23,7 @@ const SettingsLayout = ({ role }) => {
     const menuItems = [
         { name: 'Organization', path: `/branchadmin/settings/general`, icon: Building2 },
         { name: 'Branches', path: `/branchadmin/settings/branches`, icon: MapPin },
+        { name: 'Attendance QR', path: `/branchadmin/settings/attendance-qr`, icon: QrCode },
         { name: 'Amenities', path: `/branchadmin/settings/amenities`, icon: Gift },
         { name: 'Referrals', path: `/branchadmin/settings/referrals`, icon: Users },
         { name: 'Templates', path: `/branchadmin/settings/templates`, icon: FileText },

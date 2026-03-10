@@ -227,7 +227,7 @@ const TodaysBookings = () => {
                                             </div>
                                         </td>
                                         <td data-label="Actions" className="text-right">
-                                            <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 transition-opacity">
                                                 {booking.status === 'Upcoming' && (
                                                     <button
                                                         onClick={() => handleUpdateStatus(booking.id, 'Completed')}

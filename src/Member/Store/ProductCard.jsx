@@ -20,7 +20,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
                     <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-primary uppercase tracking-widest shadow-sm">
                         {product.category}
                     </span>
-                    {product.price < product.originalPrice && (
+                    {product.price < product.originalPrice && product.originalPrice > 0 && (
                         <span className="px-3 py-1 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/30">
                             Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                         </span>
@@ -63,10 +63,10 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
                 <div className="flex items-end justify-between">
                     <div>
                         <span className="block text-[10px] text-slate-400 line-through mb-1 font-bold tracking-wider">
-                            ₹{product.originalPrice.toLocaleString()}
+                            ₹{(product.originalPrice || 0).toLocaleString()}
                         </span>
                         <span className="text-2xl font-black bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                            ₹{product.price.toLocaleString()}
+                            ₹{(product.price || 0).toLocaleString()}
                         </span>
                     </div>
 

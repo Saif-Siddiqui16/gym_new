@@ -243,7 +243,7 @@ const ProductList = () => {
                                             <span className="text-[11px] font-black text-slate-500">{p.taxRate || 0}%</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 transition-opacity">
                                                 <button
                                                     onClick={() => handleEdit(p)}
                                                     className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"

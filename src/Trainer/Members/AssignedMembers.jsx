@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, ShieldAlert, Clock, ClipboardList, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAssignedMembers, flagMember } from '../../api/trainer/trainerApi';
+import { toast } from 'react-hot-toast';
 import { sendChatMessage, getChatMessages } from '../../api/communication/communicationApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -80,7 +81,7 @@ const AssignedMembers = () => {
             loadChatHistory();
         } catch (error) {
             console.error('Failed to send message:', error);
-            alert('Failed to send message');
+            toast.error('Failed to send message');
         }
     };
 
@@ -487,8 +488,8 @@ const AssignedMembers = () => {
                                     <div
                                         key={msg.id || idx}
                                         className={`p-4 rounded-2xl border shadow-sm max-w-[85%] ${isMe
-                                                ? 'bg-primary border-primary !text-white rounded-tr-none self-end ml-auto'
-                                                : 'bg-white border-gray-100 rounded-tl-none self-start'
+                                            ? 'bg-primary border-primary !text-white rounded-tr-none self-end ml-auto'
+                                            : 'bg-white border-gray-100 rounded-tl-none self-start'
                                             }`}
                                     >
                                         <p className={`text-sm ${isMe ? 'text-white' : 'text-gray-700'}`}>{msg.message}</p>

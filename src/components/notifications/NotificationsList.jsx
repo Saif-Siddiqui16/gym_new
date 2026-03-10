@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/apiClient';
 
 const NotificationsList = () => {
+    const { role } = useAuth();
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const getRoleBasedLink = (link) => {
+        if (!link) return '#';
+        if (link.startsWith('/members')) {
+            if (role === 'STAFF') return '/staff/members/list';
+            return '/branchadmin/members/list';
+        }
+        if (link.startsWith('/crm/leads')) {
+            return '/crm/pipeline';
+        }
+        return link;
+    };
 
     const fetchNotifications = async () => {
         try {
@@ -80,12 +96,12 @@ const NotificationsList = () => {
                                         </button>
                                     )}
                                     {n.link && (
-                                        <a
-                                            href={n.link}
-                                            className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-hover transition-colors"
+                                        <button
+                                            onClick={() => navigate(getRoleBasedLink(n.link))}
+                                            className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-hover transition-colors bg-transparent border-none cursor-pointer"
                                         >
                                             <ExternalLink size={14} strokeWidth={2.5} /> View Details
-                                        </a>
+                                        </button>
                                     )}
                                     <button
                                         onClick={() => deleteNotif(n.id)}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Activity, Download, Users, TrendingUp, IndianRupee, BarChart3, ShoppingBag, Package, ArrowUpRight, Clock, ShieldAlert } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
+import { exportPdf } from '../../../utils/exportPdf';
+import toast from 'react-hot-toast';
 
 const BranchPerformanceReport = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -15,17 +17,23 @@ const BranchPerformanceReport = () => {
     const earningsValues = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     const handleExport = () => {
-        const headers = ['Month', 'Revenue (₹k)', 'Status'];
-        const rows = earningsMonths.map((month, i) => [month, earningsValues[i], 'Demo']);
-        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.setAttribute('href', URL.createObjectURL(blob));
-        link.setAttribute('download', 'gym_analytics_report.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const headers = ['Metric', 'Value'];
+        const rows = [
+            ['Total Members', statsData.totalMembers.toString()],
+            ['Monthly Revenue', `₹${statsData.revenueThisMonth.toLocaleString()}`],
+            ['Collection Rate', `${statsData.collectionRate}%`],
+            ['Pending Dues', `₹${statsData.pendingDues.toLocaleString()}`],
+            ['Total Income (12m)', `₹${earningsData.totalIncome.toLocaleString()}`],
+            ['Total Expenses (12m)', `₹${earningsData.totalExpenses.toLocaleString()}`]
+        ];
+
+        exportPdf({
+            title: 'Branch Performance Report',
+            filename: `performance_report_${new Date().toISOString().split('T')[0]}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     const [statsData, setStatsData] = useState({
@@ -113,9 +121,12 @@ const BranchPerformanceReport = () => {
                                 <p className="text-slate-600 text-sm mt-1">Complete performance insights for {activeBranch ? activeBranch.branchName : 'all branches'}</p>
                             </div>
                         </div>
-                        <button onClick={handleExport} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-purple-500/30 self-start sm:self-auto relative z-10">
+                        <button
+                            onClick={handleExport}
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all hover:shadow-lg hover:shadow-purple-500/30 self-start sm:self-auto relative z-10"
+                        >
                             <Download size={18} />
-                            Export Data
+                            Export as PDF
                         </button>
                     </div>
                 </div>

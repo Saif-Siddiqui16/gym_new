@@ -245,7 +245,7 @@ const Coupons = () => {
                                             })()}
                                         </td>
                                         <td className="px-8 py-6 text-right" data-label="Actions">
-                                            <div className="flex items-center justify-end gap-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+                                            <div className="flex items-center justify-end gap-3 transition-all duration-300">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleEdit(c); }}
                                                     className="p-3 bg-white text-slate-400 hover:text-primary border border-slate-100 rounded-2xl hover:shadow-xl hover:shadow-primary-light transition-all"

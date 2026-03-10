@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles } from 'lucide-react';
 import { addGym } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
 const AddGym = () => {
@@ -40,7 +41,7 @@ const AddGym = () => {
             navigate('/superadmin/gyms/all');
         } catch (error) {
             console.error('Error adding gym:', error);
-            alert('Failed to add gym');
+            toast.error('Failed to add gym');
         } finally {
             setLoading(false);
         }

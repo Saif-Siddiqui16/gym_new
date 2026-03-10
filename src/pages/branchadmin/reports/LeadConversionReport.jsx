@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Download, Filter, Search, Calendar, Target, MousePointer2, Percent, Share2, Loader2 } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
+import toast from 'react-hot-toast';
+import { exportPdf } from '../../../utils/exportPdf';
 
 const LeadConversionReport = () => {
     const getToday = () => {
@@ -53,31 +55,26 @@ const LeadConversionReport = () => {
 
     const handleExport = () => {
         if (leadData.length === 0) {
-            alert("No data available to export.");
+            toast.error("No data available to export.");
             return;
         }
 
         const headers = ["Lead Name", "Source", "Date Received", "Status", "Sales Notes"];
-        const csvContent = [
-            headers.join(","),
-            ...leadData.map(row => [
-                `"${row.name}"`,
-                `"${row.source}"`,
-                `"${row.date}"`,
-                `"${row.status}"`,
-                `"${row.notes.replace(/"/g, '""')}"`
-            ].join(","))
-        ].join("\n");
+        const rows = leadData.map(row => [
+            row.name,
+            row.source,
+            row.date,
+            row.status,
+            row.notes
+        ]);
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `lead_conversion_report_${selectedDate}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        exportPdf({
+            title: 'Lead Conversion Report',
+            filename: `lead_conversion_report_${selectedDate}`,
+            headers,
+            rows,
+            gymName: "Gym Academy"
+        });
     };
 
     return (
@@ -99,10 +96,10 @@ const LeadConversionReport = () => {
                         </div>
                         <button
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 hover:shadow-xl hover:shadow-orange-500/50 text-white rounded-xl text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 hover:shadow-xl hover:shadow-orange-500/50 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
                             <Download size={18} />
-                            Export Funnel Data
+                            Export as PDF
                         </button>
                     </div>
                 </div>
@@ -143,8 +140,12 @@ const LeadConversionReport = () => {
                                     }, {});
                                     const breakdown = Object.entries(sources)
                                         .map(([source, count]) => `${source}: ${count}`)
-                                        .join('\n');
-                                    alert(`Source Breakdown:\n\n${breakdown || 'No data available'}`);
+                                        .join(', ');
+                                    if (breakdown) {
+                                        toast.success(`Source Breakdown: ${breakdown}`);
+                                    } else {
+                                        toast.error('No data available');
+                                    }
                                 }}
                                 className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-bold hover:bg-rose-100 transition-colors"
                             >

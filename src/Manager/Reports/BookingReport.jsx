@@ -1,9 +1,27 @@
-import { Calendar, Tag, ClipboardList, Download, Filter, Search, Clock, ChevronLeft, ChevronRight, Eye, Trash2, User, MapPin, Activity, ChevronDown, Check, FileText } from 'lucide-react';
+import { exportPDF } from '../../api/manager/managerExport';
 import apiClient from '../../api/apiClient';
 import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useRef, useState } from 'react';
+import {
+    ClipboardList,
+    ChevronDown,
+    Check,
+    ChevronLeft,
+    ChevronRight,
+    Filter,
+    Search,
+    Clock,
+    Eye,
+    Trash2,
+    User,
+    Calendar,
+    Tag,
+    FileText,
+    Activity,
+    MapPin
+} from 'lucide-react';
 import Button from '../../components/ui/Button';
 
 // Reusable Custom Dropdown Component
@@ -165,109 +183,8 @@ const BookingReport = () => {
 
     // Calculate current page bookings
 
-    const handleExportCSV = () => {
-        const exportData = allFilteredBookings;
-        if (exportData.length === 0) { alert("No data to export"); return; }
-        const headers = ["Booking ID", "Member", "Class/Type", "Trainer", "Date", "Time", "Status"];
-        const csvContent = [
-            headers.join(","),
-            ...exportData.map(row => [
-                `"${row.id}"`,
-                `"${row.memberName}"`,
-                `"${row.classType}"`,
-                `"${row.trainerName}"`,
-                `"${row.date}"`,
-                `"${row.time}"`,
-                `"${row.status}"`
-            ].join(","))
-        ].join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `booking_report_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const handleExportPDF = () => {
-        const exportData = allFilteredBookings;
-        if (exportData.length === 0) { alert("No data to export"); return; }
-        const rows = exportData.map(b =>
-            `<tr>
-                <td style="font-family: monospace; color: #4f46e5; font-weight: bold;">#${b.id}</td>
-                <td style="font-weight: 500;">${b.memberName}</td>
-                <td>${b.classType}</td>
-                <td>${b.trainerName}</td>
-                <td>
-                    <div style="font-weight: 600;">${b.date}</div>
-                    <div style="font-size: 11px; color: #94a3b8;">${b.time}</div>
-                </td>
-                <td>
-                   <span style="padding: 4px 8px; border-radius: 9999px; font-size: 10px; font-weight: bold; background: ${b.status === 'Completed' ? '#f0fdf4' : b.status === 'Cancelled' ? '#fef2f2' : '#fffbeb'}; color: ${b.status === 'Completed' ? '#15803d' : b.status === 'Cancelled' ? '#b91c1c' : '#a16207'}; border: 1px solid currentColor;">
-                    ${b.status}
-                   </span>
-                </td>
-            </tr>`
-        ).join('');
-
-        const html = `
-            <html>
-                <head>
-                    <title>Booking Report_${new Date().toISOString().split('T')[0]}</title>
-                    <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                        body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; background: white; }
-                        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
-                        .title-section h1 { margin: 0; font-size: 28px; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-                        .title-section p { margin: 5px 0 0; color: #64748b; font-size: 14px; }
-                        .meta-info { text-align: right; color: #64748b; font-size: 12px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th { background: #f8fafc; color: #475569; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; text-align: left; padding: 12px 15px; border-bottom: 2px solid #e2e8f0; }
-                        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-                        tr:nth-child(even) { background: #fcfdfe; }
-                        @media print {
-                            body { padding: 0; }
-                            .no-print { display: none; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="title-section">
-                            <h1>${user?.branchName || 'Booking Report'}</h1>
-                            <p>${user?.branchName ? 'Gym Management System' : 'Gym Management System - Performance Analysis'}</p>
-                        </div>
-                        <div class="meta-info">
-                            <div>Generated: ${new Date().toLocaleString()}</div>
-                            <div>Total Bookings: ${exportData.length}</div>
-                        </div>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Booking ID</th>
-                                <th>Member</th>
-                                <th>Booking Type</th>
-                                <th>Trainer</th>
-                                <th>Date / Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                </body>
-            </html>
-        `;
-        const w = window.open('', '_blank');
-        w.document.write(html);
-        w.document.close();
-        // Wait for fonts to load before printing
-        setTimeout(() => {
-            w.print();
-        }, 500);
+    const handleExport = () => {
+        exportPDF(allFilteredBookings, 'Booking_Report');
     };
 
     const handleDelete = async (id) => {
@@ -319,16 +236,10 @@ const BookingReport = () => {
                         </div>
                         <div className="flex flex-wrap gap-2 md:gap-3">
                             <button
-                                onClick={handleExportCSV}
+                                onClick={handleExport}
                                 className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2 md:py-2.5 text-xs md:text-sm font-semibold"
                             >
-                                <Download size={14} className="text-gray-500 md:w-4 md:h-4" /> Export CSV
-                            </button>
-                            <button
-                                onClick={handleExportPDF}
-                                className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2 md:py-2.5 text-xs md:text-sm font-semibold"
-                            >
-                                <FileText size={14} className="text-gray-500 md:w-4 md:h-4" /> Export PDF
+                                <FileText size={14} className="text-gray-500 md:w-4 md:h-4" /> Export as PDF
                             </button>
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
@@ -463,7 +374,7 @@ const BookingReport = () => {
                                         </td>
                                         <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell sm:text-right" data-label="Actions">
                                             <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</span>
-                                            <div className="flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 sm:transform sm:translate-x-2 sm:group-hover:translate-x-0">
+                                            <div className="flex items-center justify-end gap-1 transition-all duration-200">
                                                 <button
                                                     onClick={() => handleViewDetails(row)}
                                                     className="p-2 text-gray-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all md:hover:scale-110 duration-300"

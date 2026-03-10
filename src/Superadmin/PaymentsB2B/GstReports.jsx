@@ -33,12 +33,8 @@ const GstReports = () => {
         setLoading(false);
     };
 
-    const handleExportCSV = () => {
-        exportTable('GST Reports CSV');
-    };
-
-    const handleExportPDF = () => {
-        exportTable('GST Reports PDF');
+    const handleExport = () => {
+        exportTable('GST Reports', gstData);
     };
 
     if (loading) {
@@ -54,18 +50,11 @@ const GstReports = () => {
                 {/* Export Buttons */}
                 <div className="flex gap-3">
                     <button
-                        onClick={handleExportCSV}
-                        className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
-                    >
-                        <Download className="w-4 h-4" />
-                        Export CSV
-                    </button>
-                    <button
-                        onClick={handleExportPDF}
+                        onClick={handleExport}
                         className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
                     >
                         <FileText className="w-4 h-4" />
-                        Export PDF
+                        Export as PDF
                     </button>
                 </div>
             </div>
