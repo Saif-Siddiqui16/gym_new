@@ -48,12 +48,12 @@ const Login = () => {
     };
 
     const quickFills = [
-        { label: 'Admin', role: ROLES.SUPER_ADMIN, email: 'admin@newgym.com', pass: 'admin123' },
-        { label: 'Branch', role: ROLES.BRANCH_ADMIN, email: 'testbranch@gym.com', pass: '123456' },
-        { label: 'Manager', role: ROLES.MANAGER, email: 'manager@gym.com', pass: 'manager123' },
-        { label: 'Staff', role: ROLES.STAFF, email: 'staff@gym.com', pass: 'staff123' },
-        { label: 'Trainer', role: ROLES.TRAINER, email: 'trainer@gym.com', pass: 'trainer123' },
-        { label: 'Member', role: ROLES.MEMBER, email: 'member@gym.com', pass: 'member123' },
+        { label: 'Admin', role: ROLES.SUPER_ADMIN, email: 'admin@newgym.com', pass: '123456' },
+        { label: 'Branch', role: ROLES.BRANCH_ADMIN, email: 'testbranch@gym.com', pass: '12345678' },
+        { label: 'Manager', role: ROLES.MANAGER, email: 'manager@gym.com', pass: 'manager1234' },
+        { label: 'Staff', role: ROLES.STAFF, email: 'staff@gym.com', pass: 'staff1234' },
+        { label: 'Trainer', role: ROLES.TRAINER, email: 'trainer@gym.com', pass: 'trainer1234' },
+        { label: 'Member', role: ROLES.MEMBER, email: 'member@gym.com', pass: 'member1234' },
     ];
 
     const fillForm = (item) => {

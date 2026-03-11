@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity } from 'lucide-react';
+import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, X, Key, Loader, AlertTriangle, Save } from 'lucide-react';
 import { fetchManagerProfile, updateManagerProfile } from '../../api/manager/managerApi';
 import { useAuth } from '../../context/AuthContext';
 import NotificationsList from '../../components/notifications/NotificationsList';
+import apiClient from '../../api/apiClient';
+import { toast } from 'react-hot-toast';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -10,6 +12,13 @@ const MyProfile = () => {
     const [activeTab, setActiveTab] = useState('personal');
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -82,6 +91,41 @@ const MyProfile = () => {
             setMessage({ type: 'error', text: 'Failed to update profile.' });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            toast.error("New password and confirm password do not match.");
+            return;
+        }
+
+        if (passwordData.newPassword.length < 8) {
+            toast.error("New password must be at least 8 characters long.");
+            return;
+        }
+
+        setIsChangingPassword(true);
+        try {
+            await apiClient.post('/auth/change-password', {
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+            });
+            toast.success("Password updated successfully!");
+            setIsPasswordModalOpen(false);
+            setPasswordData({
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            });
+        } catch (error) {
+            console.error("Error changing password:", error);
+            const errorMessage = error.response?.data?.message || "Failed to change password. Please try again.";
+            toast.error(errorMessage);
+        } finally {
+            setIsChangingPassword(false);
         }
     };
 
@@ -164,9 +208,11 @@ const MyProfile = () => {
                                 </div>
                             </div>
 
-                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
-                                <CheckCircle2 size={18} /> Manager Account
-                            </button>
+                            <div className="md:mb-2 text-right">
+                                <span className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 rounded-2xl text-primary font-bold text-sm border border-primary/20 shadow-lg">
+                                    <CheckCircle2 size={18} className="text-emerald-500" /> Manager Account
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -282,27 +328,38 @@ const MyProfile = () => {
 
                             {activeTab === 'security' && (
                                 <div className="space-y-8">
-                                    <div className="p-6 rounded-[28px] bg-red-50/30 border border-red-100/50">
-                                        <h4 className="text-red-700 font-bold flex items-center gap-2">
-                                            <Lock size={18} /> Password Management
-                                        </h4>
-                                        <p className="text-red-600/70 text-sm mt-1 font-medium">It's recommended to update your password every 90 days for maximum security.</p>
-                                        <button className="mt-6 px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all">
+                                    <div className="p-6 rounded-[28px] bg-red-50/30 border border-red-100/50 flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div className="flex-1">
+                                            <h4 className="text-red-700 font-bold flex items-center gap-2">
+                                                <Lock size={18} /> Password Management
+                                            </h4>
+                                            <p className="text-red-600/70 text-sm mt-1 font-medium">It's recommended to update your password every 90 days for maximum security.</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsPasswordModalOpen(true)}
+                                            className="px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all"
+                                        >
                                             Change Password
                                         </button>
                                     </div>
 
                                     <div className="space-y-4">
-                                        <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest px-1">Account Security</h4>
-                                        <div className="p-6 rounded-[28px] border border-gray-100 bg-gray-50/30 space-y-4">
+                                        <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest px-1">Security Options</h4>
+                                        <div
+                                            onClick={() => setIsPasswordModalOpen(true)}
+                                            className="p-6 rounded-[28px] border border-gray-100 bg-gray-50/30 hover:bg-white hover:border-primary/20 transition-all cursor-pointer group"
+                                        >
                                             <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-800">Two-Factor Authentication</p>
-                                                    <p className="text-xs text-gray-500 mt-1">Add an extra layer of security to your account.</p>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-all">
+                                                        <Key size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-gray-800">Update Credentials</p>
+                                                        <p className="text-xs text-gray-500 mt-1">Change your account password to stay secure.</p>
+                                                    </div>
                                                 </div>
-                                                <div className="w-12 h-6 bg-green-500 rounded-full relative">
-                                                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                                                </div>
+                                                <div className="text-primary font-bold text-xs">Update</div>
                                             </div>
                                         </div>
                                     </div>
@@ -316,6 +373,85 @@ const MyProfile = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Password Change Modal */}
+            {isPasswordModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-primary to-purple-600 text-white">
+                            <h3 className="text-xl font-bold">Change Password</h3>
+                            <button
+                                onClick={() => setIsPasswordModalOpen(false)}
+                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Lock className="w-4 h-4 text-gray-400" />
+                                    Current Password
+                                </label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordData.currentPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                    placeholder="Enter current password"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Key className="w-4 h-4 text-gray-400" />
+                                    New Password
+                                </label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordData.newPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    placeholder="Enter new password"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Shield className="w-4 h-4 text-gray-400" />
+                                    Confirm New Password
+                                </label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordData.confirmPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    placeholder="Confirm new password"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isChangingPassword}
+                                className="w-full py-4 bg-gradient-to-r from-primary to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {isChangingPassword ? (
+                                    <>
+                                        <Loader className="w-5 h-5 animate-spin" />
+                                        Updating Password...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-5 h-5" />
+                                        Update Password
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

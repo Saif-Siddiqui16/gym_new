@@ -19,7 +19,8 @@ import {
     Building,
     ExternalLink,
     AlertCircle,
-    Trash2
+    Trash2,
+    Save
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchExpenses, addExpense, deleteExpense } from '../../../api/finance/financeApi';
@@ -248,106 +249,142 @@ const PettyCashPage = () => {
 
                 {/* Entry Form */}
                 {showForm && (
-                    <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 mb-8 animate-in slide-in-from-top-4 duration-300">
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Expense Title*</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="e.g. Drinking Water"
-                                        value={formData.title}
-                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full h-14 pl-6 pr-4 rounded-2xl border-2 border-slate-100 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 font-bold text-sm outline-none transition-all bg-slate-50/50"
-                                    />
+                    <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 mb-12 animate-in slide-in-from-top-4 duration-500 overflow-hidden relative">
+                        {/* Decorative Background Accent */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+
+                        <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-12 relative">
+                            {/* Section: Basic Information */}
+                            <div className="space-y-8">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-1.5 h-6 bg-orange-500 rounded-full"></div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Expense Details</h3>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category*</label>
-                                    <select
-                                        required
-                                        value={formData.category}
-                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full h-14 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    >
-                                        <option value="">Select Category</option>
-                                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (₹)*</label>
-                                    <div className="relative">
-                                        <IndianRupee size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Expense Title*</label>
                                         <input
                                             required
-                                            type="number"
-                                            placeholder="0.00"
-                                            value={formData.amount}
-                                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                                            className="w-full h-14 pl-14 pr-4 rounded-2xl border-2 border-slate-100 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 font-black text-slate-800 outline-none transition-all bg-slate-50/50"
+                                            type="text"
+                                            placeholder="e.g. Drinking Water"
+                                            value={formData.title}
+                                            onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                            className="w-full h-15 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 font-bold text-sm outline-none transition-all bg-slate-50/50"
                                         />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Category*</label>
+                                        <div className="relative">
+                                            <select
+                                                required
+                                                value={formData.category}
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                className="w-full h-15 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Select Category</option>
+                                                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                            <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Amount (₹)*</label>
+                                        <div className="relative">
+                                            <IndianRupee size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input
+                                                required
+                                                type="number"
+                                                placeholder="0.00"
+                                                value={formData.amount}
+                                                onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                                className="w-full h-15 pl-14 pr-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 font-black text-slate-800 outline-none transition-all bg-slate-50/50 tabular-nums"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</label>
-                                    <select
-                                        value={formData.paymentMethod}
-                                        onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
-                                        className="w-full h-14 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    >
-                                        {methods.map(m => <option key={m} value={m}>{m}</option>)}
-                                    </select>
+                            {/* Section: Transaction & Date */}
+                            <div className="space-y-8 pt-8 border-t border-slate-50">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-1.5 h-6 bg-rose-500 rounded-full"></div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Payment & Vendor</h3>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vendor Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Optional"
-                                        value={formData.vendor}
-                                        onChange={e => setFormData({ ...formData, vendor: e.target.value })}
-                                        className="w-full h-14 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Invoice Number</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Optional"
-                                        value={formData.invoiceNumber}
-                                        onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
-                                        className="w-full h-14 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Expense Date</label>
-                                    <input
-                                        type="date"
-                                        value={formData.date}
-                                        onChange={e => setFormData({ ...formData, date: e.target.value })}
-                                        className="w-full h-14 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    />
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Payment Method</label>
+                                        <div className="relative">
+                                            <select
+                                                value={formData.paymentMethod}
+                                                onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                                className="w-full h-15 px-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                                            >
+                                                {methods.map(m => <option key={m} value={m}>{m}</option>)}
+                                            </select>
+                                            <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Vendor Name</label>
+                                        <div className="relative">
+                                            <Building size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
+                                            <input
+                                                type="text"
+                                                placeholder="Optional"
+                                                value={formData.vendor}
+                                                onChange={e => setFormData({ ...formData, vendor: e.target.value })}
+                                                className="w-full h-15 pl-14 pr-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Invoice Number</label>
+                                        <div className="relative">
+                                            <FileText size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
+                                            <input
+                                                type="text"
+                                                placeholder="Optional"
+                                                value={formData.invoiceNumber}
+                                                onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                                                className="w-full h-15 pl-14 pr-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Expense Date</label>
+                                        <div className="relative">
+                                            <Calendar size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                            <input
+                                                type="date"
+                                                value={formData.date}
+                                                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                                                className="w-full h-15 pl-14 pr-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Notes</label>
+                            <div className="space-y-4 pt-8 border-t border-slate-50">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-1.5 h-6 bg-slate-400 rounded-full"></div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Additional Notes</h3>
+                                </div>
                                 <textarea
-                                    rows="2"
+                                    rows="3"
                                     value={formData.notes}
                                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                    className="w-full p-6 rounded-2xl border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50"
-                                    placeholder="Add any specific details about this purchase..."
+                                    className="w-full p-8 rounded-[2rem] border-2 border-slate-100 focus:border-orange-500 font-bold text-sm outline-none bg-slate-50/50 min-h-[120px] transition-all"
+                                    placeholder="Add any specific details about this purchase, purpose, or approval..."
                                 />
                             </div>
 
-                            <div className="flex justify-end pt-4">
+                            <div className="flex justify-end pt-6">
                                 <button
                                     type="submit"
-                                    className="px-10 py-5 bg-gradient-to-r from-orange-500 to-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                    className="px-12 py-5 bg-gradient-to-r from-orange-500 via-rose-500 to-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl shadow-orange-500/30 hover:scale-[1.02] hover:shadow-orange-500/40 active:scale-95 transition-all flex items-center gap-3"
                                 >
+                                    <Save size={20} />
                                     Save Daily Expense
                                 </button>
                             </div>

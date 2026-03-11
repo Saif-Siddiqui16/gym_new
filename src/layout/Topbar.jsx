@@ -21,9 +21,8 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
         try {
             const res = await apiClient.get('/notifications');
             const notifications = res.data.notifications || [];
-            const chats = res.data.unreadChatCount || 0;
             const notifs = notifications.filter(n => !n.read).length;
-            setUnreadCount(notifs + chats);
+            setUnreadCount(notifs);
         } catch (error) {
             console.error('Badge fetch error:', error);
         }

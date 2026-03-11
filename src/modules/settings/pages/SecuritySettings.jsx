@@ -124,17 +124,6 @@ const SecuritySettings = () => {
                 <div className="space-y-10">
                     <div className="flex items-center justify-between gap-4">
                         <div>
-                            <h3 className="font-semibold text-slate-800">Two-Factor Authentication</h3>
-                            <p className="text-slate-500 text-sm mt-0.5">Require 2FA for all admin users</p>
-                        </div>
-                        <Toggle
-                            active={securityConfig.twoFactorAuth}
-                            onToggle={() => toggleSetting('twoFactorAuth')}
-                        />
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4">
-                        <div>
                             <h3 className="font-semibold text-slate-800">Session Timeout</h3>
                             <p className="text-slate-500 text-sm mt-0.5">Auto logout after inactivity</p>
                         </div>

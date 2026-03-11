@@ -489,12 +489,6 @@ const WorkoutPlans = ({ role }) => {
                                 <BookmarkPlus size={16} />
                                 Template
                             </button>
-                            <button
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.15em] shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all whitespace-nowrap"
-                            >
-                                <User size={16} />
-                                Assign
-                            </button>
                         </div>
                     </div>
 

@@ -47,7 +47,7 @@ const Payroll = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('Employees');
-    const [openMenuId, setOpenMenuId] = useState(null);
+    const [activeMenu, setActiveMenu] = useState(null); // { id, top, right }
 
     // ── Load Staff ────────────────────────────────────────────────────────────
     const loadStaff = useCallback(async () => {
@@ -118,10 +118,20 @@ const Payroll = () => {
 
     // Close context menu on outside click
     useEffect(() => {
-        const close = () => setOpenMenuId(null);
+        const close = () => setActiveMenu(null);
         window.addEventListener('click', close);
         return () => window.removeEventListener('click', close);
     }, []);
+
+    const toggleMenu = (e, item) => {
+        e.stopPropagation();
+        const id = item.id || item.idx;
+        if (activeMenu?.id === id) {
+            setActiveMenu(null);
+        } else {
+            setActiveMenu({ id });
+        }
+    };
 
     // ── Handlers ──────────────────────────────────────────────────────────────
     const handleDeleteStaff = async (id) => {
@@ -268,85 +278,102 @@ const Payroll = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white/60 backdrop-blur-md rounded-2xl md:rounded-[32px] shadow-sm border border-white/50 overflow-hidden">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-slate-100">
-                                    {['Employee', 'Code', 'Department', 'Position', 'Salary', 'Status', 'Actions'].map(h => (
-                                        <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">{h}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100/50">
-                                {loading ? (
-                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={32} /></td></tr>
-                                ) : filteredStaff.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="7" className="py-24 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-3">
-                                                <UserCircle size={48} className="text-slate-200" />
-                                                <h3 className="text-lg font-black text-slate-800">No employees found</h3>
-                                                <p className="text-slate-400 text-sm font-medium">No employees match the current search or branch filter.</p>
-                                            </div>
-                                        </td>
+                    <div className="bg-white/60 backdrop-blur-md rounded-2xl md:rounded-[32px] shadow-sm border border-white/50">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-slate-50 border-b border-slate-100">
+                                        {['Employee', 'Code', 'Department', 'Position', 'Salary', 'Status', 'Actions'].map(h => (
+                                            <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">{h}</th>
+                                        ))}
                                     </tr>
-                                ) : (
-                                    filteredStaff.map((staff, idx) => (
-                                        <tr key={staff.id || idx} className="group hover:bg-white transition-all duration-300">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shadow-sm">
-                                                        {(staff.name || '?').charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-slate-800 text-sm leading-tight">{staff.name}</div>
-                                                        <div className="text-xs text-slate-400 font-medium mt-0.5">{staff.email}</div>
-                                                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100/50">
+                                    {loading ? (
+                                        <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={32} /></td></tr>
+                                    ) : filteredStaff.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="7" className="py-24 text-center">
+                                                <div className="flex flex-col items-center justify-center gap-3">
+                                                    <UserCircle size={48} className="text-slate-200" />
+                                                    <h3 className="text-lg font-black text-slate-800">No employees found</h3>
+                                                    <p className="text-slate-400 text-sm font-medium">No employees match the current search or branch filter.</p>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm font-semibold text-slate-600">
-                                                EMP-{String(staff.id || idx + 1).padStart(3, '0')}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-medium text-slate-600">
-                                                {staff.department || 'Operations'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-100">
-                                                    {staff.role}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                {staff.baseSalary != null ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300">—</span>}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <StatusBadge status={staff.status || 'Active'} />
-                                            </td>
-                                            <td className="px-6 py-4 text-right relative">
-                                                <button
-                                                    onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === staff.id ? null : staff.id); }}
-                                                    className="p-2 text-slate-400 hover:text-primary rounded-lg hover:bg-primary-light transition-colors"
-                                                >
-                                                    <MoreHorizontal size={18} />
-                                                </button>
-                                                {openMenuId === staff.id && (
-                                                    <div className="absolute right-8 top-12 w-48 bg-white border border-slate-100 rounded-xl shadow-xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
-                                                            <Eye size={16} /> View Profile
-                                                        </button>
-                                                        <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
-                                                            <Edit2 size={16} /> Edit Profile
-                                                        </button>
-                                                        <button onClick={() => handleDeleteStaff(staff.id)} className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors">
-                                                            <Trash2 size={16} /> Delete Staff
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : (
+                                        filteredStaff.map((staff, idx) => (
+                                            <tr key={staff.id || idx} className="group hover:bg-white transition-all duration-300">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shadow-sm">
+                                                            {(staff.name || '?').charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-bold text-slate-800 text-sm leading-tight">{staff.name}</div>
+                                                            <div className="text-xs text-slate-400 font-medium mt-0.5">{staff.email}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-semibold text-slate-600">
+                                                    EMP-{String(staff.id || idx + 1).padStart(3, '0')}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                                                    {staff.department || 'Operations'}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-100">
+                                                        {staff.role}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-bold text-slate-700">
+                                                    {staff.baseSalary != null ? `₹${Number(staff.baseSalary).toLocaleString('en-IN')}` : <span className="text-slate-300">—</span>}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <StatusBadge status={staff.status || 'Active'} />
+                                                </td>
+                                                <td className="px-6 py-4 text-right relative">
+                                                    <button
+                                                        onClick={e => toggleMenu(e, { ...staff, idx })}
+                                                        className={`p-2 rounded-lg transition-all ${activeMenu?.id === (staff.id || idx) ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-primary hover:bg-primary-light'
+                                                            }`}
+                                                    >
+                                                        <MoreHorizontal size={18} />
+                                                    </button>
+                                                    {activeMenu?.id === (staff.id || idx) && (
+                                                        <>
+                                                            {/* Backdrop to close menu */}
+                                                            <div
+                                                                className="fixed inset-0 z-[90] cursor-default"
+                                                                onClick={(e) => { e.stopPropagation(); setActiveMenu(null); }}
+                                                            />
+                                                            <div
+                                                                className={`absolute right-8 w-48 bg-white border border-slate-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[100] py-2 animate-in fade-in zoom-in-95 duration-200 ${(idx >= filteredStaff.length - 2 && filteredStaff.length > 2) ? 'bottom-12 mb-2 origin-bottom-right' : 'top-12 mt-2 origin-top-right'
+                                                                    }`}
+                                                            >
+                                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                                                                    <Eye size={16} /> View Profile
+                                                                </button>
+                                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                                                                    <Edit2 size={16} /> Edit Profile
+                                                                </button>
+                                                                <div className="h-px bg-slate-50 my-1 mx-2" />
+                                                                <button
+                                                                    onClick={() => handleDeleteStaff(staff.id)}
+                                                                    className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                                                                >
+                                                                    <Trash2 size={16} /> Delete Staff
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             )}

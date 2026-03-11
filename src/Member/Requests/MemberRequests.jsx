@@ -172,9 +172,6 @@ const MemberRequests = () => {
                                         }`}>
                                         {request.status || 'Pending'}
                                     </div>
-                                    <button className="p-2.5 text-slate-300 hover:text-primary hover:bg-white rounded-xl transition-all">
-                                        <ChevronRight size={20} />
-                                    </button>
                                 </div>
                             </div>
                         ))}

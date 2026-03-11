@@ -236,18 +236,12 @@ const LockerManagement = () => {
 
             {/* Details Drawer (Outside main flow) */}
             {drawerType === 'details' && (
-                <RightDrawer
+                <LockerDetailsDrawer
                     isOpen={drawerType === 'details'}
+                    locker={selectedLocker}
                     onClose={closeDrawer}
-                    title="Locker details"
-                    subtitle={`Manage Locker #${selectedLocker?.number}`}
-                >
-                    <LockerDetailsDrawer
-                        locker={selectedLocker}
-                        onClose={closeDrawer}
-                        onSuccess={loadData}
-                    />
-                </RightDrawer>
+                    onSuccess={loadData}
+                />
             )}
         </div>
     );

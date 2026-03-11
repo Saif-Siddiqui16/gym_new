@@ -141,7 +141,7 @@ const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId }) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 max-h-[300px]  pr-1 scrollbar-thin">
+                    <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
                         {loading && plans.length === 0 ? (
                             <div className="text-center py-10">
                                 <p className="text-slate-400 text-sm italic">Loading protocols...</p>

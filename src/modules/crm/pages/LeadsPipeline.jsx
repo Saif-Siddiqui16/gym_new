@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, Phone, TrendingUp, CheckCircle, Search, Filter, BarChart3, Mail, MoreHorizontal, Loader2, Trash2, Edit3, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import apiClient from '../../../api/apiClient';
@@ -406,7 +407,7 @@ const LeadsPipeline = () => {
                                         <td className="px-4 py-4 text-right" data-label="Actions">
                                             <div className="relative inline-block text-left">
                                                 <button
-                                                    onClick={(e) => setActiveMenu(activeMenu === lead.id ? null : lead.id)}
+                                                    onClick={(e) => toggleMenu(e, lead.id)}
                                                     className={`w-10 h-10 flex items-center justify-center rounded-2xl transition-all duration-300 ${activeMenu === lead.id
                                                         ? 'bg-primary text-white shadow-xl shadow-violet-200 rotate-90 scale-110'
                                                         : 'text-slate-400 hover:text-primary hover:bg-primary-light'
@@ -416,7 +417,13 @@ const LeadsPipeline = () => {
                                                 </button>
 
                                                 {activeMenu === lead.id && (
-                                                    <div className="absolute right-full mr-2 top-0 w-56 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] p-2 animate-scaleIn origin-right">
+                                                    <div
+                                                        className="fixed w-56 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[9999] p-2 animate-scaleIn origin-top-right"
+                                                        style={{
+                                                            top: menuPosition.top,
+                                                            left: menuPosition.left
+                                                        }}
+                                                    >
                                                         {/* Header */}
                                                         <div className="flex items-center gap-3 p-3 mb-2 bg-slate-50 rounded-2xl">
                                                             <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">

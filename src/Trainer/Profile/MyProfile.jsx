@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save, X } from 'lucide-react';
-import { fetchTrainerProfile, updateTrainerProfile, changeTrainerPassword, updateNotificationSettings } from '../../api/trainer/trainerApi';
+import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, Save, X, Key, Loader } from 'lucide-react';
+import { fetchTrainerProfile, updateTrainerProfile, updateNotificationSettings } from '../../api/trainer/trainerApi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import NotificationsList from '../../components/notifications/NotificationsList';
+import apiClient from '../../api/apiClient';
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -13,6 +14,7 @@ const MyProfile = () => {
     const [message, setMessage] = useState({ type: '', text: '' });
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
     const { login: updateAuthUser } = useAuth();
 
     const [formData, setFormData] = useState({
@@ -23,14 +25,6 @@ const MyProfile = () => {
         avatar: ''
     });
 
-    const [notificationSettings, setNotificationSettings] = useState({
-        sessionReminders: true,
-        messageAlerts: true,
-        clientAssignment: true,
-        classUpdates: true,
-        loginAlerts: false,
-        biometricBridge: false
-    });
 
     useEffect(() => {
         loadProfile();
@@ -106,41 +100,30 @@ const MyProfile = () => {
             toast.error("Passwords don't match!");
             return;
         }
-        setIsSaving(true);
+
+        if (passwordData.newPassword.length < 8) {
+            toast.error("New password must be at least 8 characters long.");
+            return;
+        }
+
+        setIsChangingPassword(true);
         try {
-            await changeTrainerPassword({
+            await apiClient.post('/auth/change-password', {
                 currentPassword: passwordData.currentPassword,
-                newPassword: passwordData.newPassword
+                newPassword: passwordData.newPassword,
             });
             setShowPasswordModal(false);
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             toast.success("Password updated successfully!");
         } catch (error) {
-            toast.error(error || "Failed to update password");
+            console.error("Error changing password:", error);
+            const errorMessage = error.response?.data?.message || "Failed to update password";
+            toast.error(errorMessage);
         } finally {
-            setIsSaving(false);
+            setIsChangingPassword(false);
         }
     };
 
-    const handleToggleNotification = (field) => {
-        setNotificationSettings(prev => ({
-            ...prev,
-            [field]: !prev[field]
-        }));
-    };
-
-    const handleSaveNotifications = async () => {
-        setIsSaving(true);
-        setMessage({ type: '', text: '' });
-        try {
-            await updateNotificationSettings(notificationSettings);
-            setMessage({ type: 'success', text: 'Notification protocols established!' });
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update signal matrix.' });
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     if (loading || !profile) {
         return (
@@ -166,8 +149,7 @@ const MyProfile = () => {
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
         { id: 'security', label: 'Security', icon: Shield },
-        { id: 'alerts', label: 'System Alerts', icon: Bell },
-        { id: 'notifications', label: 'Preferences', icon: Activity }
+        { id: 'alerts', label: 'System Alerts', icon: Bell }
     ];
 
     return (
@@ -320,7 +302,7 @@ const MyProfile = () => {
 
                             {activeTab === 'security' && (
                                 <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50 rounded-3xl border border-slate-100 p-6 md:p-8">
                                         <div>
                                             <h4 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-2">
                                                 <div className="p-2 bg-slate-900 text-white rounded-xl"><Lock size={20} /></div> Access Control
@@ -337,42 +319,16 @@ const MyProfile = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div
-                                            onClick={() => handleToggleNotification('biometricBridge')}
+                                            onClick={() => setShowPasswordModal(true)}
                                             className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-white hover:border-violet-300 hover:bg-primary-light/30 transition-all duration-300 group/secure cursor-pointer"
                                         >
                                             <div className="flex items-center justify-between mb-6">
-                                                <div className="p-3 bg-emerald-100 text-emerald-600 rounded-2xl group-hover/secure:scale-110 transition-transform"><Shield size={24} /></div>
-                                                <div className={`relative w-14 h-8 rounded-full shadow-inner p-1 transition-colors duration-300 ${notificationSettings.biometricBridge ? 'bg-emerald-500' : 'bg-slate-200'}`}>
-                                                    <div className={`absolute w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${notificationSettings.biometricBridge ? 'right-1' : 'left-1'}`}></div>
-                                                </div>
+                                                <div className="p-3 bg-violet-100 text-primary rounded-2xl group-hover/secure:scale-110 transition-transform"><Key size={24} /></div>
+                                                <div className="text-primary font-black uppercase text-[10px] tracking-widest">Update Key</div>
                                             </div>
-                                            <h5 className="text-lg font-black text-slate-900 mb-2">Biometric Bridge</h5>
-                                            <p className="text-slate-400 text-sm font-bold">Enabled via local security subsystem (FaceID/Fingerprint)</p>
+                                            <h5 className="text-lg font-black text-slate-900 mb-2">Update Credentials</h5>
+                                            <p className="text-slate-400 text-sm font-bold">Securely change your account password and session keys</p>
                                         </div>
-
-                                        <div
-                                            onClick={() => handleToggleNotification('loginAlerts')}
-                                            className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-white hover:border-violet-300 hover:bg-primary-light/30 transition-all duration-300 group/secure cursor-pointer"
-                                        >
-                                            <div className="flex items-center justify-between mb-6">
-                                                <div className="p-3 bg-violet-100 text-primary rounded-2xl group-hover/secure:scale-110 transition-transform"><Bell size={24} /></div>
-                                                <div className={`relative w-14 h-8 rounded-full shadow-inner p-1 transition-colors duration-300 ${notificationSettings.loginAlerts ? 'bg-primary' : 'bg-slate-200'}`}>
-                                                    <div className={`absolute w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${notificationSettings.loginAlerts ? 'right-1' : 'left-1'}`}></div>
-                                                </div>
-                                            </div>
-                                            <h5 className="text-lg font-black text-slate-900 mb-2">Login Alerts</h5>
-                                            <p className="text-slate-400 text-sm font-bold">Receive instant signals for new session initiations</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 flex justify-end">
-                                        <button
-                                            onClick={handleSaveNotifications}
-                                            disabled={isSaving}
-                                            className="px-10 py-4 bg-primary text-white rounded-2xl font-black hover:bg-primary-hover transition-all shadow-xl shadow-violet-100 disabled:opacity-50"
-                                        >
-                                            {isSaving ? 'Synchronizing...' : 'Save Security Prefs'}
-                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -381,58 +337,6 @@ const MyProfile = () => {
                                 <NotificationsList />
                             )}
 
-                            {activeTab === 'notifications' && (
-                                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">Signal Matrix</h3>
-                                            <p className="text-slate-500 font-bold mt-2">Filter system-wide signals and alerts</p>
-                                        </div>
-                                        <div className="p-4 bg-primary-light rounded-2xl">
-                                            <Bell size={32} className="text-primary" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {[
-                                            { id: 'sessionReminders', label: 'Session Reminders', desc: 'Get notified 30m before PT sessions' },
-                                            { id: 'messageAlerts', label: 'Direct Messages', desc: 'Instant alerts from members/staff' },
-                                            { id: 'clientAssignment', label: 'Client Allocation', desc: 'Signal when new members are assigned' },
-                                            { id: 'classUpdates', label: 'Class Dynamics', desc: 'Changes in class schedules or enrollments' }
-                                        ].map((item) => (
-                                            <div
-                                                key={item.id}
-                                                onClick={() => handleToggleNotification(item.id)}
-                                                className={`p-6 rounded-3xl border-2 transition-all duration-300 cursor-pointer flex items-center justify-between group ${notificationSettings[item.id]
-                                                    ? 'border-violet-100 bg-primary-light/50 shadow-lg shadow-primary-light/50'
-                                                    : 'border-slate-100 bg-white hover:border-slate-200'
-                                                    }`}
-                                            >
-                                                <div className="flex-1 pr-4">
-                                                    <h5 className="font-black text-slate-900 mb-1">{item.label}</h5>
-                                                    <p className="text-xs text-slate-400 font-bold">{item.desc}</p>
-                                                </div>
-                                                <div className={`relative w-12 h-7 rounded-full shadow-inner p-1 transition-colors duration-300 ${notificationSettings[item.id] ? 'bg-primary' : 'bg-slate-200'}`}>
-                                                    <div className={`absolute w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-300 ${notificationSettings[item.id] ? 'right-1' : 'left-1'}`}></div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="pt-8 flex justify-center border-t border-slate-50">
-                                        <button
-                                            onClick={handleSaveNotifications}
-                                            disabled={isSaving}
-                                            className="group relative flex items-center justify-center px-16 py-5 rounded-[1.5rem] font-black text-white shadow-2xl transition-all duration-300 transform hover:-translate-y-2 disabled:opacity-50 overflow-hidden"
-                                        >
-                                            <div className="absolute inset-0 bg-slate-900"></div>
-                                            <span className="relative text-lg tracking-tight">
-                                                {isSaving ? 'Encrypting Matrix...' : 'Establish Protocols'}
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -441,11 +345,11 @@ const MyProfile = () => {
             {/* Password Modal */}
             {showPasswordModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => !isSaving && setShowPasswordModal(false)}></div>
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => !isChangingPassword && setShowPasswordModal(false)}></div>
                     <div className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl md:p-12 animate-in zoom-in-95 duration-300 overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-primary"></div>
 
-                        <div className="flex justify-between items-center mb-10">
+                        <div className="flex justify-between items-center mb-10 p-6 md:p-0">
                             <div>
                                 <h3 className="text-2xl font-black text-slate-900">Modify Passkey</h3>
                                 <p className="text-slate-500 font-bold text-sm mt-1">Establish new cryptographically secure credentials</p>
@@ -455,7 +359,7 @@ const MyProfile = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handlePasswordChange} className="space-y-6">
+                        <form onSubmit={handlePasswordChange} className="space-y-6 p-6 md:p-0">
                             {[
                                 { label: 'Current Key', name: 'currentPassword', type: 'password', icon: Lock },
                                 { label: 'New Primary Key', name: 'newPassword', type: 'password', icon: Shield },
@@ -481,10 +385,10 @@ const MyProfile = () => {
                             <div className="pt-6">
                                 <button
                                     type="submit"
-                                    disabled={isSaving}
+                                    disabled={isChangingPassword}
                                     className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-lg hover:bg-slate-800 shadow-2xl shadow-slate-200 transition-all flex items-center justify-center gap-4"
                                 >
-                                    {isSaving ? (
+                                    {isChangingPassword ? (
                                         <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                                     ) : (
                                         <>
