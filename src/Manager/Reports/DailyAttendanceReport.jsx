@@ -135,26 +135,29 @@ const DailyAttendanceReport = () => {
 
             const rawData = attendanceRes.data.data || [];
 
-            const formatTime = (isoStr) => {
-                if (!isoStr) return '-';
-                const d = new Date(isoStr);
-                return d.toLocaleTimeString('en-IN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                    timeZone: 'Asia/Kolkata'
-                });
-            };
-
+            // Backend already returns formatted time strings like "10:33 am"
+            // Duration helper using pre-formatted strings (e.g. "10:17 am" vs "10:23 am")
             const calcDuration = (checkIn, checkOut) => {
-                if (!checkIn || !checkOut) return '-';
-                const diffMs = new Date(checkOut) - new Date(checkIn);
-                if (diffMs < 0) return '-';
-                const totalMins = Math.floor(diffMs / 60000);
-                const hrs = Math.floor(totalMins / 60);
-                const mins = totalMins % 60;
-                if (hrs > 0) return `${hrs}h ${mins}m`;
-                return `${mins}m`;
+                if (!checkIn || !checkOut || checkOut === '-' || checkIn === '-') return '-';
+                try {
+                    // Parse "hh:mm am/pm" strings into today's date for diff
+                    const parseTime = (str) => {
+                        const [time, period] = str.trim().split(' ');
+                        let [h, m] = time.split(':').map(Number);
+                        if (period?.toLowerCase() === 'pm' && h !== 12) h += 12;
+                        if (period?.toLowerCase() === 'am' && h === 12) h = 0;
+                        const d = new Date();
+                        d.setHours(h, m, 0, 0);
+                        return d;
+                    };
+                    const diffMs = parseTime(checkOut) - parseTime(checkIn);
+                    if (diffMs <= 0) return '-';
+                    const totalMins = Math.floor(diffMs / 60000);
+                    const hrs = Math.floor(totalMins / 60);
+                    const mins = totalMins % 60;
+                    if (hrs > 0) return `${hrs}h ${mins}m`;
+                    return `${mins}m`;
+                } catch (e) { return '-'; }
             };
 
             const formatted = rawData.map(a => ({
@@ -162,9 +165,9 @@ const DailyAttendanceReport = () => {
                 memberId: a.membershipId,
                 name: a.name,
                 type: a.type,
-                checkIn: formatTime(a.checkIn),
-                checkOut: formatTime(a.checkOut),
-                duration: calcDuration(a.checkIn, a.checkOut),
+                checkIn: a.checkIn || a.time || '-',
+                checkOut: a.checkOut || '-',
+                duration: calcDuration(a.checkIn || a.time, a.checkOut),
                 status: a.status
             }));
 
@@ -424,6 +427,7 @@ const DailyAttendanceReport = () => {
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Member</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Code</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Check-In</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Check-Out</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
                                 </tr>
@@ -431,7 +435,7 @@ const DailyAttendanceReport = () => {
                             <tbody className="divide-y divide-gray-100 flex flex-col sm:table-row-group">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-400 font-medium lowercase">
+                                        <td colSpan="6" className="px-6 py-12 text-center text-gray-400 font-medium lowercase">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                                 Processing request...
@@ -457,6 +461,10 @@ const DailyAttendanceReport = () => {
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-In</span>
                                                 <span className="font-medium text-slate-700">{row.checkIn || '-'}</span>
+                                            </td>
+                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
+                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-Out</span>
+                                                <span className={`font-medium ${row.checkOut && row.checkOut !== '-' ? 'text-rose-500' : 'text-slate-300'}`}>{row.checkOut || '-'}</span>
                                             </td>
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Duration</span>
