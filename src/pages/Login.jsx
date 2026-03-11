@@ -39,7 +39,13 @@ const Login = () => {
         try {
             const data = await loginUser(email, password, selectedRole);
             login(data);
-            navigate('/dashboard');
+
+            const pendingScan = localStorage.getItem('pendingQRScan');
+            if (pendingScan) {
+                window.location.href = pendingScan;
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
         } finally {

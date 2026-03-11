@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 
 // Layout & Pages
 import Login from './pages/Login';
+import ScanHandler from './pages/ScanHandler';
 import MainLayout from './layout/MainLayout';
 
 // Module 2: Dashboard
@@ -224,6 +225,7 @@ export default function App() {
       />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/scan" element={<ScanHandler />} />
 
         {/* Protect routes: If no role, always redirect to /login */}
         <Route element={currentRole ? <MainLayout role={currentRole} /> : <Navigate to="/login" replace />}>

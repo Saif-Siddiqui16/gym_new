@@ -11,6 +11,19 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config) => {
         const selectedBranch = localStorage.getItem('selectedBranch');
+        const userDataStr = localStorage.getItem('userData');
+
+        if (userDataStr) {
+            try {
+                const userData = JSON.parse(userDataStr);
+                if (userData.token) {
+                    config.headers['Authorization'] = `Bearer ${userData.token}`;
+                }
+            } catch (e) {
+                console.error("Error parsing userData for token integration");
+            }
+        }
+
         // Do not overwrite if already explicitly set or if specifically cleared (null/undefined)
         if (config.headers['x-tenant-id'] === 'none') {
             delete config.headers['x-tenant-id'];

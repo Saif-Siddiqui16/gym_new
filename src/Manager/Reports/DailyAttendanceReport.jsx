@@ -134,13 +134,37 @@ const DailyAttendanceReport = () => {
             ]);
 
             const rawData = attendanceRes.data.data || [];
+
+            const formatTime = (isoStr) => {
+                if (!isoStr) return '-';
+                const d = new Date(isoStr);
+                return d.toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Kolkata'
+                });
+            };
+
+            const calcDuration = (checkIn, checkOut) => {
+                if (!checkIn || !checkOut) return '-';
+                const diffMs = new Date(checkOut) - new Date(checkIn);
+                if (diffMs < 0) return '-';
+                const totalMins = Math.floor(diffMs / 60000);
+                const hrs = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                if (hrs > 0) return `${hrs}h ${mins}m`;
+                return `${mins}m`;
+            };
+
             const formatted = rawData.map(a => ({
                 id: a.id,
                 memberId: a.membershipId,
                 name: a.name,
                 type: a.type,
-                checkIn: a.checkIn,
-                checkOut: a.checkOut,
+                checkIn: formatTime(a.checkIn),
+                checkOut: formatTime(a.checkOut),
+                duration: calcDuration(a.checkIn, a.checkOut),
                 status: a.status
             }));
 
@@ -432,11 +456,11 @@ const DailyAttendanceReport = () => {
                                             </td>
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-In</span>
-                                                <span>{row.time || row.checkIn}</span>
+                                                <span className="font-medium text-slate-700">{row.checkIn || '-'}</span>
                                             </td>
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Duration</span>
-                                                <span>{row.duration || '-'}</span>
+                                                <span className={`font-medium ${row.duration && row.duration !== '-' ? 'text-emerald-600' : 'text-slate-400'}`}>{row.duration}</span>
                                             </td>
                                             <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap sm:text-right mt-2 sm:mt-0 pt-3 sm:pt-4 border-t sm:border-0 border-dashed border-gray-100">
                                                 <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Action</span>
