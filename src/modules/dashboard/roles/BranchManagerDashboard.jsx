@@ -48,6 +48,11 @@ const BranchManagerDashboard = () => {
     const [membershipDistribution, setMembershipDistribution] = useState([]);
     const [liveOccupancy, setLiveOccupancy] = useState({ current: 0, capacity: 50 });
     const [checkInsByHour, setCheckInsByHour] = useState([]);
+    const [extraStats, setExtraStats] = useState({
+        newLeads: 0,
+        todaysClasses: 0,
+        pendingApprovals: 0
+    });
 
     const activeBranch = branches.find(b => b.id.toString() === selectedBranch.toString());
     const welcomeTitle = activeBranch ? `Welcome back, ${activeBranch.branchName || activeBranch.name}!` : 'Welcome back, All Branches!';
@@ -84,6 +89,12 @@ const BranchManagerDashboard = () => {
                 if (statsData.membershipDistribution) setMembershipDistribution(statsData.membershipDistribution);
                 if (statsData.liveOccupancy) setLiveOccupancy(statsData.liveOccupancy);
                 if (statsData.checkInsByHour) setCheckInsByHour(statsData.checkInsByHour);
+
+                setExtraStats({
+                    newLeads: statsData.newLeads || 0,
+                    todaysClasses: statsData.todaysClasses || 0,
+                    pendingApprovals: statsData.pendingApprovals || 0
+                });
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
             } finally {
@@ -150,7 +161,7 @@ const BranchManagerDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <StatsCard
                     title="New Leads"
-                    value="0"
+                    value={extraStats.newLeads.toString()}
                     subtitle="This month"
                     icon={UserPlus}
                     color="primary"
@@ -164,14 +175,14 @@ const BranchManagerDashboard = () => {
                 />
                 <StatsCard
                     title="Today's Classes"
-                    value="0"
+                    value={extraStats.todaysClasses.toString()}
                     subtitle="Scheduled"
                     icon={Calendar}
                     color="warning"
                 />
                 <StatsCard
                     title="Pending Approvals"
-                    value="0"
+                    value={extraStats.pendingApprovals.toString()}
                     subtitle="Review pending"
                     icon={ShieldAlert}
                     color="danger"
@@ -201,8 +212,8 @@ const BranchManagerDashboard = () => {
                                     {/* Bar */}
                                     <div
                                         className={`w-full rounded-t-md transition-all duration-700 ${item.value > 0
-                                                ? 'bg-gradient-to-t from-primary to-purple-400'
-                                                : 'bg-slate-100'
+                                            ? 'bg-gradient-to-t from-primary to-purple-400'
+                                            : 'bg-slate-100'
                                             }`}
                                         style={{ height: `${pct}%` }}
                                     />
@@ -238,8 +249,8 @@ const BranchManagerDashboard = () => {
                                     {/* Bar */}
                                     <div
                                         className={`w-full rounded-t-md transition-all duration-700 ${item.count > 0
-                                                ? 'bg-gradient-to-t from-emerald-600 to-teal-400'
-                                                : 'bg-slate-100'
+                                            ? 'bg-gradient-to-t from-emerald-600 to-teal-400'
+                                            : 'bg-slate-100'
                                             }`}
                                         style={{ height: `${pct}%` }}
                                     />

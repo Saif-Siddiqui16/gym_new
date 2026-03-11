@@ -629,14 +629,14 @@ const MemberList = () => {
                             </div>
                             {newMemberData.planId && (
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Duration (Months) <span className="text-rose-500">*</span></label>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Billing Cycles <span className="text-rose-500">*</span></label>
                                     <select value={newMemberData.duration} onChange={(e) => setNewMemberData({ ...newMemberData, duration: e.target.value })}
                                         className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all">
-                                        <option value="1">1 Month</option>
-                                        <option value="3">3 Months</option>
-                                        <option value="6">6 Months</option>
-                                        <option value="12">12 Months</option>
-                                        <option value="24">24 Months</option>
+                                        <option value="1">1 Cycle</option>
+                                        <option value="2">2 Cycles</option>
+                                        <option value="3">3 Cycles</option>
+                                        <option value="6">6 Cycles</option>
+                                        <option value="12">12 Cycles</option>
                                     </select>
                                 </div>
                             )}
