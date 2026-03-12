@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Download, Eye, Ban, Trash2, MapPin, Phone } from 'lucide-react';
+import { Search, Plus, Download, Pencil, Ban, Trash2, MapPin, Phone, Eye } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import AddGymDrawer from './AddGymDrawer';
 import { fetchAllGyms, deleteGym, toggleGymStatus, exportTable } from '../../api/superadmin/superAdminApi';
@@ -78,6 +78,16 @@ const AllGyms = () => {
         setIsViewDrawerOpen(true);
     };
 
+    const handleEdit = (gym) => {
+        setSelectedGym(gym);
+        setIsAddDrawerOpen(true);
+    };
+
+    const handleAdd = () => {
+        setSelectedGym(null);
+        setIsAddDrawerOpen(true);
+    };
+
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setPage(newPage);
@@ -110,7 +120,7 @@ const AllGyms = () => {
                         Export as PDF
                     </button>
                     <button
-                        onClick={() => setIsAddDrawerOpen(true)}
+                        onClick={handleAdd}
                         className="flex items-center gap-2 px-4 py-2 bg-primary-light border border-violet-100 rounded-xl text-sm font-bold text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group"
                     >
                         <Plus className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
@@ -171,9 +181,10 @@ const AllGyms = () => {
                             <tr>
                                 <th>Gym Detail</th>
                                 <th>Contact Info</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th className="text-right">Actions</th>
+                                 <th>Location</th>
+                                 <th>SaaS Plan</th>
+                                 <th>Status</th>
+                                 <th className="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,20 +217,32 @@ const AllGyms = () => {
                                                 <span className="truncate">{gym.location}</span>
                                             </div>
                                         </td>
+                                         <td data-label="SaaS Plan">
+                                            <div className="text-sm font-bold text-primary bg-primary-light px-3 py-1 rounded-lg inline-block whitespace-nowrap">
+                                                {gym.planName || 'No Plan'}
+                                            </div>
+                                        </td>
                                         <td data-label="Status">
                                             <span className={`saas-badge transition-all duration-300 group-hover:scale-105 ${gym.status === 'Active' ? 'badge-green' : 'badge-red'}`}>
                                                 <span className={`badge-dot ${gym.status === 'Active' ? 'animate-pulse bg-green-600' : 'bg-red-600'}`}></span>
                                                 {gym.status}
                                             </span>
                                         </td>
-                                        <td data-label="Actions">
-                                            <div className="flex items-center justify-end gap-2">
+                                         <td data-label="Actions">
+                                            <div className="flex items-center justify-center gap-1.5 min-w-[140px]">
                                                 <button
                                                     onClick={() => handleView(gym)}
                                                     className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
                                                     title="View Details"
                                                 >
                                                     <Eye className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEdit(gym)}
+                                                    className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
+                                                    title="Edit Gym"
+                                                >
+                                                    <Pencil className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleToggleStatus(gym.id)}
@@ -240,8 +263,8 @@ const AllGyms = () => {
                                     </tr>
                                 ))
                             ) : (
-                                <tr>
-                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500 font-medium">
+                                 <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500 font-medium">
                                         <div className="flex flex-col items-center">
                                             <Search className="h-10 w-10 text-gray-200 mb-4" />
                                             <p>No gyms found matching your criteria.</p>
@@ -334,6 +357,19 @@ const AllGyms = () => {
                                     </div>
                                 </div>
 
+                                 <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">SaaS Subscription</label>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-violet-600/10 flex items-center justify-center text-primary font-bold border border-violet-100 italic">
+                                            P
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900">{selectedGym.planName || 'No Active Plan'}</p>
+                                            <p className="text-[10px] font-black uppercase text-violet-500 tracking-widest mt-0.5">Active Membership</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Location</label>
                                     <div className="flex items-start gap-3">
@@ -363,8 +399,12 @@ const AllGyms = () => {
             {/* Add Gym Drawer */}
             <AddGymDrawer
                 isOpen={isAddDrawerOpen}
-                onClose={() => setIsAddDrawerOpen(false)}
+                onClose={() => {
+                    setIsAddDrawerOpen(false);
+                    setSelectedGym(null);
+                }}
                 onSuccess={loadGyms}
+                editData={selectedGym}
             />
         </div>
     );

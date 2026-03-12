@@ -85,6 +85,15 @@ const toggleGymStatus = async (id) => {
     }
 };
 
+const updateGym = async (id, gymData) => {
+    try {
+        const response = await api.patch(`/superadmin/gyms/${id}`, gymData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to update gym';
+    }
+};
+
 // PDF toast notification helper
 const showPdfToast = (message, type = 'success') => {
     const toastId = `pdf-toast-${Date.now()}`;
@@ -683,6 +692,7 @@ export {
     getSystemAlerts,
     fetchAllGyms,
     addGym,
+    updateGym,
     deleteGym,
     toggleGymStatus,
     exportTable,

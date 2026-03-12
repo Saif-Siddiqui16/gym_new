@@ -7,7 +7,7 @@ export const loginUser = async (email, password, role) => {
         const response = await api.post('/auth/login', { email, password, role });
         return response.data;
     } catch (error) {
-        throw error.response?.data?.message || 'Login failed';
+        throw error;
     }
 };
 

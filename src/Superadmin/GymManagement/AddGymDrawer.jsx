@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles, CreditCard } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { addGym, fetchPlans } from '../../api/superadmin/superAdminApi';
+import { addGym, updateGym, fetchPlans } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
 
-const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
+const AddGymDrawer = ({ isOpen, onClose, onSuccess, editData }) => {
     const [loading, setLoading] = useState(false);
     const [plans, setPlans] = useState([]);
     const [formData, setFormData] = useState({
@@ -30,8 +30,33 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 console.error('Error fetching plans:', error);
             }
         };
-        if (isOpen) loadPlans();
-    }, [isOpen]);
+        if (isOpen) {
+            loadPlans();
+            if (editData) {
+                setFormData({
+                    gymName: editData.gymName || '',
+                    branchName: editData.branchName || '',
+                    ownerName: editData.owner || '',
+                    email: editData.managerEmail || '',
+                    phone: editData.phone || '',
+                    address: editData.location || '',
+                    status: editData.status || 'Active',
+                    planId: editData.planId || '',
+                });
+            } else {
+                setFormData({
+                    gymName: '',
+                    branchName: '',
+                    ownerName: '',
+                    email: '',
+                    phone: '',
+                    address: '',
+                    status: 'Active',
+                    planId: '',
+                });
+            }
+        }
+    }, [isOpen, editData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,19 +74,29 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.planId) {
+        if (!editData && !formData.planId) {
             toast.error('Please select a SaaS Plan');
             return;
         }
 
         setLoading(true);
         try {
-            await addGym({
+            const payload = {
                 ...formData,
                 owner: formData.ownerName,
                 location: formData.address
-            });
-            toast.success('Gym added successfully!');
+            };
+
+            if (editData) {
+                // Remove planId if it hasn't been changed/selected during edit (optional)
+                if (!payload.planId) delete payload.planId;
+                await updateGym(editData.id, payload);
+                toast.success('Gym updated successfully!');
+            } else {
+                await addGym(payload);
+                toast.success('Gym added successfully!');
+            }
+
             onSuccess();
             onClose();
             // Reset form
@@ -76,8 +111,8 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                 planId: '',
             });
         } catch (error) {
-            console.error('Error adding gym:', error);
-            toast.error(typeof error === 'string' ? error : 'Failed to add gym');
+            console.error('Error saving gym:', error);
+            toast.error(typeof error === 'string' ? error : `Failed to ${editData ? 'update' : 'add'} gym`);
         } finally {
             setLoading(false);
         }
@@ -87,8 +122,8 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
-            title="Add New Gym"
-            subtitle="Register a new gym branch in the system"
+            title={editData ? "Edit Gym" : "Add New Gym"}
+            subtitle={editData ? `Editing ${editData.gymName}` : "Register a new gym branch in the system"}
             maxWidth="max-w-2xl"
             footer={
                 <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 w-full">
@@ -113,12 +148,12 @@ const AddGymDrawer = ({ isOpen, onClose, onSuccess }) => {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Creating...
+                                    {editData ? 'Updating...' : 'Creating...'}
                                 </>
                             ) : (
                                 <>
                                     <Sparkles size={16} className="group-hover:rotate-12 transition-transform duration-300" />
-                                    Create Gym
+                                    {editData ? 'Update Gym' : 'Create Gym'}
                                 </>
                             )}
                         </span>
