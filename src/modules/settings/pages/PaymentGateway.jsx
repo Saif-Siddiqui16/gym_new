@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ROLES } from '../../../config/roles';
-import { Save, Lock, CreditCard } from 'lucide-react';
+import { Save, Lock, CreditCard, Loader } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import BranchScopeSelector from '../../../components/common/BranchScopeSelector';
-import { BRANCHES } from '../data/mockSettingsData';
+import { fetchAllGyms } from '../../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 
 const PaymentGateway = () => {
     const context = useOutletContext();
@@ -14,10 +15,42 @@ const PaymentGateway = () => {
     const isReadOnly = role === ROLES.MANAGER;
     const [provider, setProvider] = useState('razorpay');
     const [selectedBranch, setSelectedBranch] = useState(null);
+    const [branches, setBranches] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadBranches = async () => {
+            try {
+                setLoading(true);
+                const data = await fetchAllGyms();
+                const gymList = data.gyms || [];
+                const formattedBranches = gymList.map(gym => ({
+                    id: gym.id,
+                    name: gym.gymName + (gym.branchName ? ` - ${gym.branchName}` : '')
+                }));
+                setBranches(formattedBranches);
+            } catch (error) {
+                console.error('Failed to fetch branches:', error);
+                toast.error('Failed to load branches');
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadBranches();
+    }, []);
+
     const handleSave = (e) => {
         e.preventDefault();
-        alert("Payment gateway configuration saved successfully!");
+        toast.success("Payment gateway configuration saved successfully!");
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <Loader className="animate-spin text-primary" size={40} />
+            </div>
+        );
+    }
 
     return (
         <div className="fade-in max-w-full mx-auto space-y-4 sm:space-y-6 p-4 sm:p-6">
@@ -40,7 +73,7 @@ const PaymentGateway = () => {
             <BranchScopeSelector
                 value={selectedBranch}
                 onChange={setSelectedBranch}
-                branches={BRANCHES}
+                branches={branches}
             />
 
             <Card>
@@ -126,3 +159,4 @@ const PaymentGateway = () => {
 };
 
 export default PaymentGateway;
+

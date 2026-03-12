@@ -34,7 +34,7 @@ const OrganizationSettings = ({ role }) => {
                 setLogoPreview(data.logo);
             }
         } catch (error) {
-            console.error('Failed to stringify settings:', error);
+            console.error('Failed to fetch settings:', error);
             toast.error('Failed to load settings');
         } finally {
             setLoading(false);

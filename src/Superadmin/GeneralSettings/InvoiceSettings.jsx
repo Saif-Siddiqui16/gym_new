@@ -3,10 +3,9 @@ import { useOutletContext } from 'react-router-dom';
 import { ROLES } from '../../config/roles';
 import { useNavigate } from 'react-router-dom';
 import { Save, FileText, Loader2, Receipt, Hash, Percent, Eye, ArrowLeft } from 'lucide-react';
-import { fetchInvoiceSettings, updateInvoiceSettings } from '../../api/superadmin/superAdminApi';
+import { fetchAllGyms, fetchInvoiceSettings, updateInvoiceSettings } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import BranchScopeSelector from '../../components/common/BranchScopeSelector';
-import { BRANCHES } from '../../modules/settings/data/mockSettingsData';
 
 const InvoiceSettings = () => {
     const navigate = useNavigate();
@@ -14,6 +13,7 @@ const InvoiceSettings = () => {
     const role = context?.role;
     const isReadOnly = role === ROLES.MANAGER;
     const [selectedBranch, setSelectedBranch] = useState(null);
+    const [branches, setBranches] = useState([]);
     const [formData, setFormData] = useState({
         prefix: 'INV-',
         startNumber: '1001',
@@ -23,8 +23,25 @@ const InvoiceSettings = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        loadSettings();
+        const init = async () => {
+            await Promise.all([loadSettings(), loadBranches()]);
+        };
+        init();
     }, []);
+
+    const loadBranches = async () => {
+        try {
+            const data = await fetchAllGyms();
+            const gymList = data.gyms || [];
+            const formattedBranches = gymList.map(gym => ({
+                id: gym.id,
+                name: gym.gymName + (gym.branchName ? ` - ${gym.branchName}` : '')
+            }));
+            setBranches(formattedBranches);
+        } catch (error) {
+            console.error('Failed to fetch branches:', error);
+        }
+    };
 
     const loadSettings = async () => {
         setLoading(true);
@@ -106,7 +123,7 @@ const InvoiceSettings = () => {
                 <BranchScopeSelector
                     value={selectedBranch}
                     onChange={setSelectedBranch}
-                    branches={BRANCHES}
+                    branches={branches}
                 />
             </div>
 

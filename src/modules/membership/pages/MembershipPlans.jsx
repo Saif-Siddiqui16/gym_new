@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Plus, Search, Filter, Edit2, Trash2, CheckCircle2, Crown, Sparkles, LayoutGrid, List as ListIcon, Users } from 'lucide-react';
-import { MEMBERSHIP_PLANS } from '../data/mockMemberships';
 import CreateMembershipPlanDrawer from '../components/CreateMembershipPlanDrawer';
 import { membershipApi } from '../../../api/membershipApi';
 import { useBranchContext } from '../../../context/BranchContext';

@@ -24,14 +24,16 @@ import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
-import { BENEFITS } from '../data/mockMemberships';
+import { membershipApi } from '../../../api/membershipApi';
+import { toast } from 'react-hot-toast';
 
 const ICONS = {
     Dumbbell, User, Users, Utensils, Lock, Thermometer, Zap, Droplets, Activity, Clock, Calendar
 };
 
 const BenefitsConfig = () => {
-    const [benefits, setBenefits] = useState(BENEFITS);
+    const [benefits, setBenefits] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBenefit, setEditingBenefit] = useState(null);
 
@@ -44,33 +46,65 @@ const BenefitsConfig = () => {
         description: ''
     });
 
+    const fetchBenefits = async () => {
+        try {
+            setIsLoading(true);
+            const data = await membershipApi.getAmenities();
+            setBenefits(data || []);
+        } catch (error) {
+            toast.error("Failed to fetch benefits");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchBenefits();
+    }, []);
+
     const handleEdit = (benefit) => {
         setEditingBenefit(benefit);
-        setFormData(benefit);
+        setFormData({
+            name: benefit.name,
+            type: benefit.type || 'recurring',
+            limit: benefit.limit || '',
+            icon: benefit.icon || 'Dumbbell',
+            description: benefit.description || ''
+        });
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this benefit?')) {
-            setBenefits(prev => prev.filter(b => b.id !== id));
+            try {
+                await membershipApi.deleteAmenity(id);
+                toast.success("Benefit deleted");
+                fetchBenefits();
+            } catch (error) {
+                toast.error("Failed to delete benefit");
+            }
         }
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        if (editingBenefit) {
-            setBenefits(prev => prev.map(b => b.id === editingBenefit.id ? { ...formData, id: b.id } : b));
-        } else {
-            const newBenefit = {
-                ...formData,
-                id: formData.name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now()
-            };
-            setBenefits(prev => [...prev, newBenefit]);
+        try {
+            if (editingBenefit) {
+                await membershipApi.updateAmenity(editingBenefit.id, formData);
+                toast.success('Benefit updated successfully');
+            } else {
+                await membershipApi.createAmenity(formData);
+                toast.success('Benefit created successfully');
+            }
+            setIsModalOpen(false);
+            setEditingBenefit(null);
+            setFormData({ name: '', type: 'recurring', limit: '', icon: 'Dumbbell', description: '' });
+            fetchBenefits();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Operation failed');
         }
-        setIsModalOpen(false);
-        setEditingBenefit(null);
-        setFormData({ name: '', type: 'recurring', limit: '', icon: 'Dumbbell', description: '' });
     };
+
 
     const openCreateModal = () => {
         setEditingBenefit(null);

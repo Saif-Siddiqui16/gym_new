@@ -1,6 +1,11 @@
 import React from 'react';
 import { Shield, Check, X, Users, Lock, ChevronRight, Edit2, AlertCircle } from 'lucide-react';
-import { ROLES_MATRIX } from '../data/mockSettingsData';
+
+const ROLES_MATRIX = [
+    { role: 'Super Admin', users: 1, permissions: { members: true, finance: true, settings: true, reports: true } },
+    { role: 'Branch Manager', users: 3, permissions: { members: true, finance: false, settings: false, reports: true } },
+    { role: 'Trainer', users: 8, permissions: { members: true, finance: false, settings: false, reports: false } }
+];
 
 const RolesPermissions = () => {
     return (
@@ -113,3 +118,4 @@ const RolesPermissions = () => {
 };
 
 export default RolesPermissions;
+

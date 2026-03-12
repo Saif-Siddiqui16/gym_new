@@ -5,10 +5,7 @@ import {
     Lock,
     Dumbbell,
     ArrowRight,
-    UserCircle2,
-    ShieldCheck,
-    Zap,
-    Briefcase
+    ShieldCheck
 } from 'lucide-react';
 import { ROLES } from '../config/roles';
 import { loginUser } from '../api/auth/authApi';
@@ -50,32 +47,15 @@ const Login = () => {
             }
         } catch (err) {
             console.error('Login error:', err);
-            // Check for the error status from the response object
             if (err.response?.status === 403) {
                 setIsSuspendedModalOpen(true);
             } else {
-                // Handle other errors (either status code message or fallback)
                 const errorMessage = err.response?.data?.message || err.message || 'Invalid credentials. Please try again.';
                 setError(errorMessage);
             }
         } finally {
             setLoading(false);
         }
-    };
-
-    const quickFills = [
-        { label: 'Admin', role: ROLES.SUPER_ADMIN, email: 'admin@newgym.com', pass: '123456' },
-        { label: 'Branch', role: ROLES.BRANCH_ADMIN, email: 'testbranch@gym.com', pass: '12345678' },
-        { label: 'Manager', role: ROLES.MANAGER, email: 'manager@gym.com', pass: 'manager1234' },
-        { label: 'Staff', role: ROLES.STAFF, email: 'staff@gym.com', pass: 'staff1234' },
-        { label: 'Trainer', role: ROLES.TRAINER, email: 'trainer@gym.com', pass: 'trainer1234' },
-        { label: 'Member', role: ROLES.MEMBER, email: 'member@gym.com', pass: 'member1234' },
-    ];
-
-    const fillForm = (item) => {
-        setSelectedRole(item.role);
-        setEmail(item.email);
-        setPassword(item.pass);
     };
 
     const roleOptions = Object.values(ROLES).map(role => ({ value: role, label: role }));
@@ -163,26 +143,6 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-
-                    {/* Quick Access (Minimalist) */}
-                    <div className="quick-access-box">
-                        <div className="divider-label">
-                            <span className="dash"></span>
-                            <span>DEMO PROFILES</span>
-                            <span className="dash"></span>
-                        </div>
-                        <div className="quick-nav-grid">
-                            {quickFills.map((item) => (
-                                <button
-                                    key={item.label}
-                                    onClick={() => fillForm(item)}
-                                    className={`nav-grid-item ${selectedRole === item.role && email === item.email ? 'is-active' : ''}`}
-                                >
-                                    {item.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
                 </div>
 
                 {/* Suspension Modal */}
@@ -444,68 +404,6 @@ const Login = () => {
                     border: 1px solid rgba(239, 68, 68, 0.2);
                 }
 
-                .quick-access-box {
-                    margin-top: var(--space-xl);
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
-                    padding-top: var(--space-lg);
-                }
-
-                .divider-label {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    margin-bottom: var(--space-md);
-                }
-
-                .divider-label span {
-                    color: #475569;
-                    font-size: 10px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
-                }
-
-                .divider-label .dash {
-                    height: 1px;
-                    background: rgba(255, 255, 255, 0.05);
-                    flex: 1;
-                }
-
-                .quick-nav-grid {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 8px;
-                }
-
-                .nav-grid-item {
-                    all: unset;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: var(--radius-md);
-                    padding: 10px 4px;
-                    color: #94a3b8;
-                    font-size: 9px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    text-align: center;
-                }
-
-                .nav-grid-item:hover {
-                    background: rgba(255, 255, 255, 0.08);
-                    color: white;
-                }
-
-                .nav-grid-item.is-active {
-                    background: rgba(37, 99, 235, 0.15);
-                    border-color: var(--primary);
-                    color: white;
-                }
-
                 .portal-footer {
                     margin-top: var(--space-xl);
                     text-align: center;
@@ -540,9 +438,6 @@ const Login = () => {
                     }
                     .glass-card {
                         padding: var(--space-lg);
-                    }
-                    .quick-nav-grid {
-                        grid-template-columns: repeat(2, 1fr);
                     }
                     .logo-emblem {
                         width: 54px;

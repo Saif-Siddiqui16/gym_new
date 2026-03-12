@@ -19,7 +19,6 @@ import {
     UserPlus,
     Calendar
 } from 'lucide-react';
-import { DASHBOARD_DATA } from '../data/mockDashboardData';
 import TodayFollowUps from '../../crm/pages/TodayFollowUps';
 import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget';
 import { useNavigate } from 'react-router-dom';

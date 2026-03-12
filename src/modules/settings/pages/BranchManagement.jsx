@@ -1,6 +1,5 @@
 import React from 'react';
 import { Plus, Edit2, MapPin, Users, Briefcase, TrendingUp, MoreVertical, Sparkles } from 'lucide-react';
-import { BRANCHES } from '../data/mockSettingsData';
 import { fetchAllGyms, addGym } from '../../../api/superadmin/superAdminApi';
 import { getAllStaff } from '../../../api/manager/managerApi';
 import { useState, useEffect } from 'react';

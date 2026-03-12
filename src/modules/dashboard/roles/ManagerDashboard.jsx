@@ -5,8 +5,6 @@ import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
 import SectionHeader from '../components/SectionHeader';
-import { DASHBOARD_DATA } from '../data/mockDashboardData';
-import { KPIS } from '../../finance/data/mockFinance';
 import FacilityStatusOverview from '../../operations/components/widgets/FacilityStatusOverview';
 import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import apiClient from '../../../api/apiClient';

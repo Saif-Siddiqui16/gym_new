@@ -115,13 +115,41 @@ export const membershipApi = {
         }
     },
 
-    // --- Amenities (for plan benefits) ---
-    getAmenities: async () => {
+    // --- Amenities (often used as plan benefits or features) ---
+    getAmenities: async (params = {}) => {
         try {
-            const response = await apiClient.get('/amenities');
+            const response = await apiClient.get('/amenities', { params });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    createAmenity: async (amenityData) => {
+        try {
+            const response = await apiClient.post('/amenities', amenityData);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    updateAmenity: async (id, amenityData) => {
+        try {
+            const response = await apiClient.patch(`/amenities/${id}`, amenityData);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    deleteAmenity: async (id) => {
+        try {
+            const response = await apiClient.delete(`/amenities/${id}`);
             return response.data;
         } catch (error) {
             throw error;
         }
     }
 };
+
