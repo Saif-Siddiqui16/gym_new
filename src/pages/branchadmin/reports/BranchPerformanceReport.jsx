@@ -13,8 +13,7 @@ const BranchPerformanceReport = () => {
     const activeBranch = branches.find(b => b.id.toString() === selectedBranch.toString());
     const welcomeTitle = activeBranch ? `${activeBranch.branchName || activeBranch.name} Analytics` : 'Gym Analytics';
 
-    const earningsMonths = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
-    const earningsValues = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 
     const handleExport = () => {
         const headers = ['Metric', 'Value'];
@@ -32,7 +31,7 @@ const BranchPerformanceReport = () => {
             filename: `performance_report_${new Date().toISOString().split('T')[0]}`,
             headers,
             rows,
-            gymName: "Gym Academy"
+            gymName: activeBranch?.branchName || activeBranch?.name || "Gym Academy"
         });
     };
 
@@ -62,6 +61,7 @@ const BranchPerformanceReport = () => {
     const [revenueByPlan, setRevenueByPlan] = useState([]);
     const [popularProducts, setPopularProducts] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
+    const [totalNetProfit, setTotalNetProfit] = useState(0);
 
     const fetchReport = async () => {
         try {
@@ -77,6 +77,7 @@ const BranchPerformanceReport = () => {
                 if (response.data.revenueByPlan) setRevenueByPlan(response.data.revenueByPlan);
                 if (response.data.popularProducts) setPopularProducts(response.data.popularProducts);
                 if (response.data.recentOrders) setRecentOrders(response.data.recentOrders);
+                if (response.data.totalNetProfit !== undefined) setTotalNetProfit(response.data.totalNetProfit);
             }
         } catch (error) {
             console.error('Failed to fetch performance report:', error);
@@ -172,7 +173,7 @@ const BranchPerformanceReport = () => {
                             <BarChart3 className="text-primary" size={18} />
                             Earning Reports
                         </h3>
-                        <p className="text-xs text-slate-500 font-semibold">Revenue trends over the last 12 months</p>
+                        <p className="text-xs text-slate-500 font-semibold">Total Revenue & Store Profit (Last 12m)</p>
                     </div>
                     <div className="h-52 flex items-end justify-between gap-1.5 px-2 pb-6 mt-6 border-b border-slate-100">
                         {earningsData.months.map((month, i) => {
@@ -281,24 +282,24 @@ const BranchPerformanceReport = () => {
                             <Activity className="text-primary" size={18} />
                             Net Profit
                         </h3>
-                        <p className="text-xs text-slate-500 font-semibold">Weekly income - expenses</p>
+                        <p className="text-xs text-slate-500 font-semibold">Store Net Profit (Last 12m)</p>
                     </div>
                     <div className="flex flex-col items-center justify-center py-8">
-                        <div className="w-28 h-28 rounded-full border-8 border-slate-100 flex flex-col items-center justify-center">
-                            <p className="text-3xl font-black text-slate-900">₹{(weeklyData.values.reduce((a, b) => a + Number(b), 0)).toFixed(1)}k</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net</p>
+                        <div className="w-28 h-28 rounded-full border-8 border-slate-100 flex flex-col items-center justify-center shadow-inner">
+                            <p className="text-3xl font-black text-slate-900">₹{(totalNetProfit / 1000).toFixed(1)}k</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                         <div className="bg-emerald-50 rounded-xl p-4 text-center sm:text-left flex flex-col items-center sm:items-start">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Income</p>
-                            <p className="text-lg sm:text-base font-black text-emerald-600">₹{(weeklyData.values.reduce((a, b) => a + Number(b), 0)).toFixed(1)}k</p>
-                            <p className="text-[9px] text-slate-400 font-medium">This Week</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Revenue</p>
+                            <p className="text-lg sm:text-base font-black text-emerald-600">₹{(earningsData.totalIncome / 1000).toFixed(1)}k</p>
+                            <p className="text-[9px] text-slate-400 font-medium">Last 12m</p>
                         </div>
                         <div className="bg-rose-50 rounded-xl p-4 text-center sm:text-left flex flex-col items-center sm:items-start">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Expenses</p>
                             <p className="text-lg sm:text-base font-black text-rose-600">₹{(earningsData.totalExpenses / 1000).toFixed(1)}k</p>
-                            <p className="text-[9px] text-slate-400 font-medium">This Week</p>
+                            <p className="text-[9px] text-slate-400 font-medium">Last 12m</p>
                         </div>
                     </div>
                 </div>

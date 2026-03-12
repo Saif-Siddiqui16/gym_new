@@ -15,9 +15,11 @@ import {
     ShieldAlert,
     Zap,
     XOctagon,
-    History,
-    UserPlus,
-    Calendar
+    Package,
+    ShoppingBag,
+    Star,
+    Calendar,
+    UserPlus
 } from 'lucide-react';
 import TodayFollowUps from '../../crm/pages/TodayFollowUps';
 import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget';
@@ -50,7 +52,10 @@ const BranchManagerDashboard = () => {
     const [extraStats, setExtraStats] = useState({
         newLeads: 0,
         todaysClasses: 0,
-        pendingApprovals: 0
+        pendingApprovals: 0,
+        netProfit: 0,
+        storeSales: 0,
+        feedbacks: []
     });
 
     const activeBranch = branches.find(b => b.id.toString() === selectedBranch.toString());
@@ -73,7 +78,8 @@ const BranchManagerDashboard = () => {
                     ...stat,
                     icon: stat.icon === 'Users' ? Users :
                         stat.icon === 'CheckCircle' ? CheckCircle :
-                            stat.icon === 'DollarSign' ? IndianRupee : Users
+                        stat.icon === 'ShoppingBag' ? ShoppingBag :
+                        stat.icon === 'DollarSign' ? IndianRupee : Users
                 }));
 
                 setStats(mappedStats);
@@ -92,7 +98,10 @@ const BranchManagerDashboard = () => {
                 setExtraStats({
                     newLeads: statsData.newLeads || 0,
                     todaysClasses: statsData.todaysClasses || 0,
-                    pendingApprovals: statsData.pendingApprovals || 0
+                    pendingApprovals: statsData.pendingApprovals || 0,
+                    netProfit: statsData.netProfit || 0,
+                    storeSales: statsData.storeSales || 0,
+                    feedbacks: statsData.recentFeedback || []
                 });
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
@@ -141,36 +150,38 @@ const BranchManagerDashboard = () => {
                 <p className="text-xs font-semibold text-slate-500">Real-time overview of your business</p>
             </div>
 
-            {/* Top Statistic Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {stats.slice(0, 3).map((stat, i) => (
+            {/* Top Statistic Cards — Row 1: Core Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+                {stats.map((stat, i) => (
                     <StatsCard
                         key={stat.id || i}
                         title={stat.title}
                         value={stat.value}
                         icon={stat.icon || Users}
                         trend={stat.trend}
-                        trendDirection={stat.trend?.includes('+') || stat.trend?.includes('up') ? 'up' : 'down'}
-                        color={['primary', 'success', 'warning'][i] || 'primary'}
+                        trendDirection={stat.trend?.includes('+') || stat.trend?.includes('up') || stat.trend === 'Live' ? 'up' : 'down'}
+                        color={stat.color || 'primary'}
                     />
                 ))}
             </div>
 
-            {/* Secondary KPI Cards */}
+            {/* Secondary KPI Cards — Row 2: Analytics Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <StatsCard
+                    title="Net Profit (Store)"
+                    value={`₹${(extraStats.netProfit || 0).toLocaleString()}`}
+                    icon={TrendingUp}
+                    subtitle="Sale – Cost Price"
+                    trend="Monthly"
+                    trendDirection="up"
+                    color="success"
+                />
                 <StatsCard
                     title="New Leads"
                     value={extraStats.newLeads.toString()}
                     subtitle="This month"
                     icon={UserPlus}
                     color="primary"
-                />
-                <StatsCard
-                    title="Active Trainers"
-                    value={(trainers.length || 0).toString()}
-                    subtitle="Available today"
-                    icon={Users}
-                    color="success"
                 />
                 <StatsCard
                     title="Today's Classes"
@@ -187,6 +198,7 @@ const BranchManagerDashboard = () => {
                     color="danger"
                 />
             </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Revenue Overview Chart */}
@@ -457,8 +469,30 @@ const BranchManagerDashboard = () => {
                             View All
                         </button>
                     </div>
-                    <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
-                        <p className="text-slate-500 font-bold text-sm italic">No feedback yet</p>
+                    <div className="space-y-4">
+                        {extraStats.feedbacks.length > 0 ? extraStats.feedbacks.map((fb) => (
+                            <div key={fb.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:bg-white hover:shadow-md group">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-primary font-black text-[10px] overflow-hidden">
+                                        {fb.avatar ? <img src={fb.avatar} alt="" className="w-full h-full object-cover" /> : fb.memberName.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-bold text-slate-900 truncate">{fb.memberName}</p>
+                                        <div className="flex items-center gap-0.5">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={8} className={i < fb.rating ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase">{new Date(fb.date).toLocaleDateString()}</span>
+                                </div>
+                                <p className="text-[11px] text-slate-600 line-clamp-2 italic leading-relaxed">"{fb.comment}"</p>
+                            </div>
+                        )) : (
+                            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                                <p className="text-slate-500 font-bold text-sm italic">No feedback yet</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
