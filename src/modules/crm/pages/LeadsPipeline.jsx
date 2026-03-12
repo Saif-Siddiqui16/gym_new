@@ -6,6 +6,9 @@ import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import Button from '../../../components/ui/Button';
+import MarkAsLostModal from '../components/MarkAsLostModal';
+import ConvertLeadModal from '../components/ConvertLeadModal';
+import { toast } from 'react-hot-toast';
 
 const LeadsPipeline = () => {
     const { selectedBranch } = useBranchContext();
@@ -19,6 +22,11 @@ const LeadsPipeline = () => {
     const [activeMenu, setActiveMenu] = useState(null);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
+    const [showLostModal, setShowLostModal] = useState(false);
+    const [showConvertModal, setShowConvertModal] = useState(false);
+    const [staffList, setStaffList] = useState([]);
+    const [duplicateWarning, setDuplicateWarning] = useState(null);
+
     // Form state
     const [formData, setFormData] = useState({
         name: '',
@@ -26,7 +34,8 @@ const LeadsPipeline = () => {
         email: '',
         source: 'Walk-in',
         notes: '',
-        status: 'New'
+        status: 'New',
+        assignedTo: ''
     });
 
     const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
@@ -41,7 +50,19 @@ const LeadsPipeline = () => {
 
     useEffect(() => {
         fetchLeads();
+        fetchStaff();
     }, [selectedBranch]);
+
+    const fetchStaff = async () => {
+        try {
+            const response = await apiClient.get('/staff/team', {
+                headers: { 'x-tenant-id': selectedBranch }
+            });
+            setStaffList(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            console.error('Fetch staff error:', error);
+        }
+    };
 
     const fetchLeads = async () => {
         try {
@@ -79,8 +100,10 @@ const LeadsPipeline = () => {
 
             if (isEdit && selectedLeadId) {
                 await apiClient.patch(`/crm/leads/${selectedLeadId}`, payload);
+                toast.success('Lead updated successfully');
             } else {
                 await apiClient.post('/crm/leads', payload);
+                toast.success('Lead added successfully');
             }
             setShowAddDrawer(false);
             setFormData({ name: '', phone: '', email: '', source: 'Walk-in', notes: '', status: 'New' });
@@ -108,13 +131,20 @@ const LeadsPipeline = () => {
         }
     };
 
-    const handleStatusUpdate = async (id, status) => {
+    const handleStatusUpdate = async (id, status, extraData = {}) => {
         try {
-            await apiClient.patch(`/crm/leads/${id}/status`, { status });
+            setSubmitting(true);
+            await apiClient.patch(`/crm/leads/${id}/status`, { status, ...extraData });
             fetchLeads();
             setActiveMenu(null);
+            setShowLostModal(false);
+            setShowConvertModal(false);
+            toast.success(`Lead status updated to ${status}`);
         } catch (error) {
             console.error('Status update error:', error);
+            toast.error(error.response?.data?.message || 'Failed to update status');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -125,7 +155,8 @@ const LeadsPipeline = () => {
             email: lead.email || '',
             source: lead.source || 'Walk-in',
             notes: lead.notes || '',
-            status: lead.status
+            status: lead.status,
+            assignedTo: lead.assignedToId || ''
         });
         setSelectedLeadId(lead.id);
         setIsEdit(true);
@@ -134,9 +165,27 @@ const LeadsPipeline = () => {
     };
 
     const openAddDrawer = () => {
-        setFormData({ name: '', phone: '', email: '', source: 'Walk-in', notes: '', status: 'New' });
+        setFormData({ name: '', phone: '', email: '', source: 'Walk-in', notes: '', status: 'New', assignedTo: '' });
         setIsEdit(false);
         setShowAddDrawer(true);
+        setDuplicateWarning(null);
+    };
+
+    const handleDuplicateCheck = async (field, value) => {
+        if (!value || value.length < 5) return;
+        try {
+            const response = await apiClient.post('/crm/leads/check-duplicate', { [field]: value, branchId: selectedBranch });
+            if (response.data.isDuplicate) {
+                setDuplicateWarning({
+                    field,
+                    lead: response.data.existingLead
+                });
+            } else if (duplicateWarning?.field === field) {
+                setDuplicateWarning(null);
+            }
+        } catch (error) {
+            console.error('Duplicate check error:', error);
+        }
     };
 
     const toggleMenu = (e, leadId) => {
@@ -203,7 +252,8 @@ const LeadsPipeline = () => {
         new: leads.filter(l => l.status === 'New').length,
         contacted: leads.filter(l => l.status === 'Contacted').length,
         interested: leads.filter(l => l.status === 'Interested').length,
-        converted: leads.filter(l => l.status === 'Converted').length
+        converted: leads.filter(l => l.status === 'Converted').length,
+        lost: leads.filter(l => l.status === 'Lost').length
     };
 
     const filteredLeads = leads.filter(l =>
@@ -253,7 +303,8 @@ const LeadsPipeline = () => {
                     { title: "New", value: stats.new, icon: UserPlus, color: "bg-indigo-50", text: "text-indigo-600" },
                     { title: "Contacted", value: stats.contacted, icon: Phone, color: "bg-amber-50", text: "text-amber-600" },
                     { title: "Interested", value: stats.interested, icon: TrendingUp, color: "bg-emerald-50", text: "text-emerald-600" },
-                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "bg-blue-50", text: "text-blue-600" }
+                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "bg-blue-50", text: "text-blue-600" },
+                    { title: "Lost", value: stats.lost, icon: X, color: "bg-rose-50", text: "text-rose-600" }
                 ].map((item, idx) => (
                     <div key={idx} className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 group/stat cursor-default min-w-0">
                         <div className="flex items-center justify-between mb-6">
@@ -361,6 +412,7 @@ const LeadsPipeline = () => {
                                 <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source</th>
                                 <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created</th>
                                 <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Follow-up</th>
+                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned To</th>
                                 <th className="text-right py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
@@ -386,10 +438,15 @@ const LeadsPipeline = () => {
                                                 <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-primary-light text-primary' :
                                                     lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
                                                         lead.status === 'Contacted' ? 'bg-orange-50 text-orange-600' :
-                                                            'bg-slate-100 text-slate-600'
+                                                            lead.status === 'Interested' ? 'bg-emerald-50 text-emerald-600' :
+                                                                lead.status === 'Lost' ? 'bg-rose-50 text-rose-600' :
+                                                                    'bg-slate-100 text-slate-600'
                                                     }`}>
                                                     {lead.status}
                                                 </span>
+                                                {lead.lostReason && (
+                                                    <span className="text-[9px] text-slate-400 font-bold italic">Reason: {lead.lostReason}</span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 text-slate-600 text-sm font-bold uppercase tracking-widest text-[10px]" data-label="Source">{lead.source}</td>
@@ -402,6 +459,14 @@ const LeadsPipeline = () => {
                                                 <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">
                                                     {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Time not set'}
                                                 </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4" data-label="Assigned To">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
+                                                    {lead.assignedTo?.name ? lead.assignedTo.name[0].toUpperCase() : '?'}
+                                                </div>
+                                                <span className="text-xs font-bold text-slate-700">{lead.assignedTo?.name || 'Unassigned'}</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 text-right" data-label="Actions">
@@ -483,7 +548,20 @@ const LeadsPipeline = () => {
                                                                     ].filter(s => s.label !== lead.status).map((s) => (
                                                                         <button
                                                                             key={s.label}
-                                                                            onClick={() => handleStatusUpdate(lead.id, s.label)}
+                                                                            onClick={() => {
+                                                                                if (s.label === 'Lost') {
+                                                                                    setSelectedLeadId(lead.id);
+                                                                                    setShowLostModal(true);
+                                                                                    setActiveMenu(null);
+                                                                                } else if (s.label === 'Converted') {
+                                                                                    setSelectedLeadId(lead.id);
+                                                                                    setLeadHistory(lead); // Use for modal info
+                                                                                    setShowConvertModal(true);
+                                                                                    setActiveMenu(null);
+                                                                                } else {
+                                                                                    handleStatusUpdate(lead.id, s.label);
+                                                                                }
+                                                                            }}
                                                                             className="flex items-center gap-3 w-full px-3 py-2 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
                                                                         >
                                                                             <s.icon size={12} />
@@ -576,8 +654,17 @@ const LeadsPipeline = () => {
                                 placeholder="+91 98765 43210"
                                 className="saas-input"
                                 value={formData.phone}
+                                onBlur={(e) => handleDuplicateCheck('phone', e.target.value)}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
+                            {duplicateWarning?.field === 'phone' && (
+                                <div className="mt-2 p-3 bg-amber-50 border border-amber-100 rounded-xl flex gap-2 items-start animate-fadeIn">
+                                    <AlertCircle size={14} className="text-amber-600 mt-0.5" />
+                                    <p className="text-[10px] font-bold text-amber-700">
+                                        This phone is already registered to {duplicateWarning.lead.name} ({duplicateWarning.lead.status})
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <div className="saas-form-group">
                             <label className="saas-label">Email</label>
@@ -586,8 +673,30 @@ const LeadsPipeline = () => {
                                 placeholder="email@example.com"
                                 className="saas-input"
                                 value={formData.email}
+                                onBlur={(e) => handleDuplicateCheck('email', e.target.value)}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
+                            {duplicateWarning?.field === 'email' && (
+                                <div className="mt-2 p-3 bg-amber-50 border border-amber-100 rounded-xl flex gap-2 items-start animate-fadeIn">
+                                    <AlertCircle size={14} className="text-amber-600 mt-0.5" />
+                                    <p className="text-[10px] font-bold text-amber-700">
+                                        This email is already registered to {duplicateWarning.lead.name} ({duplicateWarning.lead.status})
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="saas-form-group">
+                            <label className="saas-label">Assign To Staff</label>
+                            <select
+                                value={formData.assignedTo}
+                                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                                className="saas-input"
+                            >
+                                <option value="">Select Staff member</option>
+                                {staffList.filter(s => s.role === 'STAFF').map(s => (
+                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                            </select>
                         </div>
                         <div className="saas-form-group">
                             <label className="saas-label">Source</label>
@@ -731,6 +840,22 @@ const LeadsPipeline = () => {
                     )}
                 </div>
             </RightDrawer>
+
+            {/* Status Modals */}
+            <MarkAsLostModal 
+                isOpen={showLostModal}
+                onClose={() => setShowLostModal(false)}
+                submitting={submitting}
+                onConfirm={(reason) => handleStatusUpdate(selectedLeadId, 'Lost', { lostReason: reason })}
+            />
+
+            <ConvertLeadModal 
+                isOpen={showConvertModal}
+                onClose={() => setShowConvertModal(false)}
+                submitting={submitting}
+                lead={leadHistory}
+                onConfirm={(data) => handleStatusUpdate(selectedLeadId, 'Converted', data)}
+            />
 
         </div>
     );

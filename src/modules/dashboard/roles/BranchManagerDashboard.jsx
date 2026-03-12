@@ -19,8 +19,8 @@ import {
     UserPlus,
     Calendar
 } from 'lucide-react';
-import TodayFollowUps from '../../crm/pages/TodayFollowUps';
 import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget';
+import TodayFollowUpsWidget from '../../crm/components/TodayFollowUpsWidget';
 import { useNavigate } from 'react-router-dom';
 import LiveAccessControl from '../components/LiveAccessControl';
 import FacilityStatusOverview from '../../operations/components/widgets/FacilityStatusOverview';
@@ -285,6 +285,8 @@ const BranchManagerDashboard = () => {
                         <p className="text-lg font-black text-primary">{Math.round((liveOccupancy.current / liveOccupancy.capacity) * 100)}% Full</p>
                     </div>
                 </div>
+
+                <TodayFollowUpsWidget />
 
                 {/* Today's Check-ins by Hour */}
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 flex flex-col transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">

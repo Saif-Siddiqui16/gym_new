@@ -16,5 +16,9 @@ export const referralApi = {
         }
         const response = await apiClient.get(`/referrals/verify/${code}`, { params });
         return response.data;
+    },
+    claimReward: async (id, status = 'Claimed') => {
+        const response = await apiClient.patch(`/referrals/${id}/claim`, { status });
+        return response.data;
     }
 };

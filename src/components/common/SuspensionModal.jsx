@@ -7,7 +7,7 @@ const SuspensionModal = ({ isOpen, onClose }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             {/* Backdrop with ripple blur effect */}
-            <div 
+            <div
                 className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300"
                 onClick={onClose}
             />
@@ -16,7 +16,7 @@ const SuspensionModal = ({ isOpen, onClose }) => {
             <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] animate-in zoom-in-95 slide-in-from-bottom-8 duration-500 ease-out border border-slate-200">
                 {/* Visual Header / Brand Accents */}
                 <div className="h-2 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500" />
-                
+
                 <div className="p-8 sm:p-10 text-center">
                     {/* Icon Assembly */}
                     <div className="relative mx-auto w-24 h-24 mb-6">
@@ -33,7 +33,7 @@ const SuspensionModal = ({ isOpen, onClose }) => {
                     <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">
                         Account <span className="text-rose-600">Suspended</span>
                     </h2>
-                    
+
                     <p className="text-slate-500 text-sm font-medium leading-relaxed mb-8 px-2">
                         Your gym branch access has been temporarily restricted by the system administrator. You cannot proceed further until the suspension is lifted.
                     </p>
@@ -57,7 +57,7 @@ const SuspensionModal = ({ isOpen, onClose }) => {
                         >
                             Understood
                         </button>
-                        
+
                         <button
                             onClick={onClose}
                             className="w-full py-2 group text-slate-400 hover:text-slate-600 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1 transition-colors"

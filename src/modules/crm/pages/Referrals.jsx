@@ -14,7 +14,8 @@ import {
     IndianRupee,
     UserCheck,
     History,
-    Shield
+    Shield,
+    User
 } from 'lucide-react';
 import { referralApi } from '../../../api/referralApi';
 import RightDrawer from '../../../components/common/RightDrawer';
@@ -94,6 +95,17 @@ const Referrals = ({ role }) => {
         } catch (error) {
             console.error('Failed to create referral:', error);
             toast.error(error?.response?.data?.message || 'Failed to create referral');
+        }
+    };
+
+    const handleClaimReward = async (id) => {
+        try {
+            await referralApi.claimReward(id);
+            toast.success('Reward marked as claimed');
+            loadReferrals();
+        } catch (error) {
+            console.error('Failed to claim reward:', error);
+            toast.error('Failed to claim reward');
         }
     };
 
@@ -206,7 +218,7 @@ const Referrals = ({ role }) => {
                             </div>
                             <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Stats Overview</h2>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
                                 <div className="w-10 h-10 bg-primary-light text-primary rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <Users size={20} />
@@ -215,18 +227,25 @@ const Referrals = ({ role }) => {
                                 <p className="text-3xl font-black text-slate-900 tracking-tight">{memberStats.referralsSent}</p>
                             </Card>
                             <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <UserCheck size={20} />
                                 </div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Successful Signups</h4>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Successful</h4>
                                 <p className="text-3xl font-black text-slate-900 tracking-tight">{memberStats.successfulSignups}</p>
                             </Card>
                             <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-primary-light text-primary rounded-xl flex items-center justify-center mx-auto mb-4">
+                                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <IndianRupee size={20} />
                                 </div>
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rewards Earned</h4>
                                 <p className="text-3xl font-black text-slate-900 tracking-tight">₹{memberStats.rewardsEarned}</p>
+                            </Card>
+                            <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
+                                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                    <Clock size={20} />
+                                </div>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Rewards</h4>
+                                <p className="text-3xl font-black text-slate-900 tracking-tight">₹{memberStats.pendingRewards || 0}</p>
                             </Card>
                         </div>
                     </div>
@@ -243,18 +262,37 @@ const Referrals = ({ role }) => {
                             {memberReferrals.length > 0 ? (
                                 <div className="space-y-4">
                                     {memberReferrals.map((ref) => (
-                                        <div key={ref.id} className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                                            <div>
-                                                <h4 className="text-sm font-bold text-slate-900">{ref.referredName}</h4>
-                                                <p className="text-[10px] text-slate-500 font-semibold mt-0.5">{new Date(ref.createdAt).toLocaleDateString()}</p>
+                                        <div key={ref.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors gap-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-primary shrink-0">
+                                                    <User size={20} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-bold text-slate-900">{ref.referredName}</h4>
+                                                    <p className="text-[10px] text-slate-500 font-semibold mt-0.5 uppercase tracking-wider">{new Date(ref.createdAt).toLocaleDateString()}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${ref.status === 'Converted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                                    ref.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                                                        'bg-slate-100 text-slate-600 border-slate-200'
-                                                    }`}>
-                                                    {ref.status}
-                                                </span>
+                                            <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10">
+                                                <div className="text-right">
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Reward</p>
+                                                    <p className="text-sm font-black text-primary">₹{ref.rewardAmount || 500}</p>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1.5">
+                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${ref.status === 'Converted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                                        ref.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                                                            'bg-slate-100 text-slate-600 border-slate-200'
+                                                        }`}>
+                                                        {ref.status}
+                                                    </span>
+                                                    {ref.status === 'Converted' && (
+                                                        <div className="flex items-center gap-1.5">
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                                                            <span className={`text-[9px] font-black uppercase tracking-tighter ${ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                                                {ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'Status: Paid' : `Status: ${ref.rewardStatus}`}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -441,9 +479,22 @@ const Referrals = ({ role }) => {
                                                     <div className="text-sm font-black text-primary">₹500 Reward</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="px-2 py-1 rounded-full bg-primary-light text-primary-hover text-[10px] font-black uppercase tracking-tighter">
-                                                        Unclaimed
-                                                    </span>
+                                                    {ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? (
+                                                        <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-tighter">
+                                                            Paid
+                                                        </span>
+                                                    ) : ref.rewardStatus === 'Eligible' ? (
+                                                        <button
+                                                            onClick={() => handleClaimReward(ref.id)}
+                                                            className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg hover:bg-primary-hover transition-colors shadow-sm active:scale-95"
+                                                        >
+                                                            Claim Reward
+                                                        </button>
+                                                    ) : (
+                                                        <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-tighter">
+                                                            {ref.rewardStatus || 'Pending'}
+                                                        </span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

@@ -31,6 +31,7 @@ import DashboardGrid from '../components/DashboardGrid';
 import { useAuth } from '../../../context/AuthContext';
 import { useBranchContext } from '../../../context/BranchContext';
 import apiClient from '../../../api/apiClient';
+import TodayFollowUpsWidget from '../../crm/components/TodayFollowUpsWidget';
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
@@ -218,6 +219,8 @@ const StaffDashboard = () => {
                 {/* Left Column */}
                 <div className="space-y-8">
                     {/* Recent Check-ins */}
+                    <TodayFollowUpsWidget />
+
                     <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Recent Check-ins</h3>
