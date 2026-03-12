@@ -4,6 +4,25 @@ import { toast } from 'react-hot-toast';
 import apiClient from '../../../api/apiClient';
 
 const AttendanceQrSettings = () => {
+    const [qrPreviewUrl, setQrPreviewUrl] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchQrPreview = async () => {
+            try {
+                const response = await apiClient.get('/admin/attendance-qr/preview');
+                setQrPreviewUrl(response.data.qrCodeDataUrl);
+            } catch (error) {
+                console.error('Failed to fetch QR preview:', error);
+                toast.error('Failed to load QR preview');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQrPreview();
+    }, []);
+
     const handleDownloadPdf = async () => {
         const loadingToast = toast.loading('Preparing your printable QR PDF...');
         try {
@@ -66,8 +85,16 @@ const AttendanceQrSettings = () => {
                             <div className="h-1 w-12 bg-primary mx-auto mt-1 rounded-full"></div>
                         </div>
 
-                        <div className="w-48 h-48 bg-white p-4 rounded-3xl shadow-xl flex items-center justify-center border border-slate-100 group-hover:scale-105 transition-transform duration-500">
-                            <QrCode size={120} className="text-slate-800" strokeWidth={1.5} />
+                        <div className="w-48 h-48 bg-white p-4 rounded-3xl shadow-xl flex items-center justify-center border border-slate-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                            {loading ? (
+                                <div className="animate-pulse bg-slate-50 w-full h-full rounded-2xl flex items-center justify-center">
+                                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            ) : qrPreviewUrl ? (
+                                <img src={qrPreviewUrl} alt="Attendance QR Preview" className="w-full h-full object-contain" />
+                            ) : (
+                                <QrCode size={120} className="text-slate-300" strokeWidth={1.5} />
+                            )}
                         </div>
 
                         <div className="text-center space-y-2">
