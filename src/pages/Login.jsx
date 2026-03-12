@@ -14,6 +14,7 @@ import { ROLES } from '../config/roles';
 import { loginUser } from '../api/auth/authApi';
 import CustomDropdown from '../components/common/CustomDropdown';
 import { useAuth } from '../context/AuthContext';
+import SuspensionModal from '../components/common/SuspensionModal';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isSuspendedModalOpen, setIsSuspendedModalOpen] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -47,7 +49,15 @@ const Login = () => {
                 navigate('/dashboard');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+            console.error('Login error:', err);
+            // Check for the error status from the response object
+            if (err.response?.status === 403) {
+                setIsSuspendedModalOpen(true);
+            } else {
+                // Handle other errors (either status code message or fallback)
+                const errorMessage = err.response?.data?.message || err.message || 'Invalid credentials. Please try again.';
+                setError(errorMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -174,6 +184,12 @@ const Login = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Suspension Modal */}
+                <SuspensionModal 
+                    isOpen={isSuspendedModalOpen} 
+                    onClose={() => setIsSuspendedModalOpen(false)} 
+                />
 
                 <div className="portal-footer">
                     <div className="security-tag">
