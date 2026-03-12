@@ -1,7 +1,7 @@
 import React from 'react';
 import { Ban, Phone, X, ShieldAlert, ExternalLink } from 'lucide-react';
 
-const SuspensionModal = ({ isOpen, onClose }) => {
+const SuspensionModal = ({ isOpen, onClose, supportNumber }) => {
     if (!isOpen) return null;
 
     return (
@@ -46,7 +46,7 @@ const SuspensionModal = ({ isOpen, onClose }) => {
                             </div>
                             <div className="text-left">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Support Hotline</p>
-                                <p className="text-sm font-bold text-slate-900">+91 99999-XXXXX</p>
+                                <p className="text-sm font-bold text-slate-900">{supportNumber || "+91 99999-XXXXX"}</p>
                             </div>
                             <ExternalLink size={16} className="ml-auto text-slate-300 group-hover:text-slate-500 transition-colors" />
                         </div>

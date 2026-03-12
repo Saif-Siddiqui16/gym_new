@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Camera, Shield, Bell, Save, Loader, Key, X, Lock, Activity, Calendar, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Shield, Bell, Save, Loader, Key, X, Lock, Activity, Calendar, CheckCircle2, Headset } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import { toast } from 'react-hot-toast';
-import { fetchAdminProfile, updateAdminProfile } from '../../api/superadmin/superAdminApi';
+import { fetchAdminProfile, updateAdminProfile, fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
 import NotificationsList from '../../components/notifications/NotificationsList';
 
 const MyProfile = () => {
@@ -17,6 +17,8 @@ const MyProfile = () => {
     });
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [globalSettings, setGlobalSettings] = useState({ supportNumber: '' });
+    const [isSavingSupport, setIsSavingSupport] = useState(false);
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
@@ -56,13 +58,18 @@ const MyProfile = () => {
     const loadProfile = async () => {
         try {
             setLoading(true);
-            const data = await fetchAdminProfile();
-            setProfile(data);
+            const [profileData, settingsData] = await Promise.all([
+                fetchAdminProfile(),
+                fetchGlobalSettings()
+            ]);
+            
+            setProfile(profileData);
+            setGlobalSettings({ supportNumber: settingsData.supportNumber || '' });
             setFormData({
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                address: data.address || ''
+                name: profileData.name,
+                email: profileData.email,
+                phone: profileData.phone,
+                address: profileData.address || ''
             });
         } catch (error) {
             console.error("Error loading profile:", error);
@@ -90,6 +97,21 @@ const MyProfile = () => {
             setMessage({ type: 'error', text: 'Failed to update profile.' });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleSaveSupport = async (e) => {
+        e.preventDefault();
+        setIsSavingSupport(true);
+        setMessage({ type: '', text: '' });
+
+        try {
+            await updateGlobalSettings(globalSettings);
+            setMessage({ type: 'success', text: 'Support settings updated successfully!' });
+        } catch (error) {
+            setMessage({ type: 'error', text: 'Failed to update support settings.' });
+        } finally {
+            setIsSavingSupport(false);
         }
     };
 
@@ -128,6 +150,7 @@ const MyProfile = () => {
 
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
+        { id: 'support', label: 'Support', icon: Headset },
         { id: 'security', label: 'Security', icon: Shield },
         { id: 'notifications', label: 'Notifications', icon: Bell }
     ];
@@ -317,6 +340,50 @@ const MyProfile = () => {
                                                 <Save size={20} className="mr-2 relative transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
                                             )}
                                             <span className="relative">{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* Support Tab */}
+                            {activeTab === 'support' && (
+                                <form onSubmit={handleSaveSupport} className="space-y-6">
+                                    <div className="mb-6">
+                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Support Settings</h3>
+                                        <p className="text-sm text-slate-600">This number will be shown to users when their account is suspended</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-2">Platform Support Number</label>
+                                            <div className="relative group">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-all duration-300">
+                                                    <Phone size={20} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    value={globalSettings.supportNumber}
+                                                    onChange={(e) => setGlobalSettings({ ...globalSettings, supportNumber: e.target.value })}
+                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300"
+                                                    placeholder="+91 12345 67890"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6 border-t border-slate-100">
+                                        <button
+                                            type="submit"
+                                            disabled={isSavingSupport}
+                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-r from-primary to-primary"
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            {isSavingSupport ? (
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative mr-2"></div>
+                                            ) : (
+                                                <Save size={20} className="mr-2 relative" />
+                                            )}
+                                            <span className="relative">{isSavingSupport ? 'Saving...' : 'Save Support Settings'}</span>
                                         </button>
                                     </div>
                                 </form>
