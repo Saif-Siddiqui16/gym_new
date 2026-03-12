@@ -29,6 +29,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [isSuspendedModalOpen, setIsSuspendedModalOpen] = useState(false);
+    const [supportNumber, setSupportNumber] = useState('');
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -48,6 +49,7 @@ const Login = () => {
         } catch (err) {
             console.error('Login error:', err);
             if (err.response?.status === 403) {
+                setSupportNumber(err.response?.data?.supportNumber || '');
                 setIsSuspendedModalOpen(true);
             } else {
                 const errorMessage = err.response?.data?.message || err.message || 'Invalid credentials. Please try again.';
@@ -149,6 +151,7 @@ const Login = () => {
                 <SuspensionModal 
                     isOpen={isSuspendedModalOpen} 
                     onClose={() => setIsSuspendedModalOpen(false)} 
+                    supportNumber={supportNumber}
                 />
 
                 <div className="portal-footer">
