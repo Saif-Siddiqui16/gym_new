@@ -112,12 +112,17 @@ const MemberBookings = () => {
 
         setIsSubmitting(true);
         try {
-<<<<<<< HEAD
             if (bookingType === 'Class') {
-                await apiClient.post('/member/bookings', {
+                const res = await apiClient.post('/member/bookings', {
                     classId: selectedClassId,
                     date: bookingDate
                 });
+
+                if (res.data.invoice) {
+                    toast.success("Booking created! Please complete payment to confirm.");
+                    navigate('/member/payments');
+                    return;
+                }
             } else {
                 await bookPTSession({
                     ptAccountId: selectedPtAccountId,
@@ -126,20 +131,7 @@ const MemberBookings = () => {
                     duration: 60
                 });
             }
-            
-=======
-            const res = await apiClient.post('/member/bookings', {
-                classId: selectedClassId,
-                date: bookingDate
-            });
-            
-            if (res.data.invoice) {
-                toast.success("Booking created! Please complete payment to confirm.");
-                navigate('/member/payments');
-                return;
-            }
 
->>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
             toast.success("Successfully booked your session!");
             setIsBookingModalOpen(false);
 
@@ -316,7 +308,6 @@ const MemberBookings = () => {
                                             onClick={() => setBookingType('Class')}
                                             className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
-<<<<<<< HEAD
                                             Classes & Recovery
                                         </button>
                                         <button 
@@ -325,14 +316,6 @@ const MemberBookings = () => {
                                         >
                                             Personal Training
                                         </button>
-=======
-                                            <option value="">-- Choose an option --</option>
-                                            {availableClasses.map(c => (
-                                                <option key={c.id} value={c.id}>
-                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.price && Number(c.price) > 0 ? `₹${c.price}` : 'Free'}
-                                                </option>
-                                            ))}
-                                        </select>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
@@ -343,7 +326,6 @@ const MemberBookings = () => {
                                             min={new Date().toISOString().split('T')[0]}
                                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                         />
->>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
                                     </div>
 
                                     {bookingType === 'Class' ? (
