@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Modal from '../../components/common/Modal';
 import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
@@ -290,36 +291,61 @@ const MemberBookings = () => {
             </div>
 
             {/* Booking Modal */}
-            {isBookingModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-300">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">New Booking</h3>
-                            <button onClick={() => setIsBookingModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors">
-                                <X size={18} />
-                            </button>
+            <Modal
+                isOpen={isBookingModalOpen}
+                onClose={() => setIsBookingModalOpen(false)}
+                title="New Booking"
+                maxWidth="max-w-md"
+            >
+                <div className="p-6 space-y-6">
+                    {loadingClasses ? (
+                        <div className="flex justify-center py-10">
+                            <Loader className="w-8 h-8 animate-spin text-primary" />
                         </div>
-                        <div className="p-6 space-y-6">
-                            {loadingClasses ? (
-                                <div className="flex justify-center py-10">
-                                    <Loader className="w-8 h-8 animate-spin text-primary" />
-                                </div>
-                            ) : (
-                                <>
-                                    {/* Type Toggle */}
-                                    <div className="flex p-1 bg-slate-100 rounded-xl">
-                                        <select 
-                                            onClick={() => setBookingType('Class')}
-                                            className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    ) : (
+                        <>
+                            {/* Type Toggle */}
+                            <div className="flex p-1 bg-slate-100 rounded-xl">
+                                <button 
+                                    onClick={() => setBookingType('Class')}
+                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Classes & Recovery
+                                </button>
+                                <button 
+                                    onClick={() => setBookingType('PT')}
+                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'PT' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Personal Training
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
+                                <input
+                                    type="date"
+                                    value={bookingDate}
+                                    onChange={(e) => setBookingDate(e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                />
+                            </div>
+
+                            {bookingType === 'Class' ? (
+                                <div className="space-y-6 animate-in fade-in duration-300">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select Class/Session</label>
+                                        <select
+                                            value={selectedClassId}
+                                            onChange={(e) => setSelectedClassId(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                         >
-                                            Classes & Recovery
+                                            <option value="">-- Choose an option --</option>
+                                            {availableClasses.map(c => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.trainer?.name ? `Trainer: ${c.trainer.name}` : 'General'}
+                                                </option>
+                                            ))}
                                         </select>
-                                        <button 
-                                            onClick={() => setBookingType('PT')}
-                                            className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'PT' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                        >
-                                            Personal Training
-                                        </button>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
@@ -331,100 +357,70 @@ const MemberBookings = () => {
                                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                         />
                                     </div>
-
-                                    {bookingType === 'Class' ? (
-                                        <div className="space-y-6 animate-in fade-in duration-300">
+                                </div>
+                            ) : (
+                                <div className="space-y-6 animate-in fade-in duration-300">
+                                    {ptAccounts.length === 0 ? (
+                                        <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-xs font-bold text-center">
+                                            You don't have any active PT packages. Please purchase or activate a package first.
+                                        </div>
+                                    ) : (
+                                        <>
                                             <div className="space-y-2">
-                                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select Class/Session</label>
+                                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select PT Package</label>
                                                 <select
-                                                    value={selectedClassId}
-                                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                                    value={selectedPtAccountId}
+                                                    onChange={(e) => setSelectedPtAccountId(e.target.value)}
                                                     className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                                 >
-                                                    <option value="">-- Choose an option --</option>
-                                                    {availableClasses.map(c => (
-                                                        <option key={c.id} value={c.id}>
-                                                            {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.trainer?.name ? `Trainer: ${c.trainer.name}` : 'General'}
+                                                    <option value="">-- Choose your PT package --</option>
+                                                    {ptAccounts.map(acc => (
+                                                        <option key={acc.id} value={acc.id}>
+                                                            {acc.package?.name} {acc.package?.totalSessions > 0 ? `(${acc.remainingSessions} sessions left)` : '(Unlimited)'} - Trainer: {acc.trainer?.name || 'Assigned'}
                                                         </option>
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
-                                                <input
-                                                    type="date"
-                                                    value={bookingDate}
-                                                    onChange={(e) => setBookingDate(e.target.value)}
-                                                    min={new Date().toISOString().split('T')[0]}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-6 animate-in fade-in duration-300">
-                                            {ptAccounts.length === 0 ? (
-                                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-xs font-bold text-center">
-                                                    You don't have any active PT packages. Please purchase or activate a package first.
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
+                                                    <input
+                                                        type="date"
+                                                        value={bookingDate}
+                                                        onChange={(e) => setBookingDate(e.target.value)}
+                                                        min={new Date().toISOString().split('T')[0]}
+                                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                                    />
                                                 </div>
-                                            ) : (
-                                                <>
-                                                    <div className="space-y-2">
-                                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select PT Package</label>
-                                                        <select
-                                                            value={selectedPtAccountId}
-                                                            onChange={(e) => setSelectedPtAccountId(e.target.value)}
-                                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                        >
-                                                            <option value="">-- Choose your PT package --</option>
-                                                            {ptAccounts.map(acc => (
-                                                                <option key={acc.id} value={acc.id}>
-                                                                    {acc.package?.name} {acc.package?.totalSessions > 0 ? `(${acc.remainingSessions} sessions left)` : '(Unlimited)'} - Trainer: {acc.trainer?.name || 'Assigned'}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
-                                                            <input
-                                                                type="date"
-                                                                value={bookingDate}
-                                                                onChange={(e) => setBookingDate(e.target.value)}
-                                                                min={new Date().toISOString().split('T')[0]}
-                                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                            />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Time</label>
-                                                            <input
-                                                                type="time"
-                                                                value={ptTime}
-                                                                onChange={(e) => setPtTime(e.target.value)}
-                                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Time</label>
+                                                    <input
+                                                        type="time"
+                                                        value={ptTime}
+                                                        onChange={(e) => setPtTime(e.target.value)}
+                                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
-
-                                    <button
-                                        onClick={handleBookClass}
-                                        disabled={isSubmitting || 
-                                            (bookingType === 'Class' && (!selectedClassId || !bookingDate)) ||
-                                            (bookingType === 'PT' && (!selectedPtAccountId || !bookingDate || !ptTime))
-                                        }
-                                        className="w-full py-4 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? 'Booking...' : 'Confirm Booking'}
-                                    </button>
-                                </>
+                                </div>
                             )}
-                        </div>
-                    </div>
+
+                            <button
+                                onClick={handleBookClass}
+                                disabled={isSubmitting || 
+                                    (bookingType === 'Class' && (!selectedClassId || !bookingDate)) ||
+                                    (bookingType === 'PT' && (!selectedPtAccountId || !bookingDate || !ptTime))
+                                }
+                                className="w-full py-4 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? 'Booking...' : 'Confirm Booking'}
+                            </button>
+                        </>
+                    )}
                 </div>
-            )}
+            </Modal>
         </div>
     );
 };

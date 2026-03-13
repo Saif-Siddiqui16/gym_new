@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Modal from '../../../components/common/Modal';
 import {
     MessageSquare,
     Star,
@@ -165,7 +166,20 @@ const FeedbackSystem = ({ role }) => {
                         <div className="flex items-start justify-between w-full">
                             <div>
                                 <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{kpi.label}</p>
-                                <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
+                                    {kpi.label === 'Average Rating' && (
+                                        <div className="flex items-center gap-0.5 mb-1">
+                                            {[1, 2, 3, 4, 5].map((s) => (
+                                                <Star 
+                                                    key={s} 
+                                                    size={12} 
+                                                    className={Math.round(kpi.value) >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-200'} 
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
                                 <kpi.icon size={20} />
@@ -240,9 +254,17 @@ const FeedbackSystem = ({ role }) => {
                                     <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                         {role !== 'MEMBER' && <td className="px-6 py-4 font-bold text-slate-900">{item.member}</td>}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-sm font-bold text-slate-900">{item.rating}</span>
-                                                <Star size={14} className="text-amber-400 fill-amber-400" />
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="flex items-center gap-0.5">
+                                                    {[1, 2, 3, 4, 5].map((s) => (
+                                                        <Star 
+                                                            key={s} 
+                                                            size={14} 
+                                                            className={`${item.rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-200'} transition-colors`} 
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs font-black text-slate-400 ml-1">({item.rating})</span>
                                                 {item.isPublishedToGoogle && (
                                                     <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary-light text-primary rounded-md ml-2 border border-violet-100 shadow-sm animate-in fade-in zoom-in duration-300">
                                                         <ExternalLink size={10} className="animate-pulse" />
@@ -254,11 +276,11 @@ const FeedbackSystem = ({ role }) => {
                                         <td className="px-6 py-4">
                                             <p className="text-sm text-slate-500 font-medium max-w-md line-clamp-2">{item.comment}</p>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
+                                                    {item.status}
+                                                </span>
+                                            </td>
                                         <td className="px-6 py-4 font-bold text-slate-400 text-[10px] uppercase">{item.date}</td>
 
                                         {role !== 'MEMBER' && (
@@ -356,12 +378,19 @@ const FeedbackSystem = ({ role }) => {
                                     key={star}
                                     type="button"
                                     onClick={() => setNewFeedback({ ...newFeedback, rating: star })}
-                                    className={`p-3 rounded-xl transition-all ${newFeedback.rating >= star ? 'bg-amber-50 text-amber-400' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
+                                    className={`p-3 rounded-xl transition-all ${newFeedback.rating >= star ? 'bg-amber-50 text-amber-400' : 'bg-slate-50 text-slate-300 hover:bg-slate-100 hover:scale-105 active:scale-95'}`}
                                 >
                                     <Star size={24} className={newFeedback.rating >= star ? "fill-amber-400" : ""} />
                                 </button>
                             ))}
                         </div>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
+                            {newFeedback.rating === 5 && "⭐ Excellent - I love it!"}
+                            {newFeedback.rating === 4 && "⭐ Good - Pretty satisfied"}
+                            {newFeedback.rating === 3 && "⭐ Average - It's okay"}
+                            {newFeedback.rating === 2 && "⭐ Poor - Needs improvement"}
+                            {newFeedback.rating === 1 && "⭐ Terrible - Very disappointed"}
+                        </p>
                     </div>
 
                     <div className="space-y-3">
@@ -390,11 +419,14 @@ const FeedbackSystem = ({ role }) => {
 
 /* Google Success Modal */
 const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 overflow-hidden">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            maxWidth="max-w-md"
+            showCloseButton={false}
+        >
+            <div className="p-10 relative overflow-hidden">
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16 blur-2xl opacity-50"></div>
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary-light rounded-full -ml-16 -mb-16 blur-2xl opacity-50"></div>
@@ -454,7 +486,7 @@ const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 };
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Cake, Send, Ghost, Star, Calendar, Bell } from 'lucide-react';
-import { triggerBirthdayCheck } from '../../api/manager/managerApi';
+import { triggerBirthdayCheck, triggerPersonalBirthdayWish } from '../../api/manager/managerApi';
 
 const Birthdays = () => {
     const [birthdays, setBirthdays] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
+    const [sendingPersonalTo, setSendingPersonalTo] = useState(null);
 
     useEffect(() => {
         fetchBirthdays();
@@ -32,6 +33,22 @@ const Birthdays = () => {
             console.error("Failed to send wishes:", error);
         } finally {
             setProcessing(false);
+        }
+    };
+
+    const sendPersonalMessage = async (memberId, name) => {
+        const message = prompt(`Enter a personal birthday message for ${name}:`, `Happy Birthday ${name}! Have a fantastic day ahead.`);
+        if (!message) return; // User cancelled
+
+        setSendingPersonalTo(memberId);
+        try {
+            await triggerPersonalBirthdayWish(memberId, message);
+            alert(`Personal message sent to ${name}!`);
+        } catch (error) {
+            console.error("Failed to send personal message:", error);
+            alert("Failed to send personal message. Please try again later.");
+        } finally {
+            setSendingPersonalTo(null);
         }
     };
 
@@ -90,8 +107,12 @@ const Birthdays = () => {
                                         </span>
                                     </div>
                                     
-                                    <button className="w-full mt-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all">
-                                        Send Personal Message
+                                    <button 
+                                        onClick={() => sendPersonalMessage(member.id, member.name)}
+                                        disabled={sendingPersonalTo === member.id}
+                                        className="w-full mt-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all disabled:opacity-50"
+                                    >
+                                        {sendingPersonalTo === member.id ? 'Sending...' : 'Send Personal Message'}
                                     </button>
                                 </div>
                             </div>

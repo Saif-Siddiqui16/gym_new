@@ -250,3 +250,8 @@ export const triggerBirthdayCheck = async () => {
     const response = await apiClient.post('/communication/birthdays/check');
     return response.data;
 };
+
+export const triggerPersonalBirthdayWish = async (memberId, message) => {
+    const response = await apiClient.post('/communication/birthdays/personal', { memberId, message });
+    return response.data;
+};
