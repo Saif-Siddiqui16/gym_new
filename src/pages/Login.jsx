@@ -93,17 +93,6 @@ const Login = () => {
 
                     <form onSubmit={handleLogin} className="portal-form">
                         <div className="input-field-group">
-                            <label>SYSTEM ROLE</label>
-                            <div className="custom-select-wrap">
-                                <CustomDropdown
-                                    options={roleOptions}
-                                    value={selectedRole}
-                                    onChange={setSelectedRole}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="input-field-group">
                             <label>IDENTIFICATION (EMAIL)</label>
                             <div className="iconic-input">
                                 <Mail className="icon-lead" size={16} />

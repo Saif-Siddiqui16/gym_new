@@ -90,8 +90,12 @@ const MemberBookings = () => {
                 fetchPTAccounts()
             ]);
             setAvailableClasses(classRes.data || []);
-            // Only show active accounts with remaining sessions
-            setPtAccounts(ptRes.filter(acc => acc.status === 'Active' && (!acc.package?.totalSessions || acc.remainingSessions > 0)));
+            // Only show active accounts with remaining sessions AND active membership
+            setPtAccounts(ptRes.filter(acc => 
+                acc.status === 'Active' && 
+                acc.member?.status === 'Active' &&
+                (!acc.package?.totalSessions || acc.remainingSessions > 0)
+            ));
         } catch (err) {
             console.error("Failed to fetch booking options:", err);
             toast.error("Failed to load booking options.");
@@ -112,22 +116,6 @@ const MemberBookings = () => {
 
         setIsSubmitting(true);
         try {
-<<<<<<< HEAD
-            if (bookingType === 'Class') {
-                await apiClient.post('/member/bookings', {
-                    classId: selectedClassId,
-                    date: bookingDate
-                });
-            } else {
-                await bookPTSession({
-                    ptAccountId: selectedPtAccountId,
-                    date: bookingDate,
-                    time: ptTime,
-                    duration: 60
-                });
-            }
-            
-=======
             const res = await apiClient.post('/member/bookings', {
                 classId: selectedClassId,
                 date: bookingDate
@@ -139,7 +127,6 @@ const MemberBookings = () => {
                 return;
             }
 
->>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
             toast.success("Successfully booked your session!");
             setIsBookingModalOpen(false);
 
@@ -312,20 +299,10 @@ const MemberBookings = () => {
                                 <>
                                     {/* Type Toggle */}
                                     <div className="flex p-1 bg-slate-100 rounded-xl">
-                                        <button 
+                                        <select 
                                             onClick={() => setBookingType('Class')}
                                             className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
-<<<<<<< HEAD
-                                            Classes & Recovery
-                                        </button>
-                                        <button 
-                                            onClick={() => setBookingType('PT')}
-                                            className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'PT' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                        >
-                                            Personal Training
-                                        </button>
-=======
                                             <option value="">-- Choose an option --</option>
                                             {availableClasses.map(c => (
                                                 <option key={c.id} value={c.id}>
@@ -343,7 +320,6 @@ const MemberBookings = () => {
                                             min={new Date().toISOString().split('T')[0]}
                                             className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                         />
->>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
                                     </div>
 
                                     {bookingType === 'Class' ? (

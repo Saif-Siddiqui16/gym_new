@@ -269,7 +269,9 @@ const MembershipForm = () => {
                                     name="trainerId"
                                     value={formData.trainerId}
                                     onChange={handleChange}
-                                    className="w-full px-5 py-4 bg-gradient-to-br from-white to-primary-light/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-md"
+                                    disabled={formData.status !== 'Active'}
+                                    title={formData.status !== 'Active' ? 'Trainer can only be assigned to Active members' : ''}
+                                    className={`w-full px-5 py-4 bg-gradient-to-br from-white to-primary-light/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-md ${formData.status !== 'Active' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     <option value="">No Trainer Assigned</option>
                                     {trainers.map(trainer => (

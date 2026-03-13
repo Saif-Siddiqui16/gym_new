@@ -851,7 +851,7 @@ const PTSessions = () => {
                             onChange={(e) => setAssignData({ ...assignData, memberId: e.target.value })}
                         >
                             <option value="">Choose a member</option>
-                            {members.map(member => (
+                            {members.filter(m => m.status === 'Active').map(member => (
                                 <option key={member.id} value={member.id}>
                                     {member.name} ({member.memberId})
                                 </option>
@@ -939,7 +939,7 @@ const PTSessions = () => {
                             }}
                         >
                             <option value="">Select active package</option>
-                            {activeAccounts.map(acc => (
+                            {activeAccounts.filter(acc => acc.member?.status === 'Active').map(acc => (
                                 <option key={acc.id} value={acc.id}>
                                     {acc.member?.name} - {acc.package?.name} ({acc.remainingSessions} Left)
                                 </option>
