@@ -145,17 +145,17 @@ const MemberPayments = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map(stat => (
-                    <div key={stat.id} className="relative group overflow-hidden bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50 transition-all group-hover:scale-110" />
-                        <div className="relative flex items-center gap-6">
-                            <div className={`${stat.lightColor} w-16 h-16 rounded-2xl flex items-center justify-center ${stat.textColor}`}>
-                                <stat.icon size={28} strokeWidth={2.5} />
+                    <div key={stat.id} className="relative group overflow-hidden bg-white rounded-2xl border border-slate-100 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-10 -mt-10 blur-2xl opacity-60 transition-all group-hover:scale-110" />
+                        <div className="relative flex items-center gap-4 px-5 py-4">
+                            <div className={`shrink-0 ${stat.lightColor} w-12 h-12 rounded-xl flex items-center justify-center ${stat.textColor} shadow-sm`}>
+                                <stat.icon size={22} strokeWidth={2.5} />
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.title}</p>
-                                <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
+                            <div className="flex flex-col min-w-0">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 truncate">{stat.title}</p>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight truncate">{stat.value}</h3>
                             </div>
                         </div>
                     </div>

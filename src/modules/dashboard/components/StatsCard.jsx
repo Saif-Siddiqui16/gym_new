@@ -22,30 +22,30 @@ const StatsCard = ({ title, value, icon: Icon, trend, trendDirection, subtitle, 
     const trendStyle = trendColors[trendDirection] || trendColors.stable;
 
     return (
-        <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 border border-slate-100 hover:border-primary/20 cursor-pointer p-8 h-full min-h-[140px] flex flex-col justify-center !rounded-[2.5rem] bg-white">
-            <div className="flex items-center justify-between gap-4 relative z-10 w-full">
-                <div className="flex flex-col flex-1 min-w-0">
-                    <p className="saas-label !mb-2 truncate font-bold text-slate-400 uppercase tracking-widest text-[10px]">
+        <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 border border-slate-100 hover:border-primary/20 cursor-pointer px-5 py-4 h-full flex flex-col justify-between !rounded-2xl bg-white">
+            <div className="flex items-center justify-between gap-3 relative z-10 w-full">
+                <div className="flex flex-col flex-1 min-w-0 gap-1">
+                    <p className="truncate font-bold text-slate-400 uppercase tracking-widest text-[10px] m-0">
                         {title}
                     </p>
-                    <div className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight leading-none truncate">
+                    <div className="text-2xl font-black text-slate-900 tracking-tight leading-tight truncate">
                         {value}
                     </div>
                 </div>
-                <div className={`shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 transform group-hover:rotate-6 group-hover:scale-110 shadow-lg shadow-black/5 ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
-                    {Icon && <Icon size={26} strokeWidth={2.5} className="transition-colors duration-300" />}
+                <div className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-sm ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
+                    {Icon && <Icon size={20} strokeWidth={2.5} className="transition-colors duration-300" />}
                 </div>
             </div>
 
             {(subtitle || trend) && (
-                <div className="flex items-center justify-between gap-2 mt-5 pt-5 border-t border-slate-50/50 relative z-10">
+                <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 relative z-10">
                     {subtitle && (
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">
+                        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest truncate">
                             {subtitle}
                         </div>
                     )}
                     {trend && (
-                        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${trendStyle.bg} ${trendStyle.text}`}>
+                        <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${trendStyle.bg} ${trendStyle.text}`}>
                             {trend}
                         </span>
                     )}

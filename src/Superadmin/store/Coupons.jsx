@@ -155,6 +155,7 @@ const Coupons = () => {
                             <tr className="border-b border-slate-100">
                                 <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Coupon</th>
                                 <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
+                                <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Settings</th>
                                 <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Performance</th>
                                 <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Validity</th>
                                 <th className="px-8 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
@@ -196,7 +197,26 @@ const Coupons = () => {
                                                 </p>
                                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
                                                     Min Purchase ₹{c.minPurchase}
+                                                    {c.maximumDiscount && c.maximumDiscount > 0 ? ` | Max Cap ₹${c.maximumDiscount}` : ''}
                                                 </p>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6" data-label="Settings">
+                                            <div className="text-right sm:text-left space-y-1">
+                                                <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest inline-block ${c.applicableService === 'All' ? 'bg-slate-100 text-slate-600' :
+                                                        c.applicableService === 'Membership' ? 'bg-blue-50 text-blue-600' :
+                                                            c.applicableService === 'PT' ? 'bg-orange-50 text-orange-600' :
+                                                                'bg-purple-50 text-purple-600'
+                                                    }`}>
+                                                    Service: {c.applicableService || 'All'}
+                                                </span>
+                                                <br />
+                                                <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest inline-block ${c.visibilityType === 'Public' ? 'bg-emerald-50 text-emerald-600' :
+                                                        c.visibilityType === 'Targeted' ? 'bg-amber-50 text-amber-600' :
+                                                            'bg-rose-50 text-rose-600'
+                                                    }`}>
+                                                    Vis: {c.visibilityType || 'Public'}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6" data-label="Performance">

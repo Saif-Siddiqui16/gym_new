@@ -59,11 +59,11 @@ const MemberBookings = () => {
     }, []);
 
     const filteredBookings = bookings.filter(b => {
-        const type = (b.class?.type || b.class?.name || '').toLowerCase();
+        const name = (b.class?.name || '').toLowerCase();
         if (activeTab === 'All') return true;
-        if (activeTab === 'Recovery') return type.includes('sauna') || type.includes('ice bath') || type.includes('recovery');
-        if (activeTab === 'Classes') return !type.includes('sauna') && !type.includes('ice bath') && !type.includes('pt');
-        if (activeTab === 'PT') return type.includes('pt') || type.includes('personal') || type.includes('training');
+        if (activeTab === 'Recovery') return name.includes('sauna') || name.includes('ice bath') || name.includes('recovery');
+        if (activeTab === 'PT') return name.includes('pt') || name.includes('personal') || name.includes('training');
+        if (activeTab === 'Classes') return !name.includes('sauna') && !name.includes('ice bath') && !name.includes('recovery') && !name.includes('pt') && !name.includes('personal') && !name.includes('training');
         return true;
     });
 
