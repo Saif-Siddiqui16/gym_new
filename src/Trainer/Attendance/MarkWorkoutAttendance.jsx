@@ -57,7 +57,7 @@ const MarkWorkoutAttendance = () => {
     const handleSave = async () => {
         if (!selectedSessionId) return;
         setSaving(true);
-        const success = await saveAttendance(selectedSessionId, members.map(m => ({ id: m.id, status: m.status })));
+        const success = await saveAttendance(selectedSessionId, members.map(m => ({ memberId: m.id, status: m.status })));
         if (success) {
             toast.success("Attendance saved successfully!");
         }

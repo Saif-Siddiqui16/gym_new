@@ -64,6 +64,7 @@ const PTSessions = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [editingPackage, setEditingPackage] = useState(null);
     const [isSubmitting, setSubmitting] = useState(false);
+    const [bookedSlots, setBookedSlots] = useState([]);
 
     // Form State for Package
     const [formData, setFormData] = useState({
@@ -92,7 +93,8 @@ const PTSessions = () => {
     const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
     const [assignData, setAssignData] = useState({
         memberId: '',
-        packageId: ''
+        packageId: '',
+        trainerId: ''
     });
 
     const [isSessionDrawerOpen, setIsSessionDrawerOpen] = useState(false);
@@ -135,13 +137,41 @@ const PTSessions = () => {
         try {
             setSubmitting(true);
             await ptApi.logSession(sessionData);
-            toast.success('Session logged successfully');
+            toast.success('Session scheduled successfully');
             setIsSessionDrawerOpen(false);
             loadData();
         } catch (error) {
-            toast.error('Failed to log session');
+            if (error.response?.status === 409) {
+                toast.error(error.response?.data?.message || 'This trainer is already booked for this time.');
+            } else {
+                toast.error('Failed to log session');
+            }
         } finally {
             setSubmitting(false);
+        }
+    };
+ 
+    useEffect(() => {
+        const fetchBookedSlots = async () => {
+            if (sessionData.trainerId && sessionData.date && isSessionDrawerOpen) {
+                try {
+                    const res = await ptApi.getBookedSlots(sessionData.trainerId, sessionData.date);
+                    setBookedSlots(res.data);
+                } catch (error) {
+                    console.error('Error fetching booked slots:', error);
+                }
+            }
+        };
+        fetchBookedSlots();
+    }, [sessionData.trainerId, sessionData.date, isSessionDrawerOpen]);
+
+    const handleUpdateSessionStatus = async (sessionId, status) => {
+        try {
+            await ptApi.updateSessionStatus(sessionId, status);
+            toast.success(`Session marked as ${status}`);
+            loadData();
+        } catch (error) {
+            toast.error(`Failed to update session: ${error.response?.data?.message || error.message}`);
         }
     };
 
@@ -151,11 +181,12 @@ const PTSessions = () => {
             setSubmitting(true);
             await ptApi.purchasePackage({
                 memberId: assignData.memberId,
-                packageId: assignData.packageId
+                packageId: assignData.packageId,
+                trainerId: assignData.trainerId
             });
             toast.success('Package assigned successfully');
             setIsAssignDrawerOpen(false);
-            setAssignData({ memberId: '', packageId: '' });
+            setAssignData({ memberId: '', packageId: '', trainerId: '' });
             loadData();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to assign package');
@@ -170,6 +201,7 @@ const PTSessions = () => {
             setSubmitting(true);
             const payload = {
                 ...formData,
+                totalSessions: formData.sessionType === 'Fixed Sessions' ? parseInt(formData.totalSessions) : 0,
                 branchId: selectedBranch // 'all' or specific ID
             };
 
@@ -428,20 +460,7 @@ const PTSessions = () => {
                         </div>
                     )}
 
-                    {activeTab === 'packages' && (
-                        <div className="py-2 sm:py-0 w-full sm:w-auto flex justify-center sm:justify-end">
-                            <button
-                                onClick={() => {
-                                    resetForm();
-                                    setIsSidebarOpen(true);
-                                }}
-                                className="w-full sm:w-auto px-4 py-2.5 md:px-6 md:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-xl hover:shadow-purple-500/30 transition-all"
-                            >
-                                <Plus size={16} strokeWidth={2.5} />
-                                Create Package
-                            </button>
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Filters Row */}
@@ -592,7 +611,10 @@ const PTSessions = () => {
                                             </td>
                                             <td className="px-6 py-4" data-label="Status">
                                                 <div className="flex justify-end sm:justify-start">
-                                                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600">
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                        acc.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 
+                                                        acc.status === 'Pending Payment' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
+                                                    }`}>
                                                         {acc.status}
                                                     </span>
                                                 </div>
@@ -635,11 +657,21 @@ const PTSessions = () => {
                                                 {sess.ptAccount?.package?.name || 'Walk-in'}
                                             </td>
                                             <td className="px-6 py-4" data-label="Status">
-                                                <div className="flex justify-end sm:justify-start">
+                                                <div className="flex items-center justify-end sm:justify-start gap-4">
                                                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${sess.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-primary-light text-primary'
                                                         }`}>
                                                         {sess.status}
                                                     </span>
+                                                    {sess.status === 'Scheduled' && (
+                                                        <button
+                                                            onClick={() => handleUpdateSessionStatus(sess.id, 'Completed')}
+                                                            className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-bold hover:bg-emerald-600 transition-colors shadow-sm"
+                                                            title="Mark as Completed to deduct session"
+                                                        >
+                                                            <CheckCircle size={12} />
+                                                            Mark Done
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -708,17 +740,19 @@ const PTSessions = () => {
                         </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="saas-form-group">
-                            <label className="saas-label">Sessions *</label>
-                            <input
-                                type="number"
-                                required
-                                className="saas-input"
-                                value={formData.totalSessions}
-                                onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
-                            />
-                        </div>
+                    <div className={`grid ${formData.sessionType === 'Fixed Sessions' ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+                        {formData.sessionType === 'Fixed Sessions' && (
+                            <div className="saas-form-group">
+                                <label className="saas-label">Sessions *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    className="saas-input"
+                                    value={formData.totalSessions}
+                                    onChange={(e) => setFormData({ ...formData, totalSessions: e.target.value })}
+                                />
+                            </div>
+                        )}
                         <div className="saas-form-group">
                             <label className="saas-label">Price (₹) *</label>
                             <input
@@ -841,6 +875,22 @@ const PTSessions = () => {
                             ))}
                         </select>
                     </div>
+
+                    <div className="saas-form-group">
+                        <label className="saas-label">Assign Trainer (Optional)</label>
+                        <select
+                            className="saas-input cursor-pointer"
+                            value={assignData.trainerId}
+                            onChange={(e) => setAssignData({ ...assignData, trainerId: e.target.value })}
+                        >
+                            <option value="">Choose a trainer</option>
+                            {trainers.map(trainer => (
+                                <option key={trainer.id} value={trainer.id}>
+                                    {trainer.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </form>
             </RightDrawer>
 
@@ -910,13 +960,33 @@ const PTSessions = () => {
                         </div>
                         <div className="saas-form-group">
                             <label className="saas-label">Time *</label>
-                            <input
-                                type="time"
-                                required
-                                className="saas-input"
-                                value={sessionData.time}
-                                onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
-                            />
+                            <div className="relative">
+                                <input
+                                    type="time"
+                                    required
+                                    className={`saas-input ${bookedSlots.includes(sessionData.time) ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
+                                    value={sessionData.time}
+                                    onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
+                                />
+                                {bookedSlots.includes(sessionData.time) && (
+                                    <div className="absolute top-full left-0 mt-1 flex items-center gap-1 text-[10px] font-bold text-red-500 uppercase tracking-tight">
+                                        <AlertCircle size={12} />
+                                        Slot already booked
+                                    </div>
+                                )}
+                            </div>
+                            {bookedSlots.length > 0 && (
+                                <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Booked Slots Today:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {bookedSlots.sort().map(slot => (
+                                            <span key={slot} className="px-2 py-1 bg-white border border-amber-200 rounded-lg text-xs font-bold text-amber-700 shadow-sm">
+                                                {slot}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { inventoryApi } from '../../../api/inventoryApi';
 import toast from 'react-hot-toast';
-import { AlertTriangle, CheckCircle, Package, Search, Filter, Plus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Package, Search, Filter, Plus, ArrowUpRight, ArrowDownRight, Box } from 'lucide-react';
 import MobileCard from '../../../components/common/MobileCard';
 
 const Inventory = () => {
@@ -76,28 +76,26 @@ const Inventory = () => {
     const categories = ['All', ...new Set(inventory.map(item => item.category))];
 
     return (
-        <div className="min-h-screen ">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
             {/* Premium Header */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
-                                <Package size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Inventory Management
-                                    </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
-                                        PREMIUM ✨
-                                    </span>
-                                </div>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Track gym supplies and equipment stock</p>
-                            </div>
+            <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center text-white shadow-xl shadow-slate-200 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <Package size={32} strokeWidth={2.5} />
                         </div>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                Inventory
+                            </h1>
+                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
+                                <Box size={14} className="text-primary" />
+                                Manage products, health items & gym equipment
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                         <button
                             onClick={async () => {
                                 const name = prompt('Item Name:');
@@ -118,10 +116,9 @@ const Inventory = () => {
                                     toast.error('Failed to add item');
                                 }
                             }}
-                            className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all w-full sm:w-auto"
+                            className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
-                            <Plus size={16} strokeWidth={2.5} className="sm:w-[18px] sm:h-[18px] transition-all duration-300 group-hover:scale-110 group-hover:rotate-90" />
-                            Add Item
+                            <Plus size={18} strokeWidth={3} /> Add Item
                         </button>
                     </div>
                 </div>

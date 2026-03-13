@@ -258,7 +258,7 @@ export const getSessionHistory = async ({ filters = {}, page = 1, limit = 5 } = 
 
 export const saveAttendance = async (sessionId, attendanceData) => {
     try {
-        const response = await apiClient.post(`/trainer/sessions/${sessionId}/attendance`, attendanceData);
+        const response = await apiClient.post(`/trainer/sessions/${sessionId}/attendance`, { attendanceData });
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to save attendance';

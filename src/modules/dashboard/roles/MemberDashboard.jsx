@@ -23,11 +23,12 @@ import apiClient from '../../../api/apiClient';
 import { getChatMessages, sendChatMessage } from '../../../api/communication/communicationApi';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { X, Send, MessageSquare } from 'lucide-react';
+import { X, Send, MessageSquare, Dumbbell } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
 import QRScannerModal from '../../../components/common/QRScannerModal';
 import { scanAttendance } from '../../../api/member/attendanceApi';
+import { fetchPTAccounts } from '../../../api/member/memberApi';
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -41,8 +42,11 @@ const MemberDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const res = await apiClient.get('/member/dashboard');
-            setData(res.data);
+            const [res, ptRes] = await Promise.all([
+                apiClient.get('/member/dashboard'),
+                fetchPTAccounts()
+            ]);
+            setData({ ...res.data, ptAccounts: ptRes });
         } catch (err) {
             console.error("Failed to fetch dashboard data", err);
             toast.error("Failed to load dashboard statistics");
@@ -142,7 +146,7 @@ const MemberDashboard = () => {
 
     if (!data) return null;
 
-    const { memberInfo, membership, stats, recentAttendance, upcomingClass, trainer, locker, announcements } = data;
+    const { memberInfo, membership, stats, recentAttendance, upcomingClass, trainer, locker, announcements, ptAccounts } = data;
 
     return (
         <div className="saas-page pb-page space-y-8 animate-fadeIn scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -474,6 +478,57 @@ const MemberDashboard = () => {
                             )}
                         </div>
                     </Card>
+
+                    {/* My PT Packages */}
+                    {ptAccounts && ptAccounts.length > 0 && (
+                        <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
+                            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-violet-50 rounded-full blur-2xl opacity-60"></div>
+                            <div className="relative z-10 flex flex-col gap-4">
+                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                                    <h3 className="text-xs font-black uppercase tracking-widest text-primary">My PT Packages</h3>
+                                    <Dumbbell size={16} className="text-violet-200" />
+                                </div>
+                                <div className="space-y-4">
+                                    {ptAccounts.map((account, idx) => (
+                                        <div key={idx} className="p-4 rounded-xl bg-violet-50/50 border border-violet-100/50">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="text-sm font-black text-slate-900 uppercase">{account.package?.name}</h4>
+                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${account.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                    {account.status}
+                                                </span>
+                                            </div>
+                                            {account.package?.totalSessions > 0 && (
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="flex-1 h-1.5 bg-violet-100 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className="h-full bg-primary rounded-full transition-all duration-1000"
+                                                            style={{ width: `${(account.remainingSessions / account.totalSessions) * 100}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-500 whitespace-nowrap">
+                                                        {account.remainingSessions} / {account.totalSessions} left
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {account.trainer && (
+                                                <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-2">
+                                                    <User size={12} /> {account.trainer.name}
+                                                </p>
+                                            )}
+                                            {account.status === 'Pending Payment' && (
+                                                <button
+                                                    onClick={() => navigate('/member/payments')}
+                                                    className="w-full mt-3 py-2 bg-amber-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-sm"
+                                                >
+                                                    Pay Now to Activate
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </Card>
+                    )}
                 </div>
             </div>
 

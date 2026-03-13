@@ -60,24 +60,33 @@ const StoreOrders = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/20 p-4 sm:p-8 min-h-screen">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center text-white shadow-xl shadow-slate-200">
-                        <ShoppingCart size={28} />
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
+            {/* Premium Header */}
+            <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center text-white shadow-xl shadow-slate-200 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <ShoppingCart size={32} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                Store Orders
+                            </h1>
+                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
+                                <ReceiptText size={14} className="text-primary" />
+                                Track and manage customer orders and sales
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
-                            Store Orders
-                        </h1>
-                        <p className="text-slate-500 text-sm font-medium mt-1">Track and manage customer orders and sales</p>
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <button
+                            onClick={handleExport}
+                            className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <Download size={18} strokeWidth={3} /> Export as PDF
+                        </button>
                     </div>
-                </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button onClick={handleExport} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all active:scale-95">
-                        <Download size={18} /> Export as PDF
-                    </button>
                 </div>
             </div>
 

@@ -124,53 +124,67 @@ const FeedbackSystem = ({ role }) => {
         <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
 
             {/* Header Section */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
-                                <MessageSquare size={32} />
-                            </div>
-                            <div>
-                                <h1 className="text-4xl font-black text-slate-900 tracking-tight">{role === 'MEMBER' ? 'My Feedback' : 'Member Feedback'}</h1>
-                                <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">
-                                    {role === 'MEMBER' ? 'Share your thoughts and track responses' : 'Review and manage feedback submitted by members'}
-                                </p>
-                            </div>
+            <div className="mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300 shrink-0">
+                            <MessageSquare size={24} className="sm:w-7 sm:h-7" />
                         </div>
-
-                        {role === 'MEMBER' && (
-                            <button
-                                onClick={() => setIsSubmitModalOpen(true)}
-                                className="h-12 px-6 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-primary-hover hover:-translate-y-0.5 transition-all flex items-center gap-2"
-                            >
-                                <MessageSquare size={16} />
-                                Submit Feedback
-                            </button>
-                        )}
+                        <div>
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
+                                {role === 'MEMBER' ? 'My Feedback' : 'Member Feedback'}
+                            </h1>
+                            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
+                                {role === 'MEMBER' ? 'Share your thoughts and track responses' : 'Review and manage feedback submitted by members'}
+                            </p>
+                        </div>
                     </div>
+
+                    {role === 'MEMBER' && (
+                        <button
+                            onClick={() => setIsSubmitModalOpen(true)}
+                            className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <MessageSquare size={18} />
+                            Submit Feedback
+                        </button>
+                    )}
                 </div>
             </div>
 
-            {/* Stats Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard title="Total Feedback" value={stats.total.toString()} icon={MessageSquare} color="primary" isEarningsLayout={true} />
-                <StatsCard title="Average Rating" value={stats.avgRating} icon={Star} color="warning" isEarningsLayout={true} />
-                <StatsCard title="Pending Review" value={stats.pending.toString()} icon={Clock} color="info" isEarningsLayout={true} />
-                <StatsCard title="Resolved" value={stats.resolved.toString()} icon={CheckCircle2} color="success" isEarningsLayout={true} />
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { label: 'Total Feedback', value: stats.total, icon: MessageSquare, color: 'from-primary to-primary' },
+                    { label: 'Average Rating', value: stats.avgRating, icon: Star, color: 'from-amber-400 to-orange-500' },
+                    { label: 'Pending Review', value: stats.pending, icon: Clock, color: 'from-blue-500 to-indigo-600' },
+                    { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'from-emerald-500 to-teal-600' }
+                ].map((kpi, idx) => (
+                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
+                        <div className="flex items-start justify-between w-full">
+                            <div>
+                                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{kpi.label}</p>
+                                <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
+                            </div>
+                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
+                                <kpi.icon size={20} />
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            {/* All Feedback Table Section */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/30">
+            {/* All Feedback Content Area */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm min-h-[400px]">
+                <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
                             <BarChart3 size={20} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight">All Feedback</h3>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Comprehensive list of member reviews</p>
+                            <h2 className="text-lg font-bold text-slate-900 leading-none">All Feedback</h2>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Comprehensive list of member reviews</p>
                         </div>
                     </div>
 
@@ -202,16 +216,16 @@ const FeedbackSystem = ({ role }) => {
                     </div>
                 </div>
 
-                <div className="saas-table-wrapper border-0 rounded-none overflow-visible">
-                    <table className="saas-table saas-table-responsive w-full">
-                        <thead className="bg-slate-50/50 border-b border-slate-100">
+                <div className="saas-table-wrapper border-0 rounded-none overflow-x-auto">
+                    <table className="saas-table saas-table-responsive w-full text-left">
+                        <thead className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold">
                             <tr>
-                                {role !== 'MEMBER' && <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Member</th>}
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rating</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Feedback</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
-                                {role !== 'MEMBER' && <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>}
+                                {role !== 'MEMBER' && <th className="px-6 py-4">Member</th>}
+                                <th className="px-6 py-4">Rating</th>
+                                <th className="px-6 py-4">Feedback</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Date</th>
+                                {role !== 'MEMBER' && <th className="px-6 py-4 text-right">Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -224,8 +238,8 @@ const FeedbackSystem = ({ role }) => {
                             ) : filteredFeedback.length > 0 ? (
                                 filteredFeedback.map((item) => (
                                     <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                        {role !== 'MEMBER' && <td className="px-8 py-5 font-bold text-slate-900">{item.member}</td>}
-                                        <td className="px-8 py-5">
+                                        {role !== 'MEMBER' && <td className="px-6 py-4 font-bold text-slate-900">{item.member}</td>}
+                                        <td className="px-6 py-4">
                                             <div className="flex items-center gap-1">
                                                 <span className="text-sm font-bold text-slate-900">{item.rating}</span>
                                                 <Star size={14} className="text-amber-400 fill-amber-400" />
@@ -237,18 +251,18 @@ const FeedbackSystem = ({ role }) => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5">
+                                        <td className="px-6 py-4">
                                             <p className="text-sm text-slate-500 font-medium max-w-md line-clamp-2">{item.comment}</p>
                                         </td>
-                                        <td className="px-8 py-5">
+                                        <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
                                                 {item.status}
                                             </span>
                                         </td>
-                                        <td className="px-8 py-5 font-bold text-slate-400 text-[10px] uppercase">{item.date}</td>
+                                        <td className="px-6 py-4 font-bold text-slate-400 text-[10px] uppercase">{item.date}</td>
 
                                         {role !== 'MEMBER' && (
-                                            <td className="px-8 py-5 text-right relative">
+                                            <td className="px-6 py-4 text-right relative">
                                                 <div className="flex items-center justify-end gap-2">
                                                     {(item.status || 'Pending') === 'Pending' ? (
                                                         <>

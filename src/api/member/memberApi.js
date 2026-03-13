@@ -242,3 +242,21 @@ export const redeemReward = async (catalogId) => {
         throw error.response?.data?.message || 'Failed to redeem reward';
     }
 };
+
+export const fetchPTAccounts = async () => {
+    try {
+        const response = await apiClient.get('/member/pt-accounts');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch PT accounts';
+    }
+};
+
+export const bookPTSession = async (bookingData) => {
+    try {
+        const response = await apiClient.post('/member/pt-sessions', bookingData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to book PT session';
+    }
+};

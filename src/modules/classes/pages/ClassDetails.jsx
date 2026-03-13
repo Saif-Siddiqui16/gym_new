@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Calendar, MapPin, Users, Edit2, UserPlus, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Calendar, MapPin, Users, Edit2, UserPlus, Loader2, Check, X, Clock, Save } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
-import { getClassById } from '../../../api/manager/classesApi';
-import { getTrainerClassById } from '../../../api/trainer/trainerApi';
+import { getClassById, saveClassAttendance } from '../../../api/manager/classesApi';
+import { getTrainerClassById, saveAttendance as saveTrainerAttendance } from '../../../api/trainer/trainerApi';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
@@ -14,6 +14,8 @@ const ClassDetails = () => {
     const navigate = useNavigate();
     const [classData, setClassData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [attendanceStatuses, setAttendanceStatuses] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         loadClassDetails();
@@ -24,12 +26,50 @@ const ClassDetails = () => {
             setLoading(true);
             const data = role === 'TRAINER' ? await getTrainerClassById(id) : await getClassById(id);
             setClassData(data);
+
+            // Initialize attendance statuses from enrolled members
+            const initialStatuses = {};
+            (data.enrolledMembers || []).forEach(member => {
+                initialStatuses[member.id] = member.status || 'Scheduled'; // status in Booking
+            });
+            setAttendanceStatuses(initialStatuses);
         } catch (error) {
             console.error('Error loading class details:', error);
             toast.error('Failed to load class details');
             navigate('/classes');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusChange = (memberId, status) => {
+        setAttendanceStatuses(prev => ({
+            ...prev,
+            [memberId]: status
+        }));
+    };
+
+    const handleSaveAttendance = async () => {
+        try {
+            setIsSaving(true);
+            const attendanceData = Object.entries(attendanceStatuses).map(([memberId, status]) => ({
+                memberId,
+                status
+            }));
+
+            if (role === 'TRAINER') {
+                await saveTrainerAttendance(id, attendanceData);
+            } else {
+                await saveClassAttendance(id, attendanceData);
+            }
+
+            toast.success('Attendance saved successfully');
+            loadClassDetails(); // Refresh to confirm
+        } catch (error) {
+            console.error('Error saving attendance:', error);
+            toast.error('Failed to save attendance');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -113,10 +153,10 @@ const ClassDetails = () => {
                 <div>
                     <Card title={`Enrolled Members (${enrolledMembers.length})`}>
                         {enrolledMembers.length > 0 ? (
-                            <div className="max-h-[500px]  custom-scrollbar pr-2">
+                            <div className="max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
                                 <ul style={{ listStyle: 'none', padding: 0 }}>
                                     {enrolledMembers.map(member => (
-                                        <li key={member.id} className="py-4 border-b border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200 px-2 rounded-xl">
+                                        <li key={member.id} className="py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 transition-colors duration-200 px-2 rounded-xl gap-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-light to-purple-50 flex items-center justify-center shadow-sm">
                                                     <User size={18} className="text-primary" />
@@ -125,6 +165,30 @@ const ClassDetails = () => {
                                                     <span className="font-bold text-gray-800 block text-sm">{member.name}</span>
                                                     <span className="text-gray-500 text-xs">{member.email}</span>
                                                 </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <AttendanceButton
+                                                    active={attendanceStatuses[member.id] === 'Present'}
+                                                    onClick={() => handleStatusChange(member.id, 'Present')}
+                                                    icon={Check}
+                                                    label="Present"
+                                                    color="bg-green-500"
+                                                />
+                                                <AttendanceButton
+                                                    active={attendanceStatuses[member.id] === 'Absent'}
+                                                    onClick={() => handleStatusChange(member.id, 'Absent')}
+                                                    icon={X}
+                                                    label="Absent"
+                                                    color="bg-red-500"
+                                                />
+                                                <AttendanceButton
+                                                    active={attendanceStatuses[member.id] === 'Late'}
+                                                    onClick={() => handleStatusChange(member.id, 'Late')}
+                                                    icon={Clock}
+                                                    label="Late"
+                                                    color="bg-amber-500"
+                                                />
                                             </div>
                                         </li>
                                     ))}
@@ -137,9 +201,23 @@ const ClassDetails = () => {
                             </div>
                         )}
 
+                        {enrolledMembers.length > 0 && (
+                            <div className="mt-8 pt-4 border-t border-gray-100">
+                                <Button
+                                    variant="primary"
+                                    className="w-full shadow-lg shadow-primary/20 h-12 text-lg font-bold"
+                                    onClick={handleSaveAttendance}
+                                    isLoading={isSaving}
+                                >
+                                    {!isSaving && <Save size={20} className="mr-2" />}
+                                    Save Attendance
+                                </Button>
+                            </div>
+                        )}
+
                         {role !== 'TRAINER' && (
-                            <div className="mt-6 text-center border-t border-gray-100 pt-4">
-                                <Button variant="outline" size="small" onClick={() => navigate(`/classes/${id}/enroll`)} className="w-full">
+                            <div className="mt-4 text-center">
+                                <Button variant="ghost" size="small" onClick={() => navigate(`/classes/${id}/enroll`)} className="text-gray-400 hover:text-primary">
                                     Manage Enrollments
                                 </Button>
                             </div>
@@ -151,7 +229,21 @@ const ClassDetails = () => {
     );
 };
 
-// Sub-component for icons
+// Sub-components
+const AttendanceButton = ({ active, onClick, icon: Icon, label, color }) => (
+    <button
+        onClick={onClick}
+        title={label}
+        className={`flex items-center justify-center p-2 rounded-xl transition-all duration-300 ${
+            active
+                ? `${color} text-white shadow-md scale-105 ring-4 ring-${color.split('-')[1]}-100`
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+        }`}
+    >
+        <Icon size={18} />
+    </button>
+);
+
 const InfoRow = ({ icon: Icon, label, value }) => (
     <div className="flex flex-col gap-1.5 p-3 rounded-2xl bg-gray-50/50 border border-gray-100 hover:border-violet-100 transition-all duration-300 group">
         <span className="text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2" style={{ fontSize: '0.65rem' }}>
@@ -161,7 +253,6 @@ const InfoRow = ({ icon: Icon, label, value }) => (
     </div>
 );
 
-// Helper
 const ClockIcon = ({ size }) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"

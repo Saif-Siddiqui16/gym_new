@@ -239,47 +239,51 @@ const MemberProgress = () => {
     }
 
     return (
-        <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
-                <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <TrendingUp size={32} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">
-                            {isManagement ? 'Member Progress' : 'My Progress'}
-                        </h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">
-                            {isManagement ? 'Analyze fitness results' : 'Track your fitness journey'}
-                        </p>
-                    </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                    {progressData.targets?.goal && (
-                        <div className="flex items-center gap-3 px-5 py-3 bg-emerald-50 rounded-2xl border-2 border-emerald-100">
-                            <Target size={16} className="text-emerald-600" />
-                            <span className="text-xs font-black text-emerald-700 uppercase tracking-widest">{progressData.targets.goal}</span>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
+            {/* Premium Header */}
+            <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <TrendingUp size={32} strokeWidth={2.5} />
                         </div>
-                    )}
-                    <button
-                        onClick={() => setShowLogModal(true)}
-                        className="flex items-center gap-2 h-11 px-6 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95"
-                    >
-                        <Plus size={16} /> Log Progress
-                    </button>
-                    {isManagement && (
-                        <div className="w-full sm:w-64">
-                            <CustomDropdown
-                                options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))}
-                                value={selectedMemberId}
-                                onChange={setSelectedMemberId}
-                                placeholder="Change Member View"
-                                searchEnabled={true}
-                                className="w-full"
-                            />
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                {isManagement ? 'Member Progress' : 'My Progress'}
+                            </h1>
+                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
+                                <Activity size={14} className="text-primary" />
+                                {isManagement ? 'Analyze fitness results' : 'Track your fitness journey'}
+                            </p>
                         </div>
-                    )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        {progressData.targets?.goal && (
+                            <div className="flex items-center gap-3 px-5 h-12 bg-emerald-50 rounded-2xl border-2 border-emerald-100/50 shadow-sm">
+                                <Target size={16} className="text-emerald-600" />
+                                <span className="text-xs font-black text-emerald-700 uppercase tracking-widest">{progressData.targets.goal}</span>
+                            </div>
+                        )}
+                        <button
+                            onClick={() => setShowLogModal(true)}
+                            className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <Plus size={18} strokeWidth={3} /> Log Progress
+                        </button>
+                        {isManagement && (
+                            <div className="w-full sm:w-64">
+                                <CustomDropdown
+                                    options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))}
+                                    value={selectedMemberId}
+                                    onChange={setSelectedMemberId}
+                                    placeholder="Change Member View"
+                                    searchEnabled={true}
+                                    className="w-full h-12 rounded-2xl border-2 border-slate-100 bg-white/50 focus-within:border-primary transition-all"
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

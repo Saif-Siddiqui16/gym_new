@@ -15,5 +15,7 @@ export const ptApi = {
 
     // Sessions
     getSessions: (params) => api.get('/pt/sessions', { params }),
-    logSession: (data) => api.post('/pt/sessions', data)
+    logSession: (data) => api.post('/pt/sessions', data),
+    updateSessionStatus: (id, status) => api.patch(`/pt/sessions/${id}/status`, { status }),
+    getBookedSlots: (trainerId, date) => api.get(`/pt/sessions/booked-slots?trainerId=${trainerId}&date=${date}`)
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Phone, TrendingUp, CheckCircle, Search, Filter, BarChart3, Mail, MoreHorizontal, Loader2, Trash2, Edit3, X } from 'lucide-react';
+import { Users, UserPlus, Phone, TrendingUp, CheckCircle, Search, Filter, BarChart3, Mail, MoreHorizontal, Loader2, Trash2, Edit3, X, AlertCircle } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../../modules/dashboard/components/StatsCard';
@@ -271,149 +271,149 @@ const LeadsPipeline = () => {
     return (
         <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
             {/* Header Section */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-8 md:p-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
-                                <Users size={32} />
-                            </div>
-                            <div>
-                                <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none">Lead Management</h1>
-                                <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Track and convert your fitness prospects</p>
-                            </div>
+            <div className="mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300 shrink-0">
+                            <Users size={24} className="sm:w-7 sm:h-7" />
                         </div>
-                        <Button
-                            onClick={openAddDrawer}
-                            variant="primary"
-                            className="h-12 px-8 rounded-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all transform active:scale-95 text-xs font-black uppercase tracking-widest whitespace-nowrap"
-                            icon={UserPlus}
-                        >
-                            Add Lead
-                        </Button>
+                        <div>
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
+                                Lead Management
+                            </h1>
+                            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">Track and convert your fitness prospects</p>
+                        </div>
                     </div>
+                    <Button
+                        onClick={openAddDrawer}
+                        variant="primary"
+                        className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        icon={UserPlus}
+                    >
+                        Add Lead
+                    </Button>
                 </div>
             </div>
 
-            {/* Stats Cards Section - Improved Responsiveness */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {/* Stats Cards Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                 {[
-                    { title: "Total Leads", value: stats.total, icon: Users, color: "bg-primary-light", text: "text-primary" },
-                    { title: "New", value: stats.new, icon: UserPlus, color: "bg-indigo-50", text: "text-indigo-600" },
-                    { title: "Contacted", value: stats.contacted, icon: Phone, color: "bg-amber-50", text: "text-amber-600" },
-                    { title: "Interested", value: stats.interested, icon: TrendingUp, color: "bg-emerald-50", text: "text-emerald-600" },
-                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "bg-blue-50", text: "text-blue-600" },
-                    { title: "Lost", value: stats.lost, icon: X, color: "bg-rose-50", text: "text-rose-600" }
+                    { title: "Total Leads", value: stats.total, icon: Users, color: "from-primary to-primary" },
+                    { title: "New", value: stats.new, icon: UserPlus, color: "from-indigo-500 to-blue-600" },
+                    { title: "Contacted", value: stats.contacted, icon: Phone, color: "from-amber-400 to-orange-500" },
+                    { title: "Interested", value: stats.interested, icon: TrendingUp, color: "from-emerald-500 to-teal-600" },
+                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "from-blue-500 to-indigo-600" },
+                    { title: "Lost", value: stats.lost, icon: X, color: "from-rose-500 to-red-600" }
                 ].map((item, idx) => (
-                    <div key={idx} className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 group/stat cursor-default min-w-0">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className={`w-14 h-14 rounded-2xl ${item.color} ${item.text} flex items-center justify-center group-hover/stat:scale-110 transition-transform shadow-sm`}>
-                                <item.icon size={26} />
+                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
+                        <div className="flex items-start justify-between w-full">
+                            <div>
+                                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{item.title}</p>
+                                <h3 className="text-3xl font-black text-slate-900">{item.value}</h3>
                             </div>
-                        </div>
-                        <div className="min-w-0 overflow-hidden">
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 truncate">{item.title}</p>
-                            <h3 className="text-4xl font-black text-slate-900 tracking-tight truncate">{item.value}</h3>
+                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
+                                <item.icon size={20} />
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Lead Sources Section */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-10">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
-                        <BarChart3 size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-black text-slate-900 tracking-tight">Lead Sources</h3>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Where your prospects are coming from</p>
-                    </div>
-                </div>
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    </div>
-                ) : leads.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                        {sourceStats.map((source) => {
-                            const percentage = leads.length > 0 ? Math.round((source.count / leads.length) * 100) : 0;
-                            return (
-                                <div key={source.name} className="relative group p-6 rounded-3xl border border-slate-100 hover:border-violet-200 hover:shadow-xl hover:shadow-primary-light transition-all duration-300 bg-white">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className={`w-12 h-12 rounded-2xl bg-${source.color}-50 text-${source.color}-600 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                            <source.icon size={24} />
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-2xl font-black text-slate-900 leading-none">{source.count}</span>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Leads</span>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                            <span>{source.name}</span>
-                                            <span>{percentage}%</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full bg-${source.color}-500 rounded-full transition-all duration-1000 ease-out`}
-                                                style={{ width: `${percentage}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
-                        <div className="text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-200 mx-auto mb-4">
-                                <Search size={32} />
-                            </div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">No leads to display</p>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
+                            <BarChart3 size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-900 leading-none">Lead Sources</h2>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Where your prospects are coming from</p>
                         </div>
                     </div>
-                )}
+                </div>
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex justify-center items-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        </div>
+                    ) : leads.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {sourceStats.map((source) => {
+                                const percentage = leads.length > 0 ? Math.round((source.count / leads.length) * 100) : 0;
+                                return (
+                                    <div key={source.name} className="p-5 rounded-2xl border border-slate-100 hover:border-primary/20 hover:shadow-lg transition-all bg-white group">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className={`w-10 h-10 rounded-xl bg-${source.color}-50 text-${source.color}-600 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                                                <source.icon size={20} />
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-xl font-black text-slate-900">{source.count}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase">Leads</div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                                <span>{source.name}</span>
+                                                <span>{percentage}%</span>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full bg-${source.color}-500 rounded-full transition-all duration-1000`}
+                                                    style={{ width: `${percentage}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                            <Search size={40} className="text-slate-200 mb-2" />
+                            <p className="text-xs font-bold uppercase">No leads to display</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* All Leads Section */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-                <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/30">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0">
                             <Users size={20} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight">All Leads</h3>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Manage your entire lead database</p>
+                            <h2 className="text-lg font-bold text-slate-900 leading-none">All Leads</h2>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Manage your entire lead database</p>
                         </div>
                     </div>
-                    <div className="relative w-full md:w-80">
+                    <div className="relative w-full sm:w-80">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
                             placeholder="Search leads..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white"
+                            className="w-full h-11 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white"
                         />
                     </div>
                 </div>
 
-                <div className="saas-table-wrapper border-0 rounded-none overflow-visible">
-                    <table className="saas-table saas-table-responsive">
-                        <thead className="bg-slate-50 border-b border-slate-100">
+                <div className="saas-table-wrapper border-0 rounded-none overflow-x-auto">
+                    <table className="saas-table saas-table-responsive w-full text-left">
+                        <thead className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold">
                             <tr>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Created</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Follow-up</th>
-                                <th className="text-left py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned To</th>
-                                <th className="text-right py-4 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                                <th className="px-6 py-4">Name</th>
+                                <th className="px-6 py-4">Contact</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Source</th>
+                                <th className="px-6 py-4">Created</th>
+                                <th className="px-6 py-4">Next Follow-up</th>
+                                <th className="px-6 py-4">Assigned To</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -426,14 +426,14 @@ const LeadsPipeline = () => {
                             ) : filteredLeads.length > 0 ? (
                                 filteredLeads.map((lead) => (
                                     <tr key={lead.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-4 py-4 font-bold text-slate-900" data-label="Name">{lead.name}</td>
-                                        <td className="px-4 py-4 text-slate-600 text-sm" data-label="Contact">
+                                        <td className="px-6 py-4 font-bold text-slate-900" data-label="Name">{lead.name}</td>
+                                        <td className="px-6 py-4 text-slate-600 text-sm" data-label="Contact">
                                             <div className="flex flex-col">
                                                 <span>{lead.phone}</span>
                                                 <span className="text-[10px] text-slate-400 font-bold">{lead.email || 'No email'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4" data-label="Status">
+                                        <td className="px-6 py-4" data-label="Status">
                                             <div className="flex flex-col gap-1">
                                                 <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest w-fit ${lead.status === 'New' ? 'bg-primary-light text-primary' :
                                                     lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
@@ -449,11 +449,11 @@ const LeadsPipeline = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-slate-600 text-sm font-bold uppercase tracking-widest text-[10px]" data-label="Source">{lead.source}</td>
-                                        <td className="px-4 py-4 text-slate-500 text-[10px] font-bold" data-label="Created">
+                                        <td className="px-6 py-4 text-slate-600 text-sm font-bold uppercase tracking-widest text-[10px]" data-label="Source">{lead.source}</td>
+                                        <td className="px-6 py-4 text-slate-500 text-[10px] font-bold" data-label="Created">
                                             {new Date(lead.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="px-4 py-4" data-label="Follow-up">
+                                        <td className="px-6 py-4" data-label="Follow-up">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-slate-700">{lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleDateString() : 'No date'}</span>
                                                 <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">
@@ -461,7 +461,7 @@ const LeadsPipeline = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4" data-label="Assigned To">
+                                        <td className="px-6 py-4" data-label="Assigned To">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
                                                     {lead.assignedTo?.name ? lead.assignedTo.name[0].toUpperCase() : '?'}
@@ -469,7 +469,7 @@ const LeadsPipeline = () => {
                                                 <span className="text-xs font-bold text-slate-700">{lead.assignedTo?.name || 'Unassigned'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-right" data-label="Actions">
+                                        <td className="px-6 py-4 text-right" data-label="Actions">
                                             <div className="relative inline-block text-left">
                                                 <button
                                                     onClick={(e) => toggleMenu(e, lead.id)}

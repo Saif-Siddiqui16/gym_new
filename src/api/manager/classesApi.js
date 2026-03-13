@@ -24,3 +24,8 @@ export const deleteClass = async (id) => {
     const response = await apiClient.delete(`/admin/classes/${id}`);
     return response.data;
 };
+
+export const saveClassAttendance = async (id, attendanceData) => {
+    const response = await apiClient.post(`/admin/classes/${id}/attendance`, { attendanceData });
+    return response.data;
+};

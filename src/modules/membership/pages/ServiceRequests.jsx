@@ -77,19 +77,32 @@ const ServiceRequests = () => {
     );
 
     return (
-        <div className="fade-in space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Member Service Requests</h2>
-                    <p className="text-slate-500 font-bold mt-1 uppercase text-xs tracking-widest">
-                        Manage plans, freezes, and trainer changes
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="bg-amber-50 text-amber-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border border-amber-100">
-                        <Clock size={18} />
-                        Pending: {requests.filter(r => r.status === 'Pending').length}
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
+            {/* Premium Header */}
+            <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <ClipboardList size={32} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                Service Requests
+                            </h1>
+                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
+                                <MessageSquare size={14} className="text-primary" />
+                                Manage plans, freezes, and trainer changes
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <div className="flex items-center gap-3 px-5 h-12 bg-amber-50 rounded-2xl border-2 border-amber-100/50 shadow-sm transition-all duration-300 group-hover:border-amber-200">
+                            <Clock size={18} className="text-amber-600" />
+                            <span className="text-xs font-black text-amber-700 uppercase tracking-widest">
+                                Pending: {requests.filter(r => r.status === 'Pending').length}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

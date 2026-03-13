@@ -390,15 +390,7 @@ const ClassesList = () => {
 
                 {/* Main Content Area */}
                 <div className="p-6">
-                    {contentTab === 'Attendance' ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <div className="w-20 h-20 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 ring-8 ring-primary/5">
-                                <CheckCircle2 size={36} className="text-primary/40" />
-                            </div>
-                            <p className="text-base font-semibold text-foreground mb-2">Select a class to view attendance</p>
-                            <p className="text-sm text-muted-foreground max-w-xs mx-auto">Switch to the Schedule tab and choose a class to manage its member attendance records.</p>
-                        </div>
-                    ) : loading ? (
+                    {loading ? (
                         <div className="flex flex-col items-center justify-center py-24">
                             <div className="w-12 h-12 border-4 border-muted border-t-primary rounded-full animate-spin mb-4" />
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Gathering classes...</p>
@@ -504,11 +496,11 @@ const ClassesList = () => {
                                             {cls.status}
                                         </span>
                                         <Button
-                                            variant="outline"
-                                            className="h-8 px-4 text-[11px] rounded-lg border-primary/20 hover:border-primary text-primary hover:bg-primary/5 font-bold uppercase tracking-wider"
+                                            variant={contentTab === 'Attendance' ? 'primary' : 'outline'}
+                                            className={`h-8 px-4 text-[11px] rounded-lg font-bold uppercase tracking-wider ${contentTab === 'Attendance' ? 'shadow-md shadow-primary/20' : 'border-primary/20 hover:border-primary text-primary hover:bg-primary/5'}`}
                                             onClick={() => navigate(`/classes/${cls.id}`)}
                                         >
-                                            View Details
+                                            {contentTab === 'Attendance' ? 'Manage Attendance' : 'View Details'}
                                         </Button>
                                     </div>
                                 </div>
@@ -519,8 +511,8 @@ const ClassesList = () => {
                             <div className="w-24 h-24 bg-muted rounded-[2rem] flex items-center justify-center mb-6 ring-8 ring-muted/50">
                                 <Calendar size={40} className="text-muted-foreground/30" />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground mb-2">No upcoming classes scheduled</h3>
-                            <p className="text-sm text-muted-foreground mb-8 max-w-sm">There are no classes matching your filters. <br />Start by scheduling your first group class.</p>
+                            <h3 className="text-lg font-bold text-foreground mb-2">No {activeTab.toLowerCase()} classes found</h3>
+                            <p className="text-sm text-muted-foreground mb-8 max-w-sm">There are no classes matching your filters in the {activeTab.toLowerCase()} category.</p>
                             <Button
                                 onClick={() => { setEditingClassId(null); resetForm(); setShowPanel(true); }}
                                 variant="primary"
