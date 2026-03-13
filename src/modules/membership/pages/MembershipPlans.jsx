@@ -193,19 +193,32 @@ const MembershipPlans = () => {
                             </div>
                         </div>
 
-                        {/* All properties (No Property Skipping) */}
+                        {/* Badges for Options */}
+                        <div className="flex flex-wrap gap-2 mb-4 h-6">
+                            {plan.allowTransfer && (
+                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-emerald-100">Transferable</span>
+                            )}
+                            {plan.includeLocker && (
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-blue-100">Locker Inc.</span>
+                            )}
+                            {!plan.showInPurchase && (
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-wider rounded-md border border-slate-200 uppercase">Hidden</span>
+                            )}
+                        </div>
+
+                        {/* All properties */}
                         <div className="grid grid-cols-3 gap-3 mb-8">
                             <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Usage</p>
-                                <p className="text-sm font-black text-slate-800">0</p>
+                                <p className="text-sm font-black text-slate-800">Unlimited</p>
                             </div>
                             <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Enrollment</p>
-                                <p className="text-sm font-black text-slate-800">{plan.memberCount || 0} members</p>
+                                <p className="text-sm font-black text-slate-800">{plan.memberCount || 0}</p>
                             </div>
                             <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Freezing</p>
-                                <p className="text-sm font-black text-slate-800">{plan.freezeDays ? `${plan.freezeDays}d freeze` : '0'}</p>
+                                <p className="text-sm font-black text-slate-800">{plan.cancellationWindow ? `${plan.cancellationWindow}d` : 'None'}</p>
                             </div>
                         </div>
 

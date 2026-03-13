@@ -127,6 +127,15 @@ export const payInvoice = async (id) => {
     }
 };
 
+export const failPayment = async (id) => {
+    try {
+        const response = await apiClient.post(`/member/invoices/${id}/fail`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fail payment';
+    }
+};
+
 export const getWalletBalance = async () => {
     try {
         const response = await apiClient.get('/member/wallet/balance');

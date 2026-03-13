@@ -19,10 +19,14 @@ import { getInvoices } from '../../api/member/memberApi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import { payInvoice, failPayment } from '../../api/member/memberApi';
 
 const MemberPayments = () => {
     const [loading, setLoading] = useState(true);
     const [invoices, setInvoices] = useState([]);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [processingPayment, setProcessingPayment] = useState(false);
 
     const loadData = async () => {
         try {
@@ -65,29 +69,28 @@ const MemberPayments = () => {
         }
     };
 
-    const handleViewInvoice = (inv) => {
+    const handleOpenPaymentGateway = (inv) => {
+        setSelectedInvoice(inv);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handleProcessPayment = async (status) => {
+        if (!selectedInvoice) return;
+        setProcessingPayment(true);
         try {
-            const doc = new jsPDF();
-            doc.setFontSize(20);
-            doc.text(`Invoice #${inv.id}`, 14, 22);
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-            doc.text(`Status: ${inv.status}`, 14, 35);
-
-            autoTable(doc, {
-                startY: 45,
-                head: [['Description', 'Amount', 'Date']],
-                body: [[`Gym Membership Services`, `INR ${Number(inv.amount).toLocaleString()}`, new Date(inv.dueDate).toLocaleDateString()]],
-                theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] } // primary
-            });
-
-            const pdfBlob = doc.output('blob');
-            const blobUrl = URL.createObjectURL(pdfBlob);
-            window.open(blobUrl, '_blank');
-        } catch (err) {
-            console.error("PDF generation failed", err);
-            toast.error("View failed");
+            if (status === 'success') {
+                await payInvoice(selectedInvoice.dbId);
+                toast.success("Payment successful!");
+            } else {
+                await failPayment(selectedInvoice.dbId);
+                toast.error("Transaction Failed. Please try again.");
+            }
+            setIsPaymentModalOpen(false);
+            loadData();
+        } catch (error) {
+            toast.error(error?.message || "Payment processing failed");
+        } finally {
+            setProcessingPayment(false);
         }
     };
 
@@ -196,7 +199,9 @@ const MemberPayments = () => {
                                                     </div>
                                                     <div>
                                                         <div className="text-sm font-black text-slate-900 tracking-tight">#{inv.id}</div>
-                                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Gym Membership</div>
+                                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                                            {inv.bookingId ? 'Session Booking' : 'Gym Membership'}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -226,13 +231,23 @@ const MemberPayments = () => {
                                                     >
                                                         <Download size={18} />
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleViewInvoice(inv)}
-                                                        className="flex items-center gap-2 px-6 h-12 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 group/btn"
-                                                    >
-                                                        View
-                                                        <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                                                    </button>
+                                                    {inv.status !== 'Paid' && (
+                                                        <button
+                                                            onClick={() => handleOpenPaymentGateway(inv)}
+                                                            className="flex items-center gap-2 px-6 h-12 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 group/btn"
+                                                        >
+                                                            Pay Link
+                                                            <CreditCard size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                                                        </button>
+                                                    )}
+                                                    {inv.status === 'Paid' && (
+                                                        <button
+                                                            className="flex items-center gap-2 px-6 h-12 bg-emerald-50 text-emerald-600 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border-2 border-emerald-100 cursor-default"
+                                                        >
+                                                            Paid
+                                                            <CheckCircle size={14} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -258,6 +273,67 @@ const MemberPayments = () => {
                     </div>
                 </div>
             </div>
+            {/* Payment Link Modal (Simulated Gateway) */}
+            {isPaymentModalOpen && selectedInvoice && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-primary-light rounded-2xl text-primary">
+                                    <CreditCard size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Payment Gateway</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Secure Transaction</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsPaymentModalOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 transition-colors">
+                                <AlertCircle size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="p-10 space-y-8">
+                            <div className="bg-slate-50 rounded-3xl p-8 border-2 border-slate-100">
+                                <div className="flex justify-between items-center mb-6">
+                                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Amount to Pay</span>
+                                    <span className="text-3xl font-black text-slate-900 tracking-tight">₹{selectedInvoice.amount.toLocaleString()}</span>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="font-bold text-slate-500">Invoice ID</span>
+                                        <span className="font-black text-slate-900">#{selectedInvoice.id}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="font-bold text-slate-500">Service</span>
+                                        <span className="font-black text-slate-900">{selectedInvoice.bookingId ? 'Booking Confirmation' : 'Membership Renewal'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    onClick={() => handleProcessPayment('success')}
+                                    disabled={processingPayment}
+                                    className="h-16 rounded-2xl bg-emerald-500 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 disabled:opacity-50"
+                                >
+                                    {processingPayment ? 'Processing...' : 'Simulate Success'}
+                                </button>
+                                <button
+                                    onClick={() => handleProcessPayment('failure')}
+                                    disabled={processingPayment}
+                                    className="h-16 rounded-2xl bg-rose-500 text-white text-xs font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-100 disabled:opacity-50"
+                                >
+                                    {processingPayment ? 'Processing...' : 'Simulate Failure'}
+                                </button>
+                            </div>
+
+                            <p className="text-[10px] text-center font-bold text-slate-400 uppercase tracking-[0.2em]">
+                                This is a secure sandbox environment for testing the payment flow.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

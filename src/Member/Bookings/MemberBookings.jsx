@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
     Clock,
@@ -32,6 +33,7 @@ const MemberBookings = () => {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [bookingDate, setBookingDate] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     // PT booking state
     const [ptAccounts, setPtAccounts] = useState([]);
@@ -110,6 +112,7 @@ const MemberBookings = () => {
 
         setIsSubmitting(true);
         try {
+<<<<<<< HEAD
             if (bookingType === 'Class') {
                 await apiClient.post('/member/bookings', {
                     classId: selectedClassId,
@@ -124,6 +127,19 @@ const MemberBookings = () => {
                 });
             }
             
+=======
+            const res = await apiClient.post('/member/bookings', {
+                classId: selectedClassId,
+                date: bookingDate
+            });
+            
+            if (res.data.invoice) {
+                toast.success("Booking created! Please complete payment to confirm.");
+                navigate('/member/payments');
+                return;
+            }
+
+>>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
             toast.success("Successfully booked your session!");
             setIsBookingModalOpen(false);
 
@@ -208,13 +224,33 @@ const MemberBookings = () => {
                                     <div className="w-12 h-12 rounded-2xl bg-primary-light text-primary flex items-center justify-center">
                                         <Activity size={24} />
                                     </div>
-                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
+                                        booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
                                         booking.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' :
-                                            'bg-amber-50 text-amber-600'
+                                        booking.status === 'Pending Payment' ? 'bg-amber-50 text-amber-600 animate-pulse' :
+                                        'bg-blue-50 text-blue-600'
                                         }`}>
                                         {booking.status}
                                     </span>
                                 </div>
+
+                                {booking.status === 'Pending Payment' && (
+                                    <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full px-8 text-center bg-white/90 backdrop-blur-sm py-8 z-20 flex flex-col items-center gap-4">
+                                        <div className="p-3 bg-amber-100 rounded-full text-amber-600">
+                                            <Zap size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Payment Required</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete payment to confirm session</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => navigate('/member/payments')}
+                                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100"
+                                        >
+                                            Pay Now
+                                        </button>
+                                    </div>
+                                )}
 
                                 <div className="space-y-4">
                                     <div>
@@ -280,6 +316,7 @@ const MemberBookings = () => {
                                             onClick={() => setBookingType('Class')}
                                             className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
+<<<<<<< HEAD
                                             Classes & Recovery
                                         </button>
                                         <button 
@@ -288,6 +325,25 @@ const MemberBookings = () => {
                                         >
                                             Personal Training
                                         </button>
+=======
+                                            <option value="">-- Choose an option --</option>
+                                            {availableClasses.map(c => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.price && Number(c.price) > 0 ? `₹${c.price}` : 'Free'}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
+                                        <input
+                                            type="date"
+                                            value={bookingDate}
+                                            onChange={(e) => setBookingDate(e.target.value)}
+                                            min={new Date().toISOString().split('T')[0]}
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                        />
+>>>>>>> 64200dd052ef8cd18b8bf09541103676a159440f
                                     </div>
 
                                     {bookingType === 'Class' ? (

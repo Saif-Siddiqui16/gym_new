@@ -288,34 +288,57 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
                                 className="w-full pl-14 pr-5 py-5 bg-slate-50 border-2 border-slate-100 rounded-2.5xl text-[11px] font-black focus:outline-none focus:border-primary/20 focus:bg-white transition-all placeholder:text-slate-400 uppercase tracking-widest"
                             />
                         </div>
-
                         <div className="max-h-[250px] overflow-y-auto custom-scrollbar border border-slate-50 rounded-2.5xl p-3 space-y-2 bg-slate-50/20 shadow-inner">
-                            {filteredMembers.length > 0 ? filteredMembers.map(m => (
-                                <button
-                                    key={m.id}
-                                    onClick={() => setSelectedMemberId(m.id)}
-                                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all border-2 ${selectedMemberId === m.id
-                                        ? 'bg-white border-primary shadow-lg shadow-primary-light scale-[1.02] z-10 relative'
-                                        : 'bg-transparent border-transparent hover:bg-white hover:border-slate-100'
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-4 text-left">
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-all duration-300 ${selectedMemberId === m.id ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 text-slate-400'
-                                            }`}>
-                                            {m.name?.charAt(0)}
+                            {filteredMembers.length > 0 ? filteredMembers.map(m => {
+                                let hasLockerBenefit = false;
+                                if (m.plan?.benefits) {
+                                    try {
+                                        const benefits = typeof m.plan.benefits === 'string'
+                                            ? JSON.parse(m.plan.benefits)
+                                            : m.plan.benefits;
+                                        if (Array.isArray(benefits)) {
+                                            hasLockerBenefit = benefits.some(b =>
+                                                (typeof b === 'string' && b.toLowerCase().includes('locker')) ||
+                                                (b.name && b.name.toLowerCase().includes('locker'))
+                                            );
+                                        }
+                                    } catch (e) { }
+                                }
+
+                                return (
+                                    <button
+                                        key={m.id}
+                                        onClick={() => setSelectedMemberId(m.id)}
+                                        className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all border-2 ${selectedMemberId === m.id
+                                            ? 'bg-white border-primary shadow-lg shadow-primary-light scale-[1.02] z-10 relative'
+                                            : 'bg-transparent border-transparent hover:bg-white hover:border-slate-100'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-4 text-left">
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-all duration-300 ${selectedMemberId === m.id ? 'bg-primary text-white shadow-lg' : 'bg-slate-100 text-slate-400'
+                                                }`}>
+                                                {m.name?.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-black text-slate-900 tracking-tight">{m.name}</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <p className="text-[9px] text-primary font-black uppercase tracking-widest">{m.memberId}</p>
+                                                    {hasLockerBenefit && (
+                                                        <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded-lg font-black uppercase tracking-tighter shadow-sm shadow-emerald-100">
+                                                            Free Locker Included
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-black text-slate-900 tracking-tight">{m.name}</p>
-                                            <p className="text-[9px] text-primary font-black uppercase tracking-widest mt-0.5">{m.memberId}</p>
-                                        </div>
-                                    </div>
-                                    {selectedMemberId === m.id && (
-                                        <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white scale-110 animate-in zoom-in duration-300">
-                                            <CheckCircle2 size={16} strokeWidth={3} />
-                                        </div>
-                                    )}
-                                </button>
-                            )) : (
+                                        {selectedMemberId === m.id && (
+                                            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white scale-110 animate-in zoom-in duration-300">
+                                                <CheckCircle2 size={16} strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            }) : (
                                 <div className="py-12 flex flex-col items-center opacity-30">
                                     <Info size={32} className="mb-3" />
                                     <p className="text-[10px] text-slate-900 font-black uppercase tracking-[0.2em]">Sector Empty</p>
@@ -324,20 +347,73 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
                         </div>
 
                         {locker.isChargeable && selectedMemberId && (
-                            <div className="mt-4 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex items-center justify-between animate-in slide-in-from-bottom-2">
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-black text-slate-900 tracking-tight">Initial Payment Collected?</span>
-                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Mark as paid for the first month</span>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        checked={isPaid}
-                                        onChange={(e) => setIsPaid(e.target.checked)}
-                                    />
-                                    <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                                </label>
+                            <div className="space-y-4">
+                                {(() => {
+                                    const selectedMember = members.find(m => m.id === selectedMemberId);
+                                    let hasLockerBenefit = false;
+                                    if (selectedMember?.plan?.benefits) {
+                                        try {
+                                            const benefits = typeof selectedMember.plan.benefits === 'string'
+                                                ? JSON.parse(selectedMember.plan.benefits)
+                                                : selectedMember.plan.benefits;
+                                            if (Array.isArray(benefits)) {
+                                                hasLockerBenefit = benefits.some(b =>
+                                                    (typeof b === 'string' && b.toLowerCase().includes('locker')) ||
+                                                    (b.name && b.name.toLowerCase().includes('locker'))
+                                                );
+                                            }
+                                        } catch (e) { }
+                                    }
+
+                                    if (hasLockerBenefit) {
+                                        return (
+                                            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-4 animate-in slide-in-from-bottom-2">
+                                                <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shrink-0">
+                                                    <Shield size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-emerald-900 uppercase">Complimentary Assignment</p>
+                                                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mt-0.5">Locker is included in {selectedMember.plan?.name}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div className="space-y-4">
+                                            <div className="p-4 bg-primary-light/30 border border-violet-100 rounded-2xl flex items-center justify-between animate-in slide-in-from-bottom-2">
+                                                <div>
+                                                    <p className="text-xs font-black text-slate-900 uppercase tracking-tight">Paid Assignment Required</p>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1.5">
+                                                        Monthly Fee: <span className="text-primary font-black px-2 py-0.5 bg-white rounded-lg border border-violet-100">₹{locker.price}</span>
+                                                    </p>
+                                                </div>
+                                                <div className="w-10 h-10 bg-white border border-violet-100 rounded-xl flex items-center justify-center text-primary shadow-sm">
+                                                    <Hash size={20} />
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-slate-900 tracking-tight">Payment Received?</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Mark as paid for first month</span>
+                                                </div>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="sr-only peer"
+                                                        checked={isPaid}
+                                                        onChange={(e) => setIsPaid(e.target.checked)}
+                                                    />
+                                                    <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                                </label>
+                                            </div>
+                                            <p className="text-[10px] text-slate-400 font-bold italic text-center uppercase tracking-widest">
+                                                * An invoice will be automatically generated for the member.
+                                            </p>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         )}
                     </div>

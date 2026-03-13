@@ -47,6 +47,7 @@ import {
     Key,
     Layout,
     Target,
+    Cake,
 } from 'lucide-react';
 
 export const menuConfig = {
@@ -81,6 +82,7 @@ export const menuConfig = {
         // { label: 'Audit Logs', path: '/superadmin/audit-logs/activity', icon: Shield },
         // { label: 'Webhook Logs', path: '/superadmin/audit-logs/webhooks', icon: Terminal },
         { label: 'Member Messages', path: '/messages', icon: MessageSquare },
+        { label: 'Birthdays', path: '/birthdays', icon: Cake },
         // { label: 'Device Dashboard', path: '/operations/devices', icon: Smartphone },
         // //     ]
         // },
@@ -290,6 +292,7 @@ export const menuConfig = {
             children: [
                 { label: 'Member Messages', path: '/messages', icon: MessageSquare },
                 { label: 'Announcements', path: '/operations/announcements', icon: Megaphone },
+                { label: 'Birthdays', path: '/birthdays', icon: Cake },
                 { label: 'Lockers', path: '/operations/lockers', icon: Lock },
                 { label: 'Devices', path: '/operations/devices', icon: Smartphone },
             ]
@@ -353,6 +356,7 @@ export const menuConfig = {
                 { label: 'Members', path: '/branchadmin/members/list', icon: Users },
                 { label: 'Feedback', path: '/operations/feedback', icon: MessageSquare },
                 { label: 'Member Messages', path: '/messages', icon: MessageSquare },
+                { label: 'Birthdays', path: '/birthdays', icon: Cake },
                 { label: 'Lockers', path: '/operations/lockers', icon: Lock },
             ]
         },
@@ -364,6 +368,14 @@ export const menuConfig = {
                 { label: 'Staff Attendance', path: '/hr/staff/management', icon: ClipboardList },
                 { label: 'Tasks', path: '/branchadmin/tasks/list', icon: ClipboardList },
                 { label: 'Approvals', path: '/branchadmin/trainer-requests', icon: CheckCircle },
+            ]
+        },
+        {
+            label: 'System Oversight',
+            icon: Shield,
+            children: [
+                { label: 'System Health', path: '/system/health', icon: Activity },
+                { label: 'Audit Logs', path: '/system/audit-logs', icon: Shield },
             ]
         },
         {
@@ -403,6 +415,7 @@ export const menuConfig = {
             icon: MessageSquare,
             children: [
                 { label: 'Member Messages', path: '/messages', icon: MessageSquare },
+                { label: 'Birthdays', path: '/birthdays', icon: Cake },
                 { label: 'Announcements', path: '/operations/announcements', icon: Megaphone },
             ]
         },

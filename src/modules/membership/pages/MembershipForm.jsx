@@ -5,6 +5,7 @@ import { membershipApi } from '../../../api/membershipApi';
 import toast from 'react-hot-toast';
 
 import amenityApi from '../../../api/amenityApi';
+import { fetchStaffAPI } from '../../../api/admin/adminApi';
 
 
 
@@ -16,12 +17,14 @@ const MembershipForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [plans, setPlans] = useState([]);
     const [amenities, setAmenities] = useState([]);
+    const [trainers, setTrainers] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
         gender: 'Male',
         planId: '',
+        trainerId: '',
         startDate: new Date().toISOString().split('T')[0],
         amount: '',
         memberId: '', // For display or binding if needed
@@ -48,7 +51,12 @@ const MembershipForm = () => {
                 const amenitiesData = await amenityApi.getAll();
                 setAmenities(amenitiesData);
 
-                // 3. Fetch Member if in edit mode
+                // 3. Fetch Trainers
+                const staffData = await fetchStaffAPI();
+                const trainersOnly = staffData.filter(s => s.role === 'TRAINER');
+                setTrainers(trainersOnly);
+
+                // 4. Fetch Member if in edit mode
                 if (isEditMode) {
                     const data = await membershipApi.getMemberById(id);
                     setFormData({
@@ -57,6 +65,7 @@ const MembershipForm = () => {
                         phone: data.phone || '',
                         gender: data.gender || 'Male',
                         planId: data.planId || '',
+                        trainerId: data.trainerId || '',
                         startDate: data.joinDate ? new Date(data.joinDate).toISOString().split('T')[0] : '',
                         amount: '', // Backend might send plan details separately
                         memberId: data.memberId || '',
@@ -251,7 +260,27 @@ const MembershipForm = () => {
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
+
+                            <div className="space-y-3 group col-span-2 md:col-span-1">
+                                <label className="block text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
+                                    Assign Trainer
+                                </label>
+                                <select
+                                    name="trainerId"
+                                    value={formData.trainerId}
+                                    onChange={handleChange}
+                                    className="w-full px-5 py-4 bg-gradient-to-br from-white to-primary-light/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-md"
+                                >
+                                    <option value="">No Trainer Assigned</option>
+                                    {trainers.map(trainer => (
+                                        <option key={trainer.id} value={trainer.id}>
+                                            {trainer.name} ({trainer.specialization || 'General'})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
+
 
                         {/* Plan Selection */}
                         <div className="space-y-3 group mt-6">

@@ -94,6 +94,7 @@ import BranchAdminProfile from './Manager/Profile/MyProfile';
 import LiveCheckInMonitor from './Manager/Attendance/LiveCheckInMonitor';
 import MemberLog from './Manager/Attendance/TodayAttendance/MemberAttendanceLog';
 import CommunicationPage from './Manager/Communication/CommunicationPage';
+import Birthdays from './Manager/Communication/Birthdays';
 import StaffLog from './Manager/Attendance/TodayAttendance/StaffAttendanceLog';
 import StaffCheckIn from './Staff/AttendanceCheckIn/MemberCheckIn';
 import CheckOut from './Staff/AttendanceCheckIn/MemberCheckOut';
@@ -321,15 +322,17 @@ export default function App() {
             <Route index element={<Navigate to="lockers" replace />} />
             <Route path="lockers" element={(currentRole !== ROLES.MEMBER) ? <LockerManagement /> : <Navigate to="/dashboard" replace />} />
             <Route path="inventory" element={(currentRole !== ROLES.MEMBER) ? <Inventory /> : <Navigate to="/dashboard" replace />} />
-            <Route path="announcements" element={(currentRole !== ROLES.MEMBER) ? <Announcements /> : <Navigate to="/dashboard" replace />} />
+            <Route path="announcements" element={(currentRole !== ROLES.MEMBER) ? <CommunicationPage initialModule="announcements" /> : <Navigate to="/dashboard" replace />} />
             <Route path="rewards" element={(currentRole !== ROLES.MEMBER) ? <RewardsProgram /> : <Navigate to="/dashboard" replace />} />
-            <Route path="messages" element={<WhatsAppChat />} />
+            <Route path="messages" element={<CommunicationPage initialModule="chats" />} />
+            <Route path="birthdays" element={<CommunicationPage initialModule="birthdays" />} />
             <Route path="devices" element={(currentRole !== ROLES.MEMBER) ? <Devices /> : <Navigate to="/dashboard" replace />} />
             <Route path="live-monitor" element={(currentRole !== ROLES.MEMBER) ? <LiveCheckInMonitor /> : <Navigate to="/dashboard" replace />} />
           </Route>
 
           {/* Chat/Messages Route for all roles */}
-          <Route path="messages" element={<WhatsAppChat />} />
+          <Route path="messages" element={<CommunicationPage initialModule="chats" />} />
+          <Route path="birthdays" element={<CommunicationPage initialModule="birthdays" />} />
 
           <Route path="/operations/feedback" element={<FeedbackSystem role={currentRole} />} />
 

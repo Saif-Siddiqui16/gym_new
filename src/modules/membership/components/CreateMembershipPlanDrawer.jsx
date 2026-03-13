@@ -14,13 +14,13 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
         price: 0,
         discountedPrice: '',
         duration: 30,
-        durationType: 'Days',
+        durationType: 'Months',
         admissionFee: 0,
         maxFreezeDays: 0,
-        transferable: false,
-        active: false,
-        visibleToMembers: false,
-        includesFreeLocker: false,
+        allowTransfer: false,
+        showInPurchase: true,
+        showOnDashboard: true,
+        includeLocker: false,
         benefits: []
     });
     const [amenities, setAmenities] = useState([]);
@@ -59,13 +59,13 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     price: 0,
                     discountedPrice: '',
                     duration: 30,
-                    durationType: 'Days',
+                    durationType: 'Months',
                     admissionFee: 0,
                     maxFreezeDays: 0,
-                    transferable: false,
-                    active: false,
-                    visibleToMembers: false,
-                    includesFreeLocker: false,
+                    allowTransfer: false,
+                    showInPurchase: true,
+                    showOnDashboard: true,
+                    includeLocker: false,
                     benefits: []
                 });
             }
@@ -178,7 +178,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             type="number"
                             className="drawer-input"
                             value={formData.price}
-                            onChange={e => setFormData({ ...formData, price: e.target.value })}
+                            onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
                             required
                         />
                     </div>
@@ -188,7 +188,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             type="number"
                             className="drawer-input"
                             value={formData.discountedPrice}
-                            onChange={e => setFormData({ ...formData, discountedPrice: e.target.value })}
+                            onChange={e => setFormData({ ...formData, discountedPrice: Number(e.target.value) })}
                             placeholder="Optional"
                         />
                     </div>
@@ -202,7 +202,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             type="number"
                             className="drawer-input"
                             value={formData.duration}
-                            onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                            onChange={e => setFormData({ ...formData, duration: Number(e.target.value) })}
                             required
                         />
                     </div>
@@ -212,7 +212,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             type="number"
                             className="drawer-input"
                             value={formData.admissionFee}
-                            onChange={e => setFormData({ ...formData, admissionFee: e.target.value })}
+                            onChange={e => setFormData({ ...formData, admissionFee: Number(e.target.value) })}
                         />
                     </div>
                     <div className="drawer-form-group mb-0">
@@ -221,7 +221,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             type="number"
                             className="drawer-input"
                             value={formData.maxFreezeDays}
-                            onChange={e => setFormData({ ...formData, maxFreezeDays: e.target.value })}
+                            onChange={e => setFormData({ ...formData, maxFreezeDays: Number(e.target.value) })}
                         />
                     </div>
                 </div>
@@ -231,26 +231,26 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     <Toggle
                         title="Allow membership transfer"
                         description="Transferable"
-                        checked={formData.transferable}
-                        onChange={(e) => setFormData({ ...formData, transferable: e.target.checked })}
+                        checked={formData.allowTransfer}
+                        onChange={(e) => setFormData({ ...formData, allowTransfer: e.target.checked })}
                     />
                     <Toggle
                         title="Show plan in purchase options"
                         description="Active"
-                        checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                        checked={formData.showInPurchase}
+                        onChange={(e) => setFormData({ ...formData, showInPurchase: e.target.checked })}
                     />
                     <Toggle
                         title="Show on member dashboard"
                         description="Visible to Members"
-                        checked={formData.visibleToMembers}
-                        onChange={(e) => setFormData({ ...formData, visibleToMembers: e.target.checked })}
+                        checked={formData.showOnDashboard}
+                        onChange={(e) => setFormData({ ...formData, showOnDashboard: e.target.checked })}
                     />
                     <Toggle
                         title="Includes physical locker"
                         description="Free Locker"
-                        checked={formData.includesFreeLocker}
-                        onChange={(e) => setFormData({ ...formData, includesFreeLocker: e.target.checked })}
+                        checked={formData.includeLocker}
+                        onChange={(e) => setFormData({ ...formData, includeLocker: e.target.checked })}
                     />
                 </div>
 

@@ -6,13 +6,15 @@ import { useBranchContext } from '../context/BranchContext';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from '../components/notifications/NotificationDropdown';
 import apiClient from '../api/apiClient';
+import toast from 'react-hot-toast';
 
 const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
     const { branches, selectedBranch, setSelectedBranch } = useBranchContext();
     const { user, logout } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadCount, setUnreadCount] = useState(parseInt(localStorage.getItem('unreadNotifs') || '0'));
+    const lastNotifId = useRef(parseInt(localStorage.getItem('lastNotifId') || '0'));
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
@@ -21,12 +23,31 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
         try {
             const res = await apiClient.get('/notifications');
             const notifications = res.data.notifications || [];
-            const notifs = notifications.filter(n => !n.read).length;
-            setUnreadCount(notifs);
+            const unreadNotifs = notifications.filter(n => !n.read);
+            const count = unreadNotifs.length;
+            
+            // Show toast for new notification if count increased and we have a new ID
+            if (count > unreadCount && unreadNotifs.length > 0) {
+                const latest = unreadNotifs[0];
+                if (latest.id > lastNotifId.current) {
+                    toast.success(
+                        <div>
+                            <p className="font-bold text-xs">{latest.title}</p>
+                            <p className="text-[10px] opacity-80">{latest.message}</p>
+                        </div>,
+                        { icon: '🔔', duration: 4000 }
+                    );
+                    lastNotifId.current = latest.id;
+                    localStorage.setItem('lastNotifId', latest.id.toString());
+                }
+            }
+
+            setUnreadCount(count);
+            localStorage.setItem('unreadNotifs', count.toString());
         } catch (error) {
             console.error('Badge fetch error:', error);
         }
-    }, []);
+    }, [unreadCount]);
 
     useEffect(() => {
         fetchUnreadCount();

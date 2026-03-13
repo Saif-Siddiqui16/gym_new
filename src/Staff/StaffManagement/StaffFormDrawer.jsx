@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, ShieldCheck, Save, XCircle, Info, BadgeCheck, Briefcase } from 'lucide-react';
+import { User, Mail, Phone, ShieldCheck, Save, XCircle, Info, BadgeCheck, Briefcase, TrendingUp } from 'lucide-react';
 import { addStaff, editStaff } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
@@ -11,7 +11,11 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
         role: 'Receptionist',
         status: 'Active',
         reportingManager: '',
-        permissions: []
+        permissions: [],
+        baseSalary: '',
+        commission: '',
+        hourlyRate: '',
+        position: ''
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +41,11 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                             role: staffMember.role || 'Receptionist',
                             status: staffMember.status || 'Active',
                             reportingManager: staffMember.reportingManager || 'None',
-                            permissions: staffMember.permissions || []
+                            permissions: staffMember.permissions || [],
+                            baseSalary: staffMember.baseSalary || '',
+                            commission: JSON.parse(staffMember.config || '{}').commission || '',
+                            hourlyRate: JSON.parse(staffMember.config || '{}').hourlyRate || '',
+                            position: JSON.parse(staffMember.config || '{}').position || ''
                         });
                     }
                 }
@@ -58,7 +66,11 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                 role: 'Receptionist',
                 status: 'Active',
                 reportingManager: 'None',
-                permissions: []
+                permissions: [],
+                baseSalary: '',
+                commission: '',
+                hourlyRate: '',
+                position: ''
             });
         }
     }, [isOpen, editId]);
@@ -181,6 +193,58 @@ const StaffFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
                                 placeholder="Select manager"
                             />
                         </div>
+
+                        {/* Salary & Earnings - Only for Trainers/Managers */}
+                        {(formData.role === 'Trainer' || formData.role === 'Manager') && (
+                            <div className="pt-4 space-y-6 border-t border-slate-50 mt-4">
+                                <div className="flex items-center gap-2 px-1">
+                                    <TrendingUp size={16} className="text-emerald-500" />
+                                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Earnings & Incentives</h5>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Base Salary (Monthly)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="e.g. 25000"
+                                            className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-primary transition-all"
+                                            value={formData.baseSalary}
+                                            onChange={(e) => setFormData({ ...formData, baseSalary: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Session Rate (fixed amt/sess)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="e.g. 500"
+                                            className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-primary transition-all"
+                                            value={formData.hourlyRate}
+                                            onChange={(e) => setFormData({ ...formData, hourlyRate: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Commission (per client/mo)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="e.g. 1000"
+                                            className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-primary transition-all"
+                                            value={formData.commission}
+                                            onChange={(e) => setFormData({ ...formData, commission: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Position/Specialization</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Senior Strength Coach"
+                                            className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:border-primary transition-all"
+                                            value={formData.position}
+                                            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-1">Account Status</label>

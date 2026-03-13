@@ -245,3 +245,8 @@ export const sendMessage = async (chatId, text) => {
     const response = await apiClient.post(`/admin/communication/chats/${chatId}/send`, { text });
     return response.data;
 };
+
+export const triggerBirthdayCheck = async () => {
+    const response = await apiClient.post('/communication/birthdays/check');
+    return response.data;
+};

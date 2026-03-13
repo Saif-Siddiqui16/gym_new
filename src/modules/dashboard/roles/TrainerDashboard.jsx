@@ -131,14 +131,21 @@ const TrainerDashboard = () => {
                 </div>
             </div>
 
-            {/* Stats Cards Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <StatItem title="Active General Clients" value={data.stats.activeGeneralClients} subtitle="General training" icon={Users} color="primary" />
+            {/* Dashboard Alerts / Quick Stats Row 1 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatItem title="General Clients" value={data.stats.activeGeneralClients} subtitle="Active general training" icon={Users} color="primary" />
                 <StatItem title="PT Clients" value={data.stats.ptClientsCount} subtitle="Personal training" icon={User} color="success" />
-                <StatItem title="Today's Sessions" value={data.stats.todaySessionsCount} subtitle={`${data.stats.completedToday} completed, ${data.stats.pendingToday} pending`} icon={Calendar} color="warning" />
+                <StatItem title="Today's Sessions" value={data.stats.todaySessionsCount} subtitle={`${data.stats.completedToday}/${data.stats.todaySessionsCount} completed`} icon={Calendar} color="warning" />
                 <StatItem title="My Classes" value={data.stats.myClassesCount} subtitle="Upcoming classes" icon={Dumbbell} color="primary" />
-                <StatItem title="Completion Rate" value={`${data.stats.completionRate}%`} subtitle="Today" icon={CheckCircle} color="success" />
             </div>
+
+            {/* Financial & Attendance Stats Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <StatItem title="Commission" value={`₹${(data.stats.monthlyCommission || 0).toLocaleString()}`} subtitle="This Month (PT + General)" icon={TrendingUp} color="success" />
+                <StatItem title="Attendance" value={`${data.stats.monthlyAttendance || 0} Days`} subtitle="Present this month" icon={Activity} color="primary" />
+                <StatItem title="Total Salary" value={`₹${(data.stats.salary || 0).toLocaleString()}`} subtitle="Base + Commission (Est.)" icon={CheckCircle} color="success" />
+            </div>
+
 
             {/* Quick Action Buttons */}
             <div className="flex flex-wrap gap-4 px-1">
