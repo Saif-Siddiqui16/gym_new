@@ -21,7 +21,8 @@ const ClassForm = () => {
         capacity: 20,
         status: 'Scheduled',
         location: 'Studio A',
-        requiredBenefit: ''
+        requiredBenefit: '',
+        price: 0
     });
 
     const [trainers, setTrainers] = useState([]);
@@ -63,7 +64,8 @@ const ClassForm = () => {
                     capacity: cls.capacity || cls.maxCapacity || 20,
                     status: cls.status || 'Scheduled',
                     location: cls.location || '',
-                    requiredBenefit: cls.requiredBenefit || ''
+                    requiredBenefit: cls.requiredBenefit || '',
+                    price: cls.price || 0
                 });
             }
         } catch (error) {
@@ -340,6 +342,23 @@ const ClassForm = () => {
                                     className="w-full"
                                 />
                             </div>
+                        </div>
+
+                        {/* Price */}
+                        <div className="space-y-3 group">
+                            <label className="block text-sm font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                                Price (INR)
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                className="block w-full px-5 py-4 bg-gradient-to-br from-white to-emerald-50/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 shadow-md focus:scale-[1.02] group-hover:border-emerald-200"
+                                placeholder="0"
+                                value={formData.price}
+                                onChange={handleInputChange}
+                                min="0"
+                            />
+                            <p className="text-[10px] text-gray-400">Set to 0 if free for eligible members.</p>
                         </div>
                     </div>
 

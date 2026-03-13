@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Calendar,
     Clock,
@@ -28,6 +29,7 @@ const MemberBookings = () => {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [bookingDate, setBookingDate] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const tabs = ['All', 'Recovery', 'Classes', 'PT'];
 
@@ -90,10 +92,17 @@ const MemberBookings = () => {
 
         setIsSubmitting(true);
         try {
-            await apiClient.post('/member/bookings', {
+            const res = await apiClient.post('/member/bookings', {
                 classId: selectedClassId,
                 date: bookingDate
             });
+            
+            if (res.data.invoice) {
+                toast.success("Booking created! Please complete payment to confirm.");
+                navigate('/member/payments');
+                return;
+            }
+
             toast.success("Successfully booked your session!");
             setIsBookingModalOpen(false);
 
@@ -178,13 +187,33 @@ const MemberBookings = () => {
                                     <div className="w-12 h-12 rounded-2xl bg-primary-light text-primary flex items-center justify-center">
                                         <Activity size={24} />
                                     </div>
-                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
+                                        booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
                                         booking.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' :
-                                            'bg-amber-50 text-amber-600'
+                                        booking.status === 'Pending Payment' ? 'bg-amber-50 text-amber-600 animate-pulse' :
+                                        'bg-blue-50 text-blue-600'
                                         }`}>
                                         {booking.status}
                                     </span>
                                 </div>
+
+                                {booking.status === 'Pending Payment' && (
+                                    <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full px-8 text-center bg-white/90 backdrop-blur-sm py-8 z-20 flex flex-col items-center gap-4">
+                                        <div className="p-3 bg-amber-100 rounded-full text-amber-600">
+                                            <Zap size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Payment Required</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete payment to confirm session</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => navigate('/member/payments')}
+                                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100"
+                                        >
+                                            Pay Now
+                                        </button>
+                                    </div>
+                                )}
 
                                 <div className="space-y-4">
                                     <div>
@@ -254,7 +283,7 @@ const MemberBookings = () => {
                                             <option value="">-- Choose an option --</option>
                                             {availableClasses.map(c => (
                                                 <option key={c.id} value={c.id}>
-                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.trainer?.name ? `Trainer: ${c.trainer.name}` : 'General'}
+                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.price && Number(c.price) > 0 ? `₹${c.price}` : 'Free'}
                                                 </option>
                                             ))}
                                         </select>

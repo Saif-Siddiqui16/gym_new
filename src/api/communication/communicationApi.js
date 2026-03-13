@@ -31,6 +31,24 @@ export const createAnnouncement = async (data) => {
     }
 };
 
+export const updateAnnouncement = async (id, data) => {
+    try {
+        const response = await apiClient.put(`/communication/announcements/${id}`, data);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to update announcement';
+    }
+};
+
+export const deleteAnnouncement = async (id) => {
+    try {
+        const response = await apiClient.delete(`/communication/announcements/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to delete announcement';
+    }
+};
+
 export const getTemplates = async (branchId = null, channel = null) => {
     try {
         const response = await apiClient.get('/communication/templates', {
@@ -117,4 +135,5 @@ export const fetchCommLogs = getCommLogs;
 export const fetchCommStats = getCommStats;
 export const fetchMessageTemplates = getTemplates;
 export const fetchChatContacts = getChatContacts;
+export const fetchChatMessages = getChatMessages;
 export const fetchAnnouncement = getAnnouncements; // Single/Plural insurance

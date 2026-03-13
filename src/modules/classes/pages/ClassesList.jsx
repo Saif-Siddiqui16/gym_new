@@ -4,7 +4,7 @@ import {
     Search, Plus, Filter, Calendar, User, Users,
     Dumbbell, Clock, X, ChevronDown, CheckCircle2,
     MoreHorizontal, LayoutGrid, List as ListIcon,
-    AlertCircle, Edit2, Trash2
+    AlertCircle, Edit2, Trash2, IndianRupee
 } from 'lucide-react';
 import { getClasses, createClass, updateClass, deleteClass } from '../../../api/manager/classesApi';
 import { getTrainerClasses } from '../../../api/trainer/trainerApi';
@@ -47,7 +47,8 @@ const ClassesList = () => {
         time: '',
         duration: 60,
         trainerId: role === 'TRAINER' ? user?.id?.toString() : '',
-        description: ''
+        description: '',
+        price: 0
     });
 
     useEffect(() => {
@@ -119,7 +120,8 @@ const ClassesList = () => {
             time: '',
             duration: 60,
             trainerId: role === 'TRAINER' ? user?.id?.toString() : '',
-            description: ''
+            description: '',
+            price: 0
         });
         setEditingClassId(null);
     };
@@ -187,7 +189,8 @@ const ClassesList = () => {
             time: parsedTime,
             duration: dur,
             trainerId: cls.trainerId || '',
-            description: cls.description || ''
+            description: cls.description || '',
+            price: cls.price || 0
         });
         setEditingClassId(cls.id);
         setActiveActionId(null);
@@ -479,6 +482,10 @@ const ClassesList = () => {
                                                 <Clock size={14} className="text-primary/60" />
                                                 <span className="text-xs font-medium">{cls.duration}</span>
                                             </div>
+                                            <div className="flex items-center gap-2 text-emerald-600 font-bold">
+                                                <IndianRupee size={14} />
+                                                <span className="text-xs">{cls.price && Number(cls.price) > 0 ? `₹${cls.price}` : 'Free'}</span>
+                                            </div>
                                         </div>
 
                                         <div className="pt-2">
@@ -661,6 +668,20 @@ const ClassesList = () => {
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
+                    </div>
+
+                    {/* Price */}
+                    <div className="saas-form-group">
+                        <label className="saas-label">Price (INR)</label>
+                        <input
+                            type="number"
+                            placeholder="0"
+                            className="saas-input"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            min="0"
+                        />
+                        <p className="text-[9px] text-slate-400 italic mt-1 font-bold uppercase tracking-widest">Set to 0 for free classes</p>
                     </div>
                 </form>
             </RightDrawer>

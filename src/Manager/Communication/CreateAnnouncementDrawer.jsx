@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Megaphone, Users, Calendar, Clock, Send, XCircle, CheckCircle, BellRing } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import CustomDropdown from '../../components/common/CustomDropdown';
-import { createAnnouncement } from '../../api/manager/managerApi';
+import { createAnnouncement, updateAnnouncement } from '../../api/communication/communicationApi';
+import toast from 'react-hot-toast';
 
-const CreateAnnouncementDrawer = ({ isOpen, onClose, onSuccess }) => {
+const CreateAnnouncementDrawer = ({ isOpen, onClose, onSuccess, editData = null }) => {
     const [formData, setFormData] = useState({
         title: '',
         message: '',
@@ -13,19 +14,47 @@ const CreateAnnouncementDrawer = ({ isOpen, onClose, onSuccess }) => {
         isScheduled: false
     });
 
+    React.useEffect(() => {
+        if (editData) {
+            setFormData({
+                title: editData.title || '',
+                message: editData.content || editData.message || '',
+                audience: editData.audience || 'All Members',
+                scheduledTime: editData.scheduledAt ? new Date(editData.scheduledAt).toISOString().slice(0, 16) : '',
+                isScheduled: editData.status === 'Scheduled'
+            });
+        } else {
+            setFormData({
+                title: '',
+                message: '',
+                audience: 'All Members',
+                scheduledTime: '',
+                isScheduled: false
+            });
+        }
+    }, [editData, isOpen]);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await createAnnouncement({
+            const payload = {
                 title: formData.title,
-                message: formData.message,
-                audience: formData.audience,
+                content: formData.message,
+                targetRole: formData.audience,
                 status: formData.isScheduled ? 'Scheduled' : 'Posted',
-                date: formData.isScheduled ? new Date(formData.scheduledTime).toLocaleString() : new Date().toLocaleString()
-            });
+                priority: 0
+            };
+
+            if (editData) {
+                await updateAnnouncement(editData.id, payload);
+                toast.success("Announcement updated!");
+            } else {
+                await createAnnouncement(payload);
+                toast.success("Announcement posted!");
+            }
             onSuccess();
             onClose();
             setFormData({
@@ -46,8 +75,8 @@ const CreateAnnouncementDrawer = ({ isOpen, onClose, onSuccess }) => {
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
-            title="New Announcement"
-            subtitle="Broadcast updates to your community"
+            title={editData ? "Edit Announcement" : "New Announcement"}
+            subtitle={editData ? "Update your broadcast message" : "Broadcast updates to your community"}
             maxWidth="max-w-md"
         >
             <form onSubmit={handleSubmit} className="flex flex-col h-full">
