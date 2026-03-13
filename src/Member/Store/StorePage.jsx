@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingBag, ShoppingCart, Package, Trash2, ChevronRight, RefreshCw, Sparkles } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import ProductCard from './ProductCard';
+import StorePaymentModal from './StorePaymentModal';
 import { getStoreProducts, checkoutStoreOrder } from '../../api/storeApi';
 import toast from 'react-hot-toast';
 
@@ -11,6 +12,7 @@ const StorePage = () => {
     const [cart, setCart] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
@@ -60,16 +62,23 @@ const StorePage = () => {
 
     const handleCheckout = async () => {
         if (cart.length === 0) return;
+        setIsPaymentModalOpen(true);
+    };
+
+    const confirmCheckout = async ({ paymentMethod, referenceNumber }) => {
         try {
+            setIsPaymentModalOpen(false);
             toast.loading("Processing Order...", { id: 'checkout' });
             await checkoutStoreOrder({
-                cartItems: cart.map(c => ({ id: c.id, quantity: c.quantity })),
-                totalAmount: cartTotal
+                items: cart.map(c => ({ productId: c.id, quantity: c.quantity, price: c.price })),
+                total: cartTotal,
+                paymentMethod,
+                referenceNumber
             });
             toast.success("Purchase Successful!", { id: 'checkout' });
             setCart([]);
         } catch (error) {
-            toast.error("Transaction Failed", { id: 'checkout' });
+            toast.error(error.response?.data?.message || "Transaction Failed", { id: 'checkout' });
         }
     };
 
@@ -236,6 +245,13 @@ const StorePage = () => {
                     </div>
                 )}
             </RightDrawer>
+
+            <StorePaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onConfirm={confirmCheckout}
+                totalAmount={cartTotal}
+            />
         </div>
     );
 };

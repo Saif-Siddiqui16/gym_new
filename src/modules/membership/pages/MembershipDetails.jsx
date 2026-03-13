@@ -392,6 +392,73 @@ const MembershipDetails = () => {
                 </div>
             </div>
 
+            {/* Purchase History Card */}
+            <div className="group relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden mt-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-emerald-600 shadow-md flex-shrink-0">
+                                <ShoppingBag size={16} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
+                            </div>
+                            <h3 className="text-base sm:text-lg font-black text-slate-900">Purchase History</h3>
+                        </div>
+                        <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg uppercase tracking-widest">
+                            {membership.storeOrders?.length || 0} Orders
+                        </span>
+                    </div>
+
+                    {membership.storeOrders && membership.storeOrders.length > 0 ? (
+                        <div className="space-y-4">
+                            {membership.storeOrders.map((order) => (
+                                <div key={order.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all group/order">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover/order:text-primary transition-colors">
+                                                <ShoppingBag size={18} />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-black text-slate-900 uppercase tracking-tight">Order #{order.id}</div>
+                                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                    {new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between sm:justify-end gap-4">
+                                            <div className="text-right">
+                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Payment</div>
+                                                <div className="text-xs font-black text-slate-700">{order.paymentMode}</div>
+                                            </div>
+                                            <div className="text-right min-w-[80px]">
+                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total</div>
+                                                <div className="text-base font-black text-primary">₹{order.total}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+                                        {order.items?.map((item, idx) => (
+                                            <div key={idx} className="px-3 py-1.5 rounded-lg bg-white border border-slate-100 text-[11px] font-bold text-slate-600 flex items-center gap-2">
+                                                <span className="text-primary">{item.quantity}x</span>
+                                                <span className="truncate max-w-[150px]">{item.product?.name || 'Product'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-12 flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
+                                <ShoppingBag size={32} />
+                            </div>
+                            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No purchases recorded yet</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Modals */}
             <FreezeDrawer
                 isOpen={isFreezeModalOpen}

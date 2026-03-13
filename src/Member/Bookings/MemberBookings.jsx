@@ -116,15 +116,24 @@ const MemberBookings = () => {
 
         setIsSubmitting(true);
         try {
-            const res = await apiClient.post('/member/bookings', {
-                classId: selectedClassId,
-                date: bookingDate
-            });
-            
-            if (res.data.invoice) {
-                toast.success("Booking created! Please complete payment to confirm.");
-                navigate('/member/payments');
-                return;
+            if (bookingType === 'Class') {
+                const res = await apiClient.post('/member/bookings', {
+                    classId: selectedClassId,
+                    date: bookingDate
+                });
+
+                if (res.data.invoice) {
+                    toast.success("Booking created! Please complete payment to confirm.");
+                    navigate('/member/payments');
+                    return;
+                }
+            } else {
+                await bookPTSession({
+                    ptAccountId: selectedPtAccountId,
+                    date: bookingDate,
+                    time: ptTime,
+                    duration: 60
+                });
             }
 
             toast.success("Successfully booked your session!");
@@ -303,13 +312,14 @@ const MemberBookings = () => {
                                             onClick={() => setBookingType('Class')}
                                             className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                         >
-                                            <option value="">-- Choose an option --</option>
-                                            {availableClasses.map(c => (
-                                                <option key={c.id} value={c.id}>
-                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.price && Number(c.price) > 0 ? `₹${c.price}` : 'Free'}
-                                                </option>
-                                            ))}
+                                            Classes & Recovery
                                         </select>
+                                        <button 
+                                            onClick={() => setBookingType('PT')}
+                                            className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'PT' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >
+                                            Personal Training
+                                        </button>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>

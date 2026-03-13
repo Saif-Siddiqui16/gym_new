@@ -5,6 +5,7 @@ import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
+import ReceiptModal from '../components/ReceiptModal';
 
 const POS = () => {
     const { selectedBranch } = useBranchContext();
@@ -28,6 +29,10 @@ const POS = () => {
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('Cash');
     const [referenceNumber, setReferenceNumber] = useState('');
+    
+    // Receipt Modal State
+    const [showReceiptModal, setShowReceiptModal] = useState(false);
+    const [lastOrder, setLastOrder] = useState(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -145,12 +150,18 @@ const POS = () => {
 
         try {
             setIsCheckingOut(true);
-            await checkoutStoreOrder(payload);
+            const orderResult = await checkoutStoreOrder(payload);
             toast.success("Checkout successful!");
+            
+            // Set data for receipt modal
+            setLastOrder(orderResult);
+            setShowReceiptModal(true);
+
             setCart([]);
             setSelectedMember(null);
             setShowGuestForm(false);
             setGuestInfo({ name: '', phone: '', email: '' });
+            setReferenceNumber('');
             // Refresh stats and products to update stock
             const [productsData, statsData] = await Promise.all([
                 getStoreProducts({ branchId: selectedBranch }),
@@ -254,8 +265,8 @@ const POS = () => {
                                     )}
 
                                     <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 flex items-center justify-center relative group-hover:bg-primary-light transition-colors">
-                                        {product.imageUrl ? (
-                                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover rounded-2xl" />
+                                        {product.image ? (
+                                            <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-2xl" />
                                         ) : (
                                             <Package className="text-slate-300 group-hover:text-violet-300 transition-colors" size={48} strokeWidth={1.5} />
                                         )}
@@ -425,7 +436,7 @@ const POS = () => {
                                 cart.map(item => (
                                     <div key={item.id} className="bg-slate-50 rounded-2xl p-4 flex gap-4 items-center border border-slate-100">
                                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 border border-slate-100">
-                                            {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="w-10 h-10 object-cover rounded-lg" /> : <Package size={20} className="text-slate-300" />}
+                                            {item.image ? <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg" /> : <Package size={20} className="text-slate-300" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mb-1">{item.name}</h4>
@@ -543,6 +554,12 @@ const POS = () => {
 
                 </div>
             </div>
+            {/* Receipt Modal */}
+            <ReceiptModal 
+                isOpen={showReceiptModal} 
+                onClose={() => setShowReceiptModal(false)} 
+                order={lastOrder} 
+            />
         </div>
     );
 };

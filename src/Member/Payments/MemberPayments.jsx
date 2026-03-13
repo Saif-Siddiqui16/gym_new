@@ -200,7 +200,7 @@ const MemberPayments = () => {
                                                     <div>
                                                         <div className="text-sm font-black text-slate-900 tracking-tight">#{inv.id}</div>
                                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                                                            {inv.bookingId ? 'Session Booking' : 'Gym Membership'}
+                                                            {inv.serviceName || (inv.bookingId ? 'Session Booking' : 'Gym Membership')}
                                                         </div>
                                                     </div>
                                                 </div>

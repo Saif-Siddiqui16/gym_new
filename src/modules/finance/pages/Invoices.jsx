@@ -371,7 +371,10 @@ const Invoices = () => {
                                             <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center text-primary">
                                                 <FileText size={16} />
                                             </div>
-                                            <span className="text-sm font-black text-slate-900">{inv.invoiceNumber}</span>
+                                            <div>
+                                                <p className="text-sm font-black text-slate-900">{inv.invoiceNumber}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{inv.serviceName || (inv.type === 'POS Sale' ? 'Store Purchase' : 'Membership Fee')}</p>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
