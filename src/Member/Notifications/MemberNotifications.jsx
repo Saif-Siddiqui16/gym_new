@@ -22,7 +22,7 @@ const MemberNotifications = () => {
         try {
             setLoading(true);
             const res = await apiClient.get('/member/dashboard');
-            const { membership, stats } = res.data;
+            const { membership, stats, notifications: dbNotifs } = res.data;
 
             const alerts = [];
 
@@ -52,23 +52,25 @@ const MemberNotifications = () => {
                 });
             }
 
-            // Mock Assignment Alert
-            const joinDate = new Date(membership.startDate);
-            const diffDays = Math.floor((new Date() - joinDate) / (1000 * 60 * 60 * 24));
-            if (diffDays <= 7) {
-                alerts.push({
-                    id: `plan_assigned_${membership.startDate}`,
-                    title: 'New Plan Assigned',
-                    description: `Your ${membership.planName} was successfully assigned to your profile.`,
-                    type: 'success',
-                    icon: Shield,
-                    date: membership.startDate,
-                    path: '/member/profile/me'
+            // Database Notifications
+            if (dbNotifs && dbNotifs.length > 0) {
+                dbNotifs.forEach(n => {
+                    alerts.push({
+                        id: `db_${n.id}`,
+                        title: n.title,
+                        description: n.message,
+                        type: n.type || 'info', // success, warning, danger, info
+                        icon: n.title.includes('Birthday') ? Calendar : Bell,
+                        date: n.createdAt,
+                        path: n.link || '#'
+                    });
                 });
             }
 
-            // Filter out dismissed notifications
-            setNotifications(alerts.filter(a => !dismissedIds.includes(a.id)));
+            // Filter out dismissed notifications and sort by date
+            const filtered = alerts.filter(a => !dismissedIds.includes(a.id));
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setNotifications(filtered);
         } catch (error) {
             console.error("Failed to fetch notifications", error);
             toast.error("Failed to load notifications");

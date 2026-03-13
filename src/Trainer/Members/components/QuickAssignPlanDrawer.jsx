@@ -4,7 +4,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import apiClient from '../../../api/apiClient';
 import toast from 'react-hot-toast';
 
-const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId }) => {
+const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId, onSuccess }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [startDate, setStartDate] = useState('');
@@ -81,6 +81,7 @@ const QuickAssignPlanDrawer = ({ isOpen, onClose, memberName, memberId }) => {
             }
 
             toast.success(`Protocol assigned to ${memberName} successfully!`);
+            if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
             console.error('Failed to assign protocol:', error);
