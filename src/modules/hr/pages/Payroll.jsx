@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Plus, Search, Users, CheckCircle, FileText, Banknote,
-    Edit2, Trash2, MoreHorizontal, Clock, Briefcase, Eye,
-    Loader2, RefreshCw, CheckCircle2, XCircle, ArrowUpRight,
-    ArrowDownLeft, UserCircle, IndianRupee, CalendarDays, AlertCircle
+    Plus, Search, Users, CheckCircle, FileText, Banknote, Edit2,
+    Trash2, MoreHorizontal, Clock, Briefcase, Eye, Loader2, RefreshCw,
+    CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft, UserCircle,
+    IndianRupee, CalendarDays, AlertCircle, FileDown
 } from 'lucide-react';
-import { fetchStaffAPI, deleteStaffAPI, fetchPayrollHistoryAPI, fetchPayrollStaffAPI } from '../../../api/admin/adminApi';
+import { fetchStaffAPI, deleteStaffAPI, fetchPayrollHistoryAPI, generatePayrollAPI, updatePayrollStatusAPI, deletePayrollAPI } from '../../../api/admin/adminApi';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
@@ -48,6 +48,8 @@ const Payroll = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('Employees');
     const [activeMenu, setActiveMenu] = useState(null); // { id, top, right }
+    const [selectedPayroll, setSelectedPayroll] = useState(null);
+    const [selectedStaffIds, setSelectedStaffIds] = useState([]);
 
     // ── Load Staff ────────────────────────────────────────────────────────────
     const loadStaff = useCallback(async () => {
@@ -58,7 +60,9 @@ const Payroll = () => {
                 let config = {};
                 try {
                     config = typeof s.config === 'string' ? JSON.parse(s.config) : (s.config || {});
-                } catch (e) { }
+                } catch {
+                    // ignore
+                }
 
                 return {
                     ...s,
@@ -170,16 +174,24 @@ const Payroll = () => {
         return p.year === parseInt(yr) && p.month === parseInt(mo);
     });
 
-    // ── Duration helper ───────────────────────────────────────────────────────
-    const calcDuration = (checkIn, checkOut) => {
-        if (!checkIn) return '-';
-        const end = checkOut ? new Date(checkOut) : new Date();
-        const diffMs = end - new Date(checkIn);
-        if (diffMs < 0) return '-';
-        const mins = Math.floor(diffMs / 60000);
-        const h = Math.floor(mins / 60), m = mins % 60;
-        return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    // Selection helpers for payroll tab
+    const allSelected = staffList.length > 0 && selectedStaffIds.length === staffList.length;
+    const someSelected = selectedStaffIds.length > 0 && !allSelected;
+
+    const toggleSelectAll = () => {
+        if (allSelected) {
+            setSelectedStaffIds([]);
+        } else {
+            setSelectedStaffIds(staffList.map(s => s.id));
+        }
     };
+
+    const toggleSelectStaff = (id) => {
+        setSelectedStaffIds(prev =>
+            prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
+        );
+    };
+
 
     // ── Status Badge ──────────────────────────────────────────────────────────
     const StatusBadge = ({ status }) => {
@@ -601,52 +613,104 @@ const Payroll = () => {
                             <h2 className="text-2xl font-black text-slate-800 tracking-tight">Payroll Processing</h2>
                             <p className="text-slate-500 text-sm font-medium mt-1">View and process monthly payroll for this branch</p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                             <input
                                 type="month"
                                 value={selectedMonth}
                                 onChange={e => setSelectedMonth(e.target.value)}
-                                className="h-10 pl-4 pr-3 rounded-lg border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-primary-light text-sm font-medium text-slate-700 bg-white outline-none transition-all"
+                                className="h-11 pl-4 pr-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary-light text-sm font-semibold text-slate-700 bg-white outline-none transition-all shadow-sm"
                             />
+                            <button
+                                onClick={async () => {
+                                    const [yr, mo] = selectedMonth.split('-');
+                                    toast.promise(
+                                        generatePayrollAPI(parseInt(yr), parseInt(mo), selectedStaffIds).then(res => {
+                                            setSelectedStaffIds([]);
+                                            loadPayroll();
+                                            return res;
+                                        }),
+                                        {
+                                            loading: `Generating payroll for ${selectedStaffIds.length} employee(s)...`,
+                                            success: 'Payroll Generated Successfully!',
+                                            error: 'Failed to generate payroll'
+                                        }
+                                    );
+                                }}
+                                disabled={selectedStaffIds.length === 0}
+                                className={`h-11 px-6 rounded-xl text-sm font-bold flex items-center gap-2 transition-all outline-none shadow-sm ${
+                                    selectedStaffIds.length === 0
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                        : 'bg-gradient-to-r from-primary to-emerald-600 text-white hover:shadow-lg hover:shadow-primary/30 hover:scale-105 active:scale-95 shadow-md'
+                                }`}
+                            >
+                                <Banknote size={16} />
+                                Generate Payroll
+                                {selectedStaffIds.length > 0 && (
+                                    <span className="bg-white/20 text-white text-xs font-black px-2 py-0.5 rounded-full">
+                                        {selectedStaffIds.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
 
-                    {/* Payroll Table — current staff with salaries */}
+                    {/* Selection hint */}
+                    {staffList.length > 0 && selectedStaffIds.length === 0 && (
+                        <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 font-medium">
+                            <AlertCircle size={14} className="shrink-0" />
+                            Select one or more employees from the table below, then click &quot;Generate Payroll&quot;.
+                        </div>
+                    )}
+
+
+                    {/* Payroll Table — Staff list with payroll data overlay */}
                     <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50">
-                                    {['Employee', 'Code', 'Position', 'Base Salary', 'Commission', 'Net Pay', 'Status'].map(h => (
-                                        <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
+                                    <th className="px-4 py-4 w-12">
+                                        <input
+                                            type="checkbox"
+                                            checked={allSelected}
+                                            ref={el => { if (el) el.indeterminate = someSelected; }}
+                                            onChange={toggleSelectAll}
+                                            className="w-4 h-4 rounded accent-primary cursor-pointer"
+                                        />
+                                    </th>
+                                    {['Employee Name', 'Employee Code', 'Position', 'Base Salary', 'Attendance Days', 'Leave Days', 'Commission', 'Net Pay', 'Status', 'Action'].map(h => (
+                                        <th key={h} className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {payrollLoading ? (
-                                    <tr><td colSpan="7" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={28} /></td></tr>
+                                    <tr><td colSpan="11" className="py-16 text-center"><Loader2 className="animate-spin mx-auto text-primary" size={28} /></td></tr>
                                 ) : staffList.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="py-20 text-center">
-                                            <Banknote size={48} className="text-slate-200 mx-auto mb-3 stroke-1" />
-                                            <p className="text-slate-400 font-bold text-sm">No staff found for payroll</p>
+                                        <td colSpan="11" className="py-20 text-center">
+                                            <Users size={48} className="text-slate-200 mx-auto mb-3 stroke-1" />
+                                            <p className="text-slate-400 font-bold text-sm">No staff found for this branch</p>
                                         </td>
                                     </tr>
                                 ) : (
-                                    staffList.map((staff, idx) => {
-                                        const base = parseFloat(staff.baseSalary) || 0;
-                                        const commission = parseFloat(staff.commissionPercent) || 0;
-                                        const pf = base * 0.12;
-                                        const net = base - pf;
-                                        // Find matching payroll record for this month
-                                        const [yr, mo] = selectedMonth.split('-');
-                                        const payRecord = payrollHistory.find(
-                                            p => p.staffId === staff.id && p.year === parseInt(yr) && p.month === parseInt(mo)
-                                        );
+                                    staffList.map((staff) => {
+                                        // Find matching generated payroll for the selected month
+                                        const payRecord = filteredPayroll.find(p => p.staffId === staff.id);
+                                        const isSelected = selectedStaffIds.includes(staff.id);
+
                                         return (
-                                            <tr key={staff.id} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-6 py-4">
+                                            <tr key={staff.id} className={`transition-colors ${isSelected ? 'bg-primary-light/20' : 'hover:bg-slate-50'}`}>
+                                                <td className="px-4 py-4 w-12">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleSelectStaff(staff.id)}
+                                                        className="w-4 h-4 rounded accent-primary cursor-pointer"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm">
+                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shrink-0">
                                                             {(staff.name || '?').charAt(0)}
                                                         </div>
                                                         <div>
@@ -655,23 +719,61 @@ const Payroll = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-slate-500 font-semibold">
-                                                    EMP-{String(staff.id || idx + 1).padStart(3, '0')}
+                                                <td className="px-4 py-4 text-sm text-slate-500 font-semibold">
+                                                    EMP-{String(staff.id).padStart(3, '0')}
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                <td className="px-4 py-4">
                                                     <span className="px-2 py-1 bg-slate-50 text-slate-600 rounded text-[10px] font-black uppercase tracking-widest border border-slate-100">{staff.role}</span>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                                                    {base >= 0 ? `₹${base.toLocaleString('en-IN')}` : <span className="text-slate-300 italic text-xs">Not set</span>}
+                                                <td className="px-4 py-4 text-sm font-bold text-slate-700">
+                                                    ₹{parseFloat(payRecord?.baseSalary || staff.baseSalary || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm font-bold text-emerald-600">
-                                                    {commission > 0 ? `${commission}%` : <span className="text-slate-300 italic text-xs">N/A</span>}
+                                                <td className="px-4 py-4 text-sm font-bold text-slate-700">
+                                                    {payRecord ? payRecord.attendanceDays : <span className="text-slate-300 italic text-xs">—</span>}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm font-black text-slate-800">
-                                                    {base >= 0 ? `₹${net.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : <span className="text-slate-300 italic text-xs">—</span>}
+                                                <td className="px-4 py-4 text-sm font-bold text-rose-500">
+                                                    {payRecord ? payRecord.leaveDays : <span className="text-slate-300 italic text-xs">—</span>}
                                                 </td>
-                                                <td className="px-6 py-4">
-                                                    <StatusBadge status={payRecord?.status || 'Pending'} />
+                                                <td className="px-4 py-4 text-sm font-bold text-emerald-600">
+                                                    {payRecord ? `₹${parseFloat(payRecord.commission || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : <span className="text-slate-300 italic text-xs">—</span>}
+                                                </td>
+                                                <td className="px-4 py-4 text-sm font-black text-slate-800">
+                                                    {payRecord ? `₹${parseFloat(payRecord.amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : <span className="text-slate-300 italic text-xs">—</span>}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <StatusBadge status={payRecord?.status || 'Not Generated'} />
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    {payRecord ? (
+                                                        <div className="flex items-center gap-3">
+                                                            <button
+                                                                onClick={() => setSelectedPayroll(payRecord)}
+                                                                className="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-hover transition-colors"
+                                                            >
+                                                                <Eye size={15} />
+                                                            </button>
+                                                            {payRecord.status !== 'Paid' && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        if (!window.confirm(`Delete ${payRecord.staff?.name || 'this'}'s payroll for this month?`)) return;
+                                                                        try {
+                                                                            await deletePayrollAPI(payRecord.id);
+                                                                            toast.success('Payroll deleted');
+                                                                            loadPayroll();
+                                                                        } catch (err) {
+                                                                            console.error(err);
+                                                                            toast.error('Failed to delete payroll');
+                                                                        }
+                                                                    }}
+                                                                    className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-700 transition-colors"
+                                                                >
+                                                                    <Trash2 size={15} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-slate-300 italic text-xs">—</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         );
@@ -680,34 +782,21 @@ const Payroll = () => {
                             </tbody>
                         </table>
                     </div>
-
-                    {/* Payroll Summary */}
-                    <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-                        <h3 className="text-base font-bold text-slate-800 mb-6">
-                            Payroll Summary — {new Date(selectedMonth + '-01').toLocaleString('default', { month: 'long', year: 'numeric' })}
-                        </h3>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[
-                                { label: 'Total Base Pay', val: `₹${totalMonthlyPayroll.toLocaleString('en-IN')}`, color: 'text-slate-800' },
-                                { label: 'Total PF (12%)', val: `₹${(totalMonthlyPayroll * 0.12).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-rose-500' },
-                                { label: 'Net Payable', val: `₹${(totalMonthlyPayroll * 0.88).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, color: 'text-emerald-600' },
-                                { label: 'Staff Count', val: staffList.length, color: 'text-primary' },
-                            ].map(({ label, val, color }) => (
-                                <div key={label}>
-                                    <p className="text-xs font-medium text-slate-400 mb-1">{label}</p>
-                                    <p className={`text-xl font-black ${color}`}>{val}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             )}
+
+            <PayrollModal
+                isOpen={!!selectedPayroll}
+                onClose={() => setSelectedPayroll(null)}
+                payroll={selectedPayroll}
+                onRefresh={loadPayroll}
+            />
         </div>
     );
 };
 
 // ── Reusable Stat Card ────────────────────────────────────────────────────────
-const StatCard = ({ icon: Icon, label, value, color, isText }) => {
+const StatCard = ({ icon: Icon, label, value, color }) => {
     const colorMap = {
         indigo: 'bg-primary-light text-primary',
         emerald: 'bg-emerald-50 text-emerald-600',
@@ -718,12 +807,178 @@ const StatCard = ({ icon: Icon, label, value, color, isText }) => {
     };
     return (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow">
-            <div className={`w-12 h-12 ${colorMap[color] || colorMap.indigo} rounded-xl flex items-center justify-center shrink-0`}>
-                <Icon size={24} />
-            </div>
+            {Icon && (
+                <div className={`w-12 h-12 ${colorMap[color] || colorMap.indigo} rounded-xl flex items-center justify-center shrink-0`}>
+                    <Icon size={24} />
+                </div>
+            )}
             <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</p>
                 <h3 className="text-2xl font-black text-slate-800 mt-0.5">{value ?? 0}</h3>
+            </div>
+        </div>
+    );
+};
+
+// ── Payroll Modal ────────────────────────────────────────────────────────
+const PayrollModal = ({ isOpen, onClose, payroll, onRefresh }) => {
+    const [commissionInput, setCommissionInput] = useState(payroll?.commission || 0);
+    const [extraBonus, setExtraBonus] = useState(0);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && payroll) {
+            setCommissionInput(payroll.commission || 0);
+            setExtraBonus(0);
+        }
+    }, [isOpen, payroll]);
+
+    if (!isOpen || !payroll) return null;
+
+    const baseSalary = parseFloat(payroll.baseSalary || 0);
+    const leaveDeduction = parseFloat(payroll.leaveDeduction || 0);
+    const netPay = (baseSalary + parseFloat(commissionInput || 0) + parseFloat(extraBonus || 0)) - leaveDeduction;
+
+    const handleSave = async (status) => {
+        setIsSaving(true);
+        try {
+            await updatePayrollStatusAPI(payroll.id, {
+                status,
+                commission: parseFloat(commissionInput || 0),
+                extra_bonus: parseFloat(extraBonus || 0)
+            });
+            toast.success(`Payroll ${status === 'Paid' ? 'Paid' : 'Approved'} Successfully!`);
+            onRefresh();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to update payroll');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
+                    <div>
+                        <h2 className="text-2xl font-black text-slate-800">Payroll Details</h2>
+                        <p className="text-slate-500 font-medium text-sm">
+                            {payroll.staff?.name} • {new Date(payroll.year, payroll.month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                        <XCircle size={24} />
+                    </button>
+                </div>
+
+                <div className="p-8 overflow-y-auto w-full">
+                    <div className="space-y-6">
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                <p className="text-xs font-bold text-slate-500 mb-1">Base Salary</p>
+                                <p className="text-lg font-black text-slate-800">₹{baseSalary.toLocaleString('en-IN')}</p>
+                            </div>
+                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                <p className="text-xs font-bold text-slate-500 mb-1">Attendance Days</p>
+                                <p className="text-lg font-black text-emerald-600">{payroll.attendanceDays}</p>
+                            </div>
+                            <div className="bg-rose-50 rounded-xl p-4 border border-rose-100">
+                                <p className="text-xs font-bold text-rose-500 mb-1">Leave Deductions</p>
+                                <p className="text-lg font-black text-rose-600">- ₹{leaveDeduction.toLocaleString('en-IN', { maximumFractionDigits: 0 })} ({payroll.leaveDays} days)</p>
+                            </div>
+                            <div className="bg-primary-light/50 rounded-xl p-4 border border-violet-100">
+                                <p className="text-xs font-bold text-primary mb-1">Net Pay</p>
+                                <p className="text-2xl font-black text-primary">₹{netPay > 0 ? netPay.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : 0}</p>
+                            </div>
+                        </div>
+
+                        {payroll.status === 'Pending' ? (
+                            <div className="space-y-4 pt-4 border-t border-slate-100">
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Commission (₹)</label>
+                                    <input
+                                        type="number"
+                                        value={commissionInput}
+                                        onChange={e => setCommissionInput(e.target.value)}
+                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-primary-light outline-none font-bold text-slate-800 transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Extra Bonus (₹)</label>
+                                    <input
+                                        type="number"
+                                        value={extraBonus}
+                                        onChange={e => setExtraBonus(e.target.value)}
+                                        className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:border-violet-400 focus:ring-4 focus:ring-primary-light outline-none font-bold text-slate-800 transition-all placeholder:text-slate-300"
+                                        placeholder="Add manual bonus if any"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${payroll.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : (payroll.status === 'Rejected' ? 'bg-rose-100 text-rose-700' : 'bg-primary-light text-primary')}`}>
+                                        Status: {payroll.status}
+                                    </span>
+                                </div>
+                                {payroll.status === 'Paid' && (
+                                    <a
+                                        href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/payroll/${payroll.id}/payslip`}
+                                        target="_blank"
+                                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        <FileDown size={16} /> Download Payslip
+                                    </a>
+                                )}
+                            </div>
+                        )}
+
+                        {payroll.status === 'Rejected' && (
+                            <div className="bg-rose-50 rounded-xl p-6 border border-rose-100 space-y-2">
+                                <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Employee Rejection Reason</p>
+                                <p className="text-sm font-bold text-slate-700 italic">
+                                    &quot;{payroll.rejectionReason || 'No reason provided'}&quot;
+                                </p>
+                                <p className="text-[10px] font-bold text-slate-400">
+                                    Please fix the salary details above and re-approve to send again.
+                                </p>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+
+                {(payroll.status === 'Pending' || payroll.status === 'Approved' || payroll.status === 'Confirmed' || payroll.status === 'Rejected') && (
+                    <div className="p-6 border-t border-slate-100 bg-slate-50 flex gap-4 sticky bottom-0">
+                        {(payroll.status === 'Pending' || payroll.status === 'Rejected') && (
+                            <button
+                                onClick={() => handleSave('Approved')}
+                                disabled={isSaving}
+                                className="flex-1 h-12 rounded-xl border-2 border-primary text-primary font-black uppercase tracking-widest text-xs hover:bg-primary-light transition-all active:scale-95 transition-all"
+                            >
+                                {payroll.status === 'Rejected' ? 'Re-Approve & Send' : 'Approve & Send to Staff'}
+                            </button>
+                        )}
+                        {payroll.status === 'Confirmed' && (
+                            <button
+                                onClick={() => handleSave('Paid')}
+                                disabled={isSaving}
+                                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-primary to-primary text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-violet-200 hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
+                            >
+                                Mark as Paid
+                            </button>
+                        )}
+                        {payroll.status === 'Approved' && (
+                            <div className="flex-1 text-center py-4 bg-primary-light/20 rounded-xl border border-primary-light italic text-[10px] font-black uppercase tracking-[2px] text-primary">
+                                Awaiting Employee Confirmation
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

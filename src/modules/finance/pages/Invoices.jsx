@@ -18,9 +18,11 @@ import {
     Eye,
     PlusCircle,
     ChevronDown,
-    CreditCard
+    CreditCard,
+    IndianRupee
 } from 'lucide-react';
 import { fetchInvoices, addInvoice, fetchInvoiceById, deleteInvoice, settleInvoice } from '../../../api/finance/financeApi';
+import { updatePayrollStatusAPI } from '../../../api/admin/adminApi';
 import { fetchOrderById } from '../../../api/storeApi';
 import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
@@ -87,6 +89,10 @@ const Invoices = () => {
         }
     }, [isCreateDrawerOpen, invoiceForm.branchId]);
 
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
+    const [showRejectionBox, setShowRejectionBox] = useState(false);
+
     const loadInvoices = async () => {
         try {
             setLoading(true);
@@ -107,6 +113,47 @@ const Invoices = () => {
     useEffect(() => {
         loadInvoices();
     }, [selectedBranch, statusFilter]);
+
+    const handleConfirmPayroll = async () => {
+        if (!selectedInvoice || !selectedInvoice.internalId) return;
+        setIsProcessingPayroll(true);
+        try {
+            await updatePayrollStatusAPI(selectedInvoice.internalId, { status: 'Confirmed' });
+            toast.success('Payroll confirmed successfully!');
+            await loadInvoices();
+            // Refresh detail view
+            setSelectedInvoice(null); // Close or refresh
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to confirm payroll');
+        } finally {
+            setIsProcessingPayroll(false);
+        }
+    };
+
+    const handleRejectPayroll = async () => {
+        if (!selectedInvoice || !selectedInvoice.internalId || !rejectionReason.trim()) {
+            toast.error('Please provide a reason for rejection');
+            return;
+        }
+        setIsProcessingPayroll(true);
+        try {
+            await updatePayrollStatusAPI(selectedInvoice.internalId, { 
+                status: 'Rejected', 
+                rejectionReason 
+            });
+            toast.success('Payroll rejected. Admin will be notified.');
+            setShowRejectionBox(false);
+            setRejectionReason('');
+            await loadInvoices();
+            setSelectedInvoice(null);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to reject payroll');
+        } finally {
+            setIsProcessingPayroll(false);
+        }
+    };
 
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
@@ -368,8 +415,8 @@ const Invoices = () => {
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-6" data-label="Invoice Number">
                                         <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center text-primary">
-                                                <FileText size={16} />
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${inv.type === 'Payroll' ? 'bg-amber-100 text-amber-600' : 'bg-primary-light text-primary'}`}>
+                                                {inv.type === 'Payroll' ? <IndianRupee size={16} /> : <FileText size={16} />}
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black text-slate-900">{inv.invoiceNumber}</p>
@@ -423,7 +470,7 @@ const Invoices = () => {
                                             >
                                                 <Eye size={18} />
                                             </button>
-                                            {inv.status !== 'Paid' && (
+                                            {inv.status !== 'Paid' && (inv.type !== 'Payroll' || role === 'SUPER_ADMIN' || role === 'BRANCH_ADMIN') && (
                                                 <button
                                                     onClick={() => openSettleModal(inv)}
                                                     className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
@@ -432,13 +479,15 @@ const Invoices = () => {
                                                     <CreditCard size={18} />
                                                 </button>
                                             )}
-                                            <button
-                                                onClick={() => handleDeleteInvoice(inv.id)}
-                                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                                                title="Delete"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
+                                            {(inv.type !== 'Payroll' || role === 'SUPER_ADMIN' || role === 'BRANCH_ADMIN') && (
+                                                <button
+                                                    onClick={() => handleDeleteInvoice(inv.id)}
+                                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -704,7 +753,9 @@ const Invoices = () => {
 
                             <div className="grid grid-cols-2 gap-8 py-8 border-y border-slate-50">
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bill To</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        {selectedInvoice.type === 'Payroll' ? 'Staff Member' : 'Bill To'}
+                                    </p>
                                     <p className="text-md font-black text-slate-900">{selectedInvoice.member?.name || 'Walk-in Guest'}</p>
                                     <p className="text-xs font-bold text-slate-500">{selectedInvoice.member?.memberId || 'GUEST-SALE'}</p>
                                     {selectedInvoice.member?.phone && <p className="text-xs font-bold text-slate-500">{selectedInvoice.member.phone}</p>}
@@ -798,6 +849,80 @@ const Invoices = () => {
                                                 <p className="text-xs font-black text-slate-900">{new Date(selectedInvoice.paidDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedInvoice.type === 'Payroll' && selectedInvoice.payrollStatus === 'Approved' && (
+                                <div className="mt-6 p-6 bg-primary-light/30 rounded-3xl border border-primary-light space-y-4">
+                                    <p className="text-xs font-bold text-primary text-center px-4">
+                                        Please review your payroll details. Confirm if everything is correct or reject with a reason if there is an issue.
+                                    </p>
+                                    
+                                    {!showRejectionBox ? (
+                                        <div className="flex gap-3">
+                                            <button
+                                                disabled={isProcessingPayroll}
+                                                onClick={handleConfirmPayroll}
+                                                className="flex-1 h-11 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+                                            >
+                                                Confirm Payroll
+                                            </button>
+                                            <button
+                                                disabled={isProcessingPayroll}
+                                                onClick={() => setShowRejectionBox(true)}
+                                                className="flex-1 h-11 bg-white border-2 border-rose-100 text-rose-500 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-rose-50 transition-all disabled:opacity-50"
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <textarea
+                                                value={rejectionReason}
+                                                onChange={(e) => setRejectionReason(e.target.value)}
+                                                placeholder="Explain the reason for rejection..."
+                                                className="w-full p-4 rounded-xl border border-rose-100 bg-white text-xs font-medium focus:ring-4 focus:ring-rose-100 outline-none min-h-[100px]"
+                                            />
+                                            <div className="flex gap-3">
+                                                <button
+                                                    disabled={isProcessingPayroll}
+                                                    onClick={handleRejectPayroll}
+                                                    className="flex-1 h-11 bg-rose-500 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-rose-600 transition-all disabled:opacity-50"
+                                                >
+                                                    Submit Rejection
+                                                </button>
+                                                <button
+                                                    disabled={isProcessingPayroll}
+                                                    onClick={() => setShowRejectionBox(false)}
+                                                    className="px-4 h-11 bg-slate-100 text-slate-500 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all disabled:opacity-50"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {selectedInvoice.type === 'Payroll' && selectedInvoice.payrollStatus === 'Rejected' && (
+                                <div className="mt-6 p-6 bg-rose-50 rounded-3xl border border-rose-100">
+                                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Rejection Reason</p>
+                                    <p className="text-xs font-bold text-slate-600 italic">
+                                        &quot;{selectedInvoice.rejectionReason || 'No reason provided'}&quot;
+                                    </p>
+                                    <p className="mt-3 text-[10px] font-bold text-slate-400">
+                                        Admin has been notified and will resolve the issue shortly.
+                                    </p>
+                                </div>
+                            )}
+
+                            {selectedInvoice.type === 'Payroll' && selectedInvoice.payrollStatus === 'Confirmed' && (
+                                <div className="mt-6 p-6 bg-emerald-50 rounded-3xl border border-emerald-100 flex items-center gap-3">
+                                    <CheckCircle2 className="text-emerald-500" size={20} />
+                                    <div>
+                                        <p className="text-xs font-black text-emerald-700">Payroll Confirmed</p>
+                                        <p className="text-[10px] font-bold text-emerald-600/70">Awaiting final payment from Admin.</p>
                                     </div>
                                 </div>
                             )}

@@ -63,3 +63,23 @@ export const updateTaskStatus = async (taskId, status) => {
         throw error.response?.data?.message || 'Failed to update task status';
     }
 };
+
+// Delete a task
+export const deleteTask = async (taskId) => {
+    try {
+        const response = await apiClient.delete(`/staff/tasks/${taskId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to delete task';
+    }
+};
+
+// Get task by ID
+export const getTaskById = async (taskId) => {
+    try {
+        const response = await apiClient.get(`/staff/tasks/${taskId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch task details';
+    }
+};

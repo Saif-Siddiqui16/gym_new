@@ -26,12 +26,23 @@ export const fetchPayrollStaffAPI = async () => {
 };
 
 export const fetchPayrollHistoryAPI = async () => {
-    const response = await apiClient.get('/admin/payroll/history');
+    const response = await apiClient.get('/payroll/history'); // Updated to the new route
+    return response.data;
+};
+
+export const generatePayrollAPI = async (year, month, staffIds = []) => {
+    const response = await apiClient.post('/payroll/generate', { year, month, staffIds });
     return response.data;
 };
 
 export const updatePayrollStatusAPI = async (id, statusData) => {
-    const response = await apiClient.patch(`/admin/payroll/${id}/status`, statusData);
+    // Also updated to new route
+    const response = await apiClient.put(`/payroll/${id}`, statusData);
+    return response.data;
+};
+
+export const deletePayrollAPI = async (id) => {
+    const response = await apiClient.delete(`/payroll/${id}`);
     return response.data;
 };
 

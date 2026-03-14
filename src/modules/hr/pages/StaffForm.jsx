@@ -4,6 +4,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { createStaffAPI, fetchStaffByIdAPI, updateStaffAPI, fetchAvailableUsersAPI, linkStaffAPI } from '../../../api/admin/adminApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
+import { ROLES } from '../../../config/roles';
 
 const StaffForm = () => {
     const navigate = useNavigate();
@@ -11,6 +13,7 @@ const StaffForm = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const isReadOnly = location.state?.readOnly || false;
+    const { role: currentUserRole } = useAuth();
     const profileImageRef = React.useRef(null);
     const [activeTab, setActiveTab] = useState('Create New User');
     const [profileImage, setProfileImage] = useState(null);
@@ -251,12 +254,12 @@ const StaffForm = () => {
                     >
                         Create New User
                     </button>
-                    <button
+                    {/* <button
                         className={`px-6 py-3 font-bold text-sm transition-all duration-300 border-b-2 ${activeTab === 'Link Existing' ? 'border-primary text-primary-hover' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
                         onClick={() => setActiveTab('Link Existing')}
                     >
                         Link Existing
-                    </button>
+                    </button> */}
                 </div>
 
                 {activeTab === 'Create New User' && (
@@ -368,7 +371,7 @@ const StaffForm = () => {
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : (errors.role ? 'border-rose-500/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm')}`}
                                     >
-                                        <option value="Admin">Admin</option>
+                                        {currentUserRole === ROLES.SUPER_ADMIN && <option value="Admin">Admin</option>}
                                         <option value="Manager">Manager</option>
                                         <option value="Trainer">Trainer</option>
                                         <option value="Staff">Staff</option>
@@ -544,18 +547,16 @@ const StaffForm = () => {
                     </form>
                 )}
 
-                {activeTab === 'Link Existing' && (
+                {/* {activeTab === 'Link Existing' && (
                     <form onSubmit={handleLinkSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
 
-                            {/* Helper Text */}
                             <div className="bg-primary-light/50 text-primary-hover text-sm font-medium px-4 py-3 rounded-xl border border-violet-100 flex items-center gap-2 mb-8 shadow-sm">
                                 <Info size={18} className="text-primary shrink-0" />
                                 Only profiles that are NOT linked to members are shown.
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-                                {/* User Dropdown */}
                                 <div className="relative group md:col-span-2">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">User <span className="text-rose-500">*</span></label>
                                     <select
@@ -572,7 +573,6 @@ const StaffForm = () => {
                                     </select>
                                 </div>
 
-                                {/* Branch Dropdown */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Branch <span className="text-rose-500">*</span></label>
                                     <select
@@ -589,7 +589,6 @@ const StaffForm = () => {
                                     </select>
                                 </div>
 
-                                {/* Role Selection */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Role <span className="text-rose-500">*</span></label>
                                     <select
@@ -599,14 +598,13 @@ const StaffForm = () => {
                                         className="w-full px-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all focus:border-primary hover:border-slate-300 shadow-sm"
                                         required
                                     >
-                                        <option value="Admin">Admin</option>
+                                        {currentUserRole === ROLES.SUPER_ADMIN && <option value="Admin">Admin</option>}
                                         <option value="Manager">Manager</option>
                                         <option value="Trainer">Trainer</option>
                                         <option value="Staff">Staff</option>
                                     </select>
                                 </div>
 
-                                {/* Department */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Department</label>
                                     <input
@@ -619,7 +617,6 @@ const StaffForm = () => {
                                     />
                                 </div>
 
-                                {/* Position */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Position</label>
                                     <input
@@ -632,7 +629,6 @@ const StaffForm = () => {
                                     />
                                 </div>
 
-                                {/* Hire Date */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Hire Date</label>
                                     <input
@@ -644,7 +640,6 @@ const StaffForm = () => {
                                     />
                                 </div>
 
-                                {/* Salary Type */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Salary Type</label>
                                     <select
@@ -659,7 +654,6 @@ const StaffForm = () => {
                                     </select>
                                 </div>
 
-                                {/* Salary */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Salary (₹)</label>
                                     <input
@@ -672,7 +666,6 @@ const StaffForm = () => {
                                     />
                                 </div>
 
-                                {/* Commission (%) */}
                                 <div className="relative group">
                                     <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Commission (%)</label>
                                     <input
@@ -685,11 +678,9 @@ const StaffForm = () => {
                                     />
                                 </div>
 
-                                {/* Bank Details Headings */}
                                 <div className="md:col-span-2 mt-4 pt-4 border-t border-slate-100">
                                     <h4 className="text-sm font-bold text-slate-800 mb-4">Bank Details</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-                                        {/* Bank Name */}
                                         <div className="relative group">
                                             <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Bank Name</label>
                                             <input
@@ -702,7 +693,6 @@ const StaffForm = () => {
                                             />
                                         </div>
 
-                                        {/* Account Number */}
                                         <div className="relative group">
                                             <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Account Number</label>
                                             <input
@@ -715,7 +705,6 @@ const StaffForm = () => {
                                             />
                                         </div>
 
-                                        {/* PAN / Tax ID */}
                                         <div className="relative group">
                                             <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">PAN / Tax ID</label>
                                             <input
@@ -728,7 +717,6 @@ const StaffForm = () => {
                                             />
                                         </div>
 
-                                        {/* IFSC Code */}
                                         <div className="relative group">
                                             <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">IFSC Code</label>
                                             <input
@@ -745,7 +733,6 @@ const StaffForm = () => {
                             </div>
                         </div>
 
-                        {/* Buttons inside form container but outside the white card */}
                         <div className="flex justify-end items-center gap-4 mt-8">
                             <button
                                 type="button"
@@ -763,7 +750,7 @@ const StaffForm = () => {
                             </button>
                         </div>
                     </form>
-                )}
+                )} */}
             </div>
         </div>
     );
