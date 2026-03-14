@@ -83,6 +83,7 @@ const MyTasks = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
+            case 'Approved': return 'text-violet-600 bg-violet-50 border-violet-100';
             case 'Completed': return 'text-emerald-600 bg-emerald-50 border-emerald-100';
             case 'In Progress': return 'text-primary bg-primary-light border-primary/10';
             case 'Pending': return 'text-amber-600 bg-amber-50 border-amber-100';
@@ -174,7 +175,7 @@ const MyTasks = () => {
                 <div className="hidden md:grid px-8 py-6 border-b border-slate-50 grid grid-cols-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50/30">
                     <span>Task</span>
                     <span>Priority</span>
-                    <span>Assigned To</span>
+                    <span>Assigned By</span>
                     <span>Due Date</span>
                     <span>Status</span>
                     <span className="text-right">Actions</span>
@@ -207,10 +208,13 @@ const MyTasks = () => {
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-500 border border-slate-200">
-                                            {(task.assignedTo || 'U').charAt(0)}
+                                        <div className="w-7 h-7 bg-violet-50 rounded-full flex items-center justify-center text-[10px] font-black text-violet-600 border border-violet-100">
+                                            {(task.assignedBy || 'A').charAt(0)}
                                         </div>
-                                        <span className="text-[11px] font-bold text-slate-600">{task.assignedTo || 'Unassigned'}</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned By</span>
+                                            <span className="text-[11px] font-bold text-slate-600">{task.assignedBy || 'Admin'}</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2 text-slate-500">
                                         <Clock size={12} className="text-slate-300" />
@@ -221,6 +225,11 @@ const MyTasks = () => {
                                             <div className="w-1 h-1 rounded-full bg-current" />
                                             {task.status}
                                         </span>
+                                        {task.delegationNote && (
+                                            <div className="mt-1 flex items-center gap-1 text-[8px] text-primary font-bold uppercase tracking-tighter">
+                                                <AlertCircle size={8} /> Delegated Task
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="text-right flex justify-end gap-2 text-slate-300 relative">
                                         {task.status !== 'Completed' ? (
@@ -320,6 +329,22 @@ const MyTasks = () => {
                                     <p className="text-xs font-bold text-slate-700">{selectedTask.assignedBy || 'Admin'}</p>
                                 </div>
                             </div>
+
+                            {selectedTask.delegationNote && (
+                                <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
+                                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <AlertCircle size={10} /> Delegation Note
+                                    </p>
+                                    <p className="text-xs font-medium text-slate-700 leading-relaxed italic">
+                                        "{selectedTask.delegationNote}"
+                                    </p>
+                                    {selectedTask.overallDueDate && (
+                                        <div className="mt-4 pt-4 border-t border-primary/10 text-[9px] text-slate-400 font-bold uppercase tracking-tight">
+                                            Parent Task Deadline: {new Date(selectedTask.overallDueDate).toLocaleDateString()}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="pt-6 border-t border-slate-100">
                                 <button

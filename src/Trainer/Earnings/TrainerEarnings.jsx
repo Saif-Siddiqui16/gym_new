@@ -13,6 +13,10 @@ import DashboardGrid from '../../modules/dashboard/components/DashboardGrid';
 import Card from '../../components/ui/Card';
 import * as trainerApi from '../../api/trainer/trainerApi';
 import { toast } from 'react-hot-toast';
+import { CheckCircle, XCircle, AlertCircle, MessageSquare } from 'lucide-react';
+import Modal from '../../components/common/Modal';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
 
 // Component for the printable document (hidden on screen, visible during print)
 const PrintablePayslip = ({ data, activeMonthData }) => {
@@ -70,31 +74,31 @@ const PrintablePayslip = ({ data, activeMonthData }) => {
                 <tbody className="divide-y divide-slate-100 text-left">
                     <tr>
                         <td className="py-5 text-sm font-bold text-slate-700">Monthly Base Salary</td>
-                        <td className="py-5 text-right text-sm font-black text-slate-900">{activeMonthData.baseSalary.toLocaleString()}</td>
+                        <td className="py-5 text-right text-sm font-black text-slate-900">{(activeMonthData.baseSalary || 0).toLocaleString()}</td>
                     </tr>
                     <tr>
                         <td className="py-5 text-sm font-bold text-slate-700">
                             PT Session Payouts
                             <span className="block text-[10px] text-slate-400 font-medium">({activeMonthData.sessionCount} sessions @ ₹{activeMonthData.sessionRate}/session)</span>
                         </td>
-                        <td className="py-5 text-right text-sm font-black text-slate-900">{activeMonthData.sessionEarnings.toLocaleString()}</td>
+                        <td className="py-5 text-right text-sm font-black text-slate-900">{(activeMonthData.sessionEarnings || 0).toLocaleString()}</td>
                     </tr>
                     {activeMonthData.commission > 0 && (
                         <tr>
                             <td className="py-5 text-sm font-bold text-slate-700">Monthly Performance Bonus / Commission</td>
-                            <td className="py-5 text-right text-sm font-black text-slate-900">{activeMonthData.commission.toLocaleString()}</td>
+                            <td className="py-5 text-right text-sm font-black text-slate-900">{(activeMonthData.commission || 0).toLocaleString()}</td>
                         </tr>
                     )}
                     <tr className="bg-slate-50">
                         <td className="py-5 text-sm font-black text-slate-900 uppercase tracking-wide">Gross Total Earnings</td>
                         <td className="py-5 text-right text-sm font-black text-slate-900">
-                            {(activeMonthData.baseSalary + activeMonthData.sessionEarnings + activeMonthData.commission).toLocaleString()}
+                            {((activeMonthData.baseSalary || 0) + (activeMonthData.sessionEarnings || 0) + (activeMonthData.commission || 0)).toLocaleString()}
                         </td>
                     </tr>
                     <tr>
                         <td className="py-5 text-sm font-bold text-red-600 italic">Deductions: Provident Fund (PF) 12%</td>
                         <td className="py-5 text-right text-sm font-black text-red-600 -tracking-tighter italic">
-                            -{activeMonthData.pfDeduction.toLocaleString()}
+                            -{(activeMonthData.pfDeduction || 0).toLocaleString()}
                         </td>
                     </tr>
                 </tbody>
@@ -102,7 +106,7 @@ const PrintablePayslip = ({ data, activeMonthData }) => {
                     <tr className="border-t-4 border-slate-900">
                         <td className="py-8 text-xl font-black text-slate-900 uppercase tracking-tight">Net Payable Amount</td>
                         <td className="py-8 text-right text-3xl font-black text-slate-900 tracking-tighter">
-                            ₹{activeMonthData.total.toLocaleString()}
+                            ₹{(activeMonthData.total || 0).toLocaleString()}
                         </td>
                     </tr>
                 </tfoot>
@@ -133,6 +137,8 @@ const TrainerEarnings = () => {
     const [activeMonth, setActiveMonth] = useState('');
     const [loading, setLoading] = useState(true);
     const [earningsData, setEarningsData] = useState(null);
+    const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
 
     useEffect(() => {
         loadEarnings();
@@ -152,6 +158,45 @@ const TrainerEarnings = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleUpdateStatus = async (status, rejectionReason = '') => {
+        if (!activeMonthData?.id || isNaN(parseInt(activeMonthData.id))) {
+            toast.error('Cannot update status for this month (No payroll record found)');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await trainerApi.updatePayrollStatusAPI(activeMonthData.id, status, rejectionReason);
+            toast.success(`Payroll ${status} successfully`);
+            await loadEarnings();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+            toast.error(error.message || 'Failed to update status');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const StatusBadge = ({ status }) => {
+        const configs = {
+            'Pending': { color: 'bg-slate-100 text-slate-600', icon: Clock },
+            'Approved': { color: 'bg-blue-100 text-blue-600', icon: AlertCircle },
+            'Confirmed': { color: 'bg-emerald-100 text-emerald-600', icon: CheckCircle },
+            'Rejected': { color: 'bg-red-100 text-red-600', icon: XCircle },
+            'Paid': { color: 'bg-violet-100 text-violet-600', icon: Banknote },
+            'Processed': { color: 'bg-slate-100 text-slate-600', icon: Clock },
+        };
+        const config = configs[status] || configs['Pending'];
+        const Icon = config.icon;
+
+        return (
+            <div className={`px-3 py-1.5 rounded-xl flex items-center gap-2 ${config.color} border border-white/50 shadow-sm`}>
+                <Icon size={14} className="animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest">{status}</span>
+            </div>
+        );
     };
 
     if (loading) return (
@@ -252,13 +297,63 @@ const TrainerEarnings = () => {
                     </div>
                     <div className="pt-6 md:pt-8 border-t-2 border-slate-50 text-left">
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Breakdown</h4>
-                            <div className="p-4 md:p-5 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100 font-bold text-[11px] md:text-sm text-slate-600 leading-relaxed text-left flex items-center overflow-x-auto no-scrollbar whitespace-nowrap">
-                                <span>Base: <span className="text-slate-900">₹{activeMonthData?.baseSalary || 0}</span> +
-                                    Sessions: <span className="text-slate-900">₹{activeMonthData?.sessionEarnings || 0}</span> +
-                                    Commission: <span className="text-slate-900">₹{activeMonthData?.commission || 0}</span> −
-                                    PF: <span className="text-red-500 font-black">₹{activeMonthData?.pfDeduction || 0}</span></span>
+                            <div className="flex items-center justify-between px-1">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Breakdown</h4>
+                                {activeMonthData?.status && <StatusBadge status={activeMonthData.status} />}
                             </div>
+                            <div className="p-4 md:p-5 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100 font-bold text-[11px] md:text-sm text-slate-600 leading-relaxed text-left flex flex-col gap-2 overflow-x-auto no-scrollbar">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <span>Base: <span className="text-slate-900">₹{activeMonthData?.baseSalary || 0}</span> +
+                                        Sessions: <span className="text-slate-900">₹{activeMonthData?.sessionEarnings || 0}</span> +
+                                        Commission: <span className="text-slate-900">₹{activeMonthData?.commission || 0}</span> −
+                                        PF: <span className="text-red-500 font-black">₹{activeMonthData?.pfDeduction || 0}</span></span>
+                                </div>
+                                {activeMonthData?.details && activeMonthData.details.length > 0 && (
+                                    <div className="mt-2 pt-2 border-t border-slate-200">
+                                        <p className="text-[9px] text-slate-400 uppercase tracking-widest mb-2 font-black">Commission Details:</p>
+                                        <div className="flex flex-col gap-2">
+                                            {activeMonthData.details.map((d, idx) => (
+                                                <div key={idx} className="flex justify-between items-center text-[10px] md:text-xs">
+                                                    <span className="text-slate-500">{d.description}</span>
+                                                    <span className="font-black text-slate-900">₹{parseFloat(d.amount).toLocaleString()}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                           
+                            {activeMonthData?.status === 'Approved' && (
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        onClick={() => handleUpdateStatus('Confirmed')}
+                                        className="flex-1 h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle size={16} />
+                                        Confirm Correct
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setRejectionReason('');
+                                            setIsRejectionModalOpen(true);
+                                        }}
+                                        className="flex-1 h-11 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-black text-[10px] uppercase tracking-widest border border-red-100 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <XCircle size={16} />
+                                        Report Issue
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeMonthData?.status === 'Rejected' && (
+                                <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
+                                    <XCircle size={16} className="text-red-600 mt-1 shrink-0" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Rejection Reason:</p>
+                                        <p className="text-xs text-red-800 font-medium">{activeMonthData.rejectionReason || "No details provided"}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </Card>
@@ -299,6 +394,57 @@ const TrainerEarnings = () => {
                     </p>
                 </Card>
             </div>
+
+            {/* Rejection Modal */}
+            <Modal
+                isOpen={isRejectionModalOpen}
+                onClose={() => setIsRejectionModalOpen(false)}
+                title="Report Issue / Reject Payroll"
+                maxWidth="max-w-md"
+            >
+                <div className="p-8 space-y-6">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center text-red-500">
+                                <MessageSquare size={20} />
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Reason for Rejection</h4>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Explain why this payroll is incorrect</p>
+                            </div>
+                        </div>
+                        
+                        <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="Type your reason here..."
+                            className="w-full h-32 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                        />
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setIsRejectionModalOpen(false)}
+                            className="flex-1 h-12 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (!rejectionReason.trim()) {
+                                    toast.error('Please enter a reason');
+                                    return;
+                                }
+                                handleUpdateStatus('Rejected', rejectionReason);
+                                setIsRejectionModalOpen(false);
+                            }}
+                            className="flex-1 h-12 bg-primary text-white hover:bg-primary-hover rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-violet-100 transition-all"
+                        >
+                            Submit Report
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Information Card */}
             <div className=" bg-primary-light rounded-2xl md:rounded-[2rem] border border-violet-100 text-left print:hidden shadow-sm">

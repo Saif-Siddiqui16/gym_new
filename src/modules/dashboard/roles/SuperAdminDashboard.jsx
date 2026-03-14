@@ -19,6 +19,7 @@ const SuperAdminDashboard = () => {
         'Total Members': Users,
         'Active Plans': Activity,
         'Monthly Revenue': IndianRupee,
+        'Operational Tasks': Activity,
     };
 
     const fetchDashboardData = async () => {

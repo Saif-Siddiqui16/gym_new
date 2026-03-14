@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Gift, Plus, Award, Settings, Trash2, Zap, Star, Users, Calendar } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddRewardDrawer from './AddRewardDrawer';
+import { getTenantSettings } from '../../../api/admin/settingsApi';
 
 const RewardsProgram = () => {
     const [rewards, setRewards] = useState([]);
@@ -11,7 +12,19 @@ const RewardsProgram = () => {
 
     useEffect(() => {
         loadRewards();
+        loadRewardSettings();
     }, []);
+
+    const loadRewardSettings = async () => {
+        try {
+            const data = await getTenantSettings();
+            if (data.referralReward) {
+                setPointsConfig(prev => ({ ...prev, referral: data.referralReward }));
+            }
+        } catch (error) {
+            console.error('Failed to load reward settings:', error);
+        }
+    };
 
     const loadRewards = async () => {
         try {

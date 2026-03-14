@@ -34,6 +34,15 @@ export const getTrainerEarnings = async () => {
     }
 };
 
+export const updatePayrollStatusAPI = async (payrollId, status, rejectionReason = '') => {
+    try {
+        const response = await apiClient.patch(`/trainer/payroll/${payrollId}/status`, { status, rejectionReason });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to update payroll status';
+    }
+};
+
 // ATTENDANCE
 export const getTrainerAttendance = async () => {
     try {

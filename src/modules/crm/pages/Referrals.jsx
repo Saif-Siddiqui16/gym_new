@@ -25,6 +25,7 @@ import { ROLES } from '../../../config/roles';
 import Card from '../../../components/ui/Card';
 import toast from 'react-hot-toast';
 import apiClient from '../../../api/apiClient';
+import { getTenantSettings } from '../../../api/admin/settingsApi';
 
 const Referrals = ({ role }) => {
     const [referrals, setReferrals] = useState([]);
@@ -33,6 +34,7 @@ const Referrals = ({ role }) => {
     const { selectedBranch } = useBranchContext();
     const [activeTab, setActiveTab] = useState('Referrals');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [rewardAmount, setRewardAmount] = useState(500);
 
     // Form State for Admin
     const [formData, setFormData] = useState({
@@ -46,8 +48,20 @@ const Referrals = ({ role }) => {
         if (role !== ROLES.MEMBER) {
             loadReferrals();
             loadMembersList();
+            loadRewardSettings();
         }
     }, [selectedBranch, role]);
+
+    const loadRewardSettings = async () => {
+        try {
+            const data = await getTenantSettings();
+            if (data.referralReward) {
+                setRewardAmount(data.referralReward);
+            }
+        } catch (error) {
+            console.error('Failed to load reward settings:', error);
+        }
+    };
 
     const loadMembersList = async () => {
         try {
@@ -275,7 +289,7 @@ const Referrals = ({ role }) => {
                                             <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10">
                                                 <div className="text-right">
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Reward</p>
-                                                    <p className="text-sm font-black text-primary">₹{ref.rewardAmount || 500}</p>
+                                                    <p className="text-sm font-black text-primary">₹{ref.rewardAmount || rewardAmount}</p>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1.5">
                                                     <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${ref.status === 'Converted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
@@ -324,7 +338,7 @@ const Referrals = ({ role }) => {
         { label: 'Total Referrals', value: referrals.length, icon: Users, color: 'from-primary to-primary', iconColor: 'text-primary' },
         { label: 'Converted', value: referrals.filter(r => r.status === 'Converted').length, icon: CheckCircle, color: 'from-emerald-500 to-teal-600', iconColor: 'text-emerald-600' },
         { label: 'Pending', value: referrals.filter(r => r.status === 'Pending').length, icon: Clock, color: 'from-amber-500 to-orange-600', iconColor: 'text-amber-600' },
-        { label: 'Total Rewards', value: `₹${referrals.filter(r => r.status === 'Converted').length * 500}`, subtext: 'Potential', icon: Gift, color: 'from-primary to-primary', iconColor: 'text-primary' }
+        { label: 'Total Rewards', value: `₹${referrals.filter(r => r.status === 'Converted').length * rewardAmount}`, subtext: 'Potential', icon: Gift, color: 'from-primary to-primary', iconColor: 'text-primary' }
     ];
 
     return (
@@ -476,7 +490,7 @@ const Referrals = ({ role }) => {
                                                     <div className="text-xs font-medium text-slate-600">Referred: {ref.referredName}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm font-black text-primary">₹500 Reward</div>
+                                                    <div className="text-sm font-black text-primary">₹{rewardAmount} Reward</div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? (

@@ -55,7 +55,8 @@ const BranchManagerDashboard = () => {
         pendingApprovals: 0,
         netProfit: 0,
         storeSales: 0,
-        feedbacks: []
+        feedbacks: [],
+        taskStats: { pending: 0, inProgress: 0, completed: 0, approved: 0, overdue: 0 }
     });
 
     const activeBranch = branches.find(b => b.id.toString() === selectedBranch.toString());
@@ -101,7 +102,8 @@ const BranchManagerDashboard = () => {
                     pendingApprovals: statsData.pendingApprovals || 0,
                     netProfit: statsData.netProfit || 0,
                     storeSales: statsData.storeSales || 0,
-                    feedbacks: statsData.recentFeedback || []
+                    feedbacks: statsData.recentFeedback || [],
+                    taskStats: statsData.taskStats || { pending: 0, inProgress: 0, completed: 0, approved: 0, overdue: 0 }
                 });
             } catch (error) {
                 console.error("Failed to load dashboard data:", error);
@@ -197,6 +199,46 @@ const BranchManagerDashboard = () => {
                     icon={ShieldAlert}
                     color="danger"
                 />
+            </div>
+
+            {/* Operational Task Performance (New) */}
+            <div className="mb-8 bg-white/50 backdrop-blur-md rounded-3xl p-6 border border-white shadow-xl">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
+                        <Activity size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h3 className="text-base font-black text-slate-800 tracking-tight">OPERATIONAL TASK PERFORMANCE</h3>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Real-time Task Lifecycle Tracking</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all border-l-4 border-l-blue-500">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Pending</p>
+                        <h4 className="text-2xl font-black text-slate-800">{extraStats.taskStats.pending}</h4>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all border-l-4 border-l-amber-500">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">In Progress</p>
+                        <h4 className="text-2xl font-black text-slate-800">{extraStats.taskStats.inProgress}</h4>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all border-l-4 border-l-emerald-500">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Completed</p>
+                        <h4 className="text-2xl font-black text-slate-800">{extraStats.taskStats.completed}</h4>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all border-l-4 border-l-violet-500">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Approved</p>
+                        <h4 className="text-2xl font-black text-slate-800">{extraStats.taskStats.approved}</h4>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all border-l-4 border-l-red-500">
+                        <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Overdue</p>
+                        <h4 className="text-2xl font-black text-red-600">{extraStats.taskStats.overdue}</h4>
+                    </div>
+                </div>
             </div>
 
 

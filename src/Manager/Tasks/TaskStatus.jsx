@@ -32,6 +32,7 @@ const TaskStatus = () => {
                     { label: 'Pending', value: (statData.pending || 0).toString(), icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
                     { label: 'In Progress', value: (statData.inProgress || 0).toString(), icon: Activity, bg: 'bg-primary-light', color: 'text-primary' },
                     { label: 'Completed', value: (statData.completed || 0).toString(), icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
+                    { label: 'Approved', value: (statData.approved || 0).toString(), icon: CheckCircle, bg: 'bg-violet-50', color: 'text-violet-600' },
                 ]);
             }
         } catch (error) {
@@ -43,6 +44,7 @@ const TaskStatus = () => {
 
     const getStatusBadge = (status) => {
         switch (status) {
+            case 'Approved': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-100 flex items-center gap-1 w-fit"><CheckCircle size={10} /> Approved</span>;
             case 'Pending': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100 italic">Pending</span>;
             case 'In Progress': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary-light text-primary-hover border border-violet-100 flex items-center gap-1 w-fit"><Activity size={10} /> In Progress</span>;
             case 'Completed': return <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-100 flex items-center gap-1 w-fit"><CheckCircle size={10} /> Completed</span>;
@@ -96,7 +98,7 @@ const TaskStatus = () => {
                     <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex flex-wrap items-center gap-4 animate-slide-down">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Filter Status:</label>
                         <div className="flex bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
-                            {['All', 'Pending', 'In Progress', 'Completed'].map((status) => (
+                            {['All', 'Pending', 'In Progress', 'Completed', 'Approved'].map((status) => (
                                 <button
                                     key={status}
                                     onClick={() => setStatusFilter(status)}

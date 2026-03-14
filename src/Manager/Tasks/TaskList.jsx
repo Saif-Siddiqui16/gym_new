@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ListTodo, Clock, Loader2, AlertCircle, CheckCircle2, Filter, Building2, FileText, UserPlus, Calendar, Eye, Trash2 } from 'lucide-react';
+import { Plus, ListTodo, Clock, Loader2, AlertCircle, CheckCircle2, CheckCircle, Activity, Filter, Building2, FileText, UserPlus, Calendar, Eye, Trash2 } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { useBranchContext } from '../../context/BranchContext';
-import { getAllStaff, createTask, getTasks, getTaskStats, deleteTask, updateTask } from '../../api/manager/managerApi';
+import { getAllStaff, createTask, getTasks, getTaskStats, deleteTask, updateTask, delegateTask } from '../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 
@@ -37,6 +37,14 @@ const TaskList = () => {
         priority: 'Medium',
         dueDate: '',
         assignTo: ''
+    });
+
+    const [isDelegateDrawerOpen, setIsDelegateDrawerOpen] = useState(false);
+    const [delegatingTask, setDelegatingTask] = useState(null);
+    const [delegationData, setDelegationData] = useState({
+        staffId: '',
+        note: '',
+        deadline: ''
     });
 
     useEffect(() => {
@@ -116,6 +124,17 @@ const TaskList = () => {
         setIsNewTaskDrawerOpen(true);
     };
 
+    const handleUpdateStatus = async (taskId, newStatus) => {
+        try {
+            await updateTask(taskId, { status: newStatus });
+            toast.success(`Task marked as ${newStatus}`);
+            fetchData();
+        } catch (error) {
+            console.error('Error updating status:', error);
+            toast.error(error.response?.data?.message || 'Failed to update status');
+        }
+    };
+
     const handleEditTask = (task) => {
         setEditingTaskId(task.id);
         setIsReadOnly(false);
@@ -146,15 +165,33 @@ const TaskList = () => {
         setIsNewTaskDrawerOpen(true);
     };
 
-    const handleDeleteTask = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this task?")) return;
+    const handleDelegateClick = (task) => {
+        setDelegatingTask(task);
+        setDelegationData({
+            staffId: '',
+            note: '',
+            deadline: task.dueDate
+        });
+        if (task.tenantId) {
+            fetchStaff(task.tenantId);
+        }
+        setIsDelegateDrawerOpen(true);
+    };
+
+    const handleDelegateSubmit = async (e) => {
+        e.preventDefault();
         try {
-            await deleteTask(id);
-            toast.success("Task deleted successfully");
+            await delegateTask(delegatingTask.id, {
+                staffId: delegationData.staffId,
+                delegationNote: delegationData.note,
+                staffDeadline: delegationData.deadline
+            });
+            toast.success('Task delegated successfully');
+            setIsDelegateDrawerOpen(false);
             fetchData();
         } catch (error) {
-            console.error("Error deleting task:", error);
-            toast.error(error.response?.data?.message || "Failed to delete task");
+            console.error('Error delegating task:', error);
+            toast.error(error.response?.data?.message || 'Failed to delegate task');
         }
     };
 
@@ -304,13 +341,41 @@ const TaskList = () => {
                                                 {new Date(task.dueDate).toLocaleDateString()}
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${task.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                                    task.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                                    task.status === 'In Progress' ? 'bg-blue-50 text-blue-600' :
+                                                    task.status === 'Approved' ? 'bg-violet-50 text-violet-600' :
                                                     'bg-amber-50 text-amber-600'
                                                     }`}>
                                                     {task.status}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-right flex items-center justify-end gap-2">
+                                            <td className="px-8 py-5 text-right flex items-center justify-end gap-2 text-slate-300">
+                                                {task.status === 'Completed' && (
+                                                    <div className="flex gap-1 animate-fadeIn">
+                                                        <button
+                                                            onClick={() => handleUpdateStatus(task.id, 'Approved')}
+                                                            className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors"
+                                                            title="Approve Task"
+                                                        >
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleUpdateStatus(task.id, 'In Progress')}
+                                                            className="p-2 hover:bg-amber-50 text-slate-400 hover:text-amber-600 rounded-lg transition-colors"
+                                                            title="Send for Revision"
+                                                        >
+                                                            <Activity size={18} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDelegateClick(task)}
+                                                    className="p-2 hover:bg-violet-50 text-slate-400 hover:text-primary rounded-lg transition-colors"
+                                                    title="Delegate to Staff"
+                                                >
+                                                    <UserPlus size={18} />
+                                                </button>
                                                 <button
                                                     onClick={() => handleViewTask(task)}
                                                     className="p-2 hover:bg-primary-light text-slate-400 hover:text-primary rounded-lg transition-colors"
@@ -481,6 +546,90 @@ const TaskList = () => {
                             placeholder="Select user (optional)"
                             className="w-full"
                         />
+                    </div>
+                </form>
+            </RightDrawer>
+
+            {/* Delegate Task Drawer */}
+            <RightDrawer
+                isOpen={isDelegateDrawerOpen}
+                onClose={() => setIsDelegateDrawerOpen(false)}
+                title="Delegate Task"
+                subtitle="Assign this task to a staff member for execution"
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-4 w-full px-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsDelegateDrawerOpen(false)}
+                            className="flex-1 h-12 rounded-2xl"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="delegate-task-form"
+                            variant="primary"
+                            className="flex-1 h-12 rounded-2xl shadow-lg shadow-primary/20"
+                        >
+                            Assign to Staff
+                        </Button>
+                    </div>
+                }
+            >
+                <form id="delegate-task-form" onSubmit={handleDelegateSubmit} className="space-y-6 px-6 py-8">
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Task Details</p>
+                        <h4 className="font-bold text-slate-800">{delegatingTask?.title}</h4>
+                        <p className="text-xs text-slate-500 mt-1">{delegatingTask?.description}</p>
+                    </div>
+
+                    {/* Staff Selection */}
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <UserPlus size={14} className="text-primary" />
+                            Select Staff *
+                        </label>
+                        <CustomDropdown
+                            options={staffList}
+                            value={delegationData.staffId}
+                            loading={loadingStaff}
+                            onChange={(val) => setDelegationData({ ...delegationData, staffId: val })}
+                            placeholder="Select staff member"
+                            className="w-full"
+                        />
+                    </div>
+
+                    {/* Delegation Note */}
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <FileText size={14} className="text-primary" />
+                            Delegation Note
+                        </label>
+                        <textarea
+                            placeholder="Add specific instructions for the staff..."
+                            rows="4"
+                            className="saas-input w-full p-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300 resize-none"
+                            value={delegationData.note}
+                            onChange={(e) => setDelegationData({ ...delegationData, note: e.target.value })}
+                        ></textarea>
+                    </div>
+
+                    {/* Staff Deadline */}
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <Calendar size={14} className="text-primary" />
+                            Staff Deadline
+                        </label>
+                        <input
+                            required
+                            type="date"
+                            className="saas-input w-full h-[52px] px-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm bg-slate-50/50 focus:bg-white transition-all duration-300"
+                            value={delegationData.deadline}
+                            onChange={(e) => setDelegationData({ ...delegationData, deadline: e.target.value })}
+                        />
+                        <p className="text-[10px] text-slate-400 ml-1 italic">Task overall deadline: {delegatingTask?.dueDate}</p>
                     </div>
                 </form>
             </RightDrawer>

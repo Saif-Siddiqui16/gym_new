@@ -11,7 +11,8 @@ const OrganizationSettings = ({ role }) => {
         name: '',
         timezone: 'Asia/Kolkata',
         currency: 'INR',
-        fiscalYearStart: 'April'
+        fiscalYearStart: 'April',
+        referralReward: 500
     });
     const [logoFile, setLogoFile] = useState(null);
     const [logoPreview, setLogoPreview] = useState(null);
@@ -28,7 +29,8 @@ const OrganizationSettings = ({ role }) => {
                 name: data.name || '',
                 timezone: data.timezone || 'Asia/Kolkata',
                 currency: data.currency || 'INR',
-                fiscalYearStart: data.fiscalYearStart || 'April'
+                fiscalYearStart: data.fiscalYearStart || 'April',
+                referralReward: data.referralReward || 500
             });
             if (data.logo) {
                 setLogoPreview(data.logo);
@@ -48,7 +50,8 @@ const OrganizationSettings = ({ role }) => {
                 name: formData.name,
                 timezone: formData.timezone,
                 currency: formData.currency,
-                fiscalYearStart: formData.fiscalYearStart
+                fiscalYearStart: formData.fiscalYearStart,
+                referralReward: parseInt(formData.referralReward)
             };
             if (logoFile) {
                 payload.logo = logoFile;
@@ -234,6 +237,24 @@ const OrganizationSettings = ({ role }) => {
                                 </select>
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
                                     <Calendar size={20} strokeWidth={3} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Referral Reward */}
+                        <div>
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Referral Reward (Points)</label>
+                            <div className="relative group/input">
+                                <input
+                                    type="number"
+                                    name="referralReward"
+                                    value={formData.referralReward}
+                                    onChange={handleChange}
+                                    placeholder="Enter points (e.g. 500)"
+                                    className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
+                                />
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
+                                    <DollarSign size={20} strokeWidth={3} />
                                 </div>
                             </div>
                         </div>

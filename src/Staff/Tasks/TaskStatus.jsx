@@ -13,6 +13,7 @@ const TaskStatus = () => {
         { label: 'Pending', value: '0', icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
         { label: 'In Progress', value: '0', icon: Activity, bg: 'bg-primary-light', color: 'text-primary' },
         { label: 'Completed', value: '0', icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
+        { label: 'Approved', value: '0', icon: CheckCircle, bg: 'bg-violet-50', color: 'text-violet-600' },
     ]);
 
     // Pagination State
@@ -50,11 +51,13 @@ const TaskStatus = () => {
             { label: 'Pending', value: allData.filter(t => t.status === 'Pending').length.toString(), icon: Clock, bg: 'bg-yellow-50', color: 'text-yellow-600' },
             { label: 'In Progress', value: allData.filter(t => t.status === 'In Progress').length.toString(), icon: Activity, bg: 'bg-primary-light', color: 'text-primary' },
             { label: 'Completed', value: allData.filter(t => t.status === 'Completed').length.toString(), icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
+            { label: 'Approved', value: allData.filter(t => t.status === 'Approved').length.toString(), icon: CheckCircle, bg: 'bg-violet-50', color: 'text-violet-600' },
         ]);
     };
 
     const getStatusBadge = (status) => {
         switch (status) {
+            case 'Approved': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-violet-100 text-violet-700 uppercase tracking-widest">Approved</span>;
             case 'Completed': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-green-100 text-green-700 uppercase">Completed</span>;
             case 'In Progress': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-violet-100 text-primary-hover uppercase">In Progress</span>;
             case 'Pending': return <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-yellow-100 text-yellow-700 uppercase">Pending</span>;
@@ -99,7 +102,8 @@ const TaskStatus = () => {
                                 { value: 'All', label: 'All Status' },
                                 { value: 'Pending', label: 'Pending' },
                                 { value: 'In Progress', label: 'In Progress' },
-                                { value: 'Completed', label: 'Completed' }
+                                { value: 'Completed', label: 'Completed' },
+                                { value: 'Approved', label: 'Approved' }
                             ]}
                             value={statusFilter}
                             onChange={setStatusFilter}

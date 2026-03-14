@@ -170,6 +170,11 @@ export const deleteTask = async (id) => {
     return response.data;
 };
 
+export const delegateTask = async (id, delegationData) => {
+    const response = await apiClient.post(`/admin/tasks/${id}/delegate`, delegationData);
+    return response.data;
+};
+
 export const getRenewalAlerts = async ({ type = 'expiring', search = '' } = {}) => {
     const params = { type, search };
     const response = await apiClient.get('/admin/members/renewal-alerts', { params });
