@@ -82,6 +82,35 @@ export const getCoupons = async (params = {}) => {
     }
 };
 
+export const getAvailableCoupons = async () => {
+    try {
+        const response = await apiClient.get('/store/coupons/available');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to load available coupons';
+    }
+};
+
+export const getAvailableCouponsForMember = async (memberId) => {
+    try {
+        const response = await apiClient.get(`/store/coupons/available/${memberId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to load available coupons for member';
+    }
+};
+
+export const validateCoupon = async (code, totalAmount) => {
+    try {
+        const response = await apiClient.get(`/store/coupons/validate/${code}`, {
+            params: { totalAmount }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Invalid coupon';
+    }
+};
+
 export const getCouponStats = async (params = {}) => {
     try {
         const response = await apiClient.get('/store/coupons/stats', { params });

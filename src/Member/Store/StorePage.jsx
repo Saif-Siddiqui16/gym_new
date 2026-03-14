@@ -3,7 +3,7 @@ import { Search, ShoppingBag, ShoppingCart, Package, Trash2, ChevronRight, Refre
 import RightDrawer from '../../components/common/RightDrawer';
 import ProductCard from './ProductCard';
 import StorePaymentModal from './StorePaymentModal';
-import { getStoreProducts, checkoutStoreOrder } from '../../api/storeApi';
+import { getStoreProducts, checkoutStoreOrder, validateCoupon, getAvailableCoupons } from '../../api/storeApi';
 import toast from 'react-hot-toast';
 
 const StorePage = () => {
@@ -14,10 +14,28 @@ const StorePage = () => {
     const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [products, setProducts] = useState([]);
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+    const [availableCoupons, setAvailableCoupons] = useState([]);
 
     useEffect(() => {
         fetchProducts();
     }, [selectedCategory, searchTerm]);
+
+    useEffect(() => {
+        fetchCoupons();
+    }, []);
+
+    const fetchCoupons = async () => {
+        try {
+            const data = await getAvailableCoupons();
+            // In the store, only show pos-applicable or all-applicable coupons
+            setAvailableCoupons(data.filter(c => c.applicableService === 'All' || c.applicableService === 'POS'));
+        } catch (error) {
+            console.error("Failed to fetch coupons:", error);
+        }
+    };
 
     const fetchProducts = async () => {
         try {
@@ -60,6 +78,26 @@ const StorePage = () => {
         setIsProductDrawerOpen(true);
     };
 
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
+        await handleApplyCouponWithCode(couponCode);
+    };
+
+    const handleApplyCouponWithCode = async (codeToApply) => {
+        try {
+            setIsValidatingCoupon(true);
+            const result = await validateCoupon(codeToApply, cartTotal);
+            setAppliedCoupon(result.coupon);
+            setCouponCode(result.coupon.code); // ensure input reflects the applied code
+            toast.success("Coupon applied!");
+        } catch (error) {
+            toast.error(error);
+            setAppliedCoupon(null);
+        } finally {
+            setIsValidatingCoupon(false);
+        }
+    };
+
     const handleCheckout = async () => {
         if (cart.length === 0) return;
         setIsPaymentModalOpen(true);
@@ -69,20 +107,30 @@ const StorePage = () => {
         try {
             setIsPaymentModalOpen(false);
             toast.loading("Processing Order...", { id: 'checkout' });
-            await checkoutStoreOrder({
+            const payload = {
                 items: cart.map(c => ({ productId: c.id, quantity: c.quantity, price: c.price })),
-                total: cartTotal,
+                total: finalTotal,
                 paymentMethod,
                 referenceNumber
-            });
+            };
+            if (appliedCoupon) {
+                payload.couponCode = appliedCoupon.code;
+            }
+            await checkoutStoreOrder(payload);
             toast.success("Purchase Successful!", { id: 'checkout' });
             setCart([]);
+            setAppliedCoupon(null);
+            setCouponCode('');
         } catch (error) {
-            toast.error(error.response?.data?.message || "Transaction Failed", { id: 'checkout' });
+            toast.error(error.message || error || "Transaction Failed", { id: 'checkout' });
         }
     };
 
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discountAmount = appliedCoupon 
+        ? (appliedCoupon.type === 'Percentage' ? (cartTotal * appliedCoupon.value / 100) : appliedCoupon.value)
+        : 0;
+    const finalTotal = Math.max(0, cartTotal - discountAmount);
 
     return (
         <div className="saas-container pb-24 space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -178,10 +226,79 @@ const StorePage = () => {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="pt-8 border-t-2 border-slate-100 space-y-6">
-                                    <div className="flex justify-between items-center px-1">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Total</span>
-                                        <span className="text-2xl font-black text-slate-900 tracking-tight">₹{(cartTotal || 0).toLocaleString()}</span>
+                                    {/* Coupon Section */}
+                                    <div className="pt-6 border-t border-slate-100 space-y-3">
+                                        
+                                        {/* Available Coupons Chips */}
+                                        {availableCoupons.length > 0 && !appliedCoupon && (
+                                            <div className="mb-4">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">Available Offers</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {availableCoupons.map(coupon => (
+                                                        <button
+                                                            key={coupon.id}
+                                                            onClick={() => {
+                                                                setCouponCode(coupon.code);
+                                                                // Slight delay to allow state to update before applying
+                                                                setTimeout(() => handleApplyCouponWithCode(coupon.code), 0);
+                                                            }}
+                                                            className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest transition-colors flex items-center gap-1"
+                                                        >
+                                                            <Sparkles size={10} />
+                                                            {coupon.code} (-{coupon.type === 'Percentage' ? `${coupon.value}%` : `₹${coupon.value}`})
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discount Coupon</p>
+                                        <div className="flex gap-2">
+                                            <div className="relative flex-1">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Code"
+                                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-primary transition-all uppercase"
+                                                    value={couponCode}
+                                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                    disabled={appliedCoupon || isValidatingCoupon}
+                                                />
+                                                {appliedCoupon && (
+                                                    <button 
+                                                        onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-red-500 hover:bg-red-50 rounded-lg"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {!appliedCoupon && (
+                                                <button 
+                                                    onClick={handleApplyCoupon}
+                                                    disabled={!couponCode || isValidatingCoupon}
+                                                    className="h-11 px-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-50"
+                                                >
+                                                    {isValidatingCoupon ? '...' : 'Apply'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6 border-t-2 border-slate-100 space-y-3">
+                                        <div className="flex justify-between items-center px-1">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subtotal</span>
+                                            <span className="text-sm font-bold text-slate-900">₹{(cartTotal || 0).toLocaleString()}</span>
+                                        </div>
+                                        {appliedCoupon && (
+                                            <div className="flex justify-between items-center px-1 text-emerald-600">
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Discount</span>
+                                                <span className="text-sm font-bold">-₹{discountAmount.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center px-1 pt-2 border-t border-dashed border-slate-100">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Grand Total</span>
+                                            <span className="text-2xl font-black text-slate-900 tracking-tight">₹{(finalTotal || 0).toLocaleString()}</span>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={handleCheckout}
@@ -191,7 +308,6 @@ const StorePage = () => {
                                         <ChevronRight size={16} />
                                     </button>
                                 </div>
-                            </div>
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-center py-10 mt-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
                                 <div className="w-20 h-20 flex items-center justify-center text-slate-200 mb-6 bg-slate-50 rounded-[2rem]">
@@ -250,7 +366,7 @@ const StorePage = () => {
                 isOpen={isPaymentModalOpen}
                 onClose={() => setIsPaymentModalOpen(false)}
                 onConfirm={confirmCheckout}
-                totalAmount={cartTotal}
+                totalAmount={finalTotal}
             />
         </div>
     );

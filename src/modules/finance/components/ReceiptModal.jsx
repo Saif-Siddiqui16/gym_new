@@ -98,9 +98,19 @@ const ReceiptModal = ({ isOpen, onClose, order }) => {
                             </div>
                             <span className="text-xs font-black uppercase tracking-widest">{order.paymentMode || 'Cash'}</span>
                         </div>
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Subtotal</span>
+                            <span className="text-sm font-bold opacity-80">₹{(order.total + (order.discountAmount || 0)).toLocaleString()}</span>
+                        </div>
+                        {order.discountAmount > 0 && (
+                            <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10 text-emerald-400">
+                                <span className="text-[10px] font-black uppercase tracking-widest">Discount</span>
+                                <span className="text-sm font-bold">- ₹{order.discountAmount.toLocaleString()}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between items-center">
                             <span className="text-sm font-black uppercase tracking-widest">Total Amount Paid</span>
-                            <span className="text-2xl font-black tracking-tighter">₹{order.total}</span>
+                            <span className="text-2xl font-black tracking-tighter">₹{order.total.toLocaleString()}</span>
                         </div>
                     </div>
 

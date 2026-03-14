@@ -102,7 +102,7 @@ const StorePaymentModal = ({ isOpen, onClose, onConfirm, totalAmount }) => {
                         <div className="relative z-10 flex justify-between items-center text-white">
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">Total Payable</p>
-                                <p className="text-3xl font-black tracking-tight">₹{totalAmount.toLocaleString()}</p>
+                                <p className="text-3xl font-black tracking-tight">₹{(totalAmount || 0).toLocaleString()}</p>
                             </div>
                             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
                                 <CheckCircle2 size={24} />

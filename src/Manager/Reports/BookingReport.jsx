@@ -145,7 +145,7 @@ const BookingReport = () => {
                 id: b.id,
                 memberName: b.member?.name || 'Unknown',
                 classType: b.class?.name || (b.classId ? `Class #${b.classId}` : 'Session'),
-                trainerName: b.class?.trainer?.name || 'Unassigned',
+                trainerName: b.class?.trainer?.name || b.member?.trainer?.name || 'Unassigned',
                 date: b.date ? new Date(b.date).toLocaleDateString() : 'N/A',
                 time: b.time || 'N/A',
                 status: b.status || 'Pending'

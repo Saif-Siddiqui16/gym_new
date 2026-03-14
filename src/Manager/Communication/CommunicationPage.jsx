@@ -32,6 +32,10 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
             }
         };
         fetchChats();
+        
+        // Polling for new chats/unread counts every 5 seconds
+        const interval = setInterval(fetchChats, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
@@ -45,7 +49,7 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
                     text: m.message,
                     time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     sender: m.senderId === JSON.parse(localStorage.getItem('userData'))?.id ? 'me' : 'them',
-                    status: 'sent',
+                    status: m.isRead ? 'read' : 'sent',
                     attachmentUrl: m.attachmentUrl,
                     attachmentType: m.attachmentType
                 }));
@@ -55,6 +59,10 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
             }
         };
         fetchMsgs();
+
+        // Polling for new messages every 3 seconds when a chat is open
+        const interval = setInterval(fetchMsgs, 3000);
+        return () => clearInterval(interval);
     }, [selectedChat]);
 
     const handleSend = async () => {
@@ -183,6 +191,10 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
                                             onClick={() => {
                                                 setSelectedChat(chat);
                                                 setView('chat');
+                                                // Clear unread count locally for immediate feedback
+                                                setChats(prev => prev.map(c => 
+                                                    c.id === chat.id ? { ...c, unread: 0 } : c
+                                                ));
                                             }}
                                             className={`p-3 rounded-2xl cursor-pointer transition-all flex items-center gap-4 group mx-1 ${selectedChat?.id === chat.id
                                                 ? 'bg-primary-light/50 border border-primary/10 shadow-sm'

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Package, User, Clock, ReceiptText, Filter, Plus, Minus, Trash2, X, Store, CreditCard, LayoutGrid } from 'lucide-react';
-import { getStoreProducts, getStoreStats, checkoutStoreOrder } from '../../../api/storeApi';
+import { getStoreProducts, getStoreStats, checkoutStoreOrder, validateCoupon } from '../../../api/storeApi';
 import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
 import ReceiptModal from '../components/ReceiptModal';
+import { Sparkles } from 'lucide-react';
 
 const POS = () => {
     const { selectedBranch } = useBranchContext();
@@ -29,6 +30,10 @@ const POS = () => {
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('Cash');
     const [referenceNumber, setReferenceNumber] = useState('');
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+    const [availableCoupons, setAvailableCoupons] = useState([]);
     
     // Receipt Modal State
     const [showReceiptModal, setShowReceiptModal] = useState(false);
@@ -79,6 +84,23 @@ const POS = () => {
         loadData();
     }, [selectedBranch]);
 
+    useEffect(() => {
+        const fetchMemberCoupons = async () => {
+            try {
+                if (selectedMember) {
+                    const { getAvailableCouponsForMember } = await import('../../../api/storeApi');
+                    const couponsData = await getAvailableCouponsForMember(selectedMember.id);
+                    setAvailableCoupons(couponsData.filter(c => c.applicableService === 'All' || c.applicableService === 'POS'));
+                } else {
+                    setAvailableCoupons([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch member coupons:", error);
+            }
+        };
+        fetchMemberCoupons();
+    }, [selectedMember]);
+
     const handleAddToCart = (product) => {
         if (product.stock <= 0) {
             toast.error("Product is out of stock");
@@ -111,6 +133,26 @@ const POS = () => {
         }).filter(Boolean));
     };
 
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
+        await handleApplyCouponWithCode(couponCode);
+    };
+
+    const handleApplyCouponWithCode = async (codeToApply) => {
+        try {
+            setIsValidatingCoupon(true);
+            const result = await validateCoupon(codeToApply, total);
+            setAppliedCoupon(result.coupon);
+            setCouponCode(result.coupon.code);
+            toast.success("Coupon applied!");
+        } catch (error) {
+            toast.error(error);
+            setAppliedCoupon(null);
+        } finally {
+            setIsValidatingCoupon(false);
+        }
+    };
+
     const handleCheckout = async () => {
         if (cart.length === 0) return toast.error("Cart is empty");
 
@@ -135,6 +177,9 @@ const POS = () => {
 
         payload.paymentMode = paymentMethod;
         payload.referenceNumber = referenceNumber;
+        if (appliedCoupon) {
+            payload.couponCode = appliedCoupon.code;
+        }
 
         if (paymentMethod === 'Online Link') {
             toast.promise(
@@ -162,6 +207,8 @@ const POS = () => {
             setShowGuestForm(false);
             setGuestInfo({ name: '', phone: '', email: '' });
             setReferenceNumber('');
+            setCouponCode('');
+            setAppliedCoupon(null);
             // Refresh stats and products to update stock
             const [productsData, statsData] = await Promise.all([
                 getStoreProducts({ branchId: selectedBranch }),
@@ -488,9 +535,85 @@ const POS = () => {
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-                                <span className="text-lg font-black text-slate-900 border-b-2 border-violet-200">₹{total.toLocaleString()}</span>
+                            {/* Coupon Section */}
+                            <div className="space-y-3 pt-6 border-t border-slate-100">
+                                {/* Available Coupons Chips */}
+                                {availableCoupons.length > 0 && !appliedCoupon && selectedMember && (
+                                    <div className="mb-4">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">Available Member Offers</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableCoupons.map(coupon => (
+                                                <button
+                                                    key={coupon.id}
+                                                    onClick={() => {
+                                                        setCouponCode(coupon.code);
+                                                        // Slight delay to allow state to update before applying
+                                                        setTimeout(() => handleApplyCouponWithCode(coupon.code), 0);
+                                                    }}
+                                                    className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest transition-colors flex items-center gap-1"
+                                                >
+                                                    <Sparkles size={10} />
+                                                    {coupon.code} (-{coupon.type === 'Percentage' ? `${coupon.value}%` : `₹${coupon.value}`})
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discount Coupon</p>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Code"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                            disabled={appliedCoupon || isValidatingCoupon}
+                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary text-xs font-bold bg-slate-50/50 outline-none transition-all uppercase"
+                                        />
+                                        {appliedCoupon && (
+                                            <button 
+                                                onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:bg-red-50 p-1 rounded-lg"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {!appliedCoupon && (
+                                        <button
+                                            onClick={handleApplyCoupon}
+                                            disabled={!couponCode || isValidatingCoupon}
+                                            className="h-11 px-4 bg-slate-100 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all disabled:opacity-50"
+                                        >
+                                            {isValidatingCoupon ? '...' : 'Apply'}
+                                        </button>
+                                    )}
+                                </div>
+                                {appliedCoupon && (
+                                    <p className="text-[10px] font-bold text-emerald-600 ml-1">
+                                        ✓ Coupon applied: {appliedCoupon.type === 'Percentage' ? `${appliedCoupon.value}% OFF` : `₹${appliedCoupon.value} OFF`}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2 pt-6 border-t border-slate-100">
+                                <div className="flex items-center justify-between text-slate-500">
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Subtotal</span>
+                                    <span className="text-sm font-bold">₹{total.toLocaleString()}</span>
+                                </div>
+                                {appliedCoupon && (
+                                    <div className="flex items-center justify-between text-emerald-600">
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Discount</span>
+                                        <span className="text-sm font-bold">- ₹{(appliedCoupon.type === 'Percentage' ? (total * appliedCoupon.value / 100) : appliedCoupon.value).toLocaleString()}</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-100">
+                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Grand Total</span>
+                                    <span className="text-lg font-black text-slate-900 border-b-2 border-violet-200">
+                                        ₹{Math.max(0, total - (appliedCoupon ? (appliedCoupon.type === 'Percentage' ? (total * appliedCoupon.value / 100) : appliedCoupon.value) : 0)).toLocaleString()}
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 onClick={handleCheckout}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import Modal from '../../../components/common/Modal';
 import Button from '../../../components/ui/Button';
 
 const MarkAsLostModal = ({ isOpen, onClose, onConfirm, submitting }) => {
@@ -16,8 +17,13 @@ const MarkAsLostModal = ({ isOpen, onClose, onConfirm, submitting }) => {
     ];
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-scaleIn">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            showCloseButton={false}
+            maxWidth="max-w-md"
+        >
+            <div className="bg-white overflow-hidden animate-scaleIn">
                 <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -77,7 +83,7 @@ const MarkAsLostModal = ({ isOpen, onClose, onConfirm, submitting }) => {
                     </Button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 };
 

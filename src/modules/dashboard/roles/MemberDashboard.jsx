@@ -21,9 +21,10 @@ import {
 import Card from '../../../components/ui/Card';
 import apiClient from '../../../api/apiClient';
 import { getChatMessages, sendChatMessage } from '../../../api/communication/communicationApi';
+import { getAvailableCoupons } from '../../../api/storeApi';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { X, Send, MessageSquare, Dumbbell } from 'lucide-react';
+import { X, Send, MessageSquare, Dumbbell, Ticket, Copy } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
 import QRScannerModal from '../../../components/common/QRScannerModal';
@@ -39,14 +40,17 @@ const MemberDashboard = () => {
     const [chatHistory, setChatHistory] = useState([]);
     const [chatMessage, setChatMessage] = useState('');
     const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [coupons, setCoupons] = useState([]);
 
     const fetchDashboardData = async () => {
         try {
-            const [res, ptRes] = await Promise.all([
+            const [res, ptRes, couponsRes] = await Promise.all([
                 apiClient.get('/member/dashboard'),
-                fetchPTAccounts()
+                fetchPTAccounts(),
+                getAvailableCoupons().catch(() => []) // Catch error so dashboard doesn't fail if coupons fail
             ]);
             setData({ ...res.data, ptAccounts: ptRes });
+            setCoupons(couponsRes);
         } catch (err) {
             console.error("Failed to fetch dashboard data", err);
             toast.error("Failed to load dashboard statistics");
@@ -127,10 +131,10 @@ const MemberDashboard = () => {
     const QuickAction = ({ icon: Icon, label, onClick, color = 'bg-slate-50' }) => (
         <button
             onClick={onClick}
-            className={`w-full p-4 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 group ${color} text-left`}
+            className={`w-full p-3 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 group ${color} text-left`}
         >
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                <Icon size={18} />
+            <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                <Icon size={16} />
             </div>
             <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none block">{label}</span>
         </button>
@@ -149,9 +153,9 @@ const MemberDashboard = () => {
     const { memberInfo, membership, stats, recentAttendance, upcomingClass, trainer, locker, announcements, ptAccounts } = data;
 
     return (
-        <div className="saas-page pb-page space-y-8 animate-fadeIn scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="saas-page pb-page space-y-5 animate-fadeIn scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b-2 border-slate-100">
                 <div className="flex items-center gap-3 sm:gap-5 min-w-0">
                     <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
                         <User size={24} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
@@ -177,9 +181,9 @@ const MemberDashboard = () => {
 
             {/* Notification/Alert Area */}
             {(membership.daysRemaining <= 10 || stats.pendingDues > 0) && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {membership.daysRemaining <= 10 && (
-                        <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center justify-between animate-pulse">
+                        <div className="bg-rose-50 border border-rose-100 p-3 rounded-2xl flex items-center justify-between animate-pulse">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center text-white">
                                     <Clock size={20} />
@@ -198,7 +202,7 @@ const MemberDashboard = () => {
                         </div>
                     )}
                     {stats.pendingDues > 0 && (
-                        <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center justify-between">
+                        <div className="bg-amber-50 border border-amber-100 p-3 rounded-2xl flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white">
                                     <CreditCard size={20} />
@@ -216,6 +220,63 @@ const MemberDashboard = () => {
                             </button>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Coupons Banner Area */}
+            {coupons.length > 0 && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Ticket size={18} className="text-primary" />
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">Available Offers</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {coupons.map((coupon) => (
+                            <div key={coupon.id} className="relative overflow-hidden bg-gradient-to-br from-primary to-fuchsia-600 rounded-2xl p-4 shadow-xl shadow-violet-200 text-white flex flex-col justify-between group">
+                                {/* Decorative elements */}
+                                <div className="absolute top-0 right-0 -tr-translate-y-4 translate-x-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div className="absolute bottom-0 left-0 translate-y-4 -translate-x-4 w-20 h-20 bg-black/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+                                
+                                <div className="relative z-10 flex justify-between items-start mb-4">
+                                    <div className="bg-white/20 backdrop-blur-md p-2 rounded-xl text-white">
+                                        <Ticket size={24} />
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xl font-black">
+                                            {coupon.type === 'Percentage' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
+                                        </p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">
+                                            {coupon.applicableService === 'All' ? 'On Anything' : `On ${coupon.applicableService}`}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="relative z-10">
+                                    <p className="text-sm font-medium text-white/90 line-clamp-2 min-h-[40px] mb-4">
+                                        {coupon.description || 'Special offer just for you!'}
+                                    </p>
+                                    
+                                    <div className="flex items-center justify-between bg-black/20 p-1.5 pl-4 rounded-xl backdrop-blur-sm border border-white/10">
+                                        <span className="font-black tracking-wider text-sm">{coupon.code}</span>
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(coupon.code);
+                                                toast.success('Coupon code copied!');
+                                            }}
+                                            className="px-4 py-2 bg-white text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center gap-2"
+                                        >
+                                            <Copy size={12} /> Copy
+                                        </button>
+                                    </div>
+                                    {coupon.minPurchase > 0 && (
+                                        <p className="text-[9px] font-medium text-white/70 text-center mt-3 uppercase tracking-widest">
+                                            Min. spend ₹{coupon.minPurchase} applies
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 
@@ -265,8 +326,8 @@ const MemberDashboard = () => {
                     {/* Membership Details & Entitlements */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Membership Details */}
-                        <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-primary">Membership Details</h3>
                                 <Shield size={16} className="text-violet-200" />
                             </div>
@@ -292,8 +353,8 @@ const MemberDashboard = () => {
                         </Card>
 
                         {/* Entitlements */}
-                        <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col h-full">
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col h-full">
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-fuchsia-600">My Entitlements</h3>
                                 <LayoutDashboard size={16} className="text-fuchsia-200" />
                             </div>
@@ -342,8 +403,8 @@ const MemberDashboard = () => {
                     </div>
 
                     {/* Attendance History */}
-                    <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
-                        <div className="flex items-center justify-between mb-6">
+                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                                 <div className="w-5 h-[2px] bg-primary"></div> Recent Attendance
                             </h2>
@@ -374,8 +435,8 @@ const MemberDashboard = () => {
                 {/* Right Column: Upcoming & Context */}
                 <div className="lg:col-span-4 space-y-6">
                     {/* Latest Announcements */}
-                    <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
                             <h3 className="text-xs font-black uppercase tracking-widest text-primary">Announcements</h3>
                             <button
                                 onClick={() => navigate('/member/announcements')}
@@ -400,8 +461,8 @@ const MemberDashboard = () => {
                     </Card>
 
                     {/* Upcoming Classes */}
-                    <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl h-full">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl h-full">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
                             <h3 className="text-xs font-black uppercase tracking-widest text-emerald-600">Upcoming Classes</h3>
                             <button
                                 onClick={() => navigate('/member/bookings')}
@@ -437,8 +498,8 @@ const MemberDashboard = () => {
                     </Card>
 
                     {/* My Trainer */}
-                    <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
                             <h3 className="text-xs font-black uppercase tracking-widest text-amber-600">My Trainer</h3>
                             <Users size={16} className="text-amber-200" />
                         </div>
@@ -460,9 +521,9 @@ const MemberDashboard = () => {
                     </Card>
 
                     {/* My Locker */}
-                    <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
+                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
                         <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-rose-50 rounded-full blur-2xl opacity-60"></div>
-                        <div className="relative z-10 flex flex-col gap-5">
+                        <div className="relative z-10 flex flex-col gap-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">My Locker</h3>
                                 <Lock size={16} className="text-slate-100" />
@@ -481,10 +542,10 @@ const MemberDashboard = () => {
 
                     {/* My PT Packages */}
                     {ptAccounts && ptAccounts.length > 0 && (
-                        <Card className="p-6 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
+                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
                             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-violet-50 rounded-full blur-2xl opacity-60"></div>
-                            <div className="relative z-10 flex flex-col gap-4">
-                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                            <div className="relative z-10 flex flex-col gap-3">
+                                <div className="flex items-center justify-between border-b border-slate-50 pb-3">
                                     <h3 className="text-xs font-black uppercase tracking-widest text-primary">My PT Packages</h3>
                                     <Dumbbell size={16} className="text-violet-200" />
                                 </div>
@@ -500,7 +561,7 @@ const MemberDashboard = () => {
                                             {account.package?.totalSessions > 0 && (
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <div className="flex-1 h-1.5 bg-violet-100 rounded-full overflow-hidden">
-                                                        <div 
+                                                        <div
                                                             className="h-full bg-primary rounded-full transition-all duration-1000"
                                                             style={{ width: `${(account.remainingSessions / account.totalSessions) * 100}%` }}
                                                         />
@@ -598,7 +659,7 @@ const MemberDashboard = () => {
                 onScanSuccess={handleScanSuccess}
                 title="Member Attendance Scan"
             />
-        </div>
+        </div >
     );
 };
 

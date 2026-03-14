@@ -76,11 +76,12 @@
   --sidebar-collapsed-width: 80px;
   --topbar-height: 64px;
   /* Z-Index Hierarchy */
-  --z-sidebar: 100000;
-  --z-overlay: 10000;
-  --z-modal: 50000;
-  --z-dropdown: 40000;
-  --z-topbar: 20000;
+  --z-sidebar: 100;
+  --z-topbar: 150;
+  --z-overlay: 1000;
+  --z-modal: 2000;
+  --z-dropdown: 500;
+  --z-drawer: 1500;
   --max-content-width: 100%;
 }
 

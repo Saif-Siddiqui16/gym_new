@@ -356,6 +356,10 @@ const AssignedMembers = () => {
                                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Active Plan</p>
                                             <p className="text-sm font-black text-slate-700 truncate">{member.plan}</p>
                                         </div>
+                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
+                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Protocol</p>
+                                            <p className="text-sm font-black text-primary truncate" title={member.assignedProtocol}>{member.assignedProtocol}</p>
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-3 mt-6 text-[10px] text-slate-400 font-black uppercase tracking-widest">
@@ -618,6 +622,7 @@ const AssignedMembers = () => {
                 onClose={() => setIsAssignOpen(false)}
                 memberName={selectedMember?.name}
                 memberId={selectedMember?.id}
+                onSuccess={loadMembers}
             />
         </div>
     );

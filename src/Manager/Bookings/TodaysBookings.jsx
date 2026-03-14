@@ -157,7 +157,7 @@ const TodaysBookings = () => {
                             badge={booking.status}
                             badgeColor={booking.status === 'Completed' ? 'emerald' : booking.status === 'Cancelled' ? 'rose' : 'blue'}
                             fields={[
-                                { label: 'Trainer', value: booking.class?.trainer?.name || 'Staff' },
+                                { label: 'Trainer', value: booking.class?.trainer?.name || booking.member?.trainer?.name || 'Staff' },
                                 { label: 'Time Slot', value: booking.class?.startTime || '-', icon: Clock }
                             ]}
                             actions={booking.status === 'Upcoming' ? [
@@ -213,7 +213,7 @@ const TodaysBookings = () => {
                                             <span className="text-sm text-gray-700 font-medium group-hover:text-primary-hover group-hover:scale-105 inline-block transition-all duration-300">{booking.class?.name}</span>
                                         </td>
                                         <td data-label="Trainer">
-                                            <span className="text-sm text-gray-500 group-hover:text-primary transition-colors duration-300">{booking.class?.trainer?.name || 'Staff'}</span>
+                                            <span className="text-sm text-gray-500 group-hover:text-primary transition-colors duration-300">{booking.class?.trainer?.name || booking.member?.trainer?.name || 'Staff'}</span>
                                         </td>
                                         <td data-label="Time Slot">
                                             <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-primary transition-colors duration-300">
