@@ -31,6 +31,21 @@ const Login = () => {
     const [isSuspendedModalOpen, setIsSuspendedModalOpen] = useState(false);
     const [supportNumber, setSupportNumber] = useState('');
 
+    const quickLogins = [
+        { label: 'SuperAdmin', email: 'superadmin@gmail.com', role: ROLES.SUPER_ADMIN, color: '#3b82f6' },
+        { label: 'Admin', email: 'admin@gmail.com', role: ROLES.BRANCH_ADMIN, color: '#8b5cf6' },
+        { label: 'Manager', email: 'manager@gmail.com', role: ROLES.MANAGER, color: '#ec4899' },
+        { label: 'Trainer', email: 'trainer@gmail.com', role: ROLES.TRAINER, color: '#f59e0b' },
+        { label: 'Staff', email: 'staff@gmail.com', role: ROLES.STAFF, color: '#10b981' },
+        { label: 'Member', email: 'member@gmail.com', role: ROLES.MEMBER, color: '#6366f1' }
+    ];
+
+    const fillCredentials = (email, role) => {
+        setEmail(email);
+        setPassword('123');
+        setSelectedRole(role);
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -82,6 +97,25 @@ const Login = () => {
                     </div>
                     <h1>GYM<span className="text-highlight">PRO</span></h1>
                     <p>ULTIMATE MANAGEMENT SUITE</p>
+                </div>
+
+                {/* Quick Access Grid */}
+                <div className="quick-access-bar animate-entry" style={{ animationDelay: '0.1s' }}>
+                    <div className="bar-label">QUICK TEST ACCESS</div>
+                    <div className="quick-grid">
+                        {quickLogins.map((item) => (
+                            <button
+                                key={item.role}
+                                type="button"
+                                className="quick-chip"
+                                onClick={() => fillCredentials(item.email, item.role)}
+                                style={{ '--chip-color': item.color }}
+                            >
+                                <span className="chip-dot"></span>
+                                <span className="chip-text">{item.label}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Login Interface */}
@@ -443,6 +477,74 @@ const Login = () => {
                     }
                     .portal-header {
                         margin-bottom: var(--space-md);
+                    }
+                }
+
+                .quick-access-bar {
+                    width: 100%;
+                    margin-bottom: var(--space-lg);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: var(--space-sm);
+                }
+
+                .bar-label {
+                    font-size: 9px;
+                    font-weight: 800;
+                    color: rgba(255, 255, 255, 0.4);
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                }
+
+                .quick-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8px;
+                    width: 100%;
+                }
+
+                .quick-chip {
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: var(--radius-md);
+                    padding: 8px 6px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    transition: all 0.2s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .quick-chip:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: var(--chip-color);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                }
+
+                .chip-dot {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: var(--chip-color);
+                    box-shadow: 0 0 8px var(--chip-color);
+                }
+
+                .chip-text {
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: rgba(255, 255, 255, 0.8);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                @media (max-width: 480px) {
+                    .quick-grid {
+                        grid-template-columns: repeat(3, 1fr);
                     }
                 }
             `}</style>
