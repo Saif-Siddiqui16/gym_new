@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { getAssignedMembers } from '../../../api/trainer/trainerApi';
+import { toast } from 'react-hot-toast';
 
 const MacroInput = ({ label, value, onChange, color, icon: Icon }) => (
     <div className="space-y-2">
@@ -151,7 +152,7 @@ const CreatePlanDrawer = ({ isOpen, onClose, onSave, editData = null }) => {
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         if (!formData.name || !formData.clientId) {
-            alert('Please fill in Plan Name and Assign a Client.');
+            toast.error('Please fill in Plan Name and Assign a Client.');
             return;
         }
         onSave({

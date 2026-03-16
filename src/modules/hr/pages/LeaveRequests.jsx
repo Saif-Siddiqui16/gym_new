@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { fetchLeaveRequestsAPI, updateLeaveStatusAPI } from '../../../api/admin/adminApi';
+import { toast } from 'react-hot-toast';
 
 const LeaveRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -27,11 +28,11 @@ const LeaveRequests = () => {
         setIsUpdating(true);
         try {
             await updateLeaveStatusAPI(id, status);
-            alert(`Leave request ${status.toLowerCase()}!`);
+            toast.success(`Leave request ${status.toLowerCase()}!`);
             loadRequests();
         } catch (error) {
             console.error('Error updating leave request:', error);
-            alert('Failed to update leave request.');
+            toast.error('Failed to update leave request.');
         } finally {
             setIsUpdating(false);
         }

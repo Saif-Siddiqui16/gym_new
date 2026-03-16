@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, History, CreditCard, Plus, ArrowUpRight, ArrowDownLeft, Star, X, Loader, FileText, Download, AlertCircle, Calendar, Receipt, Trash2 } from 'lucide-react';
 import { fetchWalletTransactions, addWalletCredit, getWalletBalance, getSavedCards, addSavedCard, deleteSavedCard, getRewardCatalog, redeemReward } from '../../api/member/memberApi';
+import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -73,10 +74,10 @@ const MemberWallet = () => {
             await loadTransactions();
             setIsAddOpen(false);
             setAmount('');
-            alert('Credits added successfully!');
+            toast.success('Credits added successfully!');
         } catch (error) {
             console.error('Error adding credits:', error);
-            alert('Failed to add credits');
+            toast.error('Failed to add credits');
         } finally {
             setLoading(false);
         }
@@ -116,7 +117,7 @@ const MemberWallet = () => {
             doc.save(`Wallet_Statement_${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('Failed to generate statement.');
+            toast.error('Failed to generate statement.');
         } finally {
             setIsDownloading(false);
         }
@@ -125,7 +126,7 @@ const MemberWallet = () => {
     const handleSaveCard = async (e) => {
         e.preventDefault();
         if (newCard.number.length < 4) {
-            alert('Please enter a valid card number');
+            toast.error('Please enter a valid card number');
             return;
         }
 
@@ -140,10 +141,10 @@ const MemberWallet = () => {
             setSavedCards([...savedCards, added.card]);
             setShowAddCardForm(false);
             setNewCard({ name: '', number: '', expiry: '' });
-            alert('Card saved successfully!');
+            toast.success('Card saved successfully!');
         } catch (error) {
             console.error('Failed to save card:', error);
-            alert('Failed to save card');
+            toast.error('Failed to save card');
         }
     };
 
@@ -154,13 +155,13 @@ const MemberWallet = () => {
             setSavedCards(savedCards.filter(c => c.id !== id));
         } catch (error) {
             console.error('Failed to delete card:', error);
-            alert('Failed to delete card');
+            toast.error('Failed to delete card');
         }
     };
 
     const handleRedeem = async (catalogId, pointsCost, itemName) => {
         if (loyaltyPts < pointsCost) {
-            alert('Insufficient loyalty points to redeem this item.');
+            toast.error('Insufficient loyalty points to redeem this item.');
             return;
         }
         if (!window.confirm(`Redeem ${itemName} for ${pointsCost} points?`)) return;
@@ -170,10 +171,10 @@ const MemberWallet = () => {
             const data = await redeemReward(catalogId);
             setLoyaltyPts(data.remainingPoints);
             await loadTransactions();
-            alert('Reward redeemed successfully!');
+            toast.success('Reward redeemed successfully!');
         } catch (error) {
             console.error('Failed to redeem reward:', error);
-            alert(typeof error === 'string' ? error : 'Failed to redeem reward');
+            toast.error(typeof error === 'string' ? error : 'Failed to redeem reward');
         } finally {
             setLoading(false);
         }

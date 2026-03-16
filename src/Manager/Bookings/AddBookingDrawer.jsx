@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, X } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
+import { toast } from 'react-hot-toast';
 
 const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
     const [newBooking, setNewBooking] = useState({
@@ -13,15 +14,15 @@ const AddBookingDrawer = ({ isOpen, onClose, onCreate, members, classes }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!newBooking.memberId) {
-            alert('Please select a member');
+            toast.error('Please select a member');
             return;
         }
         if (!newBooking.classId) {
-            alert('Please select a class');
+            toast.error('Please select a class');
             return;
         }
         if (!newBooking.date) {
-            alert('Please select a date');
+            toast.error('Please select a date');
             return;
         }
         onCreate(newBooking);

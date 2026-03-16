@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, Building2, Mail, Phone, MapPin, ArrowLeft, Globe, DollarSign, Sparkles } from 'lucide-react';
 import { fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 
 const GeneralSettings = () => {
     const navigate = useNavigate();
@@ -52,11 +53,11 @@ const GeneralSettings = () => {
                 supportEmail: formData.email,
                 contactPhone: formData.phone
             });
-            alert('Settings updated successfully!');
+            toast.success('Settings updated successfully!');
             navigate('/dashboard');
         } catch (error) {
             console.error('Error saving settings:', error);
-            alert('Failed to save settings');
+            toast.error('Failed to save settings');
         } finally {
             setSaving(false);
         }

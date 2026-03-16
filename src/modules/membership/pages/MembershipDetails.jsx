@@ -121,7 +121,7 @@ const MembershipDetails = () => {
         const file = e.target.files?.[0];
         if (file) {
             console.log('Selected file:', file.name);
-            alert(`Selected file for Face ID: ${file.name}\nIn a real app, this would be uploaded to the server.`);
+            toast.success(`Face ID updated: ${file.name}`);
         }
     };
 

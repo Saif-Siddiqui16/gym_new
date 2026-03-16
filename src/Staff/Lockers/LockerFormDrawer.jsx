@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, User, Calendar, FileText, CheckCircle, Hash, Info } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 
 import CustomDropdown from '../../components/common/CustomDropdown';
@@ -42,7 +43,7 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
 
         const selectedMember = members.find(m => m.name === formData.memberName);
         if (!selectedMember) {
-            alert('Please select a valid member');
+            toast.error('Please select a valid member');
             return;
         }
 
@@ -50,11 +51,11 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
         try {
             const result = await assignLocker(formData.lockerId, selectedMember.id, selectedMember.name, formData.isPaid, formData.notes);
             if (result.success) {
-                alert(result.message);
+                toast.success(result.message);
                 onSuccess();
                 onClose();
             } else {
-                alert(result.message);
+                toast.error(result.message);
             }
         } catch (err) {
             console.error(err);

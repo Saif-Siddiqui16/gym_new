@@ -4,6 +4,7 @@ import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import {
     ClipboardList,
     ChevronDown,
@@ -194,7 +195,7 @@ const BookingReport = () => {
                 loadData();
             } catch (error) {
                 console.error('Delete Error:', error);
-                alert('Failed to delete booking. Please try again.');
+                toast.error('Failed to delete booking. Please try again.');
             }
         }
     };

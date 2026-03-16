@@ -4,6 +4,7 @@ import { ArrowLeft, User, Calendar } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import { PLANS } from '../data/mockPlans';
+import { toast } from 'react-hot-toast';
 
 // Mock Members for dropdown
 const MEMBERS = [
@@ -23,10 +24,10 @@ const AssignPlan = () => {
 
     const handleAssign = () => {
         if (!selectedMember || !startDate) {
-            alert('Please select member and start date');
+            toast.error('Please select member and start date');
             return;
         }
-        alert(`Assigned ${plan.name} to Member ${selectedMember}`);
+        toast.success(`Assigned ${plan.name} to Member ${selectedMember}`);
         navigate('/plans');
     };
 

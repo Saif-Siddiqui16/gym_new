@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, UserPlus, FileText, BarChart, Calendar, CheckCircle2, ChevronDown, Check } from 'lucide-react';
 import { createTask, getAllStaff } from '../../api/manager/managerApi';
+import { toast } from 'react-hot-toast';
 
 // Custom Animated Select Component
 const CustomSelect = ({ label, icon: Icon, options, value, onChange, name, placeholder, isObjectOptions }) => {
@@ -125,7 +126,7 @@ const AssignTask = () => {
             }, 1500);
         } catch (error) {
             console.error('Task Assignment Failed:', error);
-            alert('Failed to assign task. Please try again.');
+            toast.error('Failed to assign task. Please try again.');
         } finally {
             setLoading(false);
         }

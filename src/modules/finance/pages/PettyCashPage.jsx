@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchExpenses, addExpense, deleteExpense } from '../../../api/finance/financeApi';
+import { toast } from 'react-hot-toast';
 
 const PettyCashPage = () => {
     const navigate = useNavigate();
@@ -140,7 +141,7 @@ const PettyCashPage = () => {
             setExpenses(updated);
         } catch (err) {
             console.error("Failed to add expense:", err);
-            alert("Failed to create expense. Check console for details.");
+            toast.error("Failed to create expense. Check console for details.");
         }
     };
 
@@ -154,7 +155,7 @@ const PettyCashPage = () => {
             setExpenses(updated);
         } catch (err) {
             console.error("Failed to delete expense:", err);
-            alert("Failed to delete expense. You may not have permission.");
+            toast.error("Failed to delete expense. You may not have permission.");
         }
     };
 

@@ -4,6 +4,7 @@ import { Server, Edit2, Trash2, Plus, Monitor, Wifi, Activity, ArrowLeft } from 
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
 import { fetchDevices, addDevice, updateDevice, deleteDevice } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
 
 const HardwareSettings = () => {
     const navigate = useNavigate();
@@ -66,29 +67,29 @@ const HardwareSettings = () => {
         e.preventDefault();
 
         if (!formData.name || !formData.ip) {
-            alert('Please fill in all required fields.');
+            toast.error('Please fill in all required fields.');
             return;
         }
 
         const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
         if (!ipRegex.test(formData.ip)) {
-            alert('Please enter a valid IP address.');
+            toast.error('Please enter a valid IP address.');
             return;
         }
 
         try {
             if (modalMode === 'edit') {
                 await updateDevice(selectedDevice.id, formData);
-                alert('Device updated successfully!');
+                toast.success('Device updated successfully!');
             } else {
                 await addDevice(formData);
-                alert('Device added successfully!');
+                toast.success('Device added successfully!');
             }
             loadDevices();
             setIsDrawerOpen(false);
         } catch (error) {
             console.error("Failed to save device", error);
-            alert("Failed to save device: " + error);
+            toast.error("Failed to save device: " + error);
         }
     };
 
@@ -102,9 +103,10 @@ const HardwareSettings = () => {
             try {
                 await deleteDevice(id);
                 loadDevices();
+                toast.success('Device removed successfully!');
             } catch (error) {
                 console.error("Failed to delete device", error);
-                alert("Failed to delete device: " + error);
+                toast.error("Failed to delete device: " + error);
             }
         }
     };

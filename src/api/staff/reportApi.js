@@ -1,6 +1,7 @@
 
 // src/api/staff/reportApi.js
 import apiClient from '../apiClient';
+import { toast } from 'react-hot-toast';
 
 export const getDailyAttendanceReport = async (startDate, endDate) => {
     try {
@@ -35,5 +36,5 @@ export const exportReportToCSV = (data, filename = 'report') => {
 };
 
 export const exportReportToPDF = (data) => {
-    alert("PDF Export initiated (Mock)");
+    toast.success("PDF Export initiated (Mock)");
 };

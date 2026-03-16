@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LogOut, Calendar, User, Clock, ShieldAlert, Trash2, Lock } from 'lucide-react';
 import { releaseLocker } from '../../api/staff/lockerApi';
 import RightDrawer from '../../components/common/RightDrawer';
+import { toast } from 'react-hot-toast';
 
 const LockerDetailDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
     const [isReleasing, setIsReleasing] = useState(false);
@@ -13,11 +14,11 @@ const LockerDetailDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
         try {
             const result = await releaseLocker(selectedLocker.id);
             if (result.success) {
-                alert(result.message);
+                toast.success(result.message);
                 onSuccess();
                 onClose();
             } else {
-                alert(result.message);
+                toast.error(result.message);
             }
         } catch (err) {
             console.error(err);

@@ -18,6 +18,7 @@ import {
     Tag,
     Calculator
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/apiClient';
 import { submitCashierPayment } from '../../../api/finance/financeApi';
@@ -93,12 +94,12 @@ const CashierMode = () => {
 
     const handleReceivePayment = async () => {
         if (!selectedMember || !paymentDetails.type || !paymentDetails.amount) {
-            alert('Please complete all required fields.');
+            toast.error('Please complete all required fields.');
             return;
         }
 
         if (paymentDetails.method !== 'Cash' && !paymentDetails.referenceNumber) {
-            alert('Reference number is required for non-cash payments.');
+            toast.error('Reference number is required for non-cash payments.');
             return;
         }
 
@@ -134,6 +135,7 @@ const CashierMode = () => {
 
             setProcessedPayment(paymentRecord);
             setIsSuccess(true);
+            toast.success('Payment recorded successfully!');
 
             // Finalize state
             setTimeout(() => {
@@ -152,7 +154,7 @@ const CashierMode = () => {
             }, 1500);
 
         } catch (error) {
-            alert('Payment failed to record. Check connection.');
+            toast.error('Payment failed to record. Check connection.');
         }
     };
 

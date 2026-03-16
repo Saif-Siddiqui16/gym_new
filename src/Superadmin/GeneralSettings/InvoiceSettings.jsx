@@ -6,6 +6,7 @@ import { Save, FileText, Loader2, Receipt, Hash, Percent, Eye, ArrowLeft } from 
 import { fetchAllGyms, fetchInvoiceSettings, updateInvoiceSettings } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import BranchScopeSelector from '../../components/common/BranchScopeSelector';
+import { toast } from 'react-hot-toast';
 
 const InvoiceSettings = () => {
     const navigate = useNavigate();
@@ -67,10 +68,10 @@ const InvoiceSettings = () => {
         setIsSaving(true);
         try {
             await updateInvoiceSettings(formData);
-            alert('Invoice settings updated successfully!');
+            toast.success('Invoice settings updated successfully!');
         } catch (error) {
             console.error('Error saving invoice settings:', error);
-            alert('Failed to save invoice settings.');
+            toast.error('Failed to save invoice settings.');
         } finally {
             setIsSaving(false);
         }

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchLiveAccess } from '../../../api/branchAdmin/branchAdminApi';
+import { toast } from 'react-hot-toast';
 
 const LiveAccessControl = ({ userRole = 'STAFF' }) => {
     const navigate = useNavigate();
@@ -78,15 +79,15 @@ const LiveAccessControl = ({ userRole = 'STAFF' }) => {
             setSelectedMember(member);
             setShowOverrideModal(true);
         } else if (status.type === 'YELLOW') {
-            alert(`Reminder sent to ${member.member}`);
+            toast(`Reminder sent to ${member.member}`, { icon: '🔔' });
         } else {
             navigate('/memberships/' + member.id);
         }
     };
 
     const confirmOverride = () => {
-        if (!overrideReason.trim()) return alert('Please enter an override reason.');
-        alert(`Entry overridden for ${selectedMember.member} by ${userRole}. Reason: ${overrideReason}`);
+        if (!overrideReason.trim()) return toast.error('Please enter an override reason.');
+        toast.success(`Entry overridden for ${selectedMember.member} by ${userRole}`);
         setShowOverrideModal(false);
         setSelectedMember(null);
         setOverrideReason('');

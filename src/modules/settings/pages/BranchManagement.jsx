@@ -3,6 +3,7 @@ import { Plus, Edit2, MapPin, Users, Briefcase, TrendingUp, MoreVertical, Sparkl
 import { fetchAllGyms, addGym } from '../../../api/superadmin/superAdminApi';
 import { getAllStaff } from '../../../api/manager/managerApi';
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 const BranchManagement = () => {
     const [branches, setBranches] = useState([]);
@@ -76,7 +77,7 @@ const BranchManagement = () => {
             fetchBranches(); // Refresh list
         } catch (error) {
             console.error("Failed to add branch:", error);
-            alert("Failed to add branch. Please try again.");
+            toast.error("Failed to add branch. Please try again.");
         }
     };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, X, Clock, User, PauseCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import StatusBadge from '../components/StatusBadge';
@@ -17,7 +18,7 @@ const FreezeRequests = () => {
     const handleAction = (id, action) => {
         if (window.confirm(`Are you sure you want to ${action} this request?`)) {
             setRequests(prev => prev.filter(r => r.id !== id));
-            alert(`Request ${action === 'approve' ? 'Approved' : 'Rejected'} successfully.`);
+            toast.success(`Request ${action === 'approve' ? 'Approved' : 'Rejected'} successfully.`);
         }
     };
 

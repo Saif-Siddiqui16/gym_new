@@ -4,6 +4,7 @@ import { Save, X, Plus, Trash2 } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import { PLANS } from '../data/mockPlans';
+import { toast } from 'react-hot-toast';
 
 const PlanForm = () => {
     const { id } = useParams();
@@ -39,7 +40,7 @@ const PlanForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert('Plan saved successfully!');
+        toast.success('Plan saved successfully!');
         navigate('/plans');
     };
 

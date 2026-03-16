@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Terminal, Search, Filter, RefreshCw, Zap, Clock, ShieldCheck, AlertCircle, Eye, MoreHorizontal, ChevronRight, Download } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import LogPayloadDrawer from './LogPayloadDrawer';
+import { toast } from 'react-hot-toast';
 
 import { fetchWebhookLogs } from '../../api/superadmin/superAdminApi';
 
@@ -42,7 +43,7 @@ const WebhookLogs = () => {
     };
 
     const handleExport = () => {
-        alert("Exporting Webhook Logs to CSV...");
+        toast('Exporting Webhook Logs to CSV...', { icon: '📥' });
         // Implement actual export logic here
     };
 

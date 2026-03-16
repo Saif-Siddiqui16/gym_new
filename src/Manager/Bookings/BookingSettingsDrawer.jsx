@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Save, Info, Settings2, Clock, CalendarDays, Ticket } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const BookingSettingsDrawer = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const BookingSettingsDrawer = ({ isOpen, onClose }) => {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false);
-            alert('Booking settings updated successfully!');
+            toast.success('Booking settings updated successfully!');
             onClose();
         }, 800);
     };

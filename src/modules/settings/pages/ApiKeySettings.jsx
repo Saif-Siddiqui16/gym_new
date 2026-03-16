@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Key, Save, Eye, EyeOff, ShieldCheck, Smartphone, CreditCard, MessageSquare } from 'lucide-react';
 import { fetchTenantSettingsAPI, updateTenantSettingsAPI } from '../../../api/admin/adminApi';
+import { toast } from 'react-hot-toast';
 
 const ApiKeySettings = () => {
     const [loading, setLoading] = useState(false);
@@ -39,10 +40,10 @@ const ApiKeySettings = () => {
             await updateTenantSettingsAPI({
                 apiKeys: apiKeys
             });
-            alert('API credentials updated successfully!');
+            toast.success('API credentials updated successfully!');
         } catch (error) {
             console.error("Failed to save API keys:", error);
-            alert("Failed to save keys: " + error.message);
+            toast.error("Failed to save keys: " + error.message);
         } finally {
             setLoading(false);
         }

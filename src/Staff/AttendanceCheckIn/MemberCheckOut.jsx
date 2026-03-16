@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, LogOut, Search, User, ChevronRight } from 'lucide-react';
 import { checkOutMember, getTodaysCheckIns } from '../../api/staff/memberCheckInApi';
+import { toast } from 'react-hot-toast';
 
 const MemberCheckOut = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -38,7 +39,11 @@ const MemberCheckOut = () => {
         const result = await checkOutMember(memberId);
 
         if (result.success || true) {
-            alert(result.success ? result.message : "Check-out processed (Mock).");
+            if (result.success) {
+                toast.success(result.message);
+            } else {
+                toast.success("Check-out processed (Mock).");
+            }
             setCheckedInMembers(prev => prev.filter(m => m.id !== id));
         }
     };

@@ -85,7 +85,7 @@ const LeadsPipeline = () => {
 
             // Check if branch is selected ONLY for New Leads
             if (!isEdit && selectedBranch === 'all') {
-                alert('Please select a specific branch before adding a lead.');
+                toast.error('Please select a specific branch before adding a lead.');
                 return;
             }
 
@@ -110,7 +110,7 @@ const LeadsPipeline = () => {
             fetchLeads();
         } catch (error) {
             console.error('Save lead error:', error);
-            alert(error.response?.data?.message || 'Failed to save lead');
+            toast.error(error.response?.data?.message || 'Failed to save lead');
         } finally {
             setSubmitting(false);
         }
@@ -127,7 +127,7 @@ const LeadsPipeline = () => {
             fetchLeads();
         } catch (error) {
             console.error('Delete error:', error);
-            alert('Failed to delete lead: ' + (error.response?.data?.message || error.message));
+            toast.error('Failed to delete lead: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -234,7 +234,7 @@ const LeadsPipeline = () => {
             fetchLeads();
         } catch (error) {
             console.error('Log contact error:', error);
-            alert('Failed to log contact');
+            toast.error('Failed to log contact');
         } finally {
             setSubmitting(false);
         }

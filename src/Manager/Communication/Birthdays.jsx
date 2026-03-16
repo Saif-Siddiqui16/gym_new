@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Cake, Send, Ghost, Star, Calendar, Bell } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { triggerBirthdayCheck, triggerPersonalBirthdayWish } from '../../api/manager/managerApi';
 
 const Birthdays = () => {
@@ -27,7 +28,7 @@ const Birthdays = () => {
         setProcessing(true);
         try {
             await triggerBirthdayCheck();
-            alert('Birthday wishes sent successfully!');
+            toast.success('Birthday wishes sent successfully!');
             fetchBirthdays();
         } catch (error) {
             console.error("Failed to send wishes:", error);
@@ -43,10 +44,10 @@ const Birthdays = () => {
         setSendingPersonalTo(memberId);
         try {
             await triggerPersonalBirthdayWish(memberId, message);
-            alert(`Personal message sent to ${name}!`);
+            toast.success(`Personal message sent to ${name}!`);
         } catch (error) {
             console.error("Failed to send personal message:", error);
-            alert("Failed to send personal message. Please try again later.");
+            toast.error("Failed to send personal message. Please try again later.");
         } finally {
             setSendingPersonalTo(null);
         }

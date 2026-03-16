@@ -61,12 +61,12 @@ const RenewalAlertsPage = () => {
     };
 
     const handleCallMember = (member) => {
-        alert(`Initiating call to ${member.memberName} at ${member.phone}...`);
+        toast(`Initiating call to ${member.memberName}...`, { icon: '📞' });
         window.location.href = `tel:${member.phone}`;
     };
 
     const handleMessageMember = (member) => {
-        alert(`Opening WhatsApp for ${member.memberName}...`);
+        toast(`Opening WhatsApp for ${member.memberName}...`, { icon: '💬' });
         // Clean phone number for WhatsApp link
         const cleanPhone = member.phone.replace(/\D/g, '');
         window.open(`https://wa.me/${cleanPhone}`, '_blank');

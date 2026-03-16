@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User, Calendar, FileText, CheckCircle, LogOut, ChevronRight, Hash } from 'lucide-react';
 import { getLockers, assignLocker } from '../../api/staff/lockerApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
+import { toast } from 'react-hot-toast';
 
 const AssignLocker = () => {
     const navigate = useNavigate();
@@ -36,12 +37,12 @@ const AssignLocker = () => {
         const result = await assignLocker(formData.lockerId, "mock-mem-id", formData.memberName);
 
         if (result.success) {
-            alert(result.message);
+            toast.success(result.message);
             setFormData({ memberName: '', lockerId: '', expiryDate: '', notes: '' });
             const allLockers = await getLockers();
             setAvailableLockers(allLockers.filter(l => l.status === 'Available'));
         } else {
-            alert(result.message);
+            toast.error(result.message);
         }
     };
 
