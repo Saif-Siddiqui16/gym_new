@@ -26,13 +26,13 @@ const SettingsLayout = ({ role }) => {
         { name: 'Attendance QR', path: `/branchadmin/settings/attendance-qr`, icon: QrCode },
         { name: 'Amenities', path: `/branchadmin/settings/amenities`, icon: Gift },
         { name: 'Referrals', path: `/branchadmin/settings/referrals`, icon: Users },
-        { name: 'Templates', path: `/branchadmin/settings/templates`, icon: FileText },
+        // { name: 'Templates', path: `/branchadmin/settings/templates`, icon: FileText },
         { name: 'Plan & Benefit Templates', path: `/branchadmin/settings/plan-benefit-templates`, icon: Sparkles },
         { name: 'Expenses', path: `/branchadmin/settings/expenses`, icon: DollarSign },
         { name: 'Integrations', path: `/branchadmin/settings/integrations`, icon: Puzzle },
         { name: 'Notifications', path: `/branchadmin/settings/communication`, icon: Bell },
-        { name: 'Security', path: `/branchadmin/settings/security`, icon: Shield },
-        { name: 'Website', path: `/branchadmin/settings/website`, icon: Globe },
+        // { name: 'Security', path: `/branchadmin/settings/security`, icon: Shield },
+        // { name: 'Website', path: `/branchadmin/settings/website`, icon: Globe },
     ];
 
     return (

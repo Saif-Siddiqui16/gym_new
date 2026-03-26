@@ -25,6 +25,7 @@ import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget
 import TodayFollowUpsWidget from '../../crm/components/TodayFollowUpsWidget';
 import { useNavigate } from 'react-router-dom';
 import LiveAccessControl from '../components/LiveAccessControl';
+import SmartAIoTSummary from '../components/SmartAIoTSummary';
 import FacilityStatusOverview from '../../operations/components/widgets/FacilityStatusOverview';
 import StatsCard from '../components/StatsCard';
 import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
@@ -145,6 +146,9 @@ const BranchManagerDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Smart AIoT Summary Section */}
+            <SmartAIoTSummary />
 
             {/* Gym Health Section */}
             <div className="mb-6">

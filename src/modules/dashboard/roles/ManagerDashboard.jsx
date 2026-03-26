@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp, Calendar, AlertCircle, Activity, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
@@ -12,7 +12,8 @@ import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
 import QRScannerModal from '../../../components/common/QRScannerModal';
 import { scanAttendance } from '../../../api/member/attendanceApi';
-import { Activity, CheckCircle, XCircle, Clock as ClockIcon } from 'lucide-react';
+import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
+import SmartAIoTSummary from '../components/SmartAIoTSummary';
 
 const INITIAL_MANAGER_DATA = {
     stats: [
@@ -49,6 +50,7 @@ const ManagerDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
 
+
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
@@ -80,6 +82,7 @@ const ManagerDashboard = () => {
                 setLoading(false);
             }
         };
+
         fetchDashboardData();
     }, [selectedBranch]);
 
@@ -206,60 +209,8 @@ const ManagerDashboard = () => {
                 </div>
             </div>
 
-            {/* Task Performance Grid (New) */}
-            <div className="mb-8 p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="p-2 bg-primary-light text-primary rounded-lg shadow-sm">
-                        <Activity size={18} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Operational Task Performance</h3>
-                        <p className="text-[10px] text-slate-500 font-bold">Real-time tracking of branch operations</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending</p>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-800 group-hover:text-blue-600 transition-colors">{data.taskStats.pending}</h4>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In Progress</p>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-800 group-hover:text-amber-600 transition-colors">{data.taskStats.inProgress}</h4>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <CheckCircle size={10} className="text-emerald-500" />
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Completed</p>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">{data.taskStats.completed}</h4>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-[8px] font-black group-hover:bg-violet-600 group-hover:text-white transition-all">✓</div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</p>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-800 group-hover:text-violet-600 transition-colors">{data.taskStats.approved}</h4>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <XCircle size={10} className="text-red-500" />
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Overdue</p>
-                        </div>
-                        <h4 className="text-2xl font-black text-red-600 group-hover:scale-110 transition-transform">{data.taskStats.overdue}</h4>
-                    </div>
-                </div>
-            </div>
+            {/* Smart Device Summary Section */}
+            <SmartAIoTSummary />
 
             <DashboardGrid>
                 {data.stats.map(stat => <StatsCard key={stat.id} {...stat} />)}

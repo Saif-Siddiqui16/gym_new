@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Users, UserCheck, UserMinus, Download, Filter, Search, MoreVertical, ChevronLeft, ChevronRight, Eye, Trash2, X, Clock, MapPin, Smartphone, ChevronDown, Check, Loader2, Activity, ScanLine } from 'lucide-react';
+import { Calendar, Users, UserCheck, UserMinus, Download, Filter, Search, MoreVertical, ChevronLeft, ChevronRight, Eye, Trash2, X, Clock, MapPin, Smartphone, ChevronDown, Check, Loader2, Activity, ScanLine, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import apiClient from '../../api/apiClient';
 import { exportPDF } from '../../api/manager/managerExport';
@@ -73,6 +73,8 @@ const DailyAttendanceReport = () => {
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [directoryResults, setDirectoryResults] = useState([]);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [smartRecords, setSmartRecords] = useState([]);
+    const [smartStats, setSmartStats] = useState({ today: 0, total: 0 });
     const { selectedBranch } = useBranchContext();
     const itemsPerPage = 5;
 
@@ -128,9 +130,12 @@ const DailyAttendanceReport = () => {
                 branchId: selectedBranch
             };
 
-            const [attendanceRes, statsRes] = await Promise.all([
+            // Fetch everything needed
+            const [attendanceRes, statsRes, smartLogData, smartSummaryData] = await Promise.all([
                 apiClient.get('/admin/attendance', { params }),
-                apiClient.get('/admin/attendance/stats', { params: { branchId: selectedBranch } })
+                apiClient.get('/admin/attendance/stats', { params: { branchId: selectedBranch } }),
+                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords()).catch(() => []),
+                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary().catch(() => ({ today: 0, total: 0 })))
             ]);
 
             const rawData = attendanceRes.data.data || [];
@@ -181,6 +186,21 @@ const DailyAttendanceReport = () => {
                     staffToday: statsRes.data.staffToday || 0
                 });
             }
+
+            // Smart Attendance Logic
+            // Filter smart logs for the selected date
+            const logsForDate = Array.isArray(smartLogData) ? smartLogData.filter(log => 
+                log.createTime && log.createTime.startsWith(selectedDate)
+            ) : [];
+            
+            setSmartRecords(logsForDate);
+
+            // Use summary API if it has data, otherwise use our calculated count for today
+            setSmartStats({
+                today: (smartSummaryData?.today > 0) ? smartSummaryData.today : logsForDate.length,
+                total: (smartSummaryData?.total > 0) ? smartSummaryData.total : (Array.isArray(smartLogData) ? smartLogData.length : 0)
+            });
+
         } catch (error) {
             console.error('Attendance Load Error:', error);
             toast.error("Failed to load attendance data");
@@ -235,13 +255,15 @@ const DailyAttendanceReport = () => {
     };
 
     const stats = [
-        { label: 'In', value: attendance.filter(a => a.status === 'checked-in').length, icon: Activity, color: 'from-emerald-500 to-emerald-600' },
-        { label: 'Today', value: attendanceStats.totalToday, icon: Users, color: 'from-primary to-primary' },
-        { label: 'Out', value: attendanceStats.staffToday, icon: Clock, color: 'from-slate-400 to-slate-500' },
+        { label: 'Manual In', value: attendance.filter(a => a.status === 'checked-in' || a.status === 'Inside').length, icon: Activity, color: 'from-emerald-500 to-emerald-600' },
+        { label: 'Today Total', value: attendanceStats.totalToday, icon: Users, color: 'from-primary to-primary' },
+        { label: 'Smart Face (Today)', value: smartStats.today, icon: Smartphone, color: 'from-violet-500 to-purple-600' },
+        { label: 'Smart Face (Total)', value: smartStats.total, icon: ShieldCheck, color: 'from-blue-500 to-indigo-600' },
     ];
 
     return (
         <div className="min-h-screen ">
+            {/* ... Existing KPI and Search sections ... */}
             {/* Header Section */}
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
@@ -251,18 +273,24 @@ const DailyAttendanceReport = () => {
                             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Attendance</h1>
                             <p className="text-slate-600 text-sm font-medium mt-1">Quick check-in / check-out</p>
                         </div>
-                        <button
-                            onClick={handleExport}
-                            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2.5 text-xs md:text-sm font-semibold"
-                        >
-                            <Download size={14} className="text-gray-500 md:w-4 md:h-4" /> Export as PDF
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-xl border border-violet-100">
+                                <ScanLine size={16} className="text-primary animate-pulse" />
+                                <span className="text-[10px] font-black text-primary uppercase tracking-wider">AIoT Hardware Active</span>
+                            </div>
+                            <button
+                                onClick={handleExport}
+                                className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2.5 text-xs md:text-sm font-semibold"
+                            >
+                                <Download size={14} className="text-gray-500 md:w-4 md:h-4" /> Export
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* KPI Cards Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {stats.map((stat, idx) => (
                     <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex items-center justify-between group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
                         <div className="flex items-start justify-between w-full">
@@ -278,7 +306,7 @@ const DailyAttendanceReport = () => {
                 ))}
             </div>
 
-            {/* Search Section */}
+            {/* ... Rest of existing search and directory results ... */}
             <form
                 onSubmit={(e) => { e.preventDefault(); loadData(); }}
                 className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 mb-8 flex flex-col md:flex-row gap-3 items-center"
@@ -324,7 +352,6 @@ const DailyAttendanceReport = () => {
                 </div>
             </form>
 
-            {/* Search Results / Directory Search Section */}
             {searchTerm && searchTerm.length >= 2 && (
                 <div className="mb-10 animate-in slide-in-from-top-2 duration-300">
                     <div className="flex items-center justify-between mb-4 px-2">
@@ -342,7 +369,7 @@ const DailyAttendanceReport = () => {
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full"></div>
                                     <div className="flex items-center gap-4 mb-4">
                                         <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                                            {member.name.charAt(0)}
+                                            {member.name?.charAt(0)}
                                         </div>
                                         <div className="min-w-0">
                                             <p className="font-bold text-slate-900 leading-none mb-1 truncate text-sm">{member.name}</p>
@@ -414,69 +441,63 @@ const DailyAttendanceReport = () => {
             </div>
 
             {/* Today's Log Table Section */}
-            <div>
-                <h2 className="text-lg font-bold text-gray-800 uppercase tracking-tight mb-6">
-                    Today's Log ({totalItems})
+            <div className="mb-12">
+                <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2 flex items-center gap-2">
+                    <Calendar size={14} className="text-primary" /> Today's Manual Log ({totalItems})
                 </h2>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="saas-table-wrapper">
-                        <table className="saas-table saas-table-responsive">
-                            <thead className="hidden sm:table-header-group bg-gray-50 border-b border-gray-200">
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 border-b border-slate-200">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Member</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Code</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Check-In</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Check-Out</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Member</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Code</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Check-In</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Check-Out</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Duration</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 flex flex-col sm:table-row-group">
+                            <tbody className="divide-y divide-slate-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center text-gray-400 font-medium lowercase">
+                                        <td colSpan="6" className="px-6 py-12 text-center text-slate-400 font-medium">
                                             <div className="flex items-center justify-center gap-2">
                                                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                                                Processing request...
+                                                <span>Fetching data...</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : attendance.length > 0 ? (
                                     attendance.map((row) => (
-                                        <tr key={row.id} className="flex flex-col sm:table-row hover:bg-gray-50/50 transition-colors group p-4 sm:p-0 border-b sm:border-0 border-gray-100">
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Member</span>
-                                                <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xs group-hover:bg-primary-light group-hover:text-primary transition-colors">
+                                        <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs group-hover:bg-primary-light group-hover:text-primary transition-colors">
                                                         {(row.name || '?').charAt(0)}
                                                     </div>
-                                                    <span className="text-sm font-medium text-gray-900">{row.name}</span>
+                                                    <span className="text-sm font-bold text-slate-900">{row.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Code</span>
-                                                <span>{row.memberId || 'MEM-001'}</span>
+                                            <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                                {row.memberId || 'MEM-001'}
                                             </td>
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-In</span>
-                                                <span className="font-medium text-slate-700">{row.checkIn || '-'}</span>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-700">
+                                                {row.checkIn || '-'}
                                             </td>
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Check-Out</span>
-                                                <span className={`font-medium ${row.checkOut && row.checkOut !== '-' ? 'text-rose-500' : 'text-slate-300'}`}>{row.checkOut || '-'}</span>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold">
+                                                <span className={`${row.checkOut && row.checkOut !== '-' ? 'text-rose-500' : 'text-slate-300'}`}>{row.checkOut || '-'}</span>
                                             </td>
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap text-sm text-gray-500">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Duration</span>
-                                                <span className={`font-medium ${row.duration && row.duration !== '-' ? 'text-emerald-600' : 'text-slate-400'}`}>{row.duration}</span>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-600">
+                                                {row.duration}
                                             </td>
-                                            <td className="flex justify-between items-center sm:table-cell px-2 py-2 sm:px-6 sm:py-4 sm:whitespace-nowrap sm:text-right mt-2 sm:mt-0 pt-3 sm:pt-4 border-t sm:border-0 border-dashed border-gray-100">
-                                                <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase tracking-widest">Action</span>
-                                                <div className="flex justify-end gap-2 opacity-100 transition-all">
-                                                    <button onClick={() => handleViewDetails(row)} className="p-2 sm:p-1.5 text-gray-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all bg-gray-50 sm:bg-transparent">
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button onClick={() => handleViewDetails(row)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all">
                                                         <Eye size={16} />
                                                     </button>
-                                                    <button onClick={() => handleDelete(row.id)} className="p-2 sm:p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all bg-gray-50 sm:bg-transparent">
+                                                    <button onClick={() => handleDelete(row.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
                                                         <Trash2 size={16} />
                                                     </button>
                                                 </div>
@@ -485,8 +506,8 @@ const DailyAttendanceReport = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-20 text-center text-gray-400 font-medium">
-                                            No members currently checked in
+                                        <td colSpan="6" className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                            No manual recordings for this date
                                         </td>
                                     </tr>
                                 )}
@@ -494,30 +515,119 @@ const DailyAttendanceReport = () => {
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    {!loading && totalItems > 0 && (
-                        <div className="px-4 sm:px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center text-center">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
-                                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
+                    {!loading && totalItems > itemsPerPage && (
+                        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                Page {currentPage} of {Math.ceil(totalItems / itemsPerPage)}
                             </span>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-all text-xs font-bold text-gray-600"
+                                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-all text-xs font-bold text-slate-600"
                                 >
                                     Prev
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
                                     disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
-                                    className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-all text-xs font-bold text-gray-600"
+                                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-all text-xs font-bold text-slate-600"
                                 >
                                     Next
                                 </button>
                             </div>
                         </div>
                     )}
+                </div>
+            </div>
+
+            {/* Smart AIoT Section */}
+            <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between mb-6 px-2">
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <Smartphone size={14} className="text-primary" /> Smart AIoT Access (Hardware Sync)
+                    </h2>
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span className="text-[9px] font-black uppercase tracking-widest">Live Feed</span>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">User / Member</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Device</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Method</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Time</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Photo</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-12 text-center">
+                                            <Loader2 size={24} className="animate-spin text-primary mx-auto" />
+                                        </td>
+                                    </tr>
+                                ) : smartRecords.length > 0 ? (
+                                    smartRecords.slice(0, 50).map((record) => (
+                                        <tr key={record.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center font-black text-primary border border-violet-100">
+                                                        {(record.personName || 'V').charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-black text-slate-900 leading-none mb-1">
+                                                            {record.personName || 'Unknown Visitor'}
+                                                        </div>
+                                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                            {record.personSn || 'Hardware ID: ' + record.id}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <ShieldCheck size={14} className="text-primary" />
+                                                    <span className="text-[10px] font-black text-slate-700 tracking-wider uppercase">{record.deviceName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200">
+                                                    {record.passType === 'face_2' ? 'Face Scan' : 'ID Card'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-xs font-black text-slate-900 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 inline-flex items-center gap-2">
+                                                    <Clock size={12} className="text-slate-400" />
+                                                    {record.createTime?.split(' ')[1] || '-'}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                {record.imageUrl ? (
+                                                    <img src={record.imageUrl} alt="Scan" className="w-10 h-10 rounded-lg object-cover ml-auto ring-2 ring-slate-100 border border-white" />
+                                                ) : (
+                                                    <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center ml-auto border border-dashed border-slate-200 outline-none">
+                                                        <Activity size={12} className="text-slate-300" />
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                            No hardware logs found for this date
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

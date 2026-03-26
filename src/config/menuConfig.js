@@ -124,7 +124,16 @@ export const menuConfig = {
         //         { label: 'Commissions', path: '/finance/commissions', icon: Percent },
         //     ]
         // },
-        // { label: 'General Settings', path: '/superadmin/general-settings/general', icon: Building },
+        { label: 'General Settings', path: '/superadmin/general-settings/general', icon: Building },
+        {
+            label: 'Smart AIoT',
+            icon: Smartphone,
+            children: [
+                { label: 'Device Dashboard', path: '/operations/devices', icon: Smartphone },
+                { label: 'Access Records', path: '/operations/face-records', icon: History },
+                { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
+            ]
+        },
         // { label: 'Hardware Settings', path: '/superadmin/general-settings/hardware', icon: Lock },
         {
             label: 'Profile',
@@ -137,7 +146,23 @@ export const menuConfig = {
     ],
 
     [ROLES.BRANCH_ADMIN]: [
-        // { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        {
+            label: 'Main',
+            icon: Home,
+            children: [
+                { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+                { label: 'Analytics', path: '/branchadmin/reports/performance', icon: BarChart3 },
+            ]
+        },
+        {
+            label: 'Smart AIoT',
+            icon: Smartphone,
+            children: [
+                { label: 'Devices List', path: '/operations/devices', icon: Smartphone },
+                { label: 'Face Records', path: '/operations/face-records', icon: History },
+                { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
+            ]
+        },
         // {
         //     label: 'Sales & CRM',
         //     icon: Search,
@@ -235,14 +260,6 @@ export const menuConfig = {
 
         // New Structured Menu (Branch Admin)
         {
-            label: 'Main',
-            icon: Home,
-            children: [
-                { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-                { label: 'Analytics', path: '/branchadmin/reports/performance', icon: BarChart3 },
-            ]
-        },
-        {
             label: 'Members & Leads',
             icon: Users,
             children: [
@@ -337,6 +354,15 @@ export const menuConfig = {
                 { label: 'Attendance Report', path: '/branchadmin/reports/daily-attendance', icon: ClipboardList },
                 { label: 'Booking Report', path: '/branchadmin/reports/booking', icon: Calendar },
                 { label: 'Revenue Report', path: '/branchadmin/reports/revenue', icon: Banknote },
+            ]
+        },
+        {
+            label: 'Smart AIoT',
+            icon: Smartphone,
+            children: [
+                { label: 'Devices List', path: '/operations/devices', icon: Smartphone },
+                { label: 'Face Records', path: '/operations/face-records', icon: History },
+                { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
             ]
         },
         {

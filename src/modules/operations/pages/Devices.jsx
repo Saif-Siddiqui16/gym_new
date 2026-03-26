@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, ShieldCheck, Activity, RefreshCw, AlertCircle, CheckCircle, Wifi, WifiOff, Users, Search, Plus } from 'lucide-react';
+import { Smartphone, ShieldCheck, Activity, RefreshCw, AlertCircle, CheckCircle, Wifi, WifiOff, Users, Search, Plus, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchDevices, deleteDevice } from '../../../api/superadmin/superAdminApi';
+import { fetchGymDevices } from '../../../api/gymDeviceApi';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddDeviceDrawer from './AddDeviceDrawer';
 import Button from '../../../components/ui/Button';
@@ -24,16 +25,34 @@ const Devices = () => {
     const loadDevices = async () => {
         setIsRefreshing(true);
         try {
-            const data = await fetchDevices();
+            const [data, smartDevices] = await Promise.all([
+                fetchDevices(),
+                fetchGymDevices().catch(() => [])
+            ]);
+
             const formatted = data.map(d => ({
                 id: d.id,
                 name: d.name,
                 type: d.type || 'Turnstile',
                 status: (d.status === 'connected' || d.status === 'Online' || d.status === 'active') ? 'Online' : 'Offline',
                 entriesToday: d.entriesToday || 0,
-                lastSync: d.lastSeen ? new Date(d.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never'
+                lastSync: d.lastSeen ? new Date(d.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never',
+                isSmart: false
             }));
-            setDevices(formatted);
+
+            const formattedSmart = smartDevices.map((d, index) => ({
+                id: `smart-${d.deviceKey}`,
+                name: d.deviceName,
+                type: 'Face ID (AIoT)',
+                status: d.status === 'online' ? 'Online' : 'Offline',
+                entriesToday: d.todayEntries || 0,
+                lastSync: d.lastSeen ? new Date(d.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never',
+                connectionType: d.connectionType,
+                lastPersonName: d.lastPersonName,
+                isSmart: true
+            }));
+
+            setDevices([...formatted, ...formattedSmart]);
         } catch (error) {
             console.error("Failed to load devices", error);
         } finally {
@@ -207,6 +226,19 @@ const Devices = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {device.isSmart && (
+                                    <div className="mt-4 p-3 bg-violet-50/50 border border-violet-100 rounded-xl">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Connection</span>
+                                            <span className="px-2 py-0.5 bg-white text-primary text-[9px] font-black rounded border border-violet-100 uppercase">{device.connectionType}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Last Detection</span>
+                                            <span className="text-[10px] font-black text-slate-700 truncate max-w-[100px]">{device.lastPersonName || 'None'}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                             </div>
                             <div className="flex-grow"></div>
