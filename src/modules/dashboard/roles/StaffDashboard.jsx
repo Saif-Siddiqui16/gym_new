@@ -23,8 +23,6 @@ import {
     Loader
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import QRScannerModal from '../../../components/common/QRScannerModal';
-import { scanAttendance } from '../../../api/member/attendanceApi';
 import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
 import DashboardGrid from '../components/DashboardGrid';
@@ -40,7 +38,6 @@ const StaffDashboard = () => {
 
     const [dashData, setDashData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     const today = new Date().toLocaleDateString('en-IN', {
         weekday: 'long', day: '2-digit', month: 'short', year: 'numeric'
@@ -86,26 +83,9 @@ const StaffDashboard = () => {
         fetchAll();
     }, [selectedBranch]);
 
-    const handleScanSuccess = async (decodedText) => {
-        setIsScannerOpen(false);
-        const loadingToast = toast.loading('Marking attendance...');
-        try {
-            const result = await scanAttendance(decodedText);
-            if (result.success) {
-                toast.success(result.message, { id: loadingToast });
-                fetchAll();
-            } else {
-                toast.error(result.message, { id: loadingToast });
-            }
-        } catch (error) {
-            toast.error('An unexpected error occurred', { id: loadingToast });
-        }
-    };
-
     const quickActions = [
         { icon: UserPlus, label: 'Add Member', path: '/staff/members/add', color: 'bg-emerald-50 text-emerald-600' },
         { icon: CheckCircle, label: 'Check-in', path: '/staff/attendance/check-in', color: 'bg-blue-50 text-blue-600' },
-        { icon: Activity, label: 'Scan Attendance', onClick: () => setIsScannerOpen(true), color: 'bg-violet-50 text-violet-600' },
         { icon: IndianRupee, label: 'Payments', path: '/finance/pos', color: 'bg-amber-50 text-amber-600' },
         { icon: FileText, label: 'View Invoices', path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
     ];
@@ -375,12 +355,6 @@ const StaffDashboard = () => {
                     </Card>
                 </div>
             </div>
-            <QRScannerModal
-                isOpen={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScanSuccess={handleScanSuccess}
-                title="Staff Attendance Scan"
-            />
         </div>
     );
 };

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, QrCode, User, Calendar, AlertCircle, CheckCircle, ScanLine, X, CameraOff, Camera, Phone, CreditCard } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Search, User, Calendar, AlertCircle, CheckCircle, X, Phone, CreditCard } from 'lucide-react';
 import { searchMember, checkInMember, getMemberSuggestions } from '../../api/staff/memberCheckInApi';
 import toast from 'react-hot-toast';
 
@@ -10,46 +9,7 @@ const MemberCheckIn = () => {
     const [isExpired, setIsExpired] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [isScanning, setIsScanning] = useState(false);
     const searchRef = useRef(null);
-
-    useEffect(() => {
-        let sc = null;
-        const initScanner = async () => {
-            if (isScanning) {
-                // Small delay to ensure DOM is ready
-                await new Promise(r => setTimeout(r, 100));
-                const element = document.getElementById('member-reader');
-                if (element) {
-                    sc = new Html5QrcodeScanner('member-reader', {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                        showTorchButtonIfSupported: true,
-                    });
-                    sc.render(onScanSuccess, onScanError);
-                }
-            }
-        };
-
-        initScanner();
-
-        return () => {
-            if (sc) {
-                sc.clear().catch(err => console.error("Failed to clear scanner:", err));
-            }
-        };
-    }, [isScanning]);
-
-    const onScanSuccess = (decodedText) => {
-        setIsScanning(false);
-        setSearchQuery(decodedText);
-        handleSearch(null, decodedText);
-    };
-
-    const onScanError = (err) => {
-        // console.warn(err);
-    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -124,7 +84,7 @@ const MemberCheckIn = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                                <QrCode size={28} strokeWidth={2.5} />
+                                <User size={28} strokeWidth={2.5} />
                             </div>
                             <div>
                                 <div className="flex items-center gap-3">
@@ -135,7 +95,7 @@ const MemberCheckIn = () => {
                                         LIVE
                                     </span>
                                 </div>
-                                <p className="text-slate-600 text-sm mt-1">Search or scan member to grant access</p>
+                                <p className="text-slate-600 text-sm mt-1">Search member to grant access</p>
                             </div>
                         </div>
                     </div>
@@ -148,19 +108,7 @@ const MemberCheckIn = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary-light/20 to-purple-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative z-10 p-5 sm:p-8">
-                        <div className="relative mb-8" ref={searchRef}>
-                            {isScanning && (
-                                <div className="mb-8 relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-4 border-primary/20 max-w-sm mx-auto w-full animate-in zoom-in-95 duration-300">
-                                    <div id="member-reader" className="w-full"></div>
-                                    <button
-                                        onClick={() => setIsScanning(false)}
-                                        className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white transition-all z-50"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                            )}
-
+                        <div className="relative mb-4" ref={searchRef}>
                             <form onSubmit={handleSearch} className="flex gap-4">
                                 <div className="relative flex-1 group/input">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -215,22 +163,6 @@ const MemberCheckIn = () => {
                                 </div>
                             )}
                         </div>
-
-                        <div className="mt-8 flex items-center justify-center">
-                            <span className="text-xs font-black text-slate-400 px-4 bg-white relative z-10 uppercase tracking-widest">OR</span>
-                            <div className="absolute w-full h-px bg-slate-100 left-0"></div>
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={() => setIsScanning(!isScanning)}
-                            className={`w-full mt-8 py-4 border-2 border-dashed rounded-xl flex items-center justify-center gap-3 transition-all duration-300 group/scan ${isScanning ? 'bg-rose-50 border-rose-300 text-rose-600' : 'border-slate-300 text-slate-500 hover:bg-primary-light hover:border-violet-300 hover:text-primary'}`}
-                        >
-                            <div className={`p-2 rounded-lg transition-colors ${isScanning ? 'bg-white text-rose-600' : 'bg-slate-100 group-hover/scan:bg-white group-hover/scan:text-primary'}`}>
-                                {isScanning ? <CameraOff size={24} /> : <ScanLine size={24} />}
-                            </div>
-                            <span className="font-bold">{isScanning ? 'Stop Scanning' : 'Scan QR / Barcode'}</span>
-                        </button>
                     </div>
                 </div>
 

@@ -4,7 +4,6 @@ import { useAuth } from './context/AuthContext';
 
 // Layout & Pages
 import Login from './pages/Login';
-import ScanHandler from './pages/ScanHandler';
 import MainLayout from './layout/MainLayout';
 
 // Module 2: Dashboard
@@ -130,7 +129,6 @@ import Referrals from './modules/crm/pages/Referrals';
 
 // Module: Member
 import MemberBookings from './Member/Bookings/MemberBookings';
-import MemberCheckIn from './Member/CheckIn/MemberCheckIn';
 import MyAttendance from './Member/Attendance/MyAttendance';
 import MyMembership from './Member/Membership/MyMembership';
 import MemberPayments from './Member/Payments/MemberPayments';
@@ -158,8 +156,7 @@ import {
   PlanBenefitTemplates,
   ExpenseSettings,
   IntegrationsSettings,
-  WebsiteSettings,
-  AttendanceQrSettings
+  WebsiteSettings
 } from './modules/settings';
 
 // Module: Finance
@@ -227,7 +224,6 @@ export default function App() {
       />
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/scan" element={<ScanHandler />} />
 
         {/* Protect routes: If no role, always redirect to /login */}
         <Route element={currentRole ? <MainLayout role={currentRole} /> : <Navigate to="/login" replace />}>
@@ -460,7 +456,6 @@ export default function App() {
                 <Route path="/branchadmin/settings/security" element={<SecuritySettings role={currentRole} />} />
                 <Route path="/branchadmin/settings/website" element={<WebsiteSettings />} />
                 <Route path="/branchadmin/settings/integrations" element={<IntegrationsSettings />} />
-                <Route path="/branchadmin/settings/attendance-qr" element={<AttendanceQrSettings />} />
               </Route>
               <Route path="/branchadmin/profile/me" element={(currentRole === ROLES.BRANCH_ADMIN) ? <BranchAdminProfile /> : <ManagerProfile />} />
             </>
@@ -490,7 +485,6 @@ export default function App() {
           {currentRole === ROLES.MEMBER && (
             <>
               <Route path="/member/bookings" element={<MemberBookings />} />
-              <Route path="/member/check-in" element={<MemberCheckIn />} />
               <Route path="/member/attendance" element={<MyAttendance />} />
               <Route path="/member/store" element={<StorePage />} />
               <Route path="/member/benefits" element={<MyMembership role={currentRole} />} />

@@ -10,8 +10,6 @@ import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
-import QRScannerModal from '../../../components/common/QRScannerModal';
-import { scanAttendance } from '../../../api/member/attendanceApi';
 import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
 import SmartAIoTSummary from '../components/SmartAIoTSummary';
 
@@ -48,7 +46,6 @@ const ManagerDashboard = () => {
     const { selectedBranch } = useBranchContext();
     const [data, setData] = useState(INITIAL_MANAGER_DATA);
     const [loading, setLoading] = useState(true);
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
 
     useEffect(() => {
@@ -86,22 +83,6 @@ const ManagerDashboard = () => {
         fetchDashboardData();
     }, [selectedBranch]);
 
-    const handleScanSuccess = async (decodedText) => {
-        setIsScannerOpen(false);
-        const loadingToast = toast.loading('Marking attendance...');
-        try {
-            const result = await scanAttendance(decodedText);
-            if (result.success) {
-                toast.success(result.message, { id: loadingToast });
-                // Refresh data if needed, though manager dashboard might not show personal attendance stats
-            } else {
-                toast.error(result.message, { id: loadingToast });
-            }
-        } catch (error) {
-            toast.error('An unexpected error occurred', { id: loadingToast });
-        }
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center ">
@@ -123,13 +104,6 @@ const ManagerDashboard = () => {
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">Manager Dashboard</h1>
                         <p className="text-slate-500 text-sm font-medium">Daily overview of your branch performance</p>
                     </div>
-                    <button
-                        onClick={() => setIsScannerOpen(true)}
-                        className="h-12 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/10 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border-none"
-                    >
-                        <Activity size={18} strokeWidth={3} />
-                        Scan Attendance
-                    </button>
                 </div>
             </div>
 
@@ -401,12 +375,6 @@ const ManagerDashboard = () => {
                     </div>
                 </div>
             </div>
-            <QRScannerModal
-                isOpen={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScanSuccess={handleScanSuccess}
-                title="Manager Attendance Scan"
-            />
         </div>
     );
 };

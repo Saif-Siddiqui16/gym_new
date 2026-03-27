@@ -15,4 +15,3 @@ export { default as PlanBenefitTemplates } from './pages/PlanBenefitTemplates';
 export { default as ExpenseSettings } from './pages/ExpenseSettings';
 export { default as IntegrationsSettings } from './pages/IntegrationsSettings';
 export { default as WebsiteSettings } from './pages/WebsiteSettings';
-export { default as AttendanceQrSettings } from './pages/AttendanceQrSettings';

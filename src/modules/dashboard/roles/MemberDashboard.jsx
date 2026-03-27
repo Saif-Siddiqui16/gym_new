@@ -27,8 +27,6 @@ import toast from 'react-hot-toast';
 import { X, Send, MessageSquare, Dumbbell, Ticket, Copy } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import StatsCard from '../../dashboard/components/StatsCard';
-import QRScannerModal from '../../../components/common/QRScannerModal';
-import { scanAttendance } from '../../../api/member/attendanceApi';
 import { fetchPTAccounts } from '../../../api/member/memberApi';
 
 const MemberDashboard = () => {
@@ -39,7 +37,6 @@ const MemberDashboard = () => {
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [chatHistory, setChatHistory] = useState([]);
     const [chatMessage, setChatMessage] = useState('');
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [coupons, setCoupons] = useState([]);
 
     const fetchDashboardData = async () => {
@@ -103,22 +100,6 @@ const MemberDashboard = () => {
         } catch (error) {
             console.error('Failed to send message:', error);
             toast.error('Failed to send message');
-        }
-    };
-
-    const handleScanSuccess = async (decodedText) => {
-        setIsScannerOpen(false);
-        const loadingToast = toast.loading('Marking attendance...');
-        try {
-            const result = await scanAttendance(decodedText);
-            if (result.success) {
-                toast.success(result.message, { id: loadingToast });
-                fetchDashboardData(); // Refresh stats
-            } else {
-                toast.error(result.message, { id: loadingToast });
-            }
-        } catch (error) {
-            toast.error('An unexpected error occurred', { id: loadingToast });
         }
     };
 
@@ -318,7 +299,6 @@ const MemberDashboard = () => {
                     {/* Quick Actions Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} />
-                        <QuickAction icon={Activity} label="Scan QR" onClick={() => setIsScannerOpen(true)} color="bg-emerald-50" />
                         <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} />
                         <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} />
                     </div>
@@ -653,12 +633,6 @@ const MemberDashboard = () => {
                 </div>
             </RightDrawer>
 
-            <QRScannerModal
-                isOpen={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScanSuccess={handleScanSuccess}
-                title="Member Attendance Scan"
-            />
         </div >
     );
 };

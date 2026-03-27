@@ -9,6 +9,9 @@ const OrganizationSettings = ({ role }) => {
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
+        phone: '',
+        email: '',
+        location: '',
         timezone: 'Asia/Kolkata',
         currency: 'INR',
         fiscalYearStart: 'April',
@@ -27,6 +30,9 @@ const OrganizationSettings = ({ role }) => {
             const data = await getTenantSettings();
             setFormData({
                 name: data.name || '',
+                phone: data.phone || '',
+                email: data.email || '',
+                location: data.location || '',
                 timezone: data.timezone || 'Asia/Kolkata',
                 currency: data.currency || 'INR',
                 fiscalYearStart: data.fiscalYearStart || 'April',
@@ -48,6 +54,9 @@ const OrganizationSettings = ({ role }) => {
             setSaving(true);
             const payload = {
                 name: formData.name,
+                phone: formData.phone,
+                email: formData.email,
+                location: formData.location,
                 timezone: formData.timezone,
                 currency: formData.currency,
                 fiscalYearStart: formData.fiscalYearStart,
@@ -176,6 +185,57 @@ const OrganizationSettings = ({ role }) => {
                                     type="text"
                                     name="name"
                                     value={formData.name}
+                                    onChange={handleChange}
+                                    className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
+                                />
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
+                                    <Building2 size={20} strokeWidth={3} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Public Phone */}
+                        <div>
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Public Phone (for Reports)</label>
+                            <div className="relative group/input">
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
+                                />
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
+                                    <Globe size={20} strokeWidth={3} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Public Email */}
+                        <div>
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Public Email (for Reports)</label>
+                            <div className="relative group/input">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
+                                />
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
+                                    <Globe size={20} strokeWidth={3} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Business Address */}
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Business Address (for Reports)</label>
+                            <div className="relative group/input">
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={formData.location}
                                     onChange={handleChange}
                                     className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
                                 />

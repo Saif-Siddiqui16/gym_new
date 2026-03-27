@@ -1,6 +1,4 @@
-/**
- * Unified PDF Export Utility with Branding and Toast Notifications
- */
+import { getTenantSettings } from '../api/admin/settingsApi';
 
 // PDF toast notification helper
 export const showPdfToast = (message, type = 'success') => {
@@ -8,7 +6,7 @@ export const showPdfToast = (message, type = 'success') => {
     const colors = {
         success: { bg: '#f0fdf4', border: '#86efac', icon: '#16a34a', text: '#15803d' },
         error: { bg: '#fef2f2', border: '#fca5a5', icon: '#dc2626', text: '#dc2626' },
-        loading: { bg: '#f5f3ff', border: '#c4b5fd', icon: '#7c3aed', text: '#6d28d9' }
+        loading: { bg: '#eff6ff', border: '#bfdbfe', icon: '#1e40af', text: '#1e3a8a' } // Dark Blue for loading
     };
     const c = colors[type];
     const toast = document.createElement('div');
@@ -53,18 +51,35 @@ export const removePdfToast = (toastId) => {
 };
 
 /**
- * Flexible PDF Export function.
- * 
- * Supports two signatures:
- * 1. exportPdf(tableName, data) - data is array of objects
- * 2. exportPdf({ title, filename, headers, rows, gymName }) - rows is array of arrays or objects
+ * Helper to convert image URL to base64
  */
-export const exportPdf = async (arg1, arg2) => {
+const getBase64ImageFromURL = (url) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.setAttribute('crossOrigin', 'anonymous');
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL('image/png');
+            resolve(dataURL);
+        };
+        img.onerror = (error) => reject(error);
+        img.src = url;
+    });
+};
+
+/**
+ * Flexible PDF Export function with Premium Black + Dark Blue Theme.
+ */
+export const exportPdf = async (arg1, arg2, arg3) => {
     let title = 'Report';
     let filename = 'Report';
     let headers = null;
     let body = null;
-    let gymName = 'Gym Administration';
+    let branding = null;
 
     // Handle Signature 2: Single object argument
     if (typeof arg1 === 'object' && !Array.isArray(arg1) && arg1 !== null && !arg2) {
@@ -72,13 +87,14 @@ export const exportPdf = async (arg1, arg2) => {
         filename = arg1.filename || title;
         headers = arg1.headers || null;
         body = arg1.rows || arg1.data || null;
-        gymName = arg1.gymName || 'Gym Administration';
+        branding = arg1.branding || null;
     }
-    // Handle Signature 1: Positional arguments (tableName, data)
+    // Handle Signature 1: Positional arguments (tableName, data, branding)
     else {
         title = arg1 || 'Report';
         filename = title;
         body = arg2 || null;
+        branding = arg3 || null;
     }
 
     // Validation
@@ -88,120 +104,236 @@ export const exportPdf = async (arg1, arg2) => {
         return;
     }
 
-    const loadingToastId = showPdfToast('Generating PDF, please wait...', 'loading');
+    const loadingToastId = showPdfToast('Preparing Premium Export...', 'loading');
 
     try {
+        // Fetch branding if not provided
+        if (!branding) {
+            try {
+                branding = await getTenantSettings();
+            } catch (e) {
+                console.warn('Failed to fetch branding, using defaults:', e);
+                branding = { name: 'Gym Administration' };
+            }
+        }
+
         const jsPDFModule = await import('jspdf');
         const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
         const autoTableModule = await import('jspdf-autotable');
         const autoTable = autoTableModule.default || autoTableModule.autoTable;
 
-        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
 
-        // --- HEADER BAR ---
-        doc.setFillColor(88, 28, 235);
-        doc.rect(0, 0, pageWidth, 22, 'F');
+        const COLOR_BRAND = [30, 58, 138]; // #1E3A8A
+        const COLOR_BLACK = [17, 24, 39]; // Slate 900
+        const COLOR_TEXT_SUBTLE = [107, 114, 128]; // gray-500
+        const COLOR_BORDER = [226, 232, 240]; // gray-200
 
-        // Logo circle
-        doc.setFillColor(255, 255, 255);
-        doc.circle(18, 11, 8, 'F');
-        doc.setTextColor(88, 28, 235);
+        let headerStartY = 20;
+
+        // --- 1. HEADER (CLEAN & CENTERED LOGO) ---
+        
+        // Brand Logo (Left - Circular with subtle border)
+        if (branding.logo) {
+            try {
+                const base64Logo = await getBase64ImageFromURL(branding.logo);
+                // Shadow/Border Circle
+                doc.setDrawColor(241, 245, 249);
+                doc.setLineWidth(0.5);
+                doc.setFillColor(255, 255, 255);
+                doc.circle(32, headerStartY + 12, 16, 'FD');
+                
+                // Actual Logo
+                doc.addImage(base64Logo, 'PNG', 20, headerStartY, 24, 24, undefined, 'FAST');
+            } catch (e) {
+                doc.setFillColor(...COLOR_BRAND);
+                doc.circle(32, headerStartY + 12, 16, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text('LOGO', 32, headerStartY + 13.5, { align: 'center' });
+            }
+        } else {
+            doc.setFillColor(...COLOR_BLACK);
+            doc.circle(32, headerStartY + 12, 16, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text((branding.name || 'G').charAt(0).toUpperCase(), 32, headerStartY + 14.5, { align: 'center' });
+        }
+
+        // Gym Details (Right Aligned)
+        doc.setTextColor(...COLOR_BLACK);
+        doc.setFontSize(26);
+        doc.setFont('helvetica', 'bold');
+        doc.text(branding.name || 'Gym Management', pageWidth - 15, headerStartY + 8, { align: 'right' });
+
         doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text('GA', 18, 12.5, { align: 'center' });
-
-        // Report Title
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(title, 32, 10);
-
-        // Date
-        doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
-        doc.text('Generated: ' + new Date().toLocaleString(), 32, 16);
+        doc.setTextColor(...COLOR_TEXT_SUBTLE);
+        
+        let detailY = headerStartY + 16;
+        if (branding.location) {
+            doc.text(branding.location, pageWidth - 15, detailY, { align: 'right' });
+            detailY += 5;
+        }
+        if (branding.phone || branding.email) {
+            const contactText = [branding.phone, branding.email].filter(Boolean).join('  •  ');
+            doc.text(contactText, pageWidth - 15, detailY, { align: 'right' });
+        }
 
-        // Company name right
-        doc.setFontSize(10);
+        // Divider
+        doc.setDrawColor(...COLOR_BORDER);
+        doc.setLineWidth(0.2);
+        doc.line(15, headerStartY + 38, pageWidth - 15, headerStartY + 38);
+
+        // --- 2. REPORT TITLE ---
+        const titleStartY = headerStartY + 55;
+        doc.setTextColor(...COLOR_BLACK);
+        doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
-        doc.text(gymName, pageWidth - 15, 10, { align: 'right' });
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Confidential Report', pageWidth - 15, 16, { align: 'right' });
+        doc.text(title.toUpperCase(), pageWidth / 2, titleStartY, { align: 'center', charSpace: 1 });
+        
+        // Short concentrated underline
+        doc.setDrawColor(191, 219, 254); // Light blue bar
+        doc.setLineWidth(1.5);
+        doc.line(pageWidth / 2 - 18, titleStartY + 5, pageWidth / 2 + 18, titleStartY + 5);
 
-        // --- PREPARE DATA ---
+        // --- 3. META INFO ROW ---
+        doc.setTextColor(...COLOR_TEXT_SUBTLE);
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`DATE: ${new Date().toLocaleDateString('en-GB')}  ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`, 15, titleStartY + 15);
+        doc.text(`GENERATED BY: SYSTEM ADMIN`, pageWidth - 15, titleStartY + 15, { align: 'right' });
+
+        // --- 4. DATA SECTION (CARD LOOK) ---
         let finalHeaders = [];
         let finalRows = [];
 
         const sanitize = (val) => {
             if (val === null || val === undefined) return '-';
+            
+            // Handle Objects (e.g., Member object, Plan object)
+            if (typeof val === 'object' && !Array.isArray(val)) {
+                return val.name || val.title || val.fullName || val.label || JSON.stringify(val);
+            }
+            
             if (typeof val !== 'string') val = String(val);
-            return val.replace(/₹/g, 'Rs. ');
+            
+            // Replace broken Rupee symbols with standard Rs. for better font support
+            return val.replace(/[₹]/g, 'Rs. ').replace(/Rs\./g, 'Rs. ').replace(/Rs/g, 'Rs. ').trim();
         };
 
-        // If body is array of arrays
         if (Array.isArray(body[0])) {
             finalRows = body.map(row => row.map(cell => sanitize(cell)));
             finalHeaders = (headers || []).map(h => sanitize(h));
-        }
-        // If body is array of objects
-        else {
+        } else {
             const keys = Object.keys(body[0]).filter(k =>
                 !['id', 'createdAt', 'updatedAt', 'password', '__v', 'avatar', 'image'].includes(k)
             );
-
             finalHeaders = (headers || keys.map(k =>
                 k.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim()
             )).map(h => sanitize(h));
-
             finalRows = body.map(item =>
-                keys.map(key => {
-                    let val = item[key];
-                    if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
-                    if (typeof val === 'boolean') val = val ? 'Yes' : 'No';
-                    return sanitize(val);
-                })
+                keys.map(key => sanitize(item[key]))
             );
         }
 
         autoTable(doc, {
-            startY: 28,
+            startY: titleStartY + 22,
             head: [finalHeaders],
             body: finalRows,
             styles: {
-                fontSize: 7,
-                cellPadding: 3,
+                fontSize: 9,
+                cellPadding: 6,
                 font: 'helvetica',
                 lineWidth: 0.1,
-                lineColor: [230, 225, 255]
+                lineColor: [241, 245, 249],
+                textColor: [31, 41, 55], // Slate 800
+                valign: 'middle'
             },
             headStyles: {
-                fillColor: [88, 28, 235],
-                textColor: [255, 255, 255],
+                fillColor: [248, 250, 252], // Very Light gray
+                textColor: [31, 41, 55],
                 fontStyle: 'bold',
                 halign: 'center',
-                fontSize: 7.5
+                fontSize: 9.5
             },
             alternateRowStyles: {
-                fillColor: [245, 243, 255]
+                fillColor: [255, 255, 255]
             },
-            theme: 'striped',
-            margin: { left: 10, right: 10 }
+            willDrawCell: (data) => {
+                const statusWords = ['Active', 'Paid', 'Success', 'Inactive', 'Unpaid', 'Pending', 'Failed', 'Expired'];
+                const text = data.cell.text[0];
+                
+                if (data.section === 'body' && statusWords.some(w => text?.includes(w))) {
+                    data.cell.rawStatus = text;
+                    data.cell.text = ['']; 
+                }
+
+                if (data.section === 'body' && (text?.includes('₹') || text?.includes('Rs.') || text?.includes('Amount'))) {
+                    data.cell.rawAmount = text;
+                    data.cell.text = ['']; 
+                }
+            },
+            didDrawCell: (data) => {
+                // Status Pill (Soft Red/Green)
+                if (data.section === 'body' && data.cell.rawStatus) {
+                    const status = data.cell.rawStatus;
+                    let bg = [241, 245, 249];
+                    let text = [107, 114, 128];
+                    if (['Active', 'Paid', 'Success'].includes(status)) { bg = [220, 252, 231]; text = [22, 101, 52]; }
+                    if (['Unpaid', 'Failed', 'Expired'].includes(status)) { bg = [254, 226, 226]; text = [185, 28, 28]; }
+                    if (['Pending'].includes(status)) { bg = [254, 243, 199]; text = [146, 64, 14]; }
+
+                    const rectWidth = data.cell.width - 8;
+                    const rectHeight = 7;
+                    const posX = data.cell.x + (data.cell.width - rectWidth) / 2;
+                    const posY = data.cell.y + (data.cell.height - rectHeight) / 2;
+
+                    doc.setFillColor(...bg);
+                    doc.roundedRect(posX, posY, rectWidth, rectHeight, 3.5, 3.5, 'F');
+                    
+                    doc.setTextColor(...text);
+                    doc.setFontSize(7.5);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(status.toUpperCase(), posX + rectWidth / 2, posY + 4.8, { align: 'center' });
+                }
+
+                // Amount Highlighting (Green)
+                if (data.section === 'body' && data.cell.rawAmount) {
+                    const amount = data.cell.rawAmount;
+                    doc.setTextColor(22, 163, 74); // Green 600
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(9.5);
+                    doc.text(amount, data.cell.x + data.cell.width / 2, data.cell.y + data.cell.height / 2 + 1.5, { align: 'center' });
+                }
+            },
+            theme: 'grid',
+            margin: { left: 15, right: 15, bottom: 40 }
         });
 
-        // --- FOOTER ---
+        // --- 5. FOOTER (CLEAN & CENTERED) ---
         const totalPages = doc.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
             doc.setPage(i);
-            doc.setFillColor(245, 243, 255);
-            doc.rect(0, pageHeight - 10, pageWidth, 10, 'F');
-            doc.setFontSize(7);
-            doc.setTextColor(88, 28, 235);
+            
+            doc.setFontSize(9);
+            doc.setTextColor(...COLOR_TEXT_SUBTLE);
             doc.setFont('helvetica', 'normal');
-            doc.text(`© ${gymName}`, 10, pageHeight - 4);
-            doc.text(`Page ${i} of ${totalPages}`, pageWidth - 10, pageHeight - 4, { align: 'right' });
+            doc.text('This is a system-generated report', pageWidth / 2, pageHeight - 32, { align: 'center' });
+
+            doc.setDrawColor(...COLOR_BORDER);
+            doc.setLineWidth(0.2);
+            doc.line(15, pageHeight - 25, pageWidth - 15, pageHeight - 25);
+
+            doc.setFontSize(10);
+            const copyright = `© ${new Date().getFullYear()} ${branding.name || 'Gym'}  |  All Rights Reserved`;
+            doc.text(copyright, pageWidth / 2, pageHeight - 15, { align: 'center' });
+            
+            doc.setFontSize(8);
+            doc.text(`Page ${i} of ${totalPages}`, pageWidth - 15, pageHeight - 15, { align: 'right' });
         }
 
         // --- SAVE ---
@@ -209,13 +341,13 @@ export const exportPdf = async (arg1, arg2) => {
         doc.save(`${safeName}.pdf`);
 
         removePdfToast(loadingToastId);
-        const successToastId = showPdfToast('PDF downloaded successfully!', 'success');
+        const successToastId = showPdfToast('Premium Report Exported!', 'success');
         setTimeout(() => removePdfToast(successToastId), 3000);
 
     } catch (error) {
         console.error('PDF Export failed:', error);
         removePdfToast(loadingToastId);
-        const errorToastId = showPdfToast('Failed to generate PDF. Please try again.', 'error');
+        const errorToastId = showPdfToast('Export failed. Please try again.', 'error');
         setTimeout(() => removePdfToast(errorToastId), 5000);
     }
 };
