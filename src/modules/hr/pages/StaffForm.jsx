@@ -22,6 +22,7 @@ const StaffForm = () => {
         name: '',
         phone: '',
         email: '',
+        gender: 'Male',
         branch: '',
         role: 'Staff',
         department: '',
@@ -113,6 +114,7 @@ const StaffForm = () => {
                 name: data.name || '',
                 phone: data.phone || '',
                 email: data.email || '',
+                gender: configData.gender || data.gender || 'Male',
                 branch: data.tenantId || '',
                 role: displayRole || 'Staff',
                 department: data.department || '',
@@ -359,6 +361,22 @@ const StaffForm = () => {
                                         ))}
                                     </select>
                                     {errors.branch && <p className="text-[10px] text-rose-500 font-bold mt-1.5">{errors.branch}</p>}
+                                </div>
+
+                                {/* Gender * */}
+                                <div className="relative group">
+                                    <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2">Gender <span className="text-rose-500">*</span></label>
+                                    <select
+                                        name="gender"
+                                        disabled={isReadOnly}
+                                        value={formData.gender || 'Male'}
+                                        onChange={handleChange}
+                                        className={`w-full px-4 py-3 bg-white/80 border-2 rounded-xl text-sm font-bold text-slate-800 focus:outline-none appearance-none cursor-pointer transition-all ${isReadOnly ? 'border-slate-100 bg-slate-50/50 cursor-default' : 'border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-slate-300 shadow-sm'}`}
+                                    >
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
                                 </div>
 
                                 {/* 5. Role * */}

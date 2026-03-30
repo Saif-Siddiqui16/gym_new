@@ -47,6 +47,7 @@ import {
   LockerManagement
 } from './modules/operations';
 import FaceAccessRecords from './modules/operations/pages/FaceAccessRecords';
+import SmartAIoTOverview from './modules/operations/pages/SmartAIoTOverview';
 
 // Module: Superadmin
 import PlansList from './Superadmin/PlansManagement/PlansList';
@@ -328,6 +329,7 @@ export default function App() {
               <Route path="devices" element={(currentRole !== ROLES.MEMBER) ? <Devices /> : <Navigate to="/dashboard" replace />} />
               <Route path="face-records" element={(currentRole !== ROLES.MEMBER) ? <FaceAccessRecords /> : <Navigate to="/dashboard" replace />} />
               <Route path="live-monitor" element={(currentRole !== ROLES.MEMBER) ? <LiveCheckInMonitor /> : <Navigate to="/dashboard" replace />} />
+              <Route path="smart-aiot" element={(currentRole !== ROLES.MEMBER) ? <SmartAIoTOverview /> : <Navigate to="/dashboard" replace />} />
             </Route>
 
             {/* Chat/Messages Route for all roles */}

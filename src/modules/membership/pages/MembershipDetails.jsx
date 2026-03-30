@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit2, PauseCircle, PlayCircle, User, Mail, Phone, Calendar, Gift, Sparkles, CreditCard } from 'lucide-react';
+import { ArrowLeft, Edit2, PauseCircle, PlayCircle, User, Mail, Phone, Calendar, Gift, Sparkles, CreditCard, ShoppingBag } from 'lucide-react';
 import { membershipApi } from '../../../api/membershipApi';
 import toast from 'react-hot-toast';
 import StatusBadge from '../components/StatusBadge';
 import BenefitsList from '../components/BenefitsList';
 import FreezeDrawer from '../components/FreezeDrawer';
 import GiftDaysDrawer from '../components/GiftDaysDrawer';
+import MipsSyncPanel from '../../../components/mips/MipsSyncPanel';
 
 const MembershipDetails = () => {
     const { id } = useParams();
@@ -273,6 +274,15 @@ const MembershipDetails = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* MIPS Hardware Access */}
+            <div className="mb-4 sm:mb-6">
+                <MipsSyncPanel
+                    type="member"
+                    id={membership.id}
+                    name={membership.memberName}
+                />
             </div>
 
             {/* Biometric Access */}

@@ -10,8 +10,6 @@ import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
-import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
-import SmartAIoTSummary from '../components/SmartAIoTSummary';
 
 const INITIAL_MANAGER_DATA = {
     stats: [
@@ -182,9 +180,6 @@ const ManagerDashboard = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Smart Device Summary Section */}
-            <SmartAIoTSummary />
 
             <DashboardGrid>
                 {data.stats.map(stat => <StatsCard key={stat.id} {...stat} />)}

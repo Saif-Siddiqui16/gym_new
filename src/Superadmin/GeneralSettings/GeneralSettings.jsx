@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, Building2, Mail, Phone, MapPin, ArrowLeft, Globe, DollarSign, Sparkles } from 'lucide-react';
+import { Save, Building2, Mail, Phone, MapPin, ArrowLeft, DollarSign, Sparkles, Server } from 'lucide-react';
 import { fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
 import { toast } from 'react-hot-toast';
 
@@ -198,7 +198,7 @@ const GeneralSettings = () => {
                     </div>
 
                     {/* Quick Configuration Links */}
-                    {/* <div className="pt-8 border-t border-slate-100">
+                    <div className="pt-8 border-t border-slate-100">
                         <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-6">Quick Configuration</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <button
@@ -232,15 +232,15 @@ const GeneralSettings = () => {
                                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-100 hover:border-violet-200 hover:bg-primary-light transition-all group"
                             >
                                 <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-primary transition-colors">
-                                    <Building2 size={20} />
+                                    <Server size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-sm font-bold text-slate-700 group-hover:text-primary-hover">Hardware Info</div>
-                                    <div className="text-[10px] text-slate-500">Biometric & RFID</div>
+                                    <div className="text-sm font-bold text-slate-700 group-hover:text-primary-hover">SmartAIoT Settings</div>
+                                    <div className="text-[10px] text-slate-500">MIPS & SDK Config</div>
                                 </div>
                             </button>
                         </div>
-                    </div> */}
+                    </div>
 
                     {/* Save Button */}
                     <div className="flex justify-end pt-6 border-t border-slate-100">

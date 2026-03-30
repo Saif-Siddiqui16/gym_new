@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { User, Mail, Phone, Calendar, CreditCard, Check, AlertCircle, ArrowRight, Loader2, Upload, CheckCircle2, ArrowLeft, Sparkles, X, Save } from 'lucide-react';
+import { User, Users, Mail, Phone, Calendar, CreditCard, Check, AlertCircle, ArrowRight, Loader2, Upload, CheckCircle2, ArrowLeft, Sparkles, X, Save } from 'lucide-react';
 import { membershipApi } from '../../../api/membershipApi';
 import toast from 'react-hot-toast';
 
@@ -261,28 +261,31 @@ const MembershipForm = () => {
                                 </select>
                             </div>
 
-                            <div className="space-y-3 group col-span-2 md:col-span-1">
-                                <label className="block text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
-                                    Assign Trainer
-                                </label>
-                                <select
-                                    name="trainerId"
-                                    value={formData.trainerId}
-                                    onChange={handleChange}
-                                    disabled={formData.status !== 'Active'}
-                                    title={formData.status !== 'Active' ? 'Trainer can only be assigned to Active members' : ''}
-                                    className={`w-full px-5 py-4 bg-gradient-to-br from-white to-primary-light/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-md ${formData.status !== 'Active' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    <option value="">No Trainer Assigned</option>
-                                    {trainers.map(trainer => (
-                                        <option key={trainer.id} value={trainer.id}>
-                                            {trainer.name} ({trainer.specialization || 'General'})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+
                         </div>
 
+
+                        {/* Assign Trainer */}
+                        <div className="space-y-3 group mt-6 pb-6 border-b-2 border-gray-100">
+                            <label className="block text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
+                                <Users className="inline-block mr-2 text-primary" size={18} />
+                                Select Assigned Trainer (General)
+                            </label>
+                            <select
+                                name="trainerId"
+                                value={formData.trainerId}
+                                onChange={handleChange}
+                                className="w-full px-5 py-4 bg-gradient-to-br from-white to-primary-light/30 border-2 border-gray-200 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-violet-300 transition-all duration-300 shadow-md"
+                            >
+                                <option value="">-- No Trainer Assigned --</option>
+                                {trainers.map(trainer => (
+                                    <option key={trainer.id} value={trainer.id}>
+                                        {trainer.name} ({trainer.specialization || 'General Trainer'})
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-[10px] text-gray-500 font-medium">This trainer will be responsible for the member's general progress and growth.</p>
+                        </div>
 
                         {/* Plan Selection */}
                         <div className="space-y-3 group mt-6">

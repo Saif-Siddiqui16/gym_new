@@ -208,6 +208,11 @@ export const deleteStaffAPI = async (id) => {
     return response.data;
 };
 
+export const syncStaffToMipsAPI = async (userId) => {
+    const response = await apiClient.post(`/admin/staff/${userId}/sync`);
+    return response.data;
+};
+
 export const getTrainerStats = async (branchId) => {
     const params = branchId ? { branchId } : {};
     const response = await apiClient.get('/admin/staff/trainer-stats', { params });

@@ -129,6 +129,7 @@ export const menuConfig = {
             label: 'Smart AIoT',
             icon: Smartphone,
             children: [
+                { label: 'Overview', path: '/operations/smart-aiot', icon: Activity },
                 { label: 'Device Dashboard', path: '/operations/devices', icon: Smartphone },
                 { label: 'Access Records', path: '/operations/face-records', icon: History },
                 { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
@@ -158,6 +159,7 @@ export const menuConfig = {
             label: 'Smart AIoT',
             icon: Smartphone,
             children: [
+                { label: 'Overview', path: '/operations/smart-aiot', icon: Activity },
                 { label: 'Devices List', path: '/operations/devices', icon: Smartphone },
                 { label: 'Face Records', path: '/operations/face-records', icon: History },
                 { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
@@ -311,7 +313,6 @@ export const menuConfig = {
                 { label: 'Announcements', path: '/operations/announcements', icon: Megaphone },
                 { label: 'Birthdays', path: '/birthdays', icon: Cake },
                 { label: 'Lockers', path: '/operations/lockers', icon: Lock },
-                { label: 'Devices', path: '/operations/devices', icon: Smartphone },
             ]
         },
         {
@@ -360,6 +361,7 @@ export const menuConfig = {
             label: 'Smart AIoT',
             icon: Smartphone,
             children: [
+                { label: 'Overview', path: '/operations/smart-aiot', icon: Activity },
                 { label: 'Devices List', path: '/operations/devices', icon: Smartphone },
                 { label: 'Face Records', path: '/operations/face-records', icon: History },
                 { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },

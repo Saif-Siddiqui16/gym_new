@@ -86,6 +86,7 @@ const Trainers = () => {
         name: '',
         email: '',
         phone: '',
+        gender: 'Male',
         idType: '',
         idNumber: '',
         specialization: '',
@@ -243,6 +244,7 @@ const Trainers = () => {
             name: '',
             email: '',
             phone: '',
+            gender: 'Male',
             idType: '',
             idNumber: '',
             specialization: '',
@@ -275,6 +277,7 @@ const Trainers = () => {
             name: trainer.name || '',
             email: trainer.email || '',
             phone: trainer.phone || '',
+            gender: parsedConfig.gender || trainer.gender || 'Male',
             idType: parsedConfig.idType || '',
             idNumber: parsedConfig.idNumber || '',
             specialization: parsedConfig.specialization || '',
@@ -550,6 +553,19 @@ const Trainers = () => {
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Gender *</label>
+                                <select
+                                    required
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary transition-all text-sm font-medium outline-none bg-white"
+                                    value={formData.gender}
+                                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                >
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                         </div>
 

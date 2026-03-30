@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, FileText, User, CreditCard, ShieldCheck } from 'lucide-react';
+import { Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, FileText, User, Users, CreditCard, ShieldCheck, Dumbbell } from 'lucide-react';
 import { getMembers, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
 import { membershipApi } from '../../api/membershipApi';
 import { referralApi } from '../../api/referralApi';
@@ -12,6 +12,7 @@ import { useBranchContext } from '../../context/BranchContext';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import { exportPdf } from '../../utils/exportPdf';
+import MipsSyncPanel from '../../components/mips/MipsSyncPanel';
 
 
 const MemberList = () => {
@@ -34,7 +35,8 @@ const MemberList = () => {
         name: '', phone: '', email: '', gender: '', dob: '', source: 'Walk-in',
         referralCode: '', idType: '', idNumber: '', address: '',
         emergencyName: '', emergencyPhone: '', fitnessGoal: '', healthConditions: '',
-        planId: '', duration: 1 // Default duration to 1 month
+        planId: '', duration: 1, // Default duration to 1 month
+        trainerId: ''
     };
     const [newMemberData, setNewMemberData] = useState(initialNewMemberData);
     const [editMemberData, setEditMemberData] = useState({ ...initialNewMemberData, status: '' });
@@ -47,6 +49,11 @@ const MemberList = () => {
     const [isRenewalDrawerOpen, setIsRenewalDrawerOpen] = useState(false);
     const [renewalData, setRenewalData] = useState({ planId: '', duration: 1 });
     const [isRenewing, setIsRenewing] = useState(false);
+    const [trainers, setTrainers] = useState([]);
+
+    const [isAssignTrainerDrawerOpen, setIsAssignTrainerDrawerOpen] = useState(false);
+    const [quickTrainerId, setQuickTrainerId] = useState('');
+    const [isSavingTrainer, setIsSavingTrainer] = useState(false);
 
     const location = useLocation();
     const { selectedBranch } = useBranchContext();
@@ -57,8 +64,17 @@ const MemberList = () => {
         if (queryParams.get('add') === 'true') setIsAddDrawerOpen(true);
     }, [location.search]);
 
-    useEffect(() => { loadPlans(); }, [selectedBranch]);
+    useEffect(() => { loadPlans(); loadTrainers(); }, [selectedBranch]);
     useEffect(() => { loadMembers(); }, [searchTerm, statusFilter, currentPage, itemsPerPage, selectedBranch]);
+
+    const loadTrainers = async () => {
+        try {
+            const staff = await fetchStaffAPI(selectedBranch === 'all' ? undefined : selectedBranch);
+            setTrainers(staff.filter(s => s.role === 'TRAINER'));
+        } catch (error) {
+            console.error("Error loading trainers:", error);
+        }
+    };
 
     // ─── HANDLERS (all logic preserved, untouched) ───
     const loadPlans = async () => {
@@ -136,6 +152,20 @@ const MemberList = () => {
         }
     };
 
+    const handleQuickAssignTrainer = async () => {
+        try {
+            setIsSavingTrainer(true);
+            await updateMember(selectedMember.id, { trainerId: quickTrainerId });
+            toast.success("Trainer assigned successfully!");
+            setIsAssignTrainerDrawerOpen(false);
+            loadMembers();
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Failed to assign trainer");
+        } finally {
+            setIsSavingTrainer(false);
+        }
+    };
+
     const handleImageChange = (e, mode = 'add') => {
         const file = e.target.files[0];
         if (file) {
@@ -190,7 +220,8 @@ const MemberList = () => {
             emergencyPhone: member.emergencyPhone || '',
             fitnessGoal: member.fitnessGoal || '',
             healthConditions: member.healthConditions || '',
-            startDate: member.joinDate ? member.joinDate.split('T')[0] : ''
+            startDate: member.joinDate ? member.joinDate.split('T')[0] : '',
+            trainerId: member.trainerId || ''
         });
         setEditProfileImage(member.avatar || null);
         setIsEditDrawerOpen(true);
@@ -428,6 +459,7 @@ const MemberList = () => {
                                         </td>
                                         <td className="p-4 sm:px-6 sm:py-4" data-label="Actions">
                                             <div className="flex items-center justify-end sm:justify-start gap-1 transition-all duration-200">
+                                                <button onClick={() => { setSelectedMember(member); setQuickTrainerId(member.trainerId || ''); setIsAssignTrainerDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-primary hover:text-white hover:bg-primary transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Quick Assign Trainer"><Dumbbell size={16} /></button>
                                                 <button onClick={() => { setSelectedMember(member); setRenewalData({ planId: '', duration: 1 }); setIsRenewalDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Assign Plan"><ShieldCheck size={16} /></button>
                                                 <button onClick={() => handleView(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="View"><Eye size={16} /></button>
                                                 <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
@@ -640,6 +672,14 @@ const MemberList = () => {
                                     </select>
                                 </div>
                             )}
+                            <div className="col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign General Trainer</label>
+                                <select value={newMemberData.trainerId} onChange={(e) => setNewMemberData({ ...newMemberData, trainerId: e.target.value })}
+                                    className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all">
+                                    <option value="">No Trainer Assigned</option>
+                                    {trainers.map(t => <option key={t.id} value={t.id}>{t.name} ({t.specialization || 'General'})</option>)}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -893,6 +933,13 @@ const MemberList = () => {
                             </div>
                         )}
 
+                        {/* MIPS Hardware Sync */}
+                        <MipsSyncPanel
+                            type="member"
+                            id={selectedMember.id}
+                            name={selectedMember.name}
+                        />
+
                     </div>
                 )}
             </RightDrawer>
@@ -993,6 +1040,22 @@ const MemberList = () => {
                                     <option>Walk-in</option><option>Online</option><option>Referral</option><option>Social Media</option><option>Advertisement</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Section 2: Trainer Assignment */}
+                    <div className="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-200">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black">2</span>
+                            Assign General Trainer
+                        </h3>
+                        <div>
+                            <select value={editMemberData.trainerId || ''} onChange={(e) => setEditMemberData({ ...editMemberData, trainerId: e.target.value })}
+                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm text-slate-800 bg-white outline-none transition-all font-semibold">
+                                <option value="">-- No Trainer Assigned --</option>
+                                {trainers.map(t => <option key={t.id} value={t.id}>{t.name} ({t.specialization || 'General'})</option>)}
+                            </select>
+                            <p className="text-[10px] text-slate-400 font-bold mt-2 ml-1 italic capitalize">Responsible for general tracking & progress</p>
                         </div>
                     </div>
 
@@ -1184,6 +1247,52 @@ const MemberList = () => {
                         </div>
                     </div>
                 </form>
+            </RightDrawer>
+
+            {/* Assign Trainer Drawer (Quick) */}
+            <RightDrawer
+                isOpen={isAssignTrainerDrawerOpen}
+                onClose={() => setIsAssignTrainerDrawerOpen(false)}
+                title="Assign General Trainer"
+                subtitle={`Direct assignment for ${selectedMember?.name}`}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button type="button" onClick={() => setIsAssignTrainerDrawerOpen(false)} variant="outline">Cancel</Button>
+                        <Button
+                            onClick={handleQuickAssignTrainer}
+                            variant="primary"
+                            disabled={isSavingTrainer}
+                            className="shadow-lg shadow-violet-200"
+                        >
+                            {isSavingTrainer ? 'Saving...' : 'Update Trainer'}
+                        </Button>
+                    </div>
+                }
+            >
+                <div className="px-6 py-8 space-y-6">
+                    <div className="bg-primary/5 rounded-2xl p-6 border-2 border-dashed border-primary/20 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm mb-4">
+                            <Dumbbell size={32} />
+                        </div>
+                        <h4 className="text-base font-bold text-slate-800">Select General Trainer</h4>
+                        <p className="text-xs text-slate-500 font-medium mt-1">Pick a trainer responsible for this member's growth and tracking.</p>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Choose Specialist</label>
+                        <select
+                            value={quickTrainerId}
+                            onChange={(e) => setQuickTrainerId(e.target.value)}
+                            className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-primary text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                        >
+                            <option value="">No Trainer Assigned</option>
+                            {trainers.map(t => (
+                                <option key={t.id} value={t.id}>{t.name} ({t.specialization || 'General'})</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </RightDrawer>
 
         </div >

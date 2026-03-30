@@ -6,11 +6,20 @@ import {
     CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft, UserCircle,
     IndianRupee, CalendarDays, AlertCircle, FileDown
 } from 'lucide-react';
-import { fetchStaffAPI, deleteStaffAPI, fetchPayrollHistoryAPI, generatePayrollAPI, updatePayrollStatusAPI, deletePayrollAPI } from '../../../api/admin/adminApi';
+import { 
+    fetchStaffAPI, 
+    deleteStaffAPI, 
+    fetchPayrollHistoryAPI, 
+    generatePayrollAPI, 
+    updatePayrollStatusAPI, 
+    deletePayrollAPI 
+} from '../../../api/admin/adminApi';
+import { syncStaffToMipsAPI } from '../../../api/manager/managerApi';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
+import { Cpu } from 'lucide-react';
 
 // ─── API Helpers ─────────────────────────────────────────────────────────────
 const getLiveAttendance = async () => {
@@ -144,6 +153,18 @@ const Payroll = () => {
         setConfirmModal({ isOpen: true, id, action: 'staff', label: 'staff member', loading: false });
     };
 
+    const handleSyncToMips = async (staffId) => {
+        try {
+            toast.loading('Syncing with MIPS Hardware...', { id: 'mips-sync' });
+            await syncStaffToMipsAPI(staffId);
+            toast.success('Staff synced to MIPS Hardware!', { id: 'mips-sync' });
+            loadStaff(); // Reload to get updated status
+        } catch (error) {
+            console.error('[handleSyncToMips]', error);
+            toast.error(error.response?.data?.message || 'Biometric Sync Failed', { id: 'mips-sync' });
+        }
+    };
+
     // ── Computed Values ───────────────────────────────────────────────────────
     const filteredStaff = staffList.filter(s =>
         (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -202,6 +223,39 @@ const Payroll = () => {
             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${map[status] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                 {status}
             </span>
+        );
+    };
+
+    // ── MIPS Status Badge ─────────────────────────────────────────────────────
+    const MipsStatusBadge = ({ status, syncedAt, onSync }) => {
+        const map = {
+            'synced': { label: 'Synced', style: 'bg-emerald-50 text-emerald-700 border-emerald-100', dot: 'bg-emerald-500' },
+            'pending': { label: 'Pending', style: 'bg-amber-50 text-amber-700 border-amber-100', dot: 'bg-amber-500' },
+            'failed': { label: 'Failed', style: 'bg-rose-50 text-rose-700 border-rose-100', dot: 'bg-rose-500' },
+            'loading': { label: 'Syncing', style: 'bg-indigo-50 text-indigo-700 border-indigo-100', dot: 'bg-indigo-500 animate-pulse' },
+        };
+        const config = map[status] || map.pending;
+
+        return (
+            <div className="flex flex-col gap-1">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${config.style}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+                    {status || 'Pending'}
+                </span>
+                {status !== 'synced' && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onSync(); }}
+                        className="text-[9px] font-bold text-primary hover:underline flex items-center gap-1 pl-1"
+                    >
+                        <RefreshCw size={10} /> Sync Now
+                    </button>
+                )}
+                {syncedAt && status === 'synced' && (
+                    <span className="text-[9px] text-slate-400 font-medium pl-1 italic">
+                        {new Date(syncedAt).toLocaleDateString()}
+                    </span>
+                )}
+            </div>
         );
     };
 
@@ -289,7 +343,7 @@ const Payroll = () => {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-slate-50 border-b border-slate-100">
-                                        {['Employee', 'Code', 'Department', 'Position', 'Salary', 'Status', 'Actions'].map(h => (
+                                        {['Employee', 'Code', 'Department', 'Position', 'Salary', 'Status', 'MIPS Sync', 'Actions'].map(h => (
                                             <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">{h}</th>
                                         ))}
                                     </tr>
@@ -337,6 +391,13 @@ const Payroll = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <StatusBadge status={staff.status || 'Active'} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <MipsStatusBadge 
+                                                        status={staff.mipsSyncStatus} 
+                                                        syncedAt={staff.mipsSyncedAt}
+                                                        onSync={() => handleSyncToMips(staff.id)}
+                                                    />
                                                 </td>
                                                 <td className="px-6 py-4 text-right relative">
                                                     <button

@@ -6,7 +6,6 @@ import SectionHeader from '../components/SectionHeader';
 import { Building, Users, Activity, IndianRupee, MapPin, ArrowRight, AlertTriangle, Server, CheckCircle2, TrendingUp, Clock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import { getDashboardStats, getRecentGyms, getSystemAlerts } from '../../../api/superadmin/superAdminApi';
-import SmartAIoTSummary from '../components/SmartAIoTSummary';
 
 const SuperAdminDashboard = () => {
     const [stats, setStats] = useState([]);
@@ -92,9 +91,6 @@ const SuperAdminDashboard = () => {
                     <span className="text-sm font-semibold text-emerald-700">All Systems Operational</span>
                 </div>
             </div>
-
-            {/* Smart AIoT Summary Section */}
-            <SmartAIoTSummary />
 
             {/* Stats Grid with Section Header */}
             <div className="space-y-4">
