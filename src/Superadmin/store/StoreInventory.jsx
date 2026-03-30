@@ -4,6 +4,7 @@ import { getStoreProducts, updateStoreProductStock, addStoreProduct, updateStore
 import toast from 'react-hot-toast';
 import ProductDrawer from './ProductDrawer';
 import { useBranchContext } from '../../context/BranchContext';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const StoreInventory = () => {
     const { selectedBranch } = useBranchContext();
@@ -13,6 +14,7 @@ const StoreInventory = () => {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
     const [drawerMode, setDrawerMode] = useState('add');
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchInventory = async () => {
         try {
@@ -60,15 +62,20 @@ const StoreInventory = () => {
         setIsAddDrawerOpen(true);
     };
 
-    const handleDeleteProduct = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await deleteStoreProduct(id);
-                toast.success('Product deleted successfully');
-                fetchInventory();
-            } catch (error) {
-                toast.error(error);
-            }
+    const handleDeleteProduct = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteStoreProduct(confirmModal.id);
+            toast.success('Product deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchInventory();
+        } catch (error) {
+            toast.error(error);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -184,6 +191,16 @@ const StoreInventory = () => {
                 mode={drawerMode}
                 product={selectedProduct}
                 onSubmit={handleDrawerSubmit}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Product?"
+                message="This product will be permanently removed from inventory."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

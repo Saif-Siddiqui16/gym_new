@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import {
     ChevronDown,
     ChevronRight
@@ -13,6 +14,7 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
     const location = useLocation();
     const { user, logout } = useAuth();
     const [expandedMenus, setExpandedMenus] = useState({});
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     // Toggle submenu expansion
     const toggleSubmenu = (label) => {
@@ -28,9 +30,7 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
     // Logout handler
     const handleLogout = (e) => {
         e.preventDefault();
-        if (window.confirm('Are you sure you want to logout?')) {
-            logout();
-        }
+        setShowLogoutModal(true);
     };
 
     // Check if a menu or its children are active
@@ -64,6 +64,7 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
     };
 
     return (
+        <>
         <aside className={`sidebar ${collapsed ? 'collapsed' : 'show'} `}>
             {/* Logo Area */}
             <div className="sidebar-header">
@@ -145,6 +146,16 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                 </div>
             )}
         </aside>
+        <ConfirmationModal
+            isOpen={showLogoutModal}
+            onClose={() => setShowLogoutModal(false)}
+            onConfirm={() => { logout(); setShowLogoutModal(false); }}
+            title="Logout?"
+            message="You will be signed out of the current session."
+            confirmText="Logout"
+            type="warning"
+        />
+    </>
     );
 };
 

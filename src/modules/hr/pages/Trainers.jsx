@@ -9,6 +9,7 @@ import { useBranchContext } from '../../../context/BranchContext';
 import { ROLES } from '../../../config/roles';
 import * as managerApi from '../../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 // Reusable Custom Dropdown Component (matching BookingReport)
 const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
@@ -69,6 +70,7 @@ const Trainers = () => {
     const [sortOption, setSortOption] = useState('All');
     const [filteredTrainers, setFilteredTrainers] = useState([]);
     const [avatarPreview, setAvatarPreview] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Stats state
     const [trainerKPIs, setTrainerKPIs] = useState({
@@ -203,14 +205,20 @@ const Trainers = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to remove this trainer?')) return;
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            await managerApi.deleteStaffAPI(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await managerApi.deleteStaffAPI(confirmModal.id);
             toast.success('Trainer removed successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             loadData();
         } catch (error) {
             toast.error('Failed to remove trainer');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -671,6 +679,16 @@ const Trainers = () => {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Remove Trainer?"
+                message="This trainer will be permanently removed from the system."
+                confirmText="Remove"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

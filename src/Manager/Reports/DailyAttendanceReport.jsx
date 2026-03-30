@@ -5,6 +5,7 @@ import apiClient from '../../api/apiClient';
 import { exportPDF } from '../../api/manager/managerExport';
 import RightDrawer from '../../components/common/RightDrawer';
 import { useBranchContext } from '../../context/BranchContext';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 // Reusable Custom Dropdown Component
 const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
@@ -77,6 +78,7 @@ const DailyAttendanceReport = () => {
     const [smartStats, setSmartStats] = useState({ today: 0, total: 0 });
     const { selectedBranch } = useBranchContext();
     const itemsPerPage = 5;
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         loadData();
@@ -213,16 +215,21 @@ const DailyAttendanceReport = () => {
         exportPDF(attendance, `Attendance_Report_${selectedDate}`);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to remove this attendance record?')) {
-            try {
-                await apiClient.delete(`/admin/attendance/${id}`);
-                toast.success('Record removed successfully');
-                loadData();
-            } catch (error) {
-                console.error('Delete Error:', error);
-                toast.error(error.response?.data?.message || 'Failed to remove record');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await apiClient.delete(`/admin/attendance/${confirmModal.id}`);
+            toast.success('Record removed successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadData();
+        } catch (error) {
+            console.error('Delete Error:', error);
+            toast.error(error.response?.data?.message || 'Failed to remove record');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -667,6 +674,16 @@ const DailyAttendanceReport = () => {
                     </div>
                 )}
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Remove Attendance Record?"
+                message="This attendance record will be permanently deleted from the daily log."
+                confirmText="Remove"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

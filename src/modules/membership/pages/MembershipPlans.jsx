@@ -4,6 +4,7 @@ import CreateMembershipPlanDrawer from '../components/CreateMembershipPlanDrawer
 import { membershipApi } from '../../../api/membershipApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const MembershipPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -11,7 +12,8 @@ const MembershipPlans = () => {
     const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+    const [viewMode, setViewMode] = useState('grid');
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const { selectedBranch } = useBranchContext();
 
@@ -68,15 +70,20 @@ const MembershipPlans = () => {
         setIsCreateDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this plan?')) {
-            try {
-                await membershipApi.deletePlan(id);
-                toast.success('Plan deleted successfully');
-                fetchPlans();
-            } catch (error) {
-                toast.error('Failed to delete plan');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await membershipApi.deletePlan(confirmModal.id);
+            toast.success('Plan deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchPlans();
+        } catch (error) {
+            toast.error('Failed to delete plan');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -241,6 +248,16 @@ const MembershipPlans = () => {
                 onClose={() => setIsCreateDrawerOpen(false)}
                 onSave={handleSavePlan}
                 initialData={editingPlan}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Plan?"
+                message="This membership plan will be permanently removed."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

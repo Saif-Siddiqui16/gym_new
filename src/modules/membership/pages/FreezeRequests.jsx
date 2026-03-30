@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import StatusBadge from '../components/StatusBadge';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 // Mock Data
 const PENDING_REQUESTS = [
@@ -14,15 +15,20 @@ const PENDING_REQUESTS = [
 
 const FreezeRequests = () => {
     const [requests, setRequests] = useState(PENDING_REQUESTS);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, action: null, loading: false });
 
     const handleAction = (id, action) => {
-        if (window.confirm(`Are you sure you want to ${action} this request?`)) {
-            setRequests(prev => prev.filter(r => r.id !== id));
-            toast.success(`Request ${action === 'approve' ? 'Approved' : 'Rejected'} successfully.`);
-        }
+        setConfirmModal({ isOpen: true, id, action, loading: false });
+    };
+
+    const processAction = () => {
+        setRequests(prev => prev.filter(r => r.id !== confirmModal.id));
+        toast.success(`Request ${confirmModal.action === 'approve' ? 'Approved' : 'Rejected'} successfully.`);
+        setConfirmModal({ isOpen: false, id: null, action: null, loading: false });
     };
 
     return (
+        <>
         <div className="fade-in space-y-6">
             <div className="flex justify-between items-center">
                 <div>
@@ -93,6 +99,17 @@ const FreezeRequests = () => {
                 )}
             </div>
         </div>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, id: null, action: null, loading: false })}
+            onConfirm={processAction}
+            title={`${confirmModal.action === 'approve' ? 'Approve' : 'Reject'} Freeze Request?`}
+            message={`This freeze request will be ${confirmModal.action === 'approve' ? 'approved and the membership will be frozen' : 'rejected'}.`}
+            confirmText={confirmModal.action === 'approve' ? 'Approve' : 'Reject'}
+            type={confirmModal.action === 'approve' ? 'warning' : 'danger'}
+            loading={confirmModal.loading}
+        />
+    </>
     );
 };
 

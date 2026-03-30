@@ -5,6 +5,7 @@ import { getStoreProducts, deleteStoreProduct, getCategories } from '../../api/s
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
 import StatsCard from '../../modules/dashboard/components/StatsCard';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ProductList = () => {
     const { selectedBranch } = useBranchContext();
@@ -17,6 +18,7 @@ const ProductList = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('products');
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchData = async () => {
         try {
@@ -54,15 +56,20 @@ const ProductList = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await deleteStoreProduct(id);
-                toast.success('Product deleted successfully');
-                fetchData();
-            } catch (error) {
-                toast.error(error);
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteStoreProduct(confirmModal.id);
+            toast.success('Product deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchData();
+        } catch (error) {
+            toast.error(error);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -286,6 +293,16 @@ const ProductList = () => {
                 product={selectedProduct}
                 mode={drawerMode}
                 onSubmit={handleDrawerSubmit}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Product?"
+                message="This product will be permanently removed from your catalog."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

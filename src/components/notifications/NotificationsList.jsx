@@ -3,12 +3,14 @@ import { Bell, Trash2, CheckCircle, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../api/apiClient';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 const NotificationsList = () => {
     const { role } = useAuth();
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const getRoleBasedLink = (link) => {
         if (!link) return '#';
@@ -45,12 +47,19 @@ const NotificationsList = () => {
         } catch (error) { }
     };
 
-    const deleteNotif = async (id) => {
-        if (!window.confirm('Delete this notification?')) return;
+    const deleteNotif = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            await apiClient.delete(`/notifications/${id}`);
-            setNotifications(prev => prev.filter(n => n.id !== id));
-        } catch (error) { }
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await apiClient.delete(`/notifications/${confirmModal.id}`);
+            setNotifications(prev => prev.filter(n => n.id !== confirmModal.id));
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+        } catch (error) {
+            setConfirmModal(prev => ({ ...prev, loading: false }));
+        }
     };
 
     if (loading) return (
@@ -61,6 +70,7 @@ const NotificationsList = () => {
     );
 
     return (
+        <>
         <div className="space-y-6 animate-fadeIn">
             <div className="flex items-center justify-between pb-4 border-b border-slate-50">
                 <h3 className="text-lg font-black text-slate-800 tracking-tight">System Alerts</h3>
@@ -127,6 +137,17 @@ const NotificationsList = () => {
                 </div>
             )}
         </div>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+            onConfirm={processDelete}
+            title="Delete Notification?"
+            message="This notification will be permanently removed."
+            confirmText="Delete"
+            type="danger"
+            loading={confirmModal.loading}
+        />
+        </>
     );
 };
 

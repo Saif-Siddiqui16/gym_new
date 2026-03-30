@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Ban, AlertCircle } from 'lucide-react';
 import { fetchAllGyms, toggleGymStatus } from '../../api/superadmin/superAdminApi';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const SuspendedGyms = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [gyms, setGyms] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -32,14 +34,20 @@ const SuspendedGyms = () => {
         }
     };
 
-    const handleReactivate = async (id) => {
-        if (window.confirm('Are you sure you want to reactivate this gym?')) {
-            try {
-                await toggleGymStatus(id);
-                loadSuspendedGyms();
-            } catch (error) {
-                toast.error('Failed to reactivate gym');
-            }
+    const handleReactivate = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processReactivate = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await toggleGymStatus(confirmModal.id);
+            toast.success('Gym reactivated successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadSuspendedGyms();
+        } catch (error) {
+            toast.error('Failed to reactivate gym');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -165,8 +173,18 @@ const SuspendedGyms = () => {
                         </tbody>
                     </table>
                 </div>
-            </div>
         </div>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+            onConfirm={processReactivate}
+            title="Reactivate Gym?"
+            message="This gym will regain full access to the platform immediately."
+            confirmText="Reactivate"
+            type="success"
+            loading={confirmModal.loading}
+        />
+    </div>
     );
 };
 

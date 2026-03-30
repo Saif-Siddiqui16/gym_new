@@ -26,6 +26,7 @@ import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import { membershipApi } from '../../../api/membershipApi';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const ICONS = {
     Dumbbell, User, Users, Utensils, Lock, Thermometer, Zap, Droplets, Activity, Clock, Calendar
@@ -36,6 +37,7 @@ const BenefitsConfig = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBenefit, setEditingBenefit] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Form State
     const [formData, setFormData] = useState({
@@ -75,14 +77,19 @@ const BenefitsConfig = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this benefit?')) {
-            try {
-                await membershipApi.deleteAmenity(id);
-                toast.success("Benefit deleted");
-                fetchBenefits();
-            } catch (error) {
-                toast.error("Failed to delete benefit");
-            }
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await membershipApi.deleteAmenity(confirmModal.id);
+            toast.success("Benefit deleted");
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchBenefits();
+        } catch (error) {
+            toast.error("Failed to delete benefit");
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -113,6 +120,7 @@ const BenefitsConfig = () => {
     };
 
     return (
+        <>
         <div className="space-y-6 fade-in p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -284,6 +292,17 @@ const BenefitsConfig = () => {
                 </div>
             )}
         </div>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+            onConfirm={processDelete}
+            title="Delete Benefit?"
+            message="This benefit configuration will be permanently removed."
+            confirmText="Delete"
+            type="danger"
+            loading={confirmModal.loading}
+        />
+    </>
     );
 };
 

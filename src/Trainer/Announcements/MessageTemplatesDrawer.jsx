@@ -3,6 +3,7 @@ import { MessageCircle, Mail, Smartphone, Copy, Check, Search, PlusCircle, Trash
 import RightDrawer from '../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
 import { getTemplates, createTemplate, deleteTemplate } from '../../api/communication/communicationApi';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState('WhatsApp');
@@ -10,6 +11,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
     const [copiedId, setCopiedId] = useState(null);
     const [templates, setTemplates] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchTemplates = async () => {
         setIsLoading(true);
@@ -35,14 +37,20 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this template?')) return;
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            await deleteTemplate(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteTemplate(confirmModal.id);
             toast.success('Template deleted');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             fetchTemplates();
         } catch (error) {
             toast.error(error || 'Failed to delete template');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -90,6 +98,7 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
     );
 
     return (
+        <>
         <RightDrawer
             isOpen={isOpen}
             onClose={() => {
@@ -266,6 +275,17 @@ const MessageTemplatesDrawer = ({ isOpen, onClose }) => {
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f5f9; border-radius: 10px; }
             `}</style>
         </RightDrawer>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+            onConfirm={processDelete}
+            title="Delete Template?"
+            message="This message template will be permanently removed."
+            confirmText="Delete"
+            type="danger"
+            loading={confirmModal.loading}
+        />
+    </>
     );
 };
 

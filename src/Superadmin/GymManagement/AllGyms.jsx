@@ -5,6 +5,7 @@ import RightDrawer from '../../components/common/RightDrawer';
 import AddGymDrawer from './AddGymDrawer';
 import { fetchAllGyms, deleteGym, toggleGymStatus, exportTable } from '../../api/superadmin/superAdminApi';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const AllGyms = () => {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const AllGyms = () => {
     const [selectedGym, setSelectedGym] = useState(null);
     const [isViewDrawerOpen, setIsViewDrawerOpen] = useState(false);
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Pagination State
     const [page, setPage] = useState(1);
@@ -49,14 +51,20 @@ const AllGyms = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this gym?')) {
-            try {
-                await deleteGym(id);
-                loadGyms();
-            } catch (error) {
-                toast.error('Failed to delete gym');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteGym(confirmModal.id);
+            toast.success('Gym deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadGyms();
+        } catch (error) {
+            toast.error('Failed to delete gym');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -405,6 +413,16 @@ const AllGyms = () => {
                 }}
                 onSuccess={loadGyms}
                 editData={selectedGym}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Gym?"
+                message="This will permanently remove the gym and all its data. This action cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

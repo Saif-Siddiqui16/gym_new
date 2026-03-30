@@ -5,6 +5,7 @@ import { fetchSubscriptions, toggleSubscriptionStatus } from '../../api/superadm
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ActiveSubscriptions = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +16,7 @@ const ActiveSubscriptions = () => {
     const [selectedSubscription, setSelectedSubscription] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const itemsPerPage = 5;
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, subId: null, loading: false });
 
     useEffect(() => {
         loadSubscriptions();
@@ -77,18 +79,28 @@ const ActiveSubscriptions = () => {
         setIsViewModalOpen(true);
     };
 
-    const handleRenew = async (subId) => {
-        if (window.confirm('Are you sure you want to renew this subscription?')) {
-            // Mock renewal: toggle status twice or just log
-            console.log('Renew subscription:', subId);
-            toast.success('Renewal initiated for ' + subId);
-        }
+    const handleRenew = (subId) => {
+        setConfirmModal({ isOpen: true, action: 'renew', subId, loading: false });
     };
 
-    const handleCancel = async (subId) => {
-        if (window.confirm('Are you sure you want to cancel this subscription?')) {
-            await toggleSubscriptionStatus(subId);
-            loadSubscriptions();
+    const handleCancel = (subId) => {
+        setConfirmModal({ isOpen: true, action: 'cancel', subId, loading: false });
+    };
+
+    const processConfirm = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            if (confirmModal.action === 'renew') {
+                toast.success('Renewal initiated for ' + confirmModal.subId);
+            } else if (confirmModal.action === 'cancel') {
+                await toggleSubscriptionStatus(confirmModal.subId);
+                toast.success('Subscription cancelled');
+                loadSubscriptions();
+            }
+            setConfirmModal({ isOpen: false, action: null, subId: null, loading: false });
+        } catch (err) {
+            toast.error('Action failed');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -331,6 +343,16 @@ const ActiveSubscriptions = () => {
                     </div>
                 )}
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, action: null, subId: null, loading: false })}
+                onConfirm={processConfirm}
+                title={confirmModal.action === 'renew' ? 'Renew Subscription?' : 'Cancel Subscription?'}
+                message={confirmModal.action === 'renew' ? 'This will initiate a renewal for the selected subscription.' : 'This will deactivate the subscription immediately.'}
+                confirmText={confirmModal.action === 'renew' ? 'Renew' : 'Cancel Subscription'}
+                type={confirmModal.action === 'renew' ? 'success' : 'danger'}
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

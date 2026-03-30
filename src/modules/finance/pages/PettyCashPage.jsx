@@ -25,6 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { fetchExpenses, addExpense, deleteExpense } from '../../../api/finance/financeApi';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const PettyCashPage = () => {
     const navigate = useNavigate();
@@ -44,6 +45,7 @@ const PettyCashPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [showForm, setShowForm] = useState(false);
     const [expenses, setExpenses] = useState([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         const loadExpenses = async () => {
@@ -145,17 +147,21 @@ const PettyCashPage = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this expense? This action cannot be undone.")) return;
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
 
+    const processDelete = async () => {
         try {
-            await deleteExpense(id);
-            // Instantly remove from local UI state to update KPIs gracefully
-            const updated = expenses.filter(e => e.id !== id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteExpense(confirmModal.id);
+            const updated = expenses.filter(e => e.id !== confirmModal.id);
             setExpenses(updated);
+            setConfirmModal({ isOpen: false, id: null, loading: false });
         } catch (err) {
             console.error("Failed to delete expense:", err);
             toast.error("Failed to delete expense. You may not have permission.");
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -533,6 +539,16 @@ const PettyCashPage = () => {
                     </div>
                 </div>
             </div>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Expense?"
+                message="This expense record will be permanently removed. This action cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

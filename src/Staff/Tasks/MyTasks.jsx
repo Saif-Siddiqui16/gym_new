@@ -4,6 +4,7 @@ import CreateTaskDrawer from './CreateTaskDrawer';
 import { toast } from 'react-hot-toast';
 import { getAllTasks, getTaskStats, updateTaskStatus, deleteTask } from '../../api/staff/taskApi';
 import RightDrawer from '../../components/common/RightDrawer';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const MyTasks = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,7 @@ const MyTasks = () => {
     });
     const [selectedTask, setSelectedTask] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchData = async () => {
         try {
@@ -56,14 +58,20 @@ const MyTasks = () => {
         }
     };
 
-    const handleDeleteTask = async (taskId) => {
-        if (!window.confirm('Are you sure you want to delete this task?')) return;
+    const handleDeleteTask = (taskId) => {
+        setConfirmModal({ isOpen: true, id: taskId, loading: false });
+    };
+
+    const processDeleteTask = async () => {
         try {
-            await deleteTask(taskId);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteTask(confirmModal.id);
             toast.success('Task deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             fetchData();
         } catch (error) {
             toast.error(error?.message || 'Failed to delete task');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -365,6 +373,16 @@ const MyTasks = () => {
                     </div>
                 )}
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDeleteTask}
+                title="Delete Task?"
+                message="This task will be permanently removed."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

@@ -18,6 +18,18 @@ import {
     ChevronDown,
     History
 } from 'lucide-react';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    Cell,
+    Rectangle
+} from 'recharts';
 import { fetchFinanceStats, addExpense, fetchExpenseCategories } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
@@ -204,41 +216,88 @@ const FinancialDashboard = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <div className="flex-1 min-h-[400px] overflow-x-auto scrollbar-hide pb-8 px-4">
-                            <div className="flex items-end justify-between gap-4 md:gap-10 min-w-[700px] h-full px-6">
-                                {monthlyData.map((m, idx) => {
-                                    const maxVal = Math.max(...monthlyData.map(d => Math.max(d.income, d.expenses))) || 1;
-                                    const incomePercent = (m.income / maxVal) * 100;
-                                    const expensePercent = (m.expenses / maxVal) * 100;
-
-                                    return (
-                                        <div key={idx} className="flex-1 flex flex-col items-center gap-6 group">
-                                            <div className="w-full flex justify-center gap-1.5 h-[220px] items-end">
-                                                {/* Income Bar */}
-                                                <div
-                                                    className="w-6 bg-[#7c3aed] rounded-t-xl transition-all duration-700 hover:w-8 hover:shadow-lg hover:shadow-violet-200 cursor-help relative group/bar"
-                                                    style={{ height: `${Math.max(5, incomePercent)}%` }}
-                                                >
-                                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 whitespace-nowrap z-20 transition-all shadow-xl">
-                                                        ₹{m.income.toLocaleString()}
+                        <div className="flex-1 min-h-[400px] w-full mt-4">
+                            <ResponsiveContainer width="100%" height={400}>
+                                <BarChart
+                                    data={monthlyData}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                    barGap={12}
+                                >
+                                    <defs>
+                                        <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity={1} />
+                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                        </linearGradient>
+                                        <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#f1f5f9" stopOpacity={1} />
+                                            <stop offset="100%" stopColor="#e2e8f0" stopOpacity={0.8} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis
+                                        dataKey="month"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 900 }}
+                                        dy={15}
+                                    />
+                                    <YAxis
+                                        hide
+                                        domain={[0, 'dataMax + 1000']}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: '#f8fafc', radius: 16 }}
+                                        content={({ active, payload, label }) => {
+                                            if (active && payload && payload.length) {
+                                                return (
+                                                    <div className="bg-slate-900 text-white p-4 rounded-[1.5rem] shadow-2xl border border-slate-800 animate-in fade-in zoom-in duration-200">
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{label}</p>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center justify-between gap-8">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Income</span>
+                                                                </div>
+                                                                <span className="text-sm font-black text-white">₹{payload[0].value.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex items-center justify-between gap-8">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Expenses</span>
+                                                                </div>
+                                                                <span className="text-sm font-black text-slate-300">₹{payload[1].value.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="pt-2 mt-2 border-t border-slate-800 flex items-center justify-between">
+                                                                <span className="text-[10px] font-black uppercase text-emerald-400">Profit</span>
+                                                                <span className="text-xs font-black text-emerald-400">₹{(payload[0].value - payload[1].value).toLocaleString()}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                {/* Expense Bar */}
-                                                <div
-                                                    className="w-6 bg-slate-100/80 rounded-t-xl transition-all duration-700 hover:w-8 hover:shadow-lg hover:shadow-slate-200 cursor-help relative group/bar"
-                                                    style={{ height: `${Math.max(5, expensePercent)}%` }}
-                                                >
-                                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 whitespace-nowrap z-20 transition-all shadow-xl">
-                                                        ₹{m.expenses.toLocaleString()}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">{m.month}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Bar
+                                        dataKey="income"
+                                        name="Income"
+                                        fill="url(#incomeGradient)"
+                                        radius={[10, 10, 10, 10]}
+                                        barSize={24}
+                                        animationDuration={1500}
+                                        activeBar={<Rectangle fill="#6d28d9" stroke="none" radius={[10, 10, 10, 10]} />}
+                                    />
+                                    <Bar
+                                        dataKey="expenses"
+                                        name="Expenses"
+                                        fill="url(#expenseGradient)"
+                                        radius={[10, 10, 10, 10]}
+                                        barSize={24}
+                                        animationDuration={1500}
+                                        activeBar={<Rectangle fill="#cbd5e1" stroke="none" radius={[10, 10, 10, 10]} />}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 

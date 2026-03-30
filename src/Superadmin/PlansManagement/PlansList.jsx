@@ -5,6 +5,8 @@ import MobileCard from '../../components/common/MobileCard';
 import RightDrawer from '../../components/common/RightDrawer';
 import PlanFormDrawer from './PlanFormDrawer';
 import { fetchPlans, deletePlan } from '../../api/superadmin/superAdminApi';
+import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const PlansList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +17,7 @@ const PlansList = () => {
     // Drawer states
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         loadPlans();
@@ -61,10 +64,20 @@ const PlansList = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (planId) => {
-        if (window.confirm('Are you sure you want to delete this plan?')) {
-            await deletePlan(planId);
+    const handleDelete = (planId) => {
+        setConfirmModal({ isOpen: true, id: planId, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deletePlan(confirmModal.id);
+            toast.success('Plan deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             loadPlans();
+        } catch (err) {
+            toast.error('Failed to delete plan');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -245,6 +258,16 @@ const PlansList = () => {
                     onSuccess={handleSuccess}
                 />
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Plan?"
+                message="This subscription plan will be permanently removed. Existing subscribers won't be affected."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

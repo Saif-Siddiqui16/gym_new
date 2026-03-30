@@ -41,6 +41,7 @@ import {
 import { useBranchContext } from '../../../context/BranchContext';
 import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const PTSessions = () => {
     const { selectedBranch } = useBranchContext();
@@ -65,6 +66,7 @@ const PTSessions = () => {
     const [editingPackage, setEditingPackage] = useState(null);
     const [isSubmitting, setSubmitting] = useState(false);
     const [bookedSlots, setBookedSlots] = useState([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Form State for Package
     const [formData, setFormData] = useState({
@@ -252,15 +254,20 @@ const PTSessions = () => {
         setIsSidebarOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this package?')) {
-            try {
-                await ptApi.deletePackage(id);
-                toast.success('Package deleted');
-                loadData();
-            } catch (error) {
-                toast.error('Failed to delete package');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await ptApi.deletePackage(confirmModal.id);
+            toast.success('Package deleted');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadData();
+        } catch (error) {
+            toast.error('Failed to delete package');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -1012,6 +1019,17 @@ const PTSessions = () => {
                     </div>
                 </form>
             </RightDrawer>
+
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete PT Package?"
+                message="Are you sure you want to delete this PT Package? This action cannot be undone."
+                confirmText="Delete Package"
+                type="danger"
+                loading={confirmModal.loading || false}
+            />
         </div>
     );
 };

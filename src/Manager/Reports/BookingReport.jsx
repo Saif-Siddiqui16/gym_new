@@ -24,6 +24,7 @@ import {
     MapPin
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 // Reusable Custom Dropdown Component
 const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
@@ -86,6 +87,7 @@ const BookingReport = () => {
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const itemsPerPage = 10;
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const [allFilteredBookings, setAllFilteredBookings] = useState([]);
 
@@ -188,15 +190,20 @@ const BookingReport = () => {
         exportPDF(allFilteredBookings, 'Booking_Report');
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to cancel and remove this booking?')) {
-            try {
-                await apiClient.delete(`/admin/bookings/${id}`);
-                loadData();
-            } catch (error) {
-                console.error('Delete Error:', error);
-                toast.error('Failed to delete booking. Please try again.');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await apiClient.delete(`/admin/bookings/${confirmModal.id}`);
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadData();
+        } catch (error) {
+            console.error('Delete Error:', error);
+            toast.error('Failed to delete booking. Please try again.');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -506,6 +513,16 @@ const BookingReport = () => {
                     </div>
                 )}
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Cancel Booking?"
+                message="This booking will be permanently removed. The member will need to re-book."
+                confirmText="Cancel Booking"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

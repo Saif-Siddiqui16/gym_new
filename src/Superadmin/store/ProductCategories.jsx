@@ -4,6 +4,7 @@ import CategoryDrawer from './CategoryDrawer';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/storeApi';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ProductCategories = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -13,6 +14,7 @@ const ProductCategories = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [drawerMode, setDrawerMode] = useState('add');
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchCategories = async () => {
         try {
@@ -46,15 +48,20 @@ const ProductCategories = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
-            try {
-                await deleteCategory(id);
-                toast.success('Category deleted successfully');
-                fetchCategories();
-            } catch (error) {
-                toast.error(error);
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteCategory(confirmModal.id);
+            toast.success('Category deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchCategories();
+        } catch (error) {
+            toast.error(error);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -190,6 +197,16 @@ const ProductCategories = () => {
                 category={selectedCategory}
                 mode={drawerMode}
                 onSubmit={handleDrawerSubmit}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Category?"
+                message="All products in this category may be affected. This cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

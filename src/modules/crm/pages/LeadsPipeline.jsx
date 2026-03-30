@@ -9,6 +9,7 @@ import Button from '../../../components/ui/Button';
 import MarkAsLostModal from '../components/MarkAsLostModal';
 import ConvertLeadModal from '../components/ConvertLeadModal';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const LeadsPipeline = () => {
     const { selectedBranch } = useBranchContext();
@@ -26,6 +27,7 @@ const LeadsPipeline = () => {
     const [showConvertModal, setShowConvertModal] = useState(false);
     const [staffList, setStaffList] = useState([]);
     const [duplicateWarning, setDuplicateWarning] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Form state
     const [formData, setFormData] = useState({
@@ -116,18 +118,21 @@ const LeadsPipeline = () => {
         }
     };
 
-    const handleDeleteLead = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this lead?')) {
-            setActiveMenu(null);
-            return;
-        }
+    const handleDeleteLead = (id) => {
         setActiveMenu(null);
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDeleteLead = async () => {
         try {
-            await apiClient.delete(`/crm/leads/${id}`);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await apiClient.delete(`/crm/leads/${confirmModal.id}`);
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             fetchLeads();
         } catch (error) {
             console.error('Delete error:', error);
             toast.error('Failed to delete lead: ' + (error.response?.data?.message || error.message));
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -855,6 +860,17 @@ const LeadsPipeline = () => {
                 submitting={submitting}
                 lead={leadHistory}
                 onConfirm={(data) => handleStatusUpdate(selectedLeadId, 'Converted', data)}
+            />
+
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDeleteLead}
+                title="Delete Lead?"
+                message="This lead and all associated data will be permanently removed."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
 
         </div>

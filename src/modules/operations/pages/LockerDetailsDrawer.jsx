@@ -23,6 +23,7 @@ import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import RightDrawer from '../../../components/common/RightDrawer';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
     const { selectedBranch } = useBranchContext();
@@ -31,6 +32,7 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
     const [selectedMemberId, setSelectedMemberId] = useState('');
     const [searchMember, setSearchMember] = useState('');
     const [isPaid, setIsPaid] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, loading: false });
 
     useEffect(() => {
         if (locker?.status === 'Available' && isOpen) {
@@ -94,10 +96,13 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
         }
     };
 
-    const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this locker?')) return;
+    const handleDelete = () => {
+        setConfirmModal({ isOpen: true, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            setLoading(true);
+            setConfirmModal({ isOpen: true, loading: true });
             await lockerApi.deleteLocker(locker.id);
             toast.success('Locker deleted successfully');
             onSuccess();
@@ -105,7 +110,7 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
         } catch (error) {
             toast.error('Failed to delete locker');
         } finally {
-            setLoading(false);
+            setConfirmModal({ isOpen: false, loading: false });
         }
     };
 
@@ -126,6 +131,7 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
     };
 
     return (
+        <>
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
@@ -430,6 +436,17 @@ const LockerDetailsDrawer = ({ locker, isOpen, onClose, onSuccess }) => {
                 )}
             </div>
         </RightDrawer>
+        <ConfirmationModal
+            isOpen={confirmModal.isOpen}
+            onClose={() => setConfirmModal({ isOpen: false, loading: false })}
+            onConfirm={processDelete}
+            title="Delete Locker?"
+            message="This locker and all assignment history will be permanently removed."
+            confirmText="Delete"
+            type="danger"
+            loading={confirmModal.loading}
+        />
+        </>
     );
 };
 

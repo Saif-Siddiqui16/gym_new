@@ -17,6 +17,7 @@ import Card from '../../../components/ui/Card';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import RightDrawer from '../../../components/common/RightDrawer';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const ClassesList = () => {
     const { role, user } = useAuth();
@@ -35,6 +36,7 @@ const ClassesList = () => {
     const [activeActionId, setActiveActionId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
     const [editingClassId, setEditingClassId] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Side Panel State
     const [showPanel, setShowPanel] = useState(false);
@@ -197,19 +199,24 @@ const ClassesList = () => {
         setShowPanel(true);
     };
 
-    const handleDeleteClass = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this class? This action cannot be undone.')) return;
+    const handleDeleteClass = (id) => {
+        setActiveActionId(null);
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            setDeletingId(id);
-            await deleteClass(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            setDeletingId(confirmModal.id);
+            await deleteClass(confirmModal.id);
             toast.success('Class deleted successfully!');
-            setActiveActionId(null);
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            setDeletingId(null);
             loadClasses();
         } catch (error) {
-            console.error('Error deleting class:', error);
             toast.error('Failed to delete class');
-        } finally {
             setDeletingId(null);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -677,6 +684,16 @@ const ClassesList = () => {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Class?"
+                message="This class will be permanently deleted. This action cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div >
     );
 };

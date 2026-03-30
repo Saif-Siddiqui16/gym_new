@@ -27,6 +27,7 @@ import { toast } from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
 import RightDrawer from '../../../components/common/RightDrawer';
 import Button from '../../../components/ui/Button';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const ICON_OPTIONS = [
     { name: 'Wifi', icon: Wifi },
@@ -56,6 +57,7 @@ const AmenitySettings = () => {
         status: 'Active',
         gender: 'UNISEX'
     });
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const { selectedBranch } = useBranchContext();
 
@@ -115,15 +117,20 @@ const AmenitySettings = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this amenity?')) {
-            try {
-                await amenityApi.delete(id);
-                toast.success('Amenity deleted successfully');
-                fetchAmenities();
-            } catch (error) {
-                toast.error(error);
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await amenityApi.delete(confirmModal.id);
+            toast.success('Amenity deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchAmenities();
+        } catch (error) {
+            toast.error(error);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -343,6 +350,16 @@ const AmenitySettings = () => {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Amenity?"
+                message="This facility will be permanently removed from your gym."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

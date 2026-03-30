@@ -4,6 +4,7 @@ import { getCoupons, deleteCoupon, getCouponStats } from '../../api/storeApi';
 import CouponDrawer from './CouponDrawer';
 import { toast } from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const Coupons = () => {
     const { selectedBranch } = useBranchContext();
@@ -14,6 +15,7 @@ const Coupons = () => {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [coupons, setCoupons] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
     const [stats, setStats] = useState({
         totalCoupons: 0,
         activeCoupons: 0,
@@ -58,15 +60,20 @@ const Coupons = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this coupon?')) {
-            try {
-                await deleteCoupon(id);
-                toast.success('Coupon deleted');
-                fetchData();
-            } catch (error) {
-                toast.error(error || 'Failed to delete');
-            }
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteCoupon(confirmModal.id);
+            toast.success('Coupon deleted');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            fetchData();
+        } catch (error) {
+            toast.error(error || 'Failed to delete');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -320,6 +327,16 @@ const Coupons = () => {
                 coupon={selectedCoupon}
                 mode={drawerMode}
                 onSuccess={fetchData}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Coupon?"
+                message="This action is permanent and cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

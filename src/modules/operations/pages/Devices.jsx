@@ -9,6 +9,7 @@ import Button from '../../../components/ui/Button';
 import { useBranchContext } from '../../../context/BranchContext';
 import { Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const Devices = () => {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Devices = () => {
     const [isRefreshing, setIsRefreshing] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         loadDevices();
@@ -69,16 +71,21 @@ const Devices = () => {
         navigate('/operations/live-monitor');
     };
 
-    const handleDelete = async (id, name) => {
-        if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
+    const handleDelete = (id, name) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
 
+    const processDelete = async () => {
         try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
             toast.loading('Deleting hardware...', { id: 'delete-device' });
-            await deleteDevice(id);
+            await deleteDevice(confirmModal.id);
             toast.success('Hardware decommissioned successfully', { id: 'delete-device' });
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             loadDevices();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to delete device', { id: 'delete-device' });
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -293,6 +300,16 @@ const Devices = () => {
                     onSuccess={loadDevices}
                 />
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Decommission Device?"
+                message="This hardware device will be permanently removed from the system. All associated access logs will be preserved."
+                confirmText="Delete Device"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

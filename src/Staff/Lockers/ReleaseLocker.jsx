@@ -4,10 +4,12 @@ import { Lock, User, Calendar, LogOut, Search, Plus, Filter, AlertTriangle } fro
 import { toast } from 'react-hot-toast';
 import MobileCard from '../../components/common/MobileCard';
 import { getLockers, releaseLocker } from '../../api/staff/lockerApi';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ReleaseLocker = () => {
     const navigate = useNavigate();
     const [occupiedLockers, setOccupiedLockers] = useState([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         loadLockers();
@@ -25,15 +27,25 @@ const ReleaseLocker = () => {
         setOccupiedLockers(occupied);
     };
 
-    const handleRelease = async (id) => {
-        if (window.confirm("Are you sure you want to release this locker?")) {
-            const result = await releaseLocker(id);
+    const handleRelease = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processRelease = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            const result = await releaseLocker(confirmModal.id);
             if (result.success) {
                 toast.success(result.message);
+                setConfirmModal({ isOpen: false, id: null, loading: false });
                 loadLockers();
             } else {
                 toast.error(result.message);
+                setConfirmModal(prev => ({ ...prev, loading: false }));
             }
+        } catch (err) {
+            toast.error('Failed to release locker');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -164,6 +176,16 @@ const ReleaseLocker = () => {
                     </div>
                 </div>
             </div>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processRelease}
+                title="Release Locker?"
+                message="This will free up the locker and unassign it from the current member."
+                confirmText="Release"
+                type="warning"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

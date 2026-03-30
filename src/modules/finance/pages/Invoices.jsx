@@ -32,6 +32,7 @@ import Button from '../../../components/ui/Button';
 import StatsCard from '../../dashboard/components/StatsCard';
 import toast from 'react-hot-toast';
 import { exportPdf } from '../../../utils/exportPdf';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const Invoices = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -55,6 +56,7 @@ const Invoices = () => {
         date: new Date().toISOString().split('T')[0]
     });
     const [isSettling, setIsSettling] = useState(false);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Create Invoice Form State
     const [invoiceForm, setInvoiceForm] = useState({
@@ -244,14 +246,20 @@ const Invoices = () => {
         }
     };
 
-    const handleDeleteInvoice = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this invoice? This action cannot be undone.")) return;
+    const handleDeleteInvoice = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDeleteInvoice = async () => {
         try {
-            await deleteInvoice(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteInvoice(confirmModal.id);
             toast.success("Invoice deleted successfully");
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             loadInvoices();
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to delete invoice");
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -1036,6 +1044,16 @@ const Invoices = () => {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDeleteInvoice}
+                title="Delete Invoice?"
+                message="This invoice will be permanently removed. This action cannot be undone."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

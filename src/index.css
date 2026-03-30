@@ -35,46 +35,50 @@
 
   /* Typography Colors */
   --title: #0F172A;
-  --body: #334155;
+  --body: #475569;
   --muted: #64748B;
   --placeholder: #94A3B8;
 
   /* Typography Scale */
-  --font-h1: 2rem;
-  --font-h2: 1.5rem;
+  --font-h1: 2.25rem;
+  --font-h2: 1.75rem;
   --font-h3: 1.25rem;
   --font-base: 0.9375rem;
-  --font-sm: 0.8125rem;
+  --font-sm: 0.875rem;
   --font-xs: 0.75rem;
 
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
+  --weight-black: 800;
 
-  /* Spacing System */
+  /* Spacing System - Premium 4px/8px Scale */
   --space-xs: 4px;
   --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
 
-  /* Borders & Shadows */
+  /* Borders & Shadows - Softer for Premium Feel */
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 24px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 32px;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 
   /* Layout Constants */
-  --sidebar-width: 260px;
-  --sidebar-collapsed-width: 80px;
-  --topbar-height: 64px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 88px;
+  --topbar-height: 72px;
+
   /* Z-Index Hierarchy */
   --z-sidebar: 100;
   --z-topbar: 150;
@@ -82,7 +86,7 @@
   --z-modal: 2000;
   --z-dropdown: 500;
   --z-drawer: 1500;
-  --max-content-width: 100%;
+  --max-content-width: 1440px;
 }
 
 /* Base Normalization */
@@ -98,7 +102,7 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  font-family: 'Public Sans', 'Inter', -apple-system, sans-serif;
+  font-family: 'Inter', 'Public Sans', -apple-system, sans-serif;
   color: var(--body);
   background-color: var(--app-bg);
   -webkit-font-smoothing: antialiased;
@@ -114,19 +118,21 @@ body {
 h1,
 .text-h1 {
   font-size: var(--font-h1);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-black);
   color: var(--title);
-  letter-spacing: -0.025em;
-  margin-bottom: var(--space-md);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: var(--space-lg);
 }
 
 h2,
 .text-h2 {
   font-size: var(--font-h2);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-bold);
   color: var(--title);
-  letter-spacing: -0.025em;
-  margin-bottom: var(--space-sm);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--space-md);
 }
 
 h3,
@@ -134,13 +140,15 @@ h3,
   font-size: var(--font-h3);
   font-weight: var(--weight-semibold);
   color: var(--title);
-  margin-bottom: var(--space-xs);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-sm);
 }
 
 p,
 .text-body {
   font-size: var(--font-base);
   color: var(--body);
+  line-height: 1.6;
 }
 
 .text-muted {
@@ -236,15 +244,19 @@ p,
 .saas-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  padding: var(--space-xl);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover,
 .saas-card:hover {
   box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
 }
 
 /* Standardized Button System */
@@ -253,16 +265,18 @@ p,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
   font-size: 0.875rem;
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-bold);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   gap: var(--space-sm);
   border: 1px solid transparent;
   white-space: nowrap;
-  min-height: 40px;
+  min-height: 44px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .btn:active {
@@ -331,13 +345,13 @@ label,
   font-size: var(--font-xs);
   font-weight: var(--weight-bold);
   color: var(--muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.075em;
 }
 
 .saas-form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 input,
@@ -345,14 +359,15 @@ select,
 textarea,
 .saas-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.125rem;
   font-size: var(--font-base);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   color: var(--title);
-  background-color: var(--bg-card);
+  background-color: #fff;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
+  font-weight: var(--weight-medium);
 }
 
 input:focus,
@@ -360,8 +375,7 @@ select:focus,
 textarea:focus,
 .saas-input:focus {
   border-color: var(--primary);
-  background-color: #fff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 input::placeholder,
@@ -387,22 +401,23 @@ table,
 }
 
 thead th {
-  background: var(--border-light);
-  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  padding: 1rem;
   text-align: left;
   font-size: var(--font-xs);
-  font-weight: var(--weight-bold);
-  color: var(--muted);
+  font-weight: var(--weight-black);
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   border-bottom: 1px solid var(--border-color);
 }
 
 tbody td {
-  padding: 1rem;
-  font-size: var(--font-base);
+  padding: 1.25rem 1rem;
+  font-size: var(--font-sm);
   border-bottom: 1px solid var(--border-light);
   color: var(--body);
+  font-weight: var(--weight-medium);
 }
 
 tr:last-child td {

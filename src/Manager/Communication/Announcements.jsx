@@ -23,6 +23,7 @@ import MessageTemplatesDrawer from './MessageTemplatesDrawer';
 import { fetchAnnouncements, fetchCommStats, fetchCommLogs, deleteAnnouncement } from '../../api/communication/communicationApi';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const Announcements = () => {
     const { user } = useAuth();
@@ -41,6 +42,7 @@ const Announcements = () => {
     const [isBroadcastOpen, setIsBroadcastOpen] = useState(false);
     const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     const fetchAllData = async () => {
         try {
@@ -81,14 +83,20 @@ const Announcements = () => {
         fetchAllData();
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this alert?")) return;
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            await deleteAnnouncement(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteAnnouncement(confirmModal.id);
             toast.success("Deleted successfully");
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             fetchAllData();
         } catch (error) {
             toast.error("Failed to delete");
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -301,6 +309,16 @@ const Announcements = () => {
                     setIsTemplatesOpen(false);
                     handleSuccess();
                 }}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Alert?"
+                message="This announcement will be permanently removed from the system."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );

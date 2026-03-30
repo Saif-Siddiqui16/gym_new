@@ -6,6 +6,7 @@ import { getAllStaff } from '../../../api/manager/managerApi';
 import { toast } from 'react-hot-toast';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { useBranchContext } from '../../../context/BranchContext';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const BranchList = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const BranchList = () => {
     const [branches, setBranches] = useState([]);
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Updated formData structure to separate Branch and Manager info
     const [formData, setFormData] = useState({
@@ -95,17 +97,22 @@ const BranchList = () => {
         setIsEditDrawerOpen(true);
     };
 
-    const handleDeleteBranch = async (id) => {
-        if (window.confirm('Are you sure you want to delete this branch? This action cannot be undone.')) {
-            try {
-                await deleteBranch(id);
-                toast.success('Branch deleted successfully');
-                loadBranches();
-                refreshBranches();
-            } catch (error) {
-                console.error('Failed to delete branch:', error);
-                toast.error('Failed to delete branch');
-            }
+    const handleDeleteBranch = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDeleteBranch = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteBranch(confirmModal.id);
+            toast.success('Branch deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
+            loadBranches();
+            refreshBranches();
+        } catch (error) {
+            console.error('Failed to delete branch:', error);
+            toast.error('Failed to delete branch');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -1053,6 +1060,16 @@ const BranchList = () => {
                     </div>
                 </div>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDeleteBranch}
+                title="Delete Branch?"
+                message="This branch and all associated data will be permanently removed. This action cannot be undone."
+                confirmText="Delete Branch"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

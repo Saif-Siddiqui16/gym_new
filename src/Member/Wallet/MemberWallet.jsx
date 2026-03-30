@@ -8,6 +8,7 @@ import autoTable from 'jspdf-autotable';
 import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const MemberWallet = () => {
     const [transactions, setTransactions] = useState([]);
@@ -35,6 +36,7 @@ const MemberWallet = () => {
 
     const [showDetailedHistory, setShowDetailedHistory] = useState(false);
     const [historyFilter, setHistoryFilter] = useState('All');
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, type: null, loading: false, itemName: null, pointsCost: null });
 
     useEffect(() => {
         loadTransactions();
@@ -148,35 +150,43 @@ const MemberWallet = () => {
         }
     };
 
-    const handleDeleteCard = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this card?")) return;
+    const handleDeleteCard = (id) => {
+        setConfirmModal({ isOpen: true, id, type: 'deleteCard', loading: false, itemName: null, pointsCost: null });
+    };
+
+    const processDeleteCard = async () => {
         try {
-            await deleteSavedCard(id);
-            setSavedCards(savedCards.filter(c => c.id !== id));
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteSavedCard(confirmModal.id);
+            setSavedCards(savedCards.filter(c => c.id !== confirmModal.id));
+            setConfirmModal({ isOpen: false, id: null, type: null, loading: false });
         } catch (error) {
             console.error('Failed to delete card:', error);
             toast.error('Failed to delete card');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
-    const handleRedeem = async (catalogId, pointsCost, itemName) => {
+    const handleRedeem = (catalogId, pointsCost, itemName) => {
         if (loyaltyPts < pointsCost) {
             toast.error('Insufficient loyalty points to redeem this item.');
             return;
         }
-        if (!window.confirm(`Redeem ${itemName} for ${pointsCost} points?`)) return;
+        setConfirmModal({ isOpen: true, id: catalogId, type: 'redeem', loading: false, itemName, pointsCost });
+    };
 
-        setLoading(true);
+    const processRedeem = async () => {
         try {
-            const data = await redeemReward(catalogId);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            const data = await redeemReward(confirmModal.id);
             setLoyaltyPts(data.remainingPoints);
             await loadTransactions();
             toast.success('Reward redeemed successfully!');
+            setConfirmModal({ isOpen: false, id: null, type: null, loading: false });
         } catch (error) {
             console.error('Failed to redeem reward:', error);
             toast.error(typeof error === 'string' ? error : 'Failed to redeem reward');
-        } finally {
-            setLoading(false);
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -664,6 +674,16 @@ const MemberWallet = () => {
                     </div>
                 </div>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, type: null, loading: false })}
+                onConfirm={confirmModal.type === 'redeem' ? processRedeem : processDeleteCard}
+                title={confirmModal.type === 'redeem' ? `Redeem ${confirmModal.itemName}?` : 'Delete Card?'}
+                message={confirmModal.type === 'redeem' ? `This will use ${confirmModal.pointsCost} loyalty points from your account.` : 'Your saved payment method will be removed permanently.'}
+                confirmText={confirmModal.type === 'redeem' ? 'Redeem' : 'Delete'}
+                type={confirmModal.type === 'redeem' ? 'warning' : 'danger'}
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

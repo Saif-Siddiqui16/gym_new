@@ -15,6 +15,7 @@ import {
     Coffee
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const AvailabilitySettingsPage = () => {
     // --- STATE ---
@@ -22,6 +23,7 @@ const AvailabilitySettingsPage = () => {
     const [timeOff, setTimeOff] = useState([]);
     const [preferences, setPreferences] = useState({});
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     // Drawer States
     const [isSlotDrawerOpen, setIsSlotDrawerOpen] = useState(false);
@@ -58,14 +60,20 @@ const AvailabilitySettingsPage = () => {
         }
     };
 
-    const handleDeleteTimeOff = async (id) => {
-        if (!window.confirm("Are you sure you want to remove this time off?")) return;
+    const handleDeleteTimeOff = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDeleteTimeOff = async () => {
         try {
-            await deleteTrainerTimeOff(id);
-            setTimeOff(timeOff.filter(t => t.id !== id));
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteTrainerTimeOff(confirmModal.id);
+            setTimeOff(timeOff.filter(t => t.id !== confirmModal.id));
             toast.success('Time off removed successfully!');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
         } catch (error) {
             toast.error('Failed to remove time off');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -410,6 +418,16 @@ const AvailabilitySettingsPage = () => {
             {/* Drawers */}
             <SlotDrawer />
             <TimeOffDrawer />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDeleteTimeOff}
+                title="Remove Time Off?"
+                message="This blocked date will be removed from your availability calendar."
+                confirmText="Remove"
+                type="warning"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

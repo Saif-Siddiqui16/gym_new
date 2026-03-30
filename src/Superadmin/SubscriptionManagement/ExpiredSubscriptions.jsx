@@ -4,6 +4,7 @@ import '../SubscriptionManagement/SubscriptionManagement.css';
 import { fetchSubscriptions, toggleSubscriptionStatus } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const ExpiredSubscriptions = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -14,6 +15,7 @@ const ExpiredSubscriptions = () => {
     const [selectedSubscription, setSelectedSubscription] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const itemsPerPage = 5;
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, subId: null, loading: false });
 
     useEffect(() => {
         loadSubscriptions();
@@ -75,19 +77,28 @@ const ExpiredSubscriptions = () => {
         setIsViewModalOpen(true);
     };
 
-    const handleRenew = async (subId) => {
-        if (window.confirm('Are you sure you want to renew this subscription?')) {
-            await toggleSubscriptionStatus(subId);
-            loadSubscriptions();
-        }
+    const handleRenew = (subId) => {
+        setConfirmModal({ isOpen: true, action: 'renew', subId, loading: false });
     };
 
-    const handleDelete = async (subId) => {
-        if (window.confirm('Are you sure you want to delete this subscription record?')) {
-            // Mock delete: just log and alert
-            console.log('Record ' + subId + ' deleted (mock)');
-            toast.success('Record ' + subId + ' deleted (mock)');
-            // For production: await deleteSubscription(subId); loadSubscriptions();
+    const handleDelete = (subId) => {
+        setConfirmModal({ isOpen: true, action: 'delete', subId, loading: false });
+    };
+
+    const processConfirm = async () => {
+        try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            if (confirmModal.action === 'renew') {
+                await toggleSubscriptionStatus(confirmModal.subId);
+                toast.success('Subscription renewed');
+                loadSubscriptions();
+            } else if (confirmModal.action === 'delete') {
+                toast.success('Record ' + confirmModal.subId + ' deleted (mock)');
+            }
+            setConfirmModal({ isOpen: false, action: null, subId: null, loading: false });
+        } catch (err) {
+            toast.error('Action failed');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -346,6 +357,16 @@ const ExpiredSubscriptions = () => {
                     </div>
                 </div>
             )}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, action: null, subId: null, loading: false })}
+                onConfirm={processConfirm}
+                title={confirmModal.action === 'renew' ? 'Renew Subscription?' : 'Delete Subscription Record?'}
+                message={confirmModal.action === 'renew' ? 'This will reactivate the selected subscription.' : 'This record will be permanently removed.'}
+                confirmText={confirmModal.action === 'renew' ? 'Renew' : 'Delete'}
+                type={confirmModal.action === 'renew' ? 'success' : 'danger'}
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

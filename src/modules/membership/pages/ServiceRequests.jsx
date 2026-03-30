@@ -5,6 +5,7 @@ import Button from '../../../components/ui/Button';
 import { fetchServiceRequestsAPI, updateServiceRequestStatusAPI } from '../../../api/admin/adminApi';
 import { toast } from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const ServiceRequests = () => {
     const { selectedBranch } = useBranchContext();
@@ -13,6 +14,12 @@ const ServiceRequests = () => {
     const [filterStatus, setFilterStatus] = useState('Pending');
     const [filterType, setFilterType] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        status: '',
+        loading: false
+    });
 
     useEffect(() => {
         loadRequests();
@@ -36,16 +43,27 @@ const ServiceRequests = () => {
         }
     };
 
-    const handleAction = async (id, status) => {
-        if (!window.confirm(`Are you sure you want to mark this request as ${status}?`)) return;
-
+    const handleAction = (id, status) => {
+        setConfirmModal({
+            isOpen: true,
+            id,
+            status,
+            loading: false
+        });
+    };
+ 
+    const processAction = async () => {
+        const { id, status } = confirmModal;
         try {
+            setConfirmModal(prev => ({ ...prev, loading: true }));
             await updateServiceRequestStatusAPI(id, status);
             toast.success(`Request ${status} successfully`);
+            setConfirmModal({ isOpen: false, id: null, status: '', loading: false });
             loadRequests();
         } catch (error) {
             console.error('Error updating request status:', error);
             toast.error('Failed to update status');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -245,6 +263,18 @@ const ServiceRequests = () => {
                     ))
                 )}
             </div>
+ 
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={processAction}
+                loading={confirmModal.loading}
+                title={confirmModal.status === 'Accepted' ? 'Approve Request?' : 'Reject Request?'}
+                message={`Are you sure you want to mark this request as ${confirmModal.status}? This action will be recorded.`}
+                confirmText={confirmModal.status === 'Accepted' ? 'Approve' : 'Reject'}
+                type={confirmModal.status === 'Accepted' ? 'success' : 'danger'}
+            />
         </div>
     );
 };

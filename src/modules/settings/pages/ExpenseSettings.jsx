@@ -4,6 +4,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import { fetchExpenseCategories, addExpenseCategory, deleteExpenseCategory } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 const ExpenseSettings = () => {
     const { selectedBranch } = useBranchContext();
@@ -12,6 +13,7 @@ const ExpenseSettings = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({ name: '', description: '' });
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
         loadCategories();
@@ -47,14 +49,20 @@ const ExpenseSettings = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this category?')) return;
+    const handleDelete = (id) => {
+        setConfirmModal({ isOpen: true, id, loading: false });
+    };
+
+    const processDelete = async () => {
         try {
-            await deleteExpenseCategory(id);
+            setConfirmModal(prev => ({ ...prev, loading: true }));
+            await deleteExpenseCategory(confirmModal.id);
             toast.success('Category deleted successfully');
+            setConfirmModal({ isOpen: false, id: null, loading: false });
             loadCategories();
         } catch (error) {
             toast.error('Failed to delete category');
+            setConfirmModal(prev => ({ ...prev, loading: false }));
         }
     };
 
@@ -174,6 +182,16 @@ const ExpenseSettings = () => {
                     </div>
                 </form>
             </RightDrawer>
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete}
+                title="Delete Category?"
+                message="This expense category will be permanently removed."
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
+            />
         </div>
     );
 };

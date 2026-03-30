@@ -10,6 +10,7 @@ import { fetchStaffAPI, deleteStaffAPI, fetchPayrollHistoryAPI, generatePayrollA
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
 // ─── API Helpers ─────────────────────────────────────────────────────────────
 const getLiveAttendance = async () => {
@@ -50,6 +51,7 @@ const Payroll = () => {
     const [activeMenu, setActiveMenu] = useState(null); // { id, top, right }
     const [selectedPayroll, setSelectedPayroll] = useState(null);
     const [selectedStaffIds, setSelectedStaffIds] = useState([]);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, action: null, label: '', loading: false });
 
     // ── Load Staff ────────────────────────────────────────────────────────────
     const loadStaff = useCallback(async () => {
@@ -138,16 +140,8 @@ const Payroll = () => {
     };
 
     // ── Handlers ──────────────────────────────────────────────────────────────
-    const handleDeleteStaff = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this staff member?')) return;
-        try {
-            await deleteStaffAPI(id);
-            toast.success('Staff deleted successfully');
-            setStaffList(prev => prev.filter(s => s.id !== id));
-        } catch (err) {
-            console.error(err);
-            toast.error('Failed to delete staff');
-        }
+    const handleDeleteStaff = (id) => {
+        setConfirmModal({ isOpen: true, id, action: 'staff', label: 'staff member', loading: false });
     };
 
     // ── Computed Values ───────────────────────────────────────────────────────
@@ -754,16 +748,8 @@ const Payroll = () => {
                                                             </button>
                                                             {payRecord.status !== 'Paid' && (
                                                                 <button
-                                                                    onClick={async () => {
-                                                                        if (!window.confirm(`Delete ${payRecord.staff?.name || 'this'}'s payroll for this month?`)) return;
-                                                                        try {
-                                                                            await deletePayrollAPI(payRecord.id);
-                                                                            toast.success('Payroll deleted');
-                                                                            loadPayroll();
-                                                                        } catch (err) {
-                                                                            console.error(err);
-                                                                            toast.error('Failed to delete payroll');
-                                                                        }
+                                                                    onClick={() => {
+                                                                        setConfirmModal({ isOpen: true, id: payRecord.id, action: 'payroll', label: `${payRecord.staff?.name || 'this'}'s payroll`, loading: false });
                                                                     }}
                                                                     className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:text-rose-700 transition-colors"
                                                                 >
@@ -790,6 +776,33 @@ const Payroll = () => {
                 onClose={() => setSelectedPayroll(null)}
                 payroll={selectedPayroll}
                 onRefresh={loadPayroll}
+            />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null, action: null, label: '', loading: false })}
+                onConfirm={async () => {
+                    setConfirmModal(prev => ({ ...prev, loading: true }));
+                    try {
+                        if (confirmModal.action === 'staff') {
+                            await deleteStaffAPI(confirmModal.id);
+                            toast.success('Staff deleted successfully');
+                            setStaffList(prev => prev.filter(s => s.id !== confirmModal.id));
+                        } else if (confirmModal.action === 'payroll') {
+                            await deletePayrollAPI(confirmModal.id);
+                            toast.success('Payroll deleted');
+                            loadPayroll();
+                        }
+                        setConfirmModal({ isOpen: false, id: null, action: null, label: '', loading: false });
+                    } catch (err) {
+                        toast.error('Failed to delete');
+                        setConfirmModal(prev => ({ ...prev, loading: false }));
+                    }
+                }}
+                title={`Delete ${confirmModal.action === 'payroll' ? 'Payroll Record' : 'Staff Member'}?`}
+                message={`${confirmModal.label ? `${confirmModal.label} will` : 'This record will'} be permanently removed.`}
+                confirmText="Delete"
+                type="danger"
+                loading={confirmModal.loading}
             />
         </div>
     );
