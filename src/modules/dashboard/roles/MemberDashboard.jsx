@@ -16,7 +16,9 @@ import {
     IndianRupee,
     Activity,
     Users,
-    Loader2
+    Loader2,
+    Layers,
+    CheckCircle2
 } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import apiClient from '../../../api/apiClient';
@@ -131,7 +133,18 @@ const MemberDashboard = () => {
 
     if (!data) return null;
 
-    const { memberInfo, membership, stats, recentAttendance, upcomingClass, trainer, locker, announcements, ptAccounts } = data;
+    // Safer destructuring with default values to prevent crashes if any key is missing
+    const { 
+        memberInfo = { name: 'Member', memberId: '...', status: '...', branchName: '...' }, 
+        membership = { planName: 'None', daysRemaining: 0, benefits: '' }, 
+        stats = { ptSessionsRemaining: 0, visitsThisMonth: 0, pendingDues: 0, activeInvoices: 0 }, 
+        recentAttendance = [], 
+        upcomingClass = null, 
+        trainer = { name: 'Trainer', specialization: 'Training' }, 
+        locker = null, 
+        announcements = [], 
+        ptAccounts = [] 
+    } = data;
 
     return (
         <div className="saas-page pb-page space-y-5 animate-fadeIn scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -285,13 +298,56 @@ const MemberDashboard = () => {
                     color="warning"
                 />
                 <StatsCard
-                    title="Pending Dues"
-                    value={`₹${stats.pendingDues.toLocaleString()}`}
-                    subtitle={`${stats.activeInvoices} Active Invoice${stats.activeInvoices !== 1 ? 's' : ''}`}
-                    icon={IndianRupee}
-                    color="danger"
+                    title="Total Paid"
+                    value={`₹${(stats.totalPaid || 0).toLocaleString()}`}
+                    subtitle="Lifetime Payments"
+                    icon={CheckCircle2}
+                    color="success"
                 />
             </div>
+
+            {/* Financial Overview Row - Specifically for Partial Payment Tracking */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex items-center justify-between group hover:border-violet-200 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
+                            <IndianRupee size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Balance</p>
+                            <h3 className="text-2xl font-black text-slate-900">₹{(stats.pendingDues || 0).toLocaleString()}</h3>
+                        </div>
+                    </div>
+                    {stats.pendingDues > 0 && (
+                        <div className="text-right">
+                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Next Due Date</p>
+                            <p className="text-sm font-black text-slate-700">
+                                {stats.nextDueDate ? new Date(stats.nextDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Set by Admin'}
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-slate-900 p-6 rounded-3xl shadow-xl shadow-slate-200 flex items-center justify-between group overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                    <div className="flex items-center gap-4 relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                            <CreditCard size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Invoices</p>
+                            <h3 className="text-2xl font-black text-white">{stats.activeInvoices} Pending</h3>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => navigate('/member/payments')}
+                        className="px-5 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 relative z-10"
+                    >
+                        Pay Now
+                    </button>
+                </div>
+            </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* Left Column: Quick Actions & Details */}
@@ -299,6 +355,7 @@ const MemberDashboard = () => {
                     {/* Quick Actions Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} />
+                        <QuickAction icon={Layers} label="Amenity Booking" onClick={() => navigate('/member/amenity-booking')} color="bg-primary-light/50" />
                         <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} />
                         <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} />
                     </div>
@@ -344,22 +401,33 @@ const MemberDashboard = () => {
                                         {(() => {
                                             let benefitList = [];
                                             try {
-                                                // Handle JSON list [{NAME, LIMIT}, ...]
+                                                // Improved parsing logic to handle various formats
                                                 const parsed = JSON.parse(membership.benefits);
                                                 if (Array.isArray(parsed)) {
-                                                    benefitList = parsed.map(b => typeof b === 'object' ? `${b.NAME || b.name}${b.LIMIT ? ` (${b.LIMIT})` : ''}` : b);
+                                                    benefitList = parsed.map(b => {
+                                                        if (typeof b === 'object') {
+                                                            const name = b.NAME || b.name || b.benefit || b.description || 'Benefit';
+                                                            return `${name}${b.LIMIT ? ` (${b.LIMIT})` : ''}`;
+                                                        }
+                                                        return b;
+                                                    });
                                                 } else {
-                                                    benefitList = membership.benefits.split(/[,\n]/);
+                                                    const name = parsed.NAME || parsed.name || parsed.benefit || parsed.description || membership.benefits;
+                                                    benefitList = [name];
                                                 }
                                             } catch (e) {
-                                                // Fallback to split
-                                                benefitList = membership.benefits.split(/[,\n]/);
+                                                // Fallback to split for comma-separated lists
+                                                benefitList = membership.benefits ? membership.benefits.split(/[,\n]/).filter(b => b.trim() && !b.includes('{') && !b.includes('}')) : [];
+
+                                                if (benefitList.length === 0 && membership.benefits) {
+                                                    benefitList = [membership.benefits];
+                                                }
                                             }
 
                                             return benefitList.slice(0, 4).map((benefit, idx) => (
                                                 <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-fuchsia-50/50 border border-fuchsia-50 group hover:border-fuchsia-200 transition-all duration-300">
                                                     <div className="w-2 h-2 rounded-full bg-fuchsia-400 group-hover:scale-125 transition-transform" />
-                                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight truncate">{benefit.trim()}</span>
+                                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight truncate">{benefit?.trim()}</span>
                                                 </div>
                                             ));
                                         })()}

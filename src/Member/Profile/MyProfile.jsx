@@ -466,18 +466,6 @@ const MyProfile = () => {
                             </button>
                         </div>
 
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Account Privacy</h4>
-                            <div className="p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center justify-between group hover:border-violet-100 transition-all">
-                                <div>
-                                    <p className="text-sm font-black text-slate-900">Two-Factor Authentication</p>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Status: Disabled</p>
-                                </div>
-                                <div className="w-12 h-6 bg-slate-200 rounded-full relative cursor-pointer group-hover:bg-slate-300 transition-colors">
-                                    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full" />
-                                </div>
-                            </div>
-                        </div>
                     </Card>
                 </div>
             )}

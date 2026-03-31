@@ -138,6 +138,7 @@ import MemberAnnouncements from './Member/Dashboard/MemberAnnouncements';
 import MemberProfile from './Member/Profile/MyProfile';
 import MemberWallet from './Member/Wallet/MemberWallet';
 import MemberNotifications from './Member/Notifications/MemberNotifications';
+import AmenityBooking from './Member/AmenityBooking/BookBenefitSlots';
 
 // Module: Settings
 import {
@@ -485,6 +486,7 @@ export default function App() {
             {currentRole === ROLES.MEMBER && (
               <>
                 <Route path="/member/bookings" element={<MemberBookings />} />
+                <Route path="/member/amenity-booking" element={<AmenityBooking />} />
                 <Route path="/member/attendance" element={<MyAttendance />} />
                 <Route path="/member/store" element={<StorePage />} />
                 <Route path="/member/benefits" element={<MyMembership role={currentRole} />} />

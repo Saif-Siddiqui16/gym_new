@@ -245,43 +245,6 @@ const OrganizationSettings = ({ role }) => {
                             </div>
                         </div>
 
-                        {/* Timezone */}
-                        <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Default Timezone</label>
-                            <div className="relative group/input">
-                                <select
-                                    name="timezone"
-                                    value={formData.timezone}
-                                    onChange={handleChange}
-                                    className="w-full h-14 pl-14 pr-10 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 appearance-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all cursor-pointer font-bold"
-                                >
-                                    <option>Asia/Kolkata</option>
-                                    <option>UTC (GMT)</option>
-                                    <option>PST (Los Angeles)</option>
-                                </select>
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
-                                    <Globe size={20} strokeWidth={3} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Currency */}
-                        <div>
-                            <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Base Currency</label>
-                            <div className="relative group/input">
-                                <input
-                                    type="text"
-                                    name="currency"
-                                    value={formData.currency}
-                                    onChange={handleChange}
-                                    className="w-full h-14 pl-14 pr-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none font-bold"
-                                />
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-primary transition-colors pointer-events-none">
-                                    <DollarSign size={20} strokeWidth={3} />
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Fiscal Year Start */}
                         <div>
                             <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2 ml-1">Fiscal Year Start</label>

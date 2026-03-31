@@ -39,7 +39,10 @@ const Benefits = ({ role }) => {
                             </p>
                         </div>
                     </div>
-                    <button className="px-8 h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center gap-2 group">
+                    <button 
+                        onClick={() => navigate('/member/amenity-booking')}
+                        className="px-8 h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center gap-2 group"
+                    >
                         <Calendar size={16} strokeWidth={3} /> Book a Slot
                     </button>
                 </div>

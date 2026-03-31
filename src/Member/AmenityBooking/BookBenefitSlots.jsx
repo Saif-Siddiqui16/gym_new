@@ -1,29 +1,23 @@
+/* Book Benefit Slots - v2 */
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    Star,
     Calendar,
-    CheckCircle2,
-    Shield,
-    Package,
     Clock,
-    Crown,
-    Info,
-    ClipboardList,
-    Loader,
     Users,
-    Sparkles,
+    CheckCircle2,
+    X,
+    Info,
+    Loader,
+    CalendarDays,
+    Droplets,
     ChevronLeft,
     ChevronRight,
-    X,
-    CalendarDays,
-    Droplets
+    Sparkles
 } from 'lucide-react';
-import { ROLES } from '../../config/roles';
-import Card from '../../components/ui/Card';
-import apiClient from '../../api/apiClient';
+import { useNavigate } from 'react-router-dom';
 import amenityApi from '../../api/amenityApi';
-import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const formatTime = (timeStr) => {
     if (!timeStr) return '';
@@ -34,59 +28,46 @@ const formatTime = (timeStr) => {
     return `${hour}:${minutes} ${ampm}`;
 };
 
-const MyMembership = ({ role }) => {
+const AmenityBooking = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const isRequestsPage = location.pathname.includes('requests');
+    const { user } = useAuth();
 
-    // Membership state
-    const [membershipInfo, setMembershipInfo] = useState(null);
-    const [loadingMembership, setLoadingMembership] = useState(true);
-
-    // Slot booking state
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [availableData, setAvailableData] = useState(null);
     const [myBookings, setMyBookings] = useState([]);
-    const [loadingSlots, setLoadingSlots] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [bookingsLoading, setBookingsLoading] = useState(true);
     const [submitting, setSubmitting] = useState(null);
     const [cancelling, setCancelling] = useState(null);
+    const [error, setError] = useState(null);
 
-    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-
+    // 7 days from today
     const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() + i);
         return d;
     });
 
-    useEffect(() => { fetchMembershipInfo(); }, []);
-    useEffect(() => { fetchAvailableSlots(); }, [selectedDate]);
+    useEffect(() => {
+        console.log('[BookBenefitSlots] Component mounted / date changed:', selectedDate.toISOString().split('T')[0]);
+        fetchAvailableSlots();
+    }, [selectedDate]);
     useEffect(() => { fetchMyBookings(); }, []);
-
-    const fetchMembershipInfo = async () => {
-        try {
-            setLoadingMembership(true);
-            const res = await apiClient.get('/member/membership-details');
-            setMembershipInfo(res.data);
-        } catch (err) {
-            console.error("Failed to fetch membership info", err);
-        } finally {
-            setLoadingMembership(false);
-        }
-    };
 
     const fetchAvailableSlots = async () => {
         try {
-            setLoadingSlots(true);
+            setLoading(true);
+            setError(null);
             const dateStr = selectedDate.toISOString().split('T')[0];
+            console.log('[BookBenefitSlots] Calling getAvailableSlots for date:', dateStr);
             const data = await amenityApi.getAvailableSlots(dateStr);
+            console.log('[BookBenefitSlots] Response:', data);
             setAvailableData(data);
         } catch (err) {
-            console.error('Failed to fetch slots:', err);
+            console.error('[BookBenefitSlots] Error fetching slots:', err);
+            setError(typeof err === 'string' ? err : 'Failed to fetch available slots');
         } finally {
-            setLoadingSlots(false);
+            setLoading(false);
         }
     };
 
@@ -156,7 +137,6 @@ const MyMembership = ({ role }) => {
 
     const isSelected = (date) => date.toDateString() === selectedDate.toDateString();
     const isToday = (date) => date.toDateString() === new Date().toDateString();
-
     const totalSlots = availableData?.totalSlots || 0;
     const amenities = availableData?.amenities || [];
 
@@ -165,147 +145,81 @@ const MyMembership = ({ role }) => {
     const upcomingBookings = myBookings.filter(b => b.status === 'Booked' && new Date(b.date) >= now);
     const pastBookings = myBookings.filter(b => b.status !== 'Booked' || new Date(b.date) < now);
 
-    // Parse benefits for display
-    const parseBenefits = () => {
-        if (!membershipInfo?.benefits) return [];
-        try {
-            const parsed = typeof membershipInfo.benefits === 'string' ? JSON.parse(membershipInfo.benefits) : membershipInfo.benefits;
-            if (Array.isArray(parsed)) {
-                return parsed.map(b => {
-                    if (typeof b === 'object' && b.id) {
-                        const amenity = amenities.find(a => a.id === parseInt(b.id));
-                        return { name: amenity?.name || `Amenity #${b.id}`, limit: b.limit || '∞' };
-                    }
-                    if (typeof b === 'string') return { name: b, limit: null };
-                    return { name: b.name || b.NAME || 'Benefit', limit: b.limit || b.LIMIT || null };
-                });
-            }
-            return [];
-        } catch (e) {
-            if (typeof membershipInfo.benefits === 'string') {
-                return membershipInfo.benefits.split(',').map(b => ({ name: b.trim(), limit: null }));
-            }
-            return [];
-        }
-    };
-
-    if (isRequestsPage) {
-        return (
-            <div className="saas-container space-y-8 fade-in">
-                <div className="flex items-center gap-5 pb-8 border-b-2 border-slate-100">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <ClipboardList size={32} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">My Requests</h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Track and manage your service requests</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const benefitList = parseBenefits();
+    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
     return (
-        <div className="saas-container pb-32 space-y-6 animate-in fade-in duration-500">
+        <div className="max-w-2xl mx-auto px-4 pb-32 space-y-5 animate-in fade-in duration-500">
 
-            {/* ── Header ── */}
-            <div className="pt-6 pb-2">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">My Benefits</h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1.5">
-                    Track your membership benefits & book amenity slots
-                </p>
-            </div>
-
-            {/* ── Plan Summary ── */}
-            {loadingMembership ? (
-                <div className="bg-white rounded-[20px] border border-slate-100 p-8 flex justify-center">
-                    <Loader className="w-6 h-6 animate-spin text-primary" />
+            {/* Header */}
+            <div className="flex items-center justify-between pt-6 pb-2">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">Book Benefit Slots</h1>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1.5">
+                        Book sauna, steam, spa and other amenity slots
+                    </p>
                 </div>
-            ) : membershipInfo && (
-                <div className="bg-white rounded-[20px] border border-slate-100 shadow-sm p-5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 text-slate-50">
-                        <Star size={80} strokeWidth={1} />
-                    </div>
-                    <div className="relative z-10 flex items-center justify-between gap-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <Crown size={14} className="text-amber-500" />
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Current Plan</span>
-                            </div>
-                            <h3 className="text-lg font-black text-slate-900 tracking-tight">{membershipInfo.currentPlan || 'N/A'}</h3>
-                            <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1 mt-1">
-                                <Calendar size={10} /> Valid until {membershipInfo.expiryDate || 'N/A'}
-                            </p>
-                        </div>
-                        <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                            membershipInfo.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                        }`}>
-                            {membershipInfo.status || 'Active'}
-                        </span>
-                    </div>
-
-                    {/* Benefits Tags */}
-                    {benefitList.length > 0 && (
-                        <div className="relative z-10 mt-4 pt-4 border-t border-slate-50 flex flex-wrap gap-2">
-                            {benefitList.map((b, i) => (
-                                <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest">
-                                    <CheckCircle2 size={11} />
-                                    {b.name} {b.limit && `(${b.limit})`}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* ── Book Benefit Slots Section ── */}
-            <div className="space-y-1 pt-2 px-1">
-                <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles size={14} className="text-primary" /> Book Benefit Slots
-                </h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
-                    Select a date and book sauna, steam, spa slots
-                </p>
+                <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors">
+                    <X size={18} className="text-slate-400" />
+                </button>
             </div>
 
             {/* ── Date Picker ── */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                <div className="flex items-center gap-3">
-                    <div className="relative flex-1">
-                        <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
-                        <input
-                            type="date"
-                            min={new Date().toISOString().split('T')[0]}
-                            value={selectedDate.toISOString().split('T')[0]}
-                            onChange={(e) => {
-                                if (e.target.value) setSelectedDate(new Date(e.target.value + 'T00:00:00'));
+            <div className="bg-white rounded-[20px] border border-slate-100 shadow-sm p-4 sm:p-5">
+                {/* Month & Year */}
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+                    </p>
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() => {
+                                const prev = dates.findIndex(d => d.toDateString() === selectedDate.toDateString());
+                                if (prev > 0) setSelectedDate(dates[prev - 1]);
                             }}
-                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer"
-                        />
+                            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-50 transition-colors text-slate-300 hover:text-slate-500"
+                        >
+                            <ChevronLeft size={14} />
+                        </button>
+                        <button
+                            onClick={() => {
+                                const next = dates.findIndex(d => d.toDateString() === selectedDate.toDateString());
+                                if (next < dates.length - 1) setSelectedDate(dates[next + 1]);
+                            }}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-50 transition-colors text-slate-300 hover:text-slate-500"
+                        >
+                            <ChevronRight size={14} />
+                        </button>
                     </div>
-                    <div className="flex gap-1.5">
-                        {[0, 1, 2].map(i => {
-                            const d = new Date();
-                            d.setDate(d.getDate() + i);
-                            const active = d.toDateString() === selectedDate.toDateString();
-                            const labels = ['Today', 'Tomorrow', dayNames[d.getDay()]];
-                            return (
-                                <button
-                                    key={i}
-                                    onClick={() => setSelectedDate(d)}
-                                    className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                                        active
-                                            ? 'bg-primary text-white shadow-md shadow-primary/20'
-                                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
-                                    }`}
-                                >
-                                    {labels[i]}
-                                </button>
-                            );
-                        })}
-                    </div>
+                </div>
+
+                {/* Days Row */}
+                <div className="grid grid-cols-7 gap-2">
+                    {dates.map((date, idx) => {
+                        const active = isSelected(date);
+                        const today = isToday(date);
+                        return (
+                            <button
+                                key={idx}
+                                onClick={() => setSelectedDate(date)}
+                                className={`relative flex flex-col items-center py-2.5 rounded-2xl transition-all duration-200 ${
+                                    active
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-[1.04]'
+                                        : 'hover:bg-slate-50 text-slate-600'
+                                }`}
+                            >
+                                <span className={`text-[9px] font-black tracking-widest ${active ? 'text-white/70' : 'text-slate-400'}`}>
+                                    {dayNames[date.getDay()]}
+                                </span>
+                                <span className={`text-lg font-black leading-none mt-1 ${active ? 'text-white' : 'text-slate-800'}`}>
+                                    {date.getDate()}
+                                </span>
+                                {today && !active && (
+                                    <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -314,13 +228,24 @@ const MyMembership = ({ role }) => {
                 <div className="flex items-center justify-between px-1">
                     <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Available Sessions</h2>
                     <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-                        {loadingSlots ? '...' : `${totalSlots} Slots Found`}
+                        {loading ? '...' : `${totalSlots} Slots Found`}
                     </span>
                 </div>
 
-                {loadingSlots ? (
-                    <div className="flex justify-center items-center py-16 bg-white rounded-[20px] border border-slate-100">
+                {loading ? (
+                    <div className="flex justify-center items-center py-20 bg-white rounded-[20px] border border-slate-100">
                         <Loader className="w-7 h-7 animate-spin text-primary" />
+                    </div>
+                ) : error ? (
+                    <div className="bg-white rounded-[20px] border border-rose-100 p-10 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-300 mb-4">
+                            <X size={28} strokeWidth={1.5} />
+                        </div>
+                        <p className="text-sm font-black text-slate-800 mb-1">Something Went Wrong</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">{error}</p>
+                        <button onClick={fetchAvailableSlots} className="text-xs font-black text-primary uppercase tracking-widest hover:underline">
+                            Try Again
+                        </button>
                     </div>
                 ) : amenities.length === 0 ? (
                     <div className="bg-white rounded-[20px] border border-slate-100 py-14 px-6 flex flex-col items-center text-center">
@@ -458,97 +383,111 @@ const MyMembership = ({ role }) => {
                 )}
             </div>
 
+            {/* ── Important Note ── */}
+            <div className="bg-slate-900 rounded-[18px] p-5 flex items-start gap-4">
+                <div className="w-9 h-9 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Info size={16} className="text-amber-400" />
+                </div>
+                <div>
+                    <p className="text-[10px] font-black text-white uppercase tracking-[0.15em] mb-1">Important Note</p>
+                    <p className="text-[10px] font-medium text-slate-400 leading-relaxed">
+                        Some premium services like massages or private sessions must be booked at the front desk. Recovery benefits are subject to branch availability.
+                    </p>
+                </div>
+            </div>
 
             {/* ── My Bookings ── */}
-            <div className="space-y-3 pt-2">
-                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">My Bookings</h2>
+            {(upcomingBookings.length > 0 || pastBookings.length > 0 || !bookingsLoading) && (
+                <div className="space-y-3 pt-2">
+                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">My Bookings</h2>
 
-                {bookingsLoading ? (
-                    <div className="flex justify-center py-8">
-                        <Loader className="w-6 h-6 animate-spin text-primary" />
-                    </div>
-                ) : upcomingBookings.length === 0 && pastBookings.length === 0 ? (
-                    <div className="bg-white rounded-[20px] border border-slate-100 p-8 text-center">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            No bookings yet — book a slot above to get started
-                        </p>
-                    </div>
-                ) : (
-                    <>
-                        {upcomingBookings.length > 0 && (
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest px-1">
-                                    Upcoming ({upcomingBookings.length})
-                                </p>
-                                {upcomingBookings.map((booking) => (
-                                    <div key={booking.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between shadow-sm">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-primary to-violet-600 text-white rounded-xl flex items-center justify-center">
-                                                <Sparkles size={16} />
+                    {bookingsLoading ? (
+                        <div className="flex justify-center py-8">
+                            <Loader className="w-6 h-6 animate-spin text-primary" />
+                        </div>
+                    ) : upcomingBookings.length === 0 && pastBookings.length === 0 ? (
+                        <div className="bg-white rounded-[20px] border border-slate-100 p-8 text-center">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                No bookings yet — book a slot above to get started
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            {upcomingBookings.length > 0 && (
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest px-1">
+                                        Upcoming ({upcomingBookings.length})
+                                    </p>
+                                    {upcomingBookings.map((booking) => (
+                                        <div key={booking.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-primary to-violet-600 text-white rounded-xl flex items-center justify-center">
+                                                    <Sparkles size={16} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-black text-slate-800 leading-none">{booking.amenity?.name || 'Amenity'}</h4>
+                                                    <div className="flex items-center gap-2 mt-1.5">
+                                                        <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                                                            <Calendar size={10} />
+                                                            {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                        </span>
+                                                        {booking.slot && (
+                                                            <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                                                                <Clock size={10} />
+                                                                {formatTime(booking.slot.startTime)}–{formatTime(booking.slot.endTime)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="text-sm font-black text-slate-800 leading-none">{booking.amenity?.name || 'Amenity'}</h4>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                                            <button
+                                                onClick={() => handleCancel(booking.id)}
+                                                disabled={cancelling === booking.id}
+                                                className="px-3.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all disabled:opacity-50"
+                                            >
+                                                {cancelling === booking.id ? '...' : 'Cancel'}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {pastBookings.length > 0 && (
+                                <div className="space-y-2 mt-2">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+                                        History ({pastBookings.length})
+                                    </p>
+                                    {pastBookings.slice(0, 5).map((booking) => (
+                                        <div key={booking.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between opacity-50">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-slate-100 text-slate-300 rounded-xl flex items-center justify-center">
+                                                    <Droplets size={16} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-bold text-slate-500 leading-none">{booking.amenity?.name || 'Amenity'}</h4>
+                                                    <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1 mt-1">
                                                         <Calendar size={10} />
                                                         {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                                                     </span>
-                                                    {booking.slot && (
-                                                        <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
-                                                            <Clock size={10} />
-                                                            {formatTime(booking.slot.startTime)}–{formatTime(booking.slot.endTime)}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+                                                booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                                booking.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' :
+                                                'bg-slate-50 text-slate-400'
+                                            }`}>
+                                                {booking.status}
+                                            </span>
                                         </div>
-                                        <button
-                                            onClick={() => handleCancel(booking.id)}
-                                            disabled={cancelling === booking.id}
-                                            className="px-3.5 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all disabled:opacity-50"
-                                        >
-                                            {cancelling === booking.id ? '...' : 'Cancel'}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {pastBookings.length > 0 && (
-                            <div className="space-y-2 mt-2">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
-                                    History ({pastBookings.length})
-                                </p>
-                                {pastBookings.slice(0, 5).map((booking) => (
-                                    <div key={booking.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between opacity-50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-slate-100 text-slate-300 rounded-xl flex items-center justify-center">
-                                                <Droplets size={16} />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-bold text-slate-500 leading-none">{booking.amenity?.name || 'Amenity'}</h4>
-                                                <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1 mt-1">
-                                                    <Calendar size={10} />
-                                                    {new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
-                                            booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
-                                            booking.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' :
-                                            'bg-slate-50 text-slate-400'
-                                        }`}>
-                                            {booking.status}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
 
-export default MyMembership;
+export default AmenityBooking;

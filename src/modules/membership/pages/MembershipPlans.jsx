@@ -5,6 +5,7 @@ import { membershipApi } from '../../../api/membershipApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
+import amenityApi from '../../../api/amenityApi';
 
 const MembershipPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -14,6 +15,7 @@ const MembershipPlans = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('grid');
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
+    const [amenities, setAmenities] = useState([]);
 
     const { selectedBranch } = useBranchContext();
 
@@ -24,10 +26,14 @@ const MembershipPlans = () => {
             if (selectedBranch && selectedBranch !== 'all') {
                 params.branchId = selectedBranch;
             }
-            const data = await membershipApi.getPlans(params);
-            setPlans(data);
+            const [plansData, amenitiesData] = await Promise.all([
+                membershipApi.getPlans(params),
+                amenityApi.getAll()
+            ]);
+            setPlans(plansData);
+            setAmenities(amenitiesData);
         } catch (error) {
-            toast.error('Failed to fetch plans');
+            toast.error('Failed to fetch plans data');
         } finally {
             setIsLoading(false);
         }
@@ -201,31 +207,58 @@ const MembershipPlans = () => {
                         </div>
 
                         {/* Badges for Options */}
-                        <div className="flex flex-wrap gap-2 mb-4 h-6">
+                        <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
                             {plan.allowTransfer && (
                                 <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-emerald-100">Transferable</span>
                             )}
                             {plan.includeLocker && (
-                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-blue-100">Locker Inc.</span>
+                                <span className="px-2 py-0.5 bg-cyan-50 text-cyan-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-cyan-100">Locker Included</span>
                             )}
                             {!plan.showInPurchase && (
-                                <span className="px-2 py-0.5 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-wider rounded-md border border-slate-200 uppercase">Hidden</span>
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-slate-200">Hidden from App</span>
+                            )}
+                            {!plan.showOnDashboard && (
+                                <span className="px-2 py-0.5 bg-orange-50 text-orange-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-orange-100">Hidden from Dashboard</span>
+                            )}
+                            {plan.status === 'Inactive' && (
+                                <span className="px-2 py-0.5 bg-rose-50 text-rose-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-rose-100">Inactive</span>
                             )}
                         </div>
 
+                        {/* Benefits List */}
+                        {plan.benefits && plan.benefits.length > 0 && (
+                            <div className="mb-4">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Included Benefits</p>
+                                <ul className="space-y-1.5">
+                                    {plan.benefits.map((benefit, idx) => {
+                                        const flexAmenity = amenities.find(a => a.id === benefit.id);
+                                        return (
+                                            <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-medium">
+                                                <CheckCircle2 size={14} className="text-primary mt-0.5 shrink-0" />
+                                                <span className="leading-tight">
+                                                    {flexAmenity ? flexAmenity.name : 'Benefit'} 
+                                                    {benefit.limit && benefit.limit !== 'Unlimited' && ` (${benefit.limit})`}
+                                                </span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+
                         {/* All properties */}
-                        <div className="grid grid-cols-3 gap-3 mb-8">
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Usage</p>
-                                <p className="text-sm font-black text-slate-800">Unlimited</p>
+                        <div className="grid grid-cols-3 gap-3 mb-6 mt-auto">
+                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Usage</p>
+                                <p className="text-sm font-black text-slate-800 leading-tight">Unlimited</p>
                             </div>
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Enrollment</p>
-                                <p className="text-sm font-black text-slate-800">{plan.memberCount || 0}</p>
+                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Enrollment</p>
+                                <p className="text-sm font-black text-slate-800 leading-tight">{plan.memberCount || 0}</p>
                             </div>
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center min-h-[70px]">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Freezing</p>
-                                <p className="text-sm font-black text-slate-800">{plan.cancellationWindow ? `${plan.cancellationWindow}d` : 'None'}</p>
+                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Max Freeze</p>
+                                <p className="text-sm font-black text-slate-800 leading-tight">{plan.cancellationWindow ? `${plan.cancellationWindow} Days` : 'None'}</p>
                             </div>
                         </div>
 

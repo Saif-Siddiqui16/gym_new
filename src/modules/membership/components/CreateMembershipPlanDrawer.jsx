@@ -14,7 +14,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
         price: 0,
         discountedPrice: '',
         duration: 30,
-        durationType: 'Months',
+        durationType: 'Days',
         admissionFee: 0,
         maxFreezeDays: 0,
         allowTransfer: false,
@@ -59,7 +59,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     price: 0,
                     discountedPrice: '',
                     duration: 30,
-                    durationType: 'Months',
+                    durationType: 'Days',
                     admissionFee: 0,
                     maxFreezeDays: 0,
                     allowTransfer: false,
@@ -74,13 +74,20 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
 
     const handleBenefitToggle = (benefitId) => {
         setFormData(prev => {
-            const exists = prev.benefits.find(b => b.id === benefitId);
+            const exists = prev.benefits.find(b => String(b.id) === String(benefitId));
             if (exists) {
-                return { ...prev, benefits: prev.benefits.filter(b => b.id !== benefitId) };
+                return { ...prev, benefits: prev.benefits.filter(b => String(b.id) !== String(benefitId)) };
             } else {
+                // Find the amenity to get its name and description for storage
+                const amenity = amenities.find(a => String(a.id) === String(benefitId));
                 return {
                     ...prev,
-                    benefits: [...prev.benefits, { id: benefitId, limit: 'Unlimited' }]
+                    benefits: [...prev.benefits, {
+                        id: benefitId,
+                        name: amenity?.name || '',
+                        description: amenity?.description || '',
+                        limit: 'Unlimited'
+                    }]
                 };
             }
         });
@@ -89,7 +96,7 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
     const handleLimitChange = (benefitId, newLimit) => {
         setFormData(prev => ({
             ...prev,
-            benefits: prev.benefits.map(b => b.id === benefitId ? { ...b, limit: newLimit } : b)
+            benefits: prev.benefits.map(b => String(b.id) === String(benefitId) ? { ...b, limit: newLimit } : b)
         }));
     };
 
@@ -100,12 +107,12 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
     };
 
     const Toggle = ({ checked, onChange, title, description }) => (
-        <div className="flex items-start justify-between py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-lg">
+        <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-lg">
             <div className="flex-1 pr-4">
-                <h4 className="text-sm font-bold text-gray-900">{title}</h4>
-                <p className="text-xs text-gray-500 mt-1">{description}</p>
+                <h4 className="text-sm font-bold text-gray-900 leading-tight">{title}</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">{description}</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer pt-1">
+            <label className="relative inline-flex items-center cursor-pointer">
                 <input
                     type="checkbox"
                     checked={checked}
@@ -194,17 +201,31 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                     </div>
                 </div>
 
-                {/* 5, 6 & 7. Duration, Admission Fee, Max Freeze Days */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* 5, 6 & 7. Duration, Duration Type, Admission Fee, Max Freeze Days */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="drawer-form-group mb-0">
-                        <label className="drawer-label">Duration (Days) *</label>
+                        <label className="drawer-label">Duration *</label>
                         <input
                             type="number"
                             className="drawer-input"
                             value={formData.duration}
                             onChange={e => setFormData({ ...formData, duration: Number(e.target.value) })}
                             required
+                            min="1"
                         />
+                    </div>
+                    <div className="drawer-form-group mb-0">
+                        <label className="drawer-label">Duration Type *</label>
+                        <select
+                            className="drawer-input"
+                            value={formData.durationType}
+                            onChange={e => setFormData({ ...formData, durationType: e.target.value })}
+                        >
+                            <option value="Days">Days</option>
+                            <option value="Months">Months</option>
+                            <option value="Weeks">Weeks</option>
+                            <option value="Years">Years</option>
+                        </select>
                     </div>
                     <div className="drawer-form-group mb-0">
                         <label className="drawer-label">Admission Fee (₹)</label>
@@ -213,17 +234,41 @@ const CreateMembershipPlanDrawer = ({ isOpen, onClose, onSave, initialData }) =>
                             className="drawer-input"
                             value={formData.admissionFee}
                             onChange={e => setFormData({ ...formData, admissionFee: Number(e.target.value) })}
+                            min="0"
                         />
                     </div>
-                    <div className="drawer-form-group mb-0">
-                        <label className="drawer-label">Max Freeze</label>
-                        <input
-                            type="number"
-                            className="drawer-input"
-                            value={formData.maxFreezeDays}
-                            onChange={e => setFormData({ ...formData, maxFreezeDays: Number(e.target.value) })}
-                        />
-                    </div>
+                    {formData.duration >= 365 ? (
+                        <div className="drawer-form-group mb-0">
+                            <label className="drawer-label text-primary">Max Freeze</label>
+                            <input
+                                type="number"
+                                className="drawer-input border-violet-200 bg-violet-50/50 focus:border-violet-300 focus:ring-violet-100"
+                                value={formData.maxFreezeDays}
+                                onChange={e => setFormData({ ...formData, maxFreezeDays: Number(e.target.value) })}
+                                placeholder="e.g. 30"
+                                min="0"
+                                max={formData.duration}
+                            />
+                        </div>
+                    ) : (
+                        <div className="drawer-form-group mb-0 opacity-60">
+                            <label className="drawer-label">Max Freeze</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    className="drawer-input bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200"
+                                    value={''}
+                                    placeholder="0"
+                                    disabled
+                                />
+                                <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+                                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest bg-slate-200 px-1.5 py-0.5 rounded">
+                                        365+ Days
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Toggles */}

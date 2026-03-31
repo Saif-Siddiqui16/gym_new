@@ -9,7 +9,8 @@ const RightDrawer = ({
     subtitle,
     children,
     footer,
-    maxWidth = 'max-w-xl'
+    maxWidth = 'max-w-xl',
+    showHeader = true
 }) => {
     const [isAnimating, setIsAnimating] = useState(false);
 
@@ -83,28 +84,30 @@ const RightDrawer = ({
                     className={`relative w-screen ${maxWidth} h-full transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col bg-white border-l border-slate-100 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
                 >
                     {/* Header */}
-                    <div className="px-6 sm:px-8 py-6 border-b border-slate-100 flex items-start justify-between bg-white/80 backdrop-blur-xl shrink-0">
-                        <div className="flex flex-col pr-4">
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight leading-none">
-                                {title}
-                            </h2>
-                            {subtitle && (
-                                <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
-                                    {subtitle}
-                                </p>
-                            )}
-                        </div>
+                    {showHeader && (
+                        <div className="px-6 sm:px-8 py-6 border-b border-slate-100 flex items-start justify-between bg-white/80 backdrop-blur-xl shrink-0">
+                            <div className="flex flex-col pr-4">
+                                <h2 className="text-xl font-black text-slate-900 tracking-tight leading-none">
+                                    {title}
+                                </h2>
+                                {subtitle && (
+                                    <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
+                                        {subtitle}
+                                    </p>
+                                )}
+                            </div>
 
-                        <button
-                            onClick={onClose}
-                            className="p-2 -mr-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200 shrink-0"
-                        >
-                            <X size={20} />
-                        </button>
-                    </div>
+                            <button
+                                onClick={onClose}
+                                className="p-2 -mr-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200 shrink-0"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                    )}
 
                     {/* Body */}
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 sm:px-8 sm:py-6 scrollbar-thin">
+                    <div className={`flex-1 overflow-y-auto overflow-x-hidden ${showHeader ? 'p-6 sm:px-8 sm:py-6' : ''} scrollbar-thin`}>
                         {children}
                     </div>
 

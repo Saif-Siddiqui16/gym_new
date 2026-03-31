@@ -271,7 +271,8 @@ const Invoices = () => {
                 method: settlementData.method,
                 referenceNumber: settlementData.referenceNumber,
                 amount: settlementData.amount,
-                date: settlementData.date
+                date: settlementData.date,
+                balanceDueDate: settlementData.isPartial ? settlementData.balanceDueDate : null
             });
             toast.success("Invoice settled successfully!");
             setIsSettleModalOpen(false);
@@ -284,12 +285,20 @@ const Invoices = () => {
     };
 
     const openSettleModal = (inv) => {
+        // Fallback to amount if balance is missing or zero (for older records or non-membership items)
+        const balanceVal = Number(inv.balance);
+        const amountVal = Number(inv.amount);
+        const payableAmount = (balanceVal > 0) ? balanceVal : amountVal;
+
         setSettlementData({
             invoiceId: inv.id,
             method: 'Cash',
-            amount: inv.amount,
+            fullAmount: payableAmount,
+            amount: payableAmount,
+            isPartial: false,
             referenceNumber: '',
-            date: new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split('T')[0],
+            balanceDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         });
         setIsSettleModalOpen(true);
     };
@@ -981,7 +990,7 @@ const Invoices = () => {
                     <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex items-center justify-between">
                         <div>
                             <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Payable</p>
-                            <h3 className="text-2xl font-black text-emerald-700">₹{Number(settlementData.amount).toLocaleString()}</h3>
+                            <h3 className="text-2xl font-black text-emerald-700">₹{Number(settlementData.fullAmount || settlementData.amount).toLocaleString()}</h3>
                         </div>
                         <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm shadow-emerald-100">
                             <Receipt size={24} />
@@ -989,6 +998,63 @@ const Invoices = () => {
                     </div>
 
                     <div className="space-y-6">
+                        {Number(settlementData.fullAmount) > 0 && (
+                            <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Partial Payment</p>
+                                    <p className="text-[11px] font-bold text-slate-600">Pay only a portion now</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const isPartial = !settlementData.isPartial;
+                                        setSettlementData({
+                                            ...settlementData,
+                                            isPartial,
+                                            amount: isPartial ? settlementData.fullAmount / 2 : settlementData.fullAmount
+                                        });
+                                    }}
+                                    className={`w-12 h-6 rounded-full transition-all relative ${settlementData.isPartial ? 'bg-primary' : 'bg-slate-200'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settlementData.isPartial ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+                        )}
+
+                        {settlementData.isPartial && (
+                            <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2">
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-[#7c3aed] ml-1">Pay Now (₹)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="1"
+                                        max={settlementData.fullAmount}
+                                        value={settlementData.amount}
+                                        onChange={(e) => setSettlementData({ ...settlementData, amount: parseFloat(e.target.value) })}
+                                        className="w-full h-14 px-5 bg-primary-light border border-violet-100 rounded-2xl text-[13px] font-bold text-primary focus:outline-none focus:border-primary transition-all font-sans"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Remaining Balance</label>
+                                    <div className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center text-[13px] font-bold text-slate-400 cursor-not-allowed">
+                                        ₹{(Number(settlementData.fullAmount) - Number(settlementData.amount || 0)).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div className="col-span-2 space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-rose-500 ml-1">Next Due Date *</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        min={new Date().toISOString().split('T')[0]}
+                                        value={settlementData.balanceDueDate}
+                                        onChange={(e) => setSettlementData({ ...settlementData, balanceDueDate: e.target.value })}
+                                        className="w-full h-14 px-5 bg-rose-50 border border-rose-100 rounded-2xl text-[13px] font-bold text-rose-600 focus:outline-none focus:border-rose-400 transition-all font-sans"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="space-y-2.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Method</label>
                             <div className="grid grid-cols-2 gap-3">

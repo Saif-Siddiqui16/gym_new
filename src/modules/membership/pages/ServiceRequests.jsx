@@ -74,6 +74,7 @@ const ServiceRequests = () => {
             case 'Freeze Membership': return <Shield className="text-amber-500" size={20} />;
             case 'Unfreeze Membership': return <Shield className="text-primary" size={20} />;
             case 'Request Trainer Change': return <UserPlus className="text-purple-500" size={20} />;
+            case 'Request Locker': return <Shield className="text-emerald-500" size={20} />;
             default: return <ClipboardList className="text-slate-400" size={20} />;
         }
     };
@@ -162,6 +163,7 @@ const ServiceRequests = () => {
                             <option value="Freeze Membership">Freeze Membership</option>
                             <option value="Unfreeze Membership">Unfreeze Membership</option>
                             <option value="Request Trainer Change">Trainer Change</option>
+                            <option value="Request Locker">Locker Request</option>
                         </select>
                     </div>
                     <Button

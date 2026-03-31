@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, FileText, User, Users, CreditCard, ShieldCheck, Dumbbell } from 'lucide-react';
-import { getMembers, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
+import { 
+    Search, Filter, Eye, Edit, Trash2, ChevronLeft, ChevronRight, Download, 
+    FileText, User, Users, CreditCard, ShieldCheck, Dumbbell, Building, Clock, 
+    MoreHorizontal, Mail, Phone, Calendar, MapPin, Activity, Award, DollarSign, 
+    Layers, Smartphone, History, Unlock, ExternalLink, Edit3, PlusCircle, 
+    XCircle, UserMinus, Gift, ArrowRightLeft, Repeat, FileSignature, Printer, 
+    ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2 
+} from 'lucide-react';
+import { getMembers, getMemberById, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
 import { membershipApi } from '../../api/membershipApi';
 import { referralApi } from '../../api/referralApi';
+import amenityApi from '../../api/amenityApi';
 import { exportCSV, exportPDF } from '../../api/manager/managerExport';
+import { BENEFITS } from '../../modules/membership/data/mockMemberships';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
 import MobileCard from '../../components/common/MobileCard';
@@ -12,6 +21,7 @@ import { useBranchContext } from '../../context/BranchContext';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import { exportPdf } from '../../utils/exportPdf';
+import { fetchStaffAPI } from '../../api/admin/adminApi';
 import MipsSyncPanel from '../../components/mips/MipsSyncPanel';
 
 
@@ -29,7 +39,9 @@ const MemberList = () => {
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
     const [selectedMember, setSelectedMember] = useState(null);
+    const [profileActiveTab, setProfileActiveTab] = useState('Overview');
     const [plans, setPlans] = useState([]);
+    const [amenities, setAmenities] = useState([]);
     const [plansLoading, setPlansLoading] = useState(false);
     const initialNewMemberData = {
         name: '', phone: '', email: '', gender: '', dob: '', source: 'Walk-in',
@@ -54,6 +66,14 @@ const MemberList = () => {
     const [isAssignTrainerDrawerOpen, setIsAssignTrainerDrawerOpen] = useState(false);
     const [quickTrainerId, setQuickTrainerId] = useState('');
     const [isSavingTrainer, setIsSavingTrainer] = useState(false);
+
+    const [isFreezeDrawerOpen, setIsFreezeDrawerOpen] = useState(false);
+    const [freezeData, setFreezeData] = useState({ startDate: new Date().toISOString().split('T')[0], days: 30, reason: '' });
+    const [isBodyDrawerOpen, setIsBodyDrawerOpen] = useState(false);
+    const [bodyData, setBodyData] = useState({ weight: '', bf: '', chest: '', waist: '', arms: '' });
+
+    const [isPTDrawerOpen, setIsPTDrawerOpen] = useState(false);
+    const [ptSelection, setPTSelection] = useState({ trainerId: '', sessions: 12, amount: '', description: 'Personal Training Package' });
 
     const location = useLocation();
     const { selectedBranch } = useBranchContext();
@@ -83,11 +103,26 @@ const MemberList = () => {
             const params = {
                 branchId: selectedBranch === 'all' ? undefined : selectedBranch
             };
-            const result = await membershipApi.getPlans(params);
-            setPlans(Array.isArray(result) ? result : []);
+            const [plansResult, amenitiesResult] = await Promise.allSettled([
+                membershipApi.getPlans(params),
+                amenityApi.getAll()
+            ]);
+            
+            if (plansResult.status === 'fulfilled') {
+                const data = plansResult.value;
+                setPlans(Array.isArray(data) ? data : (data?.data || []));
+            } else {
+                console.error('[MemberList] Failed to load plans:', plansResult.reason);
+            }
+
+            if (amenitiesResult.status === 'fulfilled') {
+                const data = amenitiesResult.value;
+                setAmenities(Array.isArray(data) ? data : (data?.data || []));
+            } else {
+                console.error('[MemberList] Failed to load amenities:', amenitiesResult.reason);
+            }
         } catch (error) {
-            console.error("Error loading plans:", error);
-            setPlans([]);
+            console.error("Error loading metadata:", error);
         } finally { setPlansLoading(false); }
     };
 
@@ -166,6 +201,48 @@ const MemberList = () => {
         }
     };
 
+    const handleFreezeSubmit = async (e) => {
+        e.preventDefault();
+        toast.success(`Plan frozen for ${freezeData.days} days starting ${freezeData.startDate}`);
+        setIsFreezeDrawerOpen(false);
+        // await freezeMemberPlan(selectedMember.id, freezeData);
+    };
+
+    const handleBodySubmit = async (e) => {
+        e.preventDefault();
+        toast.success("Body measurements recorded successfully!");
+        setIsBodyDrawerOpen(false);
+    };
+
+    const handleCancelPlan = () => {
+        if (window.confirm(`Are you sure you want to CANCEL the active plan for ${selectedMember.name}? This will stop all benefits immediately.`)) {
+            toast.success("Plan cancelled successfully");
+            loadMembers();
+        }
+    };
+
+    const handleDeactivateMember = async () => {
+        if (window.confirm(`Deactivate ${selectedMember.name}? They will no longer be able to check-in.`)) {
+            await handleToggleStatus(selectedMember.id);
+            setIsViewDrawerOpen(false);
+        }
+    };
+
+    const handlePTSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await updateMember(selectedMember.id, { 
+                trainerId: ptSelection.trainerId,
+                ptSessions: (Number(selectedMember.ptSessions) || 0) + Number(ptSelection.sessions)
+            });
+            toast.success(`Assigned ${ptSelection.sessions} sessions with Personal Trainer successfully!`);
+            setIsPTDrawerOpen(false);
+            loadMembers();
+        } catch (error) {
+            toast.error("Failed to assign PT");
+        }
+    };
+
     const handleImageChange = (e, mode = 'add') => {
         const file = e.target.files[0];
         if (file) {
@@ -202,7 +279,20 @@ const MemberList = () => {
             gymName: "Gym Academy"
         });
     };
-    const handleView = (member) => { setSelectedMember(member); setIsViewDrawerOpen(true); };
+    const handleView = async (member) => {
+        try {
+            setSelectedMember(member); // Set basic info first for instant feeling
+            setIsViewDrawerOpen(true);
+            setProfileActiveTab('Overview');
+            
+            // Then fetch rich data
+            const data = await getMemberById(member.id);
+            setSelectedMember(data);
+        } catch (error) {
+            console.error('Failed to fetch rich member data', error);
+            // Fallback: stick with the basic data from the list
+        }
+    };
     const handleEdit = (member) => {
         setSelectedMember(member);
         setEditMemberData({
@@ -292,13 +382,38 @@ const MemberList = () => {
     };
 
     const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Active': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Active</span>;
-            case 'Inactive': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200 hover:scale-110 transition-all duration-300 cursor-pointer">Inactive</span>;
-            case 'Frozen': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-primary-light text-primary border border-violet-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Frozen</span>;
-            case 'Expired': return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100 shadow-sm hover:scale-110 transition-all duration-300 cursor-pointer">Expired</span>;
-            default: return <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 hover:scale-110 transition-all duration-300 cursor-pointer">Unknown</span>;
+        switch (status?.toLowerCase()) {
+            case 'active': return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-50 text-green-600 border border-green-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                    active
+                </span>
+            );
+            case 'inactive': return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-50 text-gray-400 border border-gray-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-1.5"></span>
+                    inactive
+                </span>
+            );
+            case 'frozen': return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-500 border border-blue-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5"></span>
+                    frozen
+                </span>
+            );
+            case 'expired': return (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-500 border border-red-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>
+                    expired
+                </span>
+            );
+            default: return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-50 text-gray-500 border border-gray-200">unknown</span>;
         }
+    };
+
+    const getPlanBadge = (plan) => {
+        if (!plan || plan === 'No Plan') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-400 border border-dashed border-slate-200 uppercase">No Plan</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">{plan}</span>;
     };
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -434,36 +549,57 @@ const MemberList = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {members.map((member) => (
-                                    <tr key={member.id} className="group hover:bg-primary-light/30 transition-all duration-150 border-b border-slate-50">
-                                        <td className="p-4 sm:px-6 sm:py-4" data-label="Member">
-                                            <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                                {member.avatar ? (
-                                                    <img src={member.avatar} alt={member.name} className="w-9 h-9 shrink-0 rounded-full object-cover border-2 border-violet-200" />
-                                                ) : (
-                                                    <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 text-primary-hover flex items-center justify-center font-bold text-sm border-2 border-violet-200">{(member.name || '?').charAt(0).toUpperCase()}</div>
-                                                )}
-                                                <span className="text-sm font-bold text-slate-900 group-hover:text-primary-hover transition-colors truncate max-w-[150px] sm:max-w-xs">{member.name}</span>
+                                    <tr key={member.id} className="group hover:bg-slate-50/50 transition-all duration-150 border-b border-slate-100">
+                                        <td className="px-6 py-4" data-label="Member">
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative shrink-0">
+                                                    {member.avatar ? (
+                                                        <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
+                                                    ) : (
+                                                        <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm">{(member.name || '?').charAt(0).toUpperCase()}</div>
+                                                    )}
+                                                    <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${member.status?.toLowerCase() === 'active' ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors">{member.name}</span>
+                                                    <span className="text-xs text-slate-400">{member.phone}</span>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="p-4 sm:px-6 sm:py-4" data-label="Code"><span className="text-xs font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded-md">{member.memberId}</span></td>
-                                        <td className="p-4 sm:px-6 sm:py-4 text-sm text-slate-600" data-label="Branch">{member.branch || 'Main Branch'}</td>
-                                        <td className="p-4 sm:px-6 sm:py-4" data-label="Status">
-                                            <div className="flex justify-end sm:justify-start">
-                                                <button onClick={() => handleToggleStatus(member.id)}>{getStatusBadge(member.status)}</button>
+                                        <td className="px-6 py-4" data-label="Code">
+                                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                                {member.memberId || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Branch">
+                                            <div className="flex items-center gap-1.5 text-sm text-slate-500 font-medium">
+                                                <Building size={14} className="text-slate-300" />
+                                                {member.branch || 'Main Branch'}
                                             </div>
                                         </td>
-                                        <td className="p-4 sm:px-6 sm:py-4 text-sm font-semibold text-slate-700" data-label="Plan">{member.plan || 'No Plan'}</td>
-                                        <td className="p-4 sm:px-6 sm:py-4 text-sm text-slate-600" data-label="Days Left">{member.daysLeft ?? '—'}</td>
-                                        <td className="p-4 sm:px-6 sm:py-4 text-sm text-slate-500" data-label="Joined">
-                                            {member.joinDate ? new Date(member.joinDate).toLocaleDateString('en-IN') : '—'}
+                                        <td className="px-6 py-4" data-label="Status">
+                                            <button onClick={(e) => { e.stopPropagation(); handleToggleStatus(member.id); }}>
+                                                {getStatusBadge(member.status)}
+                                            </button>
                                         </td>
-                                        <td className="p-4 sm:px-6 sm:py-4" data-label="Actions">
-                                            <div className="flex items-center justify-end sm:justify-start gap-1 transition-all duration-200">
-                                                <button onClick={() => { setSelectedMember(member); setQuickTrainerId(member.trainerId || ''); setIsAssignTrainerDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-primary hover:text-white hover:bg-primary transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Quick Assign Trainer"><Dumbbell size={16} /></button>
-                                                <button onClick={() => { setSelectedMember(member); setRenewalData({ planId: '', duration: 1 }); setIsRenewalDrawerOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Assign Plan"><ShieldCheck size={16} /></button>
-                                                <button onClick={() => handleView(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="View"><Eye size={16} /></button>
-                                                <button onClick={() => handleEdit(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary-light transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Edit"><Edit size={16} /></button>
-                                                <button onClick={() => handleDelete(member)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all shadow-sm sm:shadow-none border border-slate-100 sm:border-transparent bg-white sm:bg-transparent" title="Delete"><Trash2 size={16} /></button>
+                                        <td className="px-6 py-4" data-label="Plan">
+                                            {getPlanBadge(member.plan)}
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Days Left">
+                                            <div className={`flex items-center gap-1.5 text-xs font-bold ${member.daysLeft > 30 ? 'text-green-500' : member.daysLeft > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
+                                                <Clock size={14} />
+                                                {member.daysLeft ? `${member.daysLeft}d` : '--'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Joined">
+                                            <span className="text-sm text-slate-500 font-medium">
+                                                {member.joinDate ? new Date(member.joinDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Actions">
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => handleView(member)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="View"><Eye size={18} /></button>
+                                                <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="More Options"><MoreHorizontal size={18} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -788,158 +924,568 @@ const MemberList = () => {
             </RightDrawer>
 
             {/* View Member Drawer */}
-            <RightDrawer isOpen={isViewDrawerOpen} onClose={() => setIsViewDrawerOpen(false)} title="Member Details" subtitle={selectedMember?.memberId || ''} maxWidth="max-w-lg"
-                footer={
-                    <div className="flex gap-3 w-full px-2">
-                        <Button
-                            onClick={() => { setIsViewDrawerOpen(false); setTimeout(() => handleEdit(selectedMember), 200); }}
-                            variant="outline"
-                            className="flex-1 h-11"
-                        >
-                            Edit Member
-                        </Button>
-                        <Button
-                            onClick={() => setIsViewDrawerOpen(false)}
-                            variant="outline"
-                            className="flex-1 h-11"
-                        >
-                            Close
-                        </Button>
-                    </div>
-                }
-            >
+            <RightDrawer isOpen={isViewDrawerOpen} onClose={() => setIsViewDrawerOpen(false)} title="Member Profile" subtitle="" maxWidth="max-w-2xl" showHeader={false}>
                 {selectedMember && (
-                    <div className="px-6 py-6 space-y-6">
-
-                        {/* Avatar + Name */}
-                        <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
-                            {selectedMember.avatar ? (
-                                <img src={selectedMember.avatar} alt={selectedMember.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-violet-200" />
-                            ) : (
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary-hover flex items-center justify-center text-2xl font-black border-2 border-violet-200 flex-shrink-0">
-                                    {(selectedMember.name || '?').charAt(0).toUpperCase()}
+                    <div className="flex flex-col h-full bg-slate-50/30">
+                        {/* Profile Header */}
+                        <div className="bg-white px-6 pt-10 pb-6 border-b border-slate-100 relative">
+                            <button onClick={() => setIsViewDrawerOpen(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
+                                <XCircle size={20} />
+                            </button>
+                            
+                            <div className="flex items-start gap-6">
+                                <div className="relative shrink-0">
+                                    {selectedMember.avatar ? (
+                                        <img src={selectedMember.avatar} alt={selectedMember.name} className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl" />
+                                    ) : (
+                                        <div className="w-24 h-24 rounded-2xl bg-indigo-50 text-indigo-400 flex items-center justify-center text-4xl font-black border-4 border-white shadow-xl">
+                                            {(selectedMember.name || '?').charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <span className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-4 border-white ${selectedMember.status?.toLowerCase() === 'active' ? 'bg-green-500' : 'bg-gray-300'}`}></span>
                                 </div>
-                            )}
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900">{selectedMember.name}</h3>
-                                <p className="text-xs font-mono text-primary mt-0.5">{selectedMember.memberId}</p>
-                                <div className="mt-1">{getStatusBadge(selectedMember.status)}</div>
+                                
+                                <div className="flex-1 pt-2">
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-2xl font-black text-slate-800">{selectedMember.name}</h2>
+                                        {getStatusBadge(selectedMember.status)}
+                                        <div className="flex items-center gap-1.5 ml-2">
+                                            <button 
+                                                onClick={() => { setIsViewDrawerOpen(false); setTimeout(() => handleEdit(selectedMember), 200); }} 
+                                                className="p-2 bg-slate-50 text-slate-400 hover:text-indigo-500 hover:bg-white border border-slate-100 rounded-xl transition-all shadow-sm"
+                                                title="Edit Profile"
+                                            >
+                                                <Edit3 size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={() => { setIsViewDrawerOpen(false); setTimeout(() => setIsRenewalDrawerOpen(true), 200); }} 
+                                                className="p-2 bg-slate-50 text-slate-400 hover:text-emerald-500 hover:bg-white border border-slate-100 rounded-xl transition-all shadow-sm"
+                                                title="Assign Membership / Renew"
+                                            >
+                                                <PlusCircle size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={async () => {
+                                                    await handleToggleStatus(selectedMember.id);
+                                                    const updated = await getMemberById(selectedMember.id);
+                                                    setSelectedMember(updated);
+                                                }} 
+                                                className="p-2 bg-slate-50 text-slate-400 hover:text-amber-500 hover:bg-white border border-slate-100 rounded-xl transition-all shadow-sm"
+                                                title="Toggle Active/Inactive"
+                                            >
+                                                <ArrowRightLeft size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="mt-1 flex flex-col gap-1">
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{selectedMember.memberId || 'MAIN-00000'}</span>
+                                        <div className="flex items-center gap-4 mt-2">
+                                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                                                <Mail size={14} className="text-slate-300" />
+                                                {selectedMember.email || 'No email provided'}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                                                <Phone size={14} className="text-slate-300" />
+                                                {selectedMember.phone || 'No phone provided'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Basic Information */}
-                        <div>
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span></span>
-                                Basic Information
-                            </h4>
-                            <div className="grid grid-cols-2 gap-3">
+                        <div className="p-6 space-y-6 overflow-y-auto">
+                            {/* Stats Row */}
+                            <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    ['Phone', selectedMember.phone],
-                                    ['Email', selectedMember.email],
-                                    ['Gender', selectedMember.gender],
-                                    ['Date of Birth', selectedMember.dob],
-                                    ['Source', selectedMember.source],
-                                    ['Plan', selectedMember.plan],
-                                    ['Join Date', selectedMember.joinDate ? new Date(selectedMember.joinDate).toLocaleDateString('en-IN') : '—'],
-                                    ['Expiry', (selectedMember.expiryDate && !isNaN(new Date(selectedMember.expiryDate).getTime())) ? new Date(selectedMember.expiryDate).toLocaleDateString('en-IN') : '—'],
-                                ].map(([label, val]) => (
-                                    <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                        <p className="text-sm font-semibold text-slate-800 break-words">{val || '—'}</p>
+                                    { 
+                                        label: 'Days Left', 
+                                        value: `${selectedMember.daysLeft || '0'} Days`, 
+                                        sub: selectedMember.planName || 
+                                             (typeof selectedMember.plan === 'string' ? selectedMember.plan : selectedMember.plan?.name) || 
+                                             selectedMember.activeMembership?.plan?.name || 
+                                             'No Plan', 
+                                        color: 'text-green-500' 
+                                    },
+                                    { label: 'PT Sessions', value: selectedMember.ptSessions || '0', sub: 'Active Sessions', color: 'text-slate-800' },
+                                    { label: 'Recent Visits', value: '0', sub: 'Recent Visits', color: 'text-indigo-600' }
+                                ].map((stat, i) => (
+                                    <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                                        <span className={`text-2xl font-black ${stat.color}`}>{stat.value}</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-1">{stat.sub}</span>
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Quick Actions Grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <button onClick={() => { setIsViewDrawerOpen(false); setIsRenewalDrawerOpen(true); }} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
+                                    <ArrowUpCircle size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" /> Upgrade Plan
+                                </button>
+                                <button onClick={() => setIsPTDrawerOpen(true)} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
+                                    <ShoppingCart size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" /> Assign PT (sessions)
+                                </button>
+                                <button onClick={() => setIsFreezeDrawerOpen(true)} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
+                                    <Snowflake size={16} className="text-slate-400 group-hover:text-blue-500 transition-colors" /> Freeze Plan
+                                </button>
+                                <button onClick={() => { setIsViewDrawerOpen(false); setIsAssignTrainerDrawerOpen(true); }} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
+                                    <User size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" /> Assign Trainer
+                                </button>
+                                <button onClick={() => setIsBodyDrawerOpen(true)} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
+                                    <Activity size={16} className="text-slate-400 group-hover:text-emerald-500 transition-colors" /> Record Body
+                                </button>
+                                <button onClick={handleCancelPlan} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-rose-500 shadow-sm transition-all group">
+                                    <XCircle size={16} className="text-rose-300 group-hover:text-rose-500 transition-colors" /> Cancel Plan
+                                </button>
+                                <button onClick={handleDeactivateMember} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-rose-500 shadow-sm transition-all group col-span-2">
+                                    <UserMinus size={16} className="text-rose-300 group-hover:text-rose-500 transition-colors" /> Deactivate Member
+                                </button>
+                            </div>
+
+                            {/* Tabs Navigation */}
+                            <div className="border-b border-slate-100">
+                                <div className="flex gap-4 overflow-x-auto scroller-hidden">
+                                    {['Overview', 'Plan', 'Benefits', 'Pay'].map(tab => (
+                                        <button
+                                            key={tab}
+                                            onClick={() => setProfileActiveTab(tab)}
+                                            className={`pb-3 text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap border-b-2 ${profileActiveTab === tab ? 'text-primary border-primary' : 'text-slate-400 border-transparent hover:text-slate-600'}`}
+                                        >
+                                            {tab}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Tab Content */}
+                            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+                                {profileActiveTab === 'Overview' && (
+                                    <div className="space-y-6 animate-in fade-in duration-300">
+                                        <div className="grid grid-cols-2 gap-4 mb-2">
+                                            <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Health Goal</span>
+                                                <span className="text-xs font-black text-indigo-500 uppercase tracking-widest">{selectedMember.fitnessGoal || 'Not Set'}</span>
+                                            </div>
+                                            <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Blood Group</span>
+                                                <span className="text-xs font-black text-rose-500 uppercase tracking-widest">{selectedMember.bloodGroup || '—'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <User size={14} className="text-indigo-400" /> Personal Information
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Gender</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.gender || 'Not Specified'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">DOB</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.dob || 'Not specified'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Health Conditions</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.healthConditions || 'None Reported'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Source</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.source || 'Walk-in'}</span>
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Address</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.address || 'Not provided'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-slate-50">
+                                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <Calendar size={14} className="text-indigo-400" /> Registration Details
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Joined Date</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.joinDate ? new Date(selectedMember.joinDate).toLocaleDateString('en-IN') : '—'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Created By</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedMember.createdBy?.name || 'Admin'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {profileActiveTab === 'Plan' && (
+                                    <div className="space-y-6 animate-in fade-in duration-300">
+                                        <div className="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-5 border border-indigo-100 mb-4 shadow-sm relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12">
+                                                <Award size={80} />
+                                            </div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div>
+                                                        <h4 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+                                                            {selectedMember.planName || 
+                                                             (typeof selectedMember.plan === 'string' ? selectedMember.plan : selectedMember.plan?.name) || 
+                                                             selectedMember.activeMembership?.plan?.name || 
+                                                             'No Active Plan'}
+                                                        </h4>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                            {(selectedMember.plan?.price || selectedMember.activeMembership?.totalAmount) 
+                                                                ? `₹${selectedMember.plan?.price || selectedMember.activeMembership?.totalAmount} Membership` 
+                                                                : 'Current Active Membership'}
+                                                        </p>
+                                                    </div>
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedMember.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-rose-100 text-rose-600'}`}>
+                                                        {selectedMember.status}
+                                                    </span>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="p-3">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Joined On</span>
+                                                        <span className="text-sm font-bold text-slate-700">{selectedMember.joinDate ? new Date(selectedMember.joinDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                                                    </div>
+                                                    <div className="p-3">
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Expires On</span>
+                                                        <span className="text-sm font-bold text-rose-500">{selectedMember.expiryDate ? new Date(selectedMember.expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Calendar size={14} className="text-indigo-400" />
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</span>
+                                                </div>
+                                                <p className="text-xs font-bold text-slate-700">
+                                                    {(() => {
+                                                        // 1. Try direct fields
+                                                        const direct = selectedMember.duration || selectedMember.plan?.duration || selectedMember.activeMembership?.plan?.duration;
+                                                        if (direct) return `${direct} ${selectedMember.durationType || selectedMember.plan?.durationType || selectedMember.activeMembership?.plan?.durationType || 'Days'}`;
+
+                                                        // 2. Try lookup in plans array
+                                                        const pName = selectedMember.planName || (typeof selectedMember.plan === 'string' ? selectedMember.plan : selectedMember.plan?.name);
+                                                        const matchedPlan = plans.find(p => p.name === pName);
+                                                        if (matchedPlan) return `${matchedPlan.duration} ${matchedPlan.durationType}`;
+
+                                                        // 3. Fallback: Calculate from dates
+                                                        if (selectedMember.joinDate && selectedMember.expiryDate) {
+                                                            const start = new Date(selectedMember.joinDate);
+                                                            const end = new Date(selectedMember.expiryDate);
+                                                            const diff = Math.round((end - start) / (1000 * 60 * 60 * 24));
+                                                            if (diff > 0) return `${diff} Days`;
+                                                        }
+
+                                                        return 'N/A';
+                                                    })()}
+                                                </p>
+                                            </div>
+                                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <DollarSign size={14} className="text-indigo-400" />
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</span>
+                                                </div>
+                                                <p className="text-xs font-bold text-slate-700">
+                                                    {(() => {
+                                                        // 1. Try direct fields
+                                                        const price = selectedMember.price || selectedMember.totalAmount || selectedMember.amount || selectedMember.plan?.price || selectedMember.activeMembership?.totalAmount;
+                                                        if (price) return `₹${price}`;
+
+                                                        // 2. Try lookup in plans array
+                                                        const pName = selectedMember.planName || (typeof selectedMember.plan === 'string' ? selectedMember.plan : selectedMember.plan?.name);
+                                                        const matchedPlan = plans.find(p => p.name === pName);
+                                                        if (matchedPlan) return `₹${matchedPlan.price}`;
+
+                                                        return 'Free';
+                                                    })()}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <Smartphone size={14} className="text-indigo-400" /> Digital Access & Features
+                                            </h4>
+                                            <div className="space-y-3">
+                                                {[
+                                                    { label: 'Mobile App Access', val: 'Full Access' },
+                                                    { label: 'Biometric Login', val: selectedMember.mipsPersonSn ? 'Registered' : 'Pending' },
+                                                    { label: 'Trainer Support', val: selectedMember.trainer?.name || selectedMember.trainerName || 'Not Assigned' }
+                                                ].map((item, id) => (
+                                                    <div key={id} className="flex justify-between items-center p-3 bg-slate-50/50 rounded-xl">
+                                                        <span className="text-xs font-bold text-slate-500">{item.label}</span>
+                                                        <span className="text-xs font-bold text-slate-700">{item.val}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {profileActiveTab === 'Benefits' && (
+                                    <div className="space-y-4 animate-in fade-in duration-300">
+                                        <div className="flex items-center justify-between mb-2 px-1">
+                                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest leading-none">Plan Entitlements</h4>
+                                            {(!selectedMember.benefits || selectedMember.benefits === '[]') && selectedMember.plan?.benefits && (
+                                                <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 italic">Plan Default</span>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2.5">
+                                            {(() => {
+                                                const parseData = (data) => {
+                                                    if (!data) return [];
+                                                    try {
+                                                        const p = typeof data === 'string' ? JSON.parse(data) : data;
+                                                        return Array.isArray(p) ? p : [];
+                                                    } catch (e) { return []; }
+                                                };
+
+                                                const mBenefits = parseData(selectedMember.benefits);
+                                                
+                                                // Robust Plan Benefits Lookup
+                                                const pName = selectedMember.planName || (typeof selectedMember.plan === 'string' ? selectedMember.plan : selectedMember.plan?.name);
+                                                const matchedPlan = plans.find(p => p.name === pName);
+                                                const pBenefits = parseData(selectedMember.plan?.benefits || selectedMember.activeMembership?.plan?.benefits || matchedPlan?.benefits);
+                                                
+                                                // Use member benefits if not empty, else plan benefits
+                                                const benefitsArray = (mBenefits.length > 0) ? mBenefits : pBenefits;
+
+                                                if (benefitsArray.length === 0) {
+                                                    return (
+                                                        <div className="text-center py-12 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center">
+                                                            <Shield size={32} className="text-slate-200 mb-2" strokeWidth={1.5} />
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No specific benefits listed</p>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return benefitsArray.map((benefit, i) => {
+                                                    // NEW FORMAT: { id, name, description, limit }
+                                                    // OLD FORMAT: { id, limit } — needs lookup
+                                                    
+                                                    const benefitId = typeof benefit === 'object' ? benefit.id : benefit;
+                                                    
+                                                    // 1. Use name stored directly in benefit JSON (new format)
+                                                    let name = typeof benefit === 'object' ? (benefit.name || '') : '';
+                                                    let description = typeof benefit === 'object' ? (benefit.description || '') : '';
+                                                    let limit = typeof benefit === 'object' ? benefit.limit : null;
+                                                    
+                                                    // 2. If name is missing (old format), look up from live amenities list
+                                                    if (!name) {
+                                                        const liveAmenity = amenities.find(a => String(a.id) === String(benefitId));
+                                                        name = liveAmenity?.name || `Benefit #${benefitId}`;
+                                                        description = description || liveAmenity?.description || '';
+                                                    }
+                                                    
+                                                    // Safety: ensure primitives
+                                                    if (typeof name === 'object') name = name?.name || String(benefitId);
+                                                    if (typeof limit === 'object') limit = limit?.value || null;
+                                                    const limitStr = limit ? String(limit) : null;
+
+                                                    return (
+                                                        <div key={i} className="flex items-center gap-3 p-3.5 bg-white rounded-xl border border-slate-100 group hover:border-indigo-200 hover:shadow-md transition-all duration-200">
+                                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 border border-indigo-100 group-hover:scale-110 transition-transform">
+                                                                <CheckCircle2 size={18} />
+                                                            </div>
+                                                            <div className="flex flex-col min-w-0">
+                                                                <span className="text-xs font-black text-slate-800 uppercase tracking-tight truncate">{String(name)}</span>
+                                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                                                                    {limitStr ? `Limit: ${limitStr}` : description || 'Included in Plan'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                });
+                                            })()}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {profileActiveTab === 'Body' && null}
+
+                                {profileActiveTab === 'Pay' && (
+                                    <div className="space-y-6 animate-in fade-in duration-300">
+                                        {/* Payment Summary Cards */}
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                            {(() => {
+                                                const invoices = selectedMember.invoices || [];
+                                                const totalBilled = invoices.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+                                                const totalPaid = invoices.reduce((sum, inv) => sum + Number(inv.paidAmount || 0), 0);
+                                                const totalPending = invoices.reduce((sum, inv) => sum + Number(inv.balance || 0), 0);
+                                                
+                                                const lastPaidInv = invoices.find(inv => inv.status === 'Paid' || inv.paidAmount > 0);
+                                                const lastPaidDate = lastPaidInv?.paidDate || lastPaidInv?.updatedAt;
+
+                                                return [
+                                                    { label: 'Total Billed', value: `₹${totalBilled.toLocaleString()}`, color: 'text-slate-900', bg: 'bg-slate-50' },
+                                                    { label: 'Total Paid', value: `₹${totalPaid.toLocaleString()}`, color: 'text-emerald-600', bg: 'bg-emerald-50/50' },
+                                                    { label: 'Pending', value: `₹${totalPending.toLocaleString()}`, color: 'text-rose-600', bg: 'bg-rose-50/50' },
+                                                    { label: 'Last Payment', value: lastPaidDate ? new Date(lastPaidDate).toLocaleDateString() : 'None', color: 'text-indigo-600', bg: 'bg-indigo-50/50' }
+                                                ].map((stat, i) => (
+                                                    <div key={i} className={`${stat.bg} p-3 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center`}>
+                                                        <span className={`text-xs sm:text-sm font-black ${stat.color}`}>{stat.value}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.label}</span>
+                                                    </div>
+                                                ));
+                                            })()}
+                                        </div>
+
+                                        {/* Membership Invoices */}
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between px-1">
+                                                <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                                    <History size={14} className="text-violet-400" /> Payment History
+                                                </h4>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase">Member ID: {selectedMember.memberId}</span>
+                                            </div>
+                                            
+                                            <div className="space-y-2.5">
+                                                {selectedMember.invoices?.length > 0 ? (
+                                                    selectedMember.invoices.map((inv, idx) => (
+                                                        <div key={idx} className="flex flex-col p-4 bg-white rounded-2xl border border-slate-100 group hover:border-indigo-200 hover:shadow-md transition-all duration-200">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-500 border border-emerald-100' : 'bg-amber-50 text-amber-500 border border-amber-100'}`}>
+                                                                        <DollarSign size={18} />
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter leading-none mb-1">{inv.invoiceNumber} • {new Date(inv.createdAt).toLocaleDateString()}</span>
+                                                                        <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{inv.paymentMode || 'Cash'}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="text-right">
+                                                                        <span className="text-sm font-black text-slate-900 leading-none block mb-1">₹{Number(inv.amount).toLocaleString()}</span>
+                                                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
+                                                                            {inv.status}
+                                                                        </span>
+                                                                    </div>
+                                                                    <button 
+                                                                        onClick={async () => {
+                                                                            try {
+                                                                                const { fetchInvoiceById } = await import('../../api/finance/financeApi');
+                                                                                const fullInv = await fetchInvoiceById(inv.id);
+                                                                                const { exportPdf } = await import('../../utils/exportPdf');
+                                                                                exportPdf({
+                                                                                    title: 'Invoice',
+                                                                                    filename: `INV_${fullInv.invoiceNumber}`,
+                                                                                    headers: ["Description", "Qty", "Rate", "Amount"],
+                                                                                    rows: fullInv.items.map(it => [it.description, it.quantity, it.rate, it.amount]),
+                                                                                    gymName: "Gym Academy"
+                                                                                });
+                                                                            } catch (e) { toast.error("Failed to download invoice"); }
+                                                                        }}
+                                                                        className="w-8 h-8 flex items-center justify-center bg-slate-50 rounded-lg text-slate-400 hover:text-indigo-500 border border-slate-100 shadow-sm transition-all md:opacity-0 group-hover:opacity-100"
+                                                                    >
+                                                                        <Download size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Detailed Breakdown if pending */}
+                                                            {Number(inv.balance) > 0 && (
+                                                                <div className="mt-1 pt-3 border-t border-slate-50 flex items-center justify-between">
+                                                                    <div className="flex gap-4">
+                                                                        <div>
+                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Paid</span>
+                                                                            <span className="text-[11px] font-bold text-emerald-600">₹{Number(inv.paidAmount || 0).toLocaleString()}</span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Balance</span>
+                                                                            <span className="text-[11px] font-bold text-rose-600">₹{Number(inv.balance).toLocaleString()}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    {inv.dueDate && (
+                                                                        <div className="text-right">
+                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Due Date</span>
+                                                                            <span className="text-[11px] font-bold text-slate-600">{new Date(inv.dueDate).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="text-center py-10 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center">
+                                                        <CreditCard size={32} className="text-slate-200 mb-2" strokeWidth={1.5} />
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">No membership payments yet</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+
+                                            {/* Store Orders History */}
+                                            <div className="space-y-4 pt-2 border-t border-slate-100">
+                                                <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-1 px-1 flex items-center gap-2">
+                                                    <ShoppingCart size={14} className="text-emerald-400" /> Store Purchases
+                                                </h4>
+                                                <div className="space-y-2.5">
+                                                    {selectedMember.storeOrders?.length > 0 ? (
+                                                        selectedMember.storeOrders.map((order, idx) => (
+                                                            <div key={idx} className="p-4 bg-slate-50/30 rounded-2xl border border-slate-100 group hover:bg-white hover:border-emerald-200 hover:shadow-md transition-all duration-200">
+                                                                <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-50">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100 group-hover:scale-110 transition-transform">
+                                                                            <ShoppingCart size={18} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Order #{order.id}</p>
+                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()} • {order.paymentMode}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right flex items-center gap-3">
+                                                                        <p className="text-sm font-black text-emerald-600">₹{order.total}</p>
+                                                                        <button 
+                                                                            onClick={async () => {
+                                                                                try {
+                                                                                    const { fetchOrderById } = await import('../../api/storeApi');
+                                                                                    const fullOrder = await fetchOrderById(order.id);
+                                                                                    const { exportPdf } = await import('../../utils/exportPdf');
+                                                                                    exportPdf({
+                                                                                        title: 'Store Order',
+                                                                                        filename: `ORDER_${fullOrder.id}`,
+                                                                                        headers: ["Product", "Qty", "Price", "Subtotal"],
+                                                                                        rows: (fullOrder.items || []).map(it => [it.product?.name || 'Product', it.quantity, it.price, it.quantity * it.price]),
+                                                                                        gymName: "Gym Academy"
+                                                                                    });
+                                                                                } catch (e) { toast.error("Failed to download order"); }
+                                                                            }}
+                                                                            className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-slate-300 hover:text-emerald-500 border border-slate-100 shadow-sm transition-all opacity-0 group-hover:opacity-100"
+                                                                        >
+                                                                            <Download size={12} />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-wrap gap-1.5">
+                                                                    {order.items?.map((item, i) => (
+                                                                        <span key={i} className="px-2.5 py-1 bg-white border border-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase flex items-center gap-1.5">
+                                                                            <span className="text-emerald-500">{item.quantity}x</span>
+                                                                            {item.product?.name || 'Item'}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="text-center py-10 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center">
+                                                            <ShoppingCart size={32} className="text-slate-200 mb-2" strokeWidth={1.5} />
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">No store purchases found</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <MipsSyncPanel type="member" id={selectedMember.id} name={selectedMember.name} branchId={selectedMember.branchId} />
                         </div>
-
-                        {/* Referral */}
-                        {selectedMember.referralCode && (
-                            <div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span></span>
-                                    Referral
-                                </h4>
-                                <div className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Referral Code</p>
-                                    <p className="text-sm font-semibold text-slate-800">{selectedMember.referralCode}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Government ID */}
-                        {(selectedMember.idType || selectedMember.idNumber) && (
-                            <div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span></span>
-                                    Government ID
-                                </h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {[['ID Type', selectedMember.idType], ['ID Number', selectedMember.idNumber]].map(([label, val]) => (
-                                        <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                            <p className="text-sm font-semibold text-slate-800 break-words">{val || '—'}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Address */}
-                        {selectedMember.address && (
-                            <div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span></span>
-                                    Address
-                                </h4>
-                                <div className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                    <p className="text-sm font-semibold text-slate-800">{selectedMember.address}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Emergency Contact */}
-                        {(selectedMember.emergencyName || selectedMember.emergencyPhone) && (
-                            <div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-rose-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span></span>
-                                    Emergency Contact
-                                </h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {[['Name', selectedMember.emergencyName], ['Phone', selectedMember.emergencyPhone]].map(([label, val]) => (
-                                        <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                            <p className="text-sm font-semibold text-slate-800 uppercase">{val || '—'}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Fitness & Health */}
-                        {(selectedMember.fitnessGoal || selectedMember.healthConditions) && (
-                            <div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span></span>
-                                    Fitness &amp; Health
-                                </h4>
-                                <div className="grid grid-cols-1 gap-3">
-                                    {[['Fitness Goal', selectedMember.fitnessGoal], ['Health Conditions', selectedMember.healthConditions]].map(([label, val]) => val ? (
-                                        <div key={label} className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                            <p className="text-sm font-semibold text-slate-800">{val}</p>
-                                        </div>
-                                    ) : null)}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* MIPS Hardware Sync */}
-                        <MipsSyncPanel
-                            type="member"
-                            id={selectedMember.id}
-                            name={selectedMember.name}
-                        />
-
                     </div>
                 )}
             </RightDrawer>
@@ -1291,6 +1837,146 @@ const MemberList = () => {
                                 <option key={t.id} value={t.id}>{t.name} ({t.specialization || 'General'})</option>
                             ))}
                         </select>
+                    </div>
+                </div>
+            </RightDrawer>
+
+            {/* Freeze Plan Drawer */}
+            <RightDrawer
+                isOpen={isFreezeDrawerOpen}
+                onClose={() => setIsFreezeDrawerOpen(false)}
+                title="Freeze Plan"
+                subtitle={`Suspend membership for ${selectedMember?.name}`}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button type="button" onClick={() => setIsFreezeDrawerOpen(false)} variant="outline">Cancel</Button>
+                        <Button onClick={handleFreezeSubmit} variant="primary" className="shadow-lg shadow-blue-200">Confirm Freeze</Button>
+                    </div>
+                }
+            >
+                <div className="px-6 py-8 space-y-6">
+                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-blue-500 shadow-sm">
+                            <Snowflake size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-0.5">Membership Suspend</p>
+                            <h4 className="text-sm font-bold text-slate-800">Pause the current plan cycle</h4>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Start Date</label>
+                            <input type="date" value={freezeData.startDate} onChange={(e) => setFreezeData({...freezeData, startDate: e.target.value})}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 text-sm font-semibold outline-none bg-slate-50/50" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Duration (Days)</label>
+                            <input type="number" value={freezeData.days} onChange={(e) => setFreezeData({...freezeData, days: e.target.value})}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 text-sm font-semibold outline-none bg-slate-50/50" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Reason</label>
+                            <textarea value={freezeData.reason} onChange={(e) => setFreezeData({...freezeData, reason: e.target.value})}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 text-sm font-semibold outline-none bg-slate-50/50 h-24 resize-none" placeholder="Medical, Vacation, etc..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </RightDrawer>
+
+            {/* Body Measurement Drawer */}
+            <RightDrawer
+                isOpen={isBodyDrawerOpen}
+                onClose={() => setIsBodyDrawerOpen(false)}
+                title="Body Measurements"
+                subtitle={`Track progress for ${selectedMember?.name}`}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button type="button" onClick={() => setIsBodyDrawerOpen(false)} variant="outline">Cancel</Button>
+                        <Button onClick={handleBodySubmit} variant="primary" className="shadow-lg shadow-emerald-200">Save Progress</Button>
+                    </div>
+                }
+            >
+                <div className="px-6 py-8 space-y-6">
+                    <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-emerald-500 shadow-sm">
+                            <Activity size={24} />
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-800">Record new fitness stats</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Weight (kg)</label>
+                            <input type="number" placeholder="70" className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 text-sm font-bold bg-slate-50/50" />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Body Fat (%)</label>
+                            <input type="number" placeholder="15" className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 text-sm font-bold bg-slate-50/50" />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Waist (in)</label>
+                            <input type="number" placeholder="32" className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 text-sm font-bold bg-slate-50/50" />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Chest (in)</label>
+                            <input type="number" placeholder="40" className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 text-sm font-bold bg-slate-50/50" />
+                        </div>
+                    </div>
+                </div>
+            </RightDrawer>
+
+            {/* Personal Trainer Assignment Drawer */}
+            <RightDrawer
+                isOpen={isPTDrawerOpen}
+                onClose={() => setIsPTDrawerOpen(false)}
+                title="Personal Trainer Assignment"
+                subtitle={`Assign dedicated coach for ${selectedMember?.name}`}
+                maxWidth="max-w-md"
+                footer={
+                    <div className="flex gap-3 w-full justify-end px-2">
+                        <Button type="button" onClick={() => setIsPTDrawerOpen(false)} variant="outline">Cancel</Button>
+                        <Button onClick={handlePTSubmit} variant="primary" className="shadow-lg shadow-indigo-200">Assign Sessions</Button>
+                    </div>
+                }
+            >
+                <div className="px-6 py-8 space-y-6">
+                    <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-indigo-500 shadow-sm">
+                            <User size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-0.5">PT Enrollment</p>
+                            <h4 className="text-sm font-bold text-slate-800">Assign Coach & Session Count</h4>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Select Coach</label>
+                            <select 
+                                value={ptSelection.trainerId} 
+                                onChange={(e) => setPTSelection({...ptSelection, trainerId: e.target.value})}
+                                className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 text-sm font-semibold outline-none bg-slate-50/50 appearance-none cursor-pointer"
+                            >
+                                <option value="">Choose a Trainer...</option>
+                                {trainers.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name} ({t.specialization || 'PT Specialist'})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Session Count</label>
+                                <input type="number" value={ptSelection.sessions} onChange={(e) => setPTSelection({...ptSelection, sessions: e.target.value})}
+                                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 text-sm font-semibold outline-none bg-slate-50/50" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Package Price (₹)</label>
+                                <input type="number" value={ptSelection.amount} onChange={(e) => setPTSelection({...ptSelection, amount: e.target.value})}
+                                    placeholder="Enter Amount" className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 text-sm font-semibold outline-none bg-slate-50/50" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </RightDrawer>

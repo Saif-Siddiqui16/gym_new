@@ -70,6 +70,7 @@ const ServiceRequestDrawer = ({ isOpen, onClose, onSubmit, memberData, initialTy
                         <option value="Freeze Membership">Freeze Membership</option>
                         <option value="Unfreeze Membership">Unfreeze Membership</option>
                         <option value="Request Trainer Change">Trainer Change Request</option>
+                        <option value="Request Locker">Request Locker</option>
                     </select>
                 </div>
 
@@ -89,6 +90,15 @@ const ServiceRequestDrawer = ({ isOpen, onClose, onSubmit, memberData, initialTy
                         <div className="text-amber-500 shrink-0"><AlertCircle size={18} /></div>
                         <p className="text-[11px] text-amber-800 font-bold leading-normal uppercase tracking-wide">
                             Note: Fee terms and expiry extensions apply based on your specific plan.
+                        </p>
+                    </div>
+                )}
+
+                {type === 'Request Locker' && (
+                    <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 flex gap-3">
+                        <div className="text-blue-500 shrink-0"><AlertCircle size={18} /></div>
+                        <p className="text-[11px] text-blue-800 font-bold leading-normal uppercase tracking-wide">
+                            Locker availability is subject to branch capacity. You will be notified once a locker is assigned.
                         </p>
                     </div>
                 )}
