@@ -144,15 +144,24 @@ const BookingReport = () => {
             const rawData = bookingsRes?.data?.data || [];
 
             // Format for table
-            const formattedBookings = rawData.map(b => ({
-                id: b.id,
-                memberName: b.member?.name || 'Unknown',
-                classType: b.class?.name || (b.classId ? `Class #${b.classId}` : 'Session'),
-                trainerName: b.class?.trainer?.name || b.member?.trainer?.name || 'Unassigned',
-                date: b.date ? new Date(b.date).toLocaleDateString() : 'N/A',
-                time: b.time || 'N/A',
-                status: b.status || 'Pending'
-            }));
+            const formattedBookings = rawData.map(b => {
+                const dateObj = b.date ? new Date(b.date) : null;
+                return {
+                    id: b.id,
+                    memberId: b.member?.memberId || `MEM-${b.memberId}`,
+                    memberName: b.member?.name || 'Unknown',
+                    memberPhone: b.member?.phone || '',
+                    planName: b.member?.plan?.name || 'No Plan',
+                    classType: b.class?.name || (b.classId ? `Class #${b.classId}` : 'Session'),
+                    classCategory: b.class?.type || 'Workout',
+                    location: b.class?.location || '',
+                    duration: b.class?.duration || '',
+                    trainerName: b.class?.trainer?.name || b.member?.trainer?.name || 'Unassigned',
+                    date: dateObj ? dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A',
+                    time: dateObj ? dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
+                    status: b.status || 'Upcoming'
+                };
+            });
 
             setAllFilteredBookings(formattedBookings);
             setTotalItems(formattedBookings.length);
@@ -226,37 +235,25 @@ const BookingReport = () => {
 
     return (
         <div className="min-h-screen ">
-            {/* Premium Header with Gradient */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                                <ClipboardList size={24} className="md:w-7 md:h-7" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                    Booking Report
-                                </h1>
-                                <p className="text-slate-600 text-[10px] md:text-sm mt-0.5 md:mt-1 font-medium">Analyze class and PT booking performance</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 md:gap-3">
-                            <button
-                                onClick={handleExport}
-                                className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all rounded-xl px-4 py-2 md:py-2.5 text-xs md:text-sm font-semibold"
-                            >
-                                <FileText size={14} className="text-gray-500 md:w-4 md:h-4" /> Export as PDF
-                            </button>
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`p-2 md:p-2.5 border rounded-xl hover:bg-gray-50 transition-all ${showFilters ? 'bg-primary-light border-violet-200 ring-2 ring-violet-100 text-primary' : 'bg-white border-gray-200 text-gray-500'}`}
-                            >
-                                <Filter size={18} />
-                            </button>
-                        </div>
-                    </div>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-xl font-extrabold text-slate-900">All Bookings</h1>
+                    <p className="text-xs text-slate-400 mt-0.5">Class & PT session bookings for all members</p>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-2 text-xs font-semibold hover:bg-slate-50 transition-all shadow-sm"
+                    >
+                        <FileText size={14} /> Export PDF
+                    </button>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`p-2 border rounded-xl transition-all ${showFilters ? 'bg-primary-light border-primary/20 text-primary' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
+                    >
+                        <Filter size={16} />
+                    </button>
                 </div>
             </div>
 
@@ -319,15 +316,15 @@ const BookingReport = () => {
 
                 <div className="saas-table-wrapper">
                     <table className="saas-table saas-table-responsive w-full">
-                        <thead className="hidden sm:table-header-group bg-gradient-to-r from-primary-light via-purple-50 to-fuchsia-50 border-b-2 border-violet-200">
+                        <thead className="hidden sm:table-header-group bg-slate-50 border-b border-slate-100">
                             <tr>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Booking ID</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Member</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Booking Type</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Trainer</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Date / Time</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-primary uppercase tracking-wider text-right">Actions</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Booking ID</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Member</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Class / Type</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Trainer</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Date / Time</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-left">Status</th>
+                                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 flex flex-col sm:table-row-group">
@@ -342,60 +339,54 @@ const BookingReport = () => {
                                 </tr>
                             ) : bookings.length > 0 ? (
                                 bookings.map((row) => (
-                                    <tr key={row.id} className="flex flex-col sm:table-row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/30 transition-colors duration-200 group p-4 sm:p-0 border-b sm:border-0 border-slate-100">
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Booking ID">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking ID</span>
-                                            <span className="text-xs font-mono text-primary font-bold bg-primary-light px-2 py-1 rounded-md">#{row.id}</span>
+                                    <tr key={row.id} className="flex flex-col sm:table-row hover:bg-slate-50 transition-colors group p-4 sm:p-0 border-b sm:border-0 border-slate-100">
+                                        <td className="px-6 py-4" data-label="Booking ID">
+                                            <span className="text-xs font-mono font-bold text-primary bg-primary/8 px-2 py-1 rounded-lg">#{row.id}</span>
                                         </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Member">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Member</span>
+                                        <td className="px-6 py-4" data-label="Member">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-xs">
+                                                <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm shrink-0">
                                                     {(row.memberName || 'U').charAt(0).toUpperCase()}
                                                 </div>
-                                                <p className="text-sm font-bold text-gray-800">{row.memberName || 'Unknown'}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Booking Type">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</span>
-                                            <span className="text-sm font-medium text-gray-700">{row.classType || 'N/A'}</span>
-                                        </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Trainer">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Trainer</span>
-                                            <span className="text-sm text-gray-600 font-medium">{row.trainerName || 'Unassigned'}</span>
-                                        </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Date / Time">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Date / Time</span>
-                                            <div className="text-right sm:text-left text-sm text-gray-700">
-                                                <div className="font-semibold">{row.date || '-'}</div>
-                                                <div className="flex items-center justify-end sm:justify-start gap-1 text-xs text-gray-400 mt-0.5">
-                                                    <Clock size={11} />
-                                                    {row.time || '-'}
+                                                <div>
+                                                    <p className="text-sm font-bold text-slate-800 leading-tight">{row.memberName}</p>
+                                                    <p className="text-[10px] text-slate-400 font-medium">{row.memberId} · {row.planName}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell" data-label="Status">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transform transition-transform md:hover:scale-105 inline-block ${getStatusStyle(row.status)}`}>
-                                                {row.status || 'Pending'}
+                                        <td className="px-6 py-4" data-label="Class / Type">
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-800">{row.classType}</p>
+                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{row.classCategory}</span>
+                                                    {row.location && <span className="text-[10px] text-slate-400">{row.location}</span>}
+                                                    {row.duration && <span className="text-[10px] text-slate-400">· {row.duration}</span>}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Trainer">
+                                            <span className="text-sm font-medium text-slate-700">{row.trainerName}</span>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Date / Time">
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-800">{row.date}</p>
+                                                <div className="flex items-center gap-1 text-[11px] text-slate-400 mt-0.5">
+                                                    <Clock size={10} />{row.time}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Status">
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border inline-block ${getStatusStyle(row.status)}`}>
+                                                {row.status}
                                             </span>
                                         </td>
-                                        <td className="px-2 py-2 sm:px-6 sm:py-4 flex justify-between items-center sm:table-cell sm:text-right" data-label="Actions">
-                                            <span className="sm:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</span>
-                                            <div className="flex items-center justify-end gap-1 transition-all duration-200">
-                                                <button
-                                                    onClick={() => handleViewDetails(row)}
-                                                    className="p-2 text-gray-400 hover:text-primary hover:bg-primary-light rounded-lg transition-all md:hover:scale-110 duration-300"
-                                                    title="View Details"
-                                                >
-                                                    <Eye size={16} />
+                                        <td className="px-6 py-4 text-right" data-label="Actions">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <button onClick={() => handleViewDetails(row)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/8 rounded-lg transition-all" title="View">
+                                                    <Eye size={15} />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDelete(row.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                    title="Cancel Booking"
-                                                >
-                                                    <Trash2 size={16} />
+                                                <button onClick={() => handleDelete(row.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete">
+                                                    <Trash2 size={15} />
                                                 </button>
                                             </div>
                                         </td>
@@ -454,62 +445,53 @@ const BookingReport = () => {
                 width="500px"
             >
                 {selectedBooking && (
-                    <div className="space-y-6">
-                        <div className="flex flex-col items-center py-6 bg-slate-50 rounded-2xl border border-slate-100 mx-2">
-                            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-violet-100 text-primary-hover flex items-center justify-center font-black text-xl md:text-2xl mb-3 shadow-lg ring-4 ring-primary-light ring-offset-4">
+                    <div className="space-y-4 p-4">
+                        {/* Member Info */}
+                        <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div className="h-14 w-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xl shrink-0">
                                 {(selectedBooking.memberName || 'U').charAt(0).toUpperCase()}
                             </div>
-                            <h4 className="text-lg md:text-xl font-bold text-gray-900">{selectedBooking.memberName || 'Unknown Member'}</h4>
-                            <span className="text-[10px] font-black px-3 py-1 rounded-full mt-2 uppercase tracking-widest bg-primary-light text-primary border border-violet-100">
-                                {selectedBooking.classType || 'Booking'}
-                            </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2">
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                    <User size={12} /> Trainer
-                                </p>
-                                <p className="text-sm font-bold text-gray-900 truncate">{selectedBooking.trainerName || 'Unassigned'}</p>
-                            </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                    <Clock size={12} /> Time Slot
-                                </p>
-                                <p className="text-base md:text-lg font-black text-slate-800">{selectedBooking.time || '-'}</p>
-                            </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                    <Activity size={12} /> Status
-                                </p>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border inline-block ${getStatusStyle(selectedBooking.status)}`}>
-                                    {selectedBooking.status || 'Pending'}
-                                </span>
-                            </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                    <MapPin size={12} /> Booking ID
-                                </p>
-                                <p className="text-sm font-bold text-primary">#{selectedBooking.id}</p>
+                            <div>
+                                <p className="text-base font-black text-slate-900">{selectedBooking.memberName}</p>
+                                <p className="text-xs text-slate-400 mt-0.5">{selectedBooking.memberId}</p>
+                                {selectedBooking.memberPhone && <p className="text-xs text-slate-400">{selectedBooking.memberPhone}</p>}
+                                <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full">{selectedBooking.planName}</span>
                             </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-primary-light/50 rounded-xl border border-violet-100 flex gap-3 text-sm text-violet-900 mx-2">
-                            <div className="p-1.5 bg-white rounded-lg h-fit border border-violet-200">
-                                <Calendar size={14} className="text-primary" />
+                        {/* Booking Info */}
+                        <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
+                            <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Details</p>
                             </div>
-                            <p className="text-xs md:text-sm">Scheduled for <span className="font-bold">{selectedBooking.date || 'N/A'}</span> at <span className="font-bold">{selectedBooking.time || 'N/A'}</span>.</p>
+                            <div className="divide-y divide-slate-50">
+                                {[
+                                    { label: 'Booking ID', value: `#${selectedBooking.id}` },
+                                    { label: 'Class / Session', value: selectedBooking.classType },
+                                    { label: 'Type', value: selectedBooking.classCategory },
+                                    { label: 'Location', value: selectedBooking.location || '—' },
+                                    { label: 'Duration', value: selectedBooking.duration || '—' },
+                                    { label: 'Trainer', value: selectedBooking.trainerName },
+                                    { label: 'Date', value: selectedBooking.date },
+                                    { label: 'Time', value: selectedBooking.time },
+                                ].map(item => (
+                                    <div key={item.label} className="flex justify-between items-center px-4 py-3">
+                                        <span className="text-xs font-semibold text-slate-400">{item.label}</span>
+                                        <span className="text-xs font-bold text-slate-800">{item.value}</span>
+                                    </div>
+                                ))}
+                                <div className="flex justify-between items-center px-4 py-3">
+                                    <span className="text-xs font-semibold text-slate-400">Status</span>
+                                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${getStatusStyle(selectedBooking.status)}`}>
+                                        {selectedBooking.status}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="px-2 pb-6">
-                            <Button
-                                onClick={() => setIsViewModalOpen(false)}
-                                variant="primary"
-                                className="w-full h-12 rounded-xl shadow-xl shadow-violet-200"
-                            >
-                                Close Details
-                            </Button>
-                        </div>
+                        <Button onClick={() => setIsViewModalOpen(false)} variant="primary" className="w-full h-11 rounded-xl">
+                            Close
+                        </Button>
                     </div>
                 )}
             </RightDrawer>

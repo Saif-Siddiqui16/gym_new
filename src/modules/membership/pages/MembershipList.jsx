@@ -40,37 +40,31 @@ const MembershipList = () => {
     }, [searchTerm, statusFilter]);
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 p-6 pb-12">
-            {/* Premium Header with Gradient */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-pink-600 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                                <Sparkles className="text-primary" size={28} />
-                                Memberships
-                            </h1>
-                            <p className="text-gray-600 text-sm">Manage member subscriptions and plans</p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                            <button
-                                onClick={() => navigate('/memberships/plans')}
-                                className="w-full sm:w-auto px-5 py-3 bg-white text-primary border border-violet-100 rounded-xl font-bold hover:bg-primary-light hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
-                            >
-                                <Sparkles size={18} />
-                                Manage Plans
-                            </button>
-                            <button
-                                onClick={() => navigate('/memberships/new')}
-                                className="w-full sm:w-auto group relative px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-purple-500/50 hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity duration-500"></div>
-                                <Plus size={18} className="relative z-10 transition-transform duration-300 group-hover:rotate-90" />
-                                <span className="relative z-10">Add Membership</span>
-                            </button>
-                        </div>
-                    </div>
+        <div className="space-y-6 fade-in">
+            {/* Standardized Header */}
+            <div className="page-header flex-row items-center justify-between">
+                <div>
+                    <h1 className="page-title flex items-center gap-3">
+                        <Sparkles className="text-primary" size={28} />
+                        Memberships
+                    </h1>
+                    <p className="page-subtitle">Manage member subscriptions and plans</p>
+                </div>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => navigate('/memberships/plans')}
+                        className="btn-outline px-5 py-2.5 rounded-xl font-bold flex items-center gap-2"
+                    >
+                        <Sparkles size={18} />
+                        Manage Plans
+                    </button>
+                    <button
+                        onClick={() => navigate('/memberships/new')}
+                        className="btn-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-200"
+                    >
+                        <Plus size={18} />
+                        Add Membership
+                    </button>
                 </div>
             </div>
 

@@ -196,22 +196,22 @@ const WorkoutPlans = ({ role }) => {
         const dayLabelObj = DAY_LABELS.find(d => d.key === dayToRender);
 
         return (
-            <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="space-y-8 fade-in">
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-6 md:pb-8 border-b-2 border-slate-100">
+                <div className="page-header flex-column md:flex-row items-start md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4 md:gap-5">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
-                            <Dumbbell size={24} className="md:w-8 md:h-8" strokeWidth={2.5} />
+                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary-gradient flex items-center justify-center text-white shadow-lg shrink-0">
+                            <Dumbbell size={28} className="md:w-8 md:h-8" />
                         </div>
                         <div className="min-w-0">
-                            <h1 className="text-xl md:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mb-0.5 md:mb-1 truncate">
+                            <h1 className="page-title truncate">
                                 {activePlan ? activePlan.name : 'My Workout'}
                             </h1>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-slate-500 font-bold text-[9px] md:text-[10px] uppercase tracking-widest shrink-0">
+                                <span className="text-muted font-bold text-[9px] md:text-[10px] uppercase tracking-widest shrink-0">
                                     Goal:
                                 </span>
-                                <span className="px-2 md:px-3 py-0.5 md:py-1 bg-primary-light text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100 truncate">
+                                <span className="px-2 md:px-3 py-0.5 md:py-1 bg-primary-light text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-primary/10 truncate">
                                     {activePlan ? activePlan.goal : 'No Plan Assigned'}
                                 </span>
                             </div>
@@ -420,14 +420,19 @@ const WorkoutPlans = ({ role }) => {
             <div className="max-w-full mx-auto">
 
                 {/* Templates List */}
-                <div className="saas-card  rounded-2xl md:rounded-[32px] bg-white border border-gray-100 shadow-sm mb-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tight">Saved Templates</h2>
-                            <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Reusable training blocks for your branch</p>
+                <div className="saas-card mb-8">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="section-title mb-0">
+                            <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
+                                <BookmarkPlus size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-lg md:text-xl font-bold text-title">Saved Templates</h2>
+                                <p className="page-subtitle text-[10px] mt-1">Reusable training blocks for your branch</p>
+                            </div>
                         </div>
-                        <button onClick={fetchTemplates} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
-                            <RefreshCcw size={16} className={loadingTemplates ? 'animate-spin' : ''} />
+                        <button onClick={fetchTemplates} className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
+                            <RefreshCcw size={18} className={loadingTemplates ? 'animate-spin' : ''} />
                         </button>
                     </div>
 
@@ -475,11 +480,16 @@ const WorkoutPlans = ({ role }) => {
                 </div>
 
                 {/* Plan Info Card */}
-                <div className="saas-card !p-5 md:!p-8 !mb-8 !rounded-2xl md:!rounded-[32px] bg-white border-gray-100 shadow-sm space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-6">
-                        <div>
-                            <h2 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tight">Plan Builder</h2>
-                            <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Design customized workout sequences</p>
+                <div className="saas-card mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-light pb-6 mb-8">
+                        <div className="section-title mb-0">
+                             <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
+                                <Plus size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-lg md:text-xl font-bold text-title">Plan Builder</h2>
+                                <p className="page-subtitle text-[10px] mt-1">Design customized workout sequences</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <button
@@ -735,23 +745,6 @@ const WorkoutPlans = ({ role }) => {
                     </div>
                 </div>
             </div>
-
-            {/* Global Design Extras */}
-            <style>{`
-                .saas-card {
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .saas-card:hover {
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-                }
-                ::-webkit-scrollbar {
-                    height: 4px;
-                }
-                ::-webkit-scrollbar-thumb {
-                    background: #E5E7EB;
-                    border-radius: 10px;
-                }
-            `}</style>
         </div>
     );
 };

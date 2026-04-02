@@ -276,65 +276,59 @@ const LeadsPipeline = () => {
     return (
         <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
             {/* Header Section */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300 shrink-0">
-                            <Users size={24} className="sm:w-7 sm:h-7" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                Lead Management
-                            </h1>
-                            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">Track and convert your fitness prospects</p>
-                        </div>
+            <div className="page-header flex-row items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-primary-gradient flex items-center justify-center text-white shadow-lg shrink-0">
+                        <Users size={28} />
                     </div>
-                    <Button
-                        onClick={openAddDrawer}
-                        variant="primary"
-                        className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                        icon={UserPlus}
-                    >
-                        Add Lead
-                    </Button>
+                    <div>
+                        <h1 className="page-title">Lead Management</h1>
+                        <p className="page-subtitle">Track and convert your fitness prospects</p>
+                    </div>
                 </div>
+                <Button
+                    onClick={openAddDrawer}
+                    variant="primary"
+                    className="btn-primary px-6 h-12 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200"
+                    icon={UserPlus}
+                >
+                    Add Lead
+                </Button>
             </div>
 
             {/* Stats Cards Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                 {[
-                    { title: "Total Leads", value: stats.total, icon: Users, color: "from-primary to-primary" },
-                    { title: "New", value: stats.new, icon: UserPlus, color: "from-indigo-500 to-blue-600" },
-                    { title: "Contacted", value: stats.contacted, icon: Phone, color: "from-amber-400 to-orange-500" },
-                    { title: "Interested", value: stats.interested, icon: TrendingUp, color: "from-emerald-500 to-teal-600" },
-                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "from-blue-500 to-indigo-600" },
-                    { title: "Lost", value: stats.lost, icon: X, color: "from-rose-500 to-red-600" }
+                    { title: "Total Leads", value: stats.total, icon: Users, color: "bg-primary" },
+                    { title: "New", value: stats.new, icon: UserPlus, color: "bg-indigo-500" },
+                    { title: "Contacted", value: stats.contacted, icon: Phone, color: "bg-amber-500" },
+                    { title: "Interested", value: stats.interested, icon: TrendingUp, color: "bg-emerald-500" },
+                    { title: "Converted", value: stats.converted, icon: CheckCircle, color: "bg-blue-600" },
+                    { title: "Lost", value: stats.lost, icon: X, color: "bg-rose-500" }
                 ].map((item, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
+                    <div key={idx} className="saas-card group">
                         <div className="flex items-start justify-between w-full">
                             <div>
-                                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{item.title}</p>
-                                <h3 className="text-3xl font-black text-slate-900">{item.value}</h3>
+                                <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">{item.title}</p>
+                                <h3 className="text-3xl font-black text-title">{item.value}</h3>
                             </div>
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
-                                <item.icon size={20} />
+                            <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform`}>
+                                <item.icon size={18} />
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Lead Sources Section */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
+            <div className="saas-card !p-0 overflow-hidden">
+                <div className="p-5 border-b border-border-light flex items-center justify-between gap-4">
+                    <div className="section-title mb-0">
                         <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
                             <BarChart3 size={20} />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-slate-900 leading-none">Lead Sources</h2>
-                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Where your prospects are coming from</p>
+                            <h2 className="text-lg font-bold text-title leading-none">Lead Sources</h2>
+                            <p className="page-subtitle text-[10px] mt-1">Where your prospects are coming from</p>
                         </div>
                     </div>
                 </div>
@@ -847,14 +841,14 @@ const LeadsPipeline = () => {
             </RightDrawer>
 
             {/* Status Modals */}
-            <MarkAsLostModal 
+            <MarkAsLostModal
                 isOpen={showLostModal}
                 onClose={() => setShowLostModal(false)}
                 submitting={submitting}
                 onConfirm={(reason) => handleStatusUpdate(selectedLeadId, 'Lost', { lostReason: reason })}
             />
 
-            <ConvertLeadModal 
+            <ConvertLeadModal
                 isOpen={showConvertModal}
                 onClose={() => setShowConvertModal(false)}
                 submitting={submitting}

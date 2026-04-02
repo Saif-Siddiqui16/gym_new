@@ -179,10 +179,10 @@ const FinancialDashboard = () => {
         <div className="min-h-screen pb-20 w-full">
             <div className="w-full px-4 space-y-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="page-header flex-row items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Finance Dashboard</h1>
-                        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mt-1">Core Financial Intelligence</p>
+                        <h1 className="page-title">Finance Dashboard</h1>
+                        <p className="page-subtitle">Core Financial Intelligence</p>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Button
@@ -205,14 +205,24 @@ const FinancialDashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* Revenue Report Chart Section */}
                     <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-5 sm:p-8 md:p-10 flex flex-col transition-all duration-300 hover:shadow-md">
-                        <div className="flex justify-between items-center mb-10">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
-                                    <BarChart3 size={24} />
+                        <div className="flex justify-between items-center mb-8">
+                                <div className="section-title mb-0">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
+                                        <BarChart3 size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-title">Revenue Report</h3>
+                                        <p className="page-subtitle text-[10px] mt-0.5">Monthly earnings vs expenses</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Revenue Report</h3>
-                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-0.5">Monthly earnings vs expenses</p>
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-sm bg-primary"></div>
+                                    <span className="text-[11px] font-bold text-slate-500">Income</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-sm bg-rose-400"></div>
+                                    <span className="text-[11px] font-bold text-slate-500">Expenses</span>
                                 </div>
                             </div>
                         </div>
@@ -225,12 +235,12 @@ const FinancialDashboard = () => {
                                 >
                                     <defs>
                                         <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#7c3aed" stopOpacity={1} />
-                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                            <stop offset="0%" stopColor="#2563EB" stopOpacity={1} />
+                                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.75} />
                                         </linearGradient>
                                         <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#f1f5f9" stopOpacity={1} />
-                                            <stop offset="100%" stopColor="#e2e8f0" stopOpacity={0.8} />
+                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.85} />
+                                            <stop offset="100%" stopColor="#fb7185" stopOpacity={0.5} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -238,12 +248,16 @@ const FinancialDashboard = () => {
                                         dataKey="month"
                                         axisLine={false}
                                         tickLine={false}
-                                        tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 900 }}
-                                        dy={15}
+                                        tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
+                                        dy={12}
                                     />
                                     <YAxis
-                                        hide
-                                        domain={[0, 'dataMax + 1000']}
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#cbd5e1', fontSize: 10, fontWeight: 700 }}
+                                        tickFormatter={(v) => `₹${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`}
+                                        domain={[0, 'dataMax + 5000']}
+                                        width={48}
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#f8fafc', radius: 16 }}
@@ -282,19 +296,19 @@ const FinancialDashboard = () => {
                                         dataKey="income"
                                         name="Income"
                                         fill="url(#incomeGradient)"
-                                        radius={[10, 10, 10, 10]}
-                                        barSize={24}
-                                        animationDuration={1500}
-                                        activeBar={<Rectangle fill="#6d28d9" stroke="none" radius={[10, 10, 10, 10]} />}
+                                        radius={[8, 8, 4, 4]}
+                                        barSize={28}
+                                        animationDuration={1200}
+                                        activeBar={<Rectangle fill="#1d4ed8" stroke="none" radius={[8, 8, 4, 4]} />}
                                     />
                                     <Bar
                                         dataKey="expenses"
                                         name="Expenses"
                                         fill="url(#expenseGradient)"
-                                        radius={[10, 10, 10, 10]}
-                                        barSize={24}
-                                        animationDuration={1500}
-                                        activeBar={<Rectangle fill="#cbd5e1" stroke="none" radius={[10, 10, 10, 10]} />}
+                                        radius={[8, 8, 4, 4]}
+                                        barSize={28}
+                                        animationDuration={1200}
+                                        activeBar={<Rectangle fill="#e11d48" stroke="none" radius={[8, 8, 4, 4]} />}
                                     />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -304,13 +318,13 @@ const FinancialDashboard = () => {
                     {/* Right Summary Card (Budget 2026) */}
                     <div className="lg:col-span-4 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-5 sm:p-8 md:p-10 flex flex-col">
                         <div className="mb-10 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm">
+                            <div className="section-title mb-0">
+                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
                                     <PieChart size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">2026 Budget</h3>
-                                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Summary</p>
+                                    <h3 className="text-xl font-bold text-title">2026 Budget</h3>
+                                    <p className="page-subtitle text-[10px] mt-0.5">Summary</p>
                                 </div>
                             </div>
                         </div>

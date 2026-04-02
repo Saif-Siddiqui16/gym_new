@@ -66,7 +66,7 @@ import HardwareSettings from './Superadmin/GeneralSettings/HardwareSettings';
 import BookingSettingsPage from './Superadmin/GeneralSettings/BookingSettings';
 import SuperAdminProfile from './Superadmin/Profile/MyProfile';
 import WalletList from './Superadmin/WalletList';
-import TrainerRequests from './Superadmin/TrainerRequests';
+// import TrainerRequests from './Superadmin/TrainerRequests'; // temporarily disabled
 import TrainerChangeRequestList from './Superadmin/TrainerChangeRequestList';
 import PayrollCreation from './Superadmin/payroll/PayrollCreation';
 import PayrollHistory from './Superadmin/payroll/PayrollHistory';
@@ -378,7 +378,6 @@ export default function App() {
             {(currentRole === ROLES.SUPER_ADMIN || currentRole === ROLES.MANAGER || currentRole === ROLES.BRANCH_ADMIN) && (
               <>
                 <Route path="/superadmin/wallet" element={<WalletList role={currentRole} />} />
-                <Route path="/superadmin/trainer-requests" element={<TrainerRequests role={currentRole} />} />
                 <Route path="/superadmin/trainer-change-requests" element={<TrainerChangeRequestList role={currentRole} />} />
                 <Route path="/superadmin/payroll/create" element={<PayrollCreation role={currentRole} />} />
                 <Route path="/superadmin/payroll/history" element={<PayrollHistory role={currentRole} />} />
@@ -439,7 +438,6 @@ export default function App() {
                 <Route path="/branchadmin/reports/lead-conversion" element={<LeadConversionReport />} />
                 <Route path="/branchadmin/reports/expenses" element={<ExpenseReport />} />
                 <Route path="/branchadmin/reports/performance" element={<BranchPerformanceReport />} />
-                <Route path="/branchadmin/trainer-requests" element={<TrainerRequests role={currentRole} />} />
 
                 {/* Reused Settings Routes */}
 

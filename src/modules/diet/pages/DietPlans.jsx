@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    Plus, 
-    Trash2, 
-    RefreshCcw, 
-    CheckCircle2, 
-    ChevronRight, 
-    Clock, 
-    UtensilsCrossed, 
-    BookmarkPlus, 
+import {
+    Plus,
+    Trash2,
+    RefreshCcw,
+    CheckCircle2,
+    ChevronRight,
+    Clock,
+    UtensilsCrossed,
+    BookmarkPlus,
     Info,
     Leaf,
     Droplets,
@@ -87,24 +87,24 @@ const DietPlans = ({ role }) => {
         }
 
         return (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="space-y-8 fade-in">
                 {/* Header Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="md:col-span-3 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-2 h-full bg-primary/40"></div>
+                    <div className="md:col-span-3 bg-white p-8 rounded-3xl border border-border-color shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-gradient"></div>
                         <div className="flex items-center gap-6 relative z-10">
-                            <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/20 rotate-3">
-                                <UtensilsCrossed size={36} />
+                            <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
+                                <UtensilsCrossed size={32} />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none mb-2">
+                                <h1 className="page-title">
                                     {activePlan ? activePlan.name : 'Daily Nutrition'}
                                 </h1>
                                 <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 bg-primary-light text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-violet-100">
+                                    <span className="px-3 py-1 bg-primary-light text-primary rounded-full text-[10px] font-bold uppercase tracking-widest border border-primary/10">
                                         {activePlan ? activePlan.target : 'No Active Plan'}
                                     </span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest flex items-center gap-1">
                                         <Clock size={12} /> Duration: {activePlan ? activePlan.duration : '--'}
                                     </span>
                                 </div>
@@ -139,9 +139,9 @@ const DietPlans = ({ role }) => {
                     {/* Meal Schedule */}
                     <div className="md:col-span-2 space-y-6">
                         <div className="flex items-center justify-between px-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-6 rounded-full bg-primary/40"></div>
-                                <h2 className="text-lg font-black text-slate-900 uppercase tracking-widest">Protocol Schedule</h2>
+                            <div className="section-title">
+                                <div className="w-1 h-6 rounded-full bg-primary"></div>
+                                Protocol Schedule
                             </div>
                         </div>
 
@@ -192,7 +192,7 @@ const DietPlans = ({ role }) => {
                                 </div>
                                 {activePlan.notes && (
                                     <div className="p-8 bg-primary/5 rounded-[2.5rem] border-2 border-dashed border-primary/10 text-sm font-bold text-slate-700 italic relative overflow-hidden">
-                                         <Info className="absolute -right-4 -top-4 w-20 h-20 text-primary/5" />
+                                        <Info className="absolute -right-4 -top-4 w-20 h-20 text-primary/5" />
                                         " {activePlan.notes} "
                                     </div>
                                 )}
@@ -395,7 +395,7 @@ const TrainerDietBuilder = () => {
             toast.loading('Saving diet template...', { id: 'saveDiet' });
 
             const payload = {
-                clientId: 0, 
+                clientId: 0,
                 name: planName,
                 target: target || 'General Nutrition',
                 duration: duration,
@@ -431,7 +431,7 @@ const TrainerDietBuilder = () => {
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-xl shadow-slate-200">
-                             <BookmarkPlus size={24} />
+                            <BookmarkPlus size={24} />
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight leading-none">Saved Protocols</h2>
@@ -451,11 +451,11 @@ const TrainerDietBuilder = () => {
                     ) : templates.length === 0 ? (
                         <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-100">
                             <UtensilsCrossed size={48} className="mx-auto text-slate-200 mb-6 opacity-20" />
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-loose">No protocols digitized yet. <br/>Start building your first one below.</p>
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-loose">No protocols digitized yet. <br />Start building your first one below.</p>
                         </div>
                     ) : templates.map((tpl) => (
                         <div key={tpl.id} className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-violet-200 hover:shadow-2xl transition-all duration-300 group relative overflow-hidden">
-                             <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-4 -mt-4 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-4 -mt-4 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div className="flex justify-between items-start mb-4 relative z-10">
                                 <h4 className="font-black text-slate-900 uppercase tracking-tight truncate flex-1">{tpl.name}</h4>
                                 <span className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase border shrink-0 ${tpl.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'
@@ -490,15 +490,15 @@ const TrainerDietBuilder = () => {
             {/* Builder Implementation */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8 md:p-12 space-y-10 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
-                
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-inner">
+                        <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
                             <Target size={28} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Diet Plan Builder</h2>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Design customized nutrition protocols</p>
+                            <h2 className="page-title">Diet Plan Builder</h2>
+                            <p className="page-subtitle">Design customized nutrition protocols</p>
                         </div>
                     </div>
                     <button
@@ -552,7 +552,7 @@ const TrainerDietBuilder = () => {
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2">
-                           <div className="w-1.5 h-1.5 rounded-full bg-primary"></div> Target Protein
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div> Target Protein
                         </label>
                         <input
                             type="text"
@@ -654,7 +654,7 @@ const TrainerDietBuilder = () => {
                                 {meals.map((meal, index) => (
                                     <div key={meal.id} className="group bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm hover:shadow-2xl hover:border-violet-100 transition-all duration-500 relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-2 h-full bg-slate-100 group-hover:bg-primary transition-colors"></div>
-                                        
+
                                         <button
                                             onClick={() => removeMeal(meal.id)}
                                             className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition-all border border-slate-100"
@@ -669,7 +669,7 @@ const TrainerDietBuilder = () => {
                                                     <div className="w-1.5 h-6 rounded-full bg-primary/20"></div>
                                                     <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Meal Configuration</span>
                                                 </div>
-                                                
+
                                                 <div className="space-y-2">
                                                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Description / Name</label>
                                                     <input
@@ -680,7 +680,7 @@ const TrainerDietBuilder = () => {
                                                         className="w-full h-12 px-5 bg-slate-50 border-2 border-slate-100 rounded-xl text-[11px] font-black text-slate-700 uppercase tracking-tight outline-none focus:border-primary focus:bg-white transition-all"
                                                     />
                                                 </div>
-                                                
+
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Serving Time</label>

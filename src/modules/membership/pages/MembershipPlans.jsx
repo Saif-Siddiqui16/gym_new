@@ -177,98 +177,98 @@ const MembershipPlans = () => {
             {/* 📋 STEP 3: PLANS LIST */}
             <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-6`}>
                 {filteredPlans.map(plan => (
-                    <div key={plan.id} className="group bg-white rounded-2xl p-6 shadow-lg border border-slate-100 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5 flex flex-col relative overflow-hidden">
-                        {/* Status Glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full pointer-events-none"></div>
+                    <div key={plan.id} className="group bg-white rounded-2xl shadow-sm border border-slate-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex-1 pr-2">
-                                <h3 className="text-xl font-extrabold text-slate-900 leading-tight">{plan.name}</h3>
-                                <p className="text-sm text-slate-500 mt-1 line-clamp-2 min-h-[40px] font-medium">{plan.description || 'No description provided'}</p>
-                                {plan.branch && plan.branch !== '—' && (
-                                    <span className="inline-block mt-1 px-2 py-0.5 bg-primary-light text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-violet-100">
-                                        📍 {plan.branch}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex gap-1">
-                                <button onClick={() => handleDelete(plan.id)} className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
-                                    <Trash2 size={16} />
+                        {/* Card Top */}
+                        <div className="px-5 pt-5 pb-4 border-b border-slate-100">
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="flex-1 pr-2">
+                                    <h3 className="text-base font-extrabold text-slate-900 leading-tight">{plan.name}</h3>
+                                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{plan.description || 'No description'}</p>
+                                </div>
+                                <button onClick={() => handleDelete(plan.id)} className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all">
+                                    <Trash2 size={15} />
                                 </button>
                             </div>
-                        </div>
-
-                        {/* Price & Duration */}
-                        <div className="bg-slate-50 rounded-xl p-4 mb-6 relative z-10 border border-slate-100">
-                            <div className="flex flex-col">
+                            {plan.branch && plan.branch !== '—' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/8 text-primary text-[9px] font-black uppercase tracking-widest rounded-full border border-primary/10">
+                                    📍 {plan.branch}
+                                </span>
+                            )}
+                            {/* Price */}
+                            <div className="flex items-end gap-2 mt-3">
                                 <span className="text-3xl font-black text-slate-900">₹{plan.price.toLocaleString()}</span>
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">{plan.duration} {plan.durationType}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{plan.duration} {plan.durationType}</span>
+                                {plan.status === 'Inactive' && (
+                                    <span className="ml-auto text-[9px] font-black uppercase tracking-widest px-2 py-0.5 bg-rose-50 text-rose-500 border border-rose-100 rounded-full">Inactive</span>
+                                )}
                             </div>
                         </div>
 
-                        {/* Badges for Options */}
-                        <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
-                            {plan.allowTransfer && (
-                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-emerald-100">Transferable</span>
-                            )}
-                            {plan.includeLocker && (
-                                <span className="px-2 py-0.5 bg-cyan-50 text-cyan-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-cyan-100">Locker Included</span>
-                            )}
-                            {!plan.showInPurchase && (
-                                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-slate-200">Hidden from App</span>
-                            )}
-                            {!plan.showOnDashboard && (
-                                <span className="px-2 py-0.5 bg-orange-50 text-orange-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-orange-100">Hidden from Dashboard</span>
-                            )}
-                            {plan.status === 'Inactive' && (
-                                <span className="px-2 py-0.5 bg-rose-50 text-rose-500 text-[9px] font-black uppercase tracking-wider rounded-md border border-rose-100">Inactive</span>
-                            )}
-                        </div>
+                        {/* Body */}
+                        <div className="px-5 pt-4 pb-5 flex flex-col flex-1">
 
-                        {/* Benefits List */}
-                        {plan.benefits && plan.benefits.length > 0 && (
-                            <div className="mb-4">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Included Benefits</p>
-                                <ul className="space-y-1.5">
-                                    {plan.benefits.map((benefit, idx) => {
-                                        const flexAmenity = amenities.find(a => a.id === benefit.id);
-                                        return (
-                                            <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 font-medium">
-                                                <CheckCircle2 size={14} className="text-primary mt-0.5 shrink-0" />
-                                                <span className="leading-tight">
-                                                    {flexAmenity ? flexAmenity.name : 'Benefit'} 
-                                                    {benefit.limit && benefit.limit !== 'Unlimited' && ` (${benefit.limit})`}
-                                                </span>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-1.5 mb-4 min-h-[22px]">
+                                {plan.allowTransfer && (
+                                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-emerald-100">Transferable</span>
+                                )}
+                                {plan.includeLocker && (
+                                    <span className="px-2 py-0.5 bg-cyan-50 text-cyan-600 text-[9px] font-black uppercase tracking-wider rounded-md border border-cyan-100">Locker Included</span>
+                                )}
+                                {!plan.showInPurchase && (
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-wider rounded-md">Hidden App</span>
+                                )}
+                                {!plan.showOnDashboard && (
+                                    <span className="px-2 py-0.5 bg-orange-50 text-orange-400 text-[9px] font-black uppercase tracking-wider rounded-md border border-orange-100">Hidden Dashboard</span>
+                                )}
                             </div>
-                        )}
 
-                        {/* All properties */}
-                        <div className="grid grid-cols-3 gap-3 mb-6 mt-auto">
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Usage</p>
-                                <p className="text-sm font-black text-slate-800 leading-tight">Unlimited</p>
-                            </div>
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Enrollment</p>
-                                <p className="text-sm font-black text-slate-800 leading-tight">{plan.memberCount || 0}</p>
-                            </div>
-                            <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Max Freeze</p>
-                                <p className="text-sm font-black text-slate-800 leading-tight">{plan.cancellationWindow ? `${plan.cancellationWindow} Days` : 'None'}</p>
-                            </div>
-                        </div>
+                            {/* Benefits */}
+                            {plan.benefits && plan.benefits.length > 0 && (
+                                <div className="mb-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Included Benefits</p>
+                                    <ul className="space-y-1.5">
+                                        {plan.benefits.map((benefit, idx) => {
+                                            const flexAmenity = amenities.find(a => a.id === benefit.id);
+                                            return (
+                                                <li key={idx} className="flex items-center gap-2 text-xs text-slate-700 font-semibold">
+                                                    <span className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                                        <CheckCircle2 size={10} className="text-primary" />
+                                                    </span>
+                                                    {flexAmenity ? flexAmenity.name : 'Benefit'}
+                                                    {benefit.limit && benefit.limit !== 'Unlimited' && (
+                                                        <span className="ml-auto text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">{benefit.limit}x</span>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            )}
 
-                        {/* Edit Action */}
-                        <div className="mt-auto">
+                            {/* Stats row */}
+                            <div className="grid grid-cols-3 gap-2 mb-5 mt-auto">
+                                <div className="flex flex-col items-center py-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Usage</p>
+                                    <p className="text-xs font-black text-slate-800">Unlimited</p>
+                                </div>
+                                <div className="flex flex-col items-center py-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Members</p>
+                                    <p className="text-xs font-black text-slate-800">{plan.memberCount || 0}</p>
+                                </div>
+                                <div className="flex flex-col items-center py-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Freeze</p>
+                                    <p className="text-xs font-black text-slate-800">{plan.cancellationWindow ? `${plan.cancellationWindow}d` : 'None'}</p>
+                                </div>
+                            </div>
+
+                            {/* Edit Button */}
                             <button
                                 onClick={() => handleEdit(plan)}
-                                className="w-full h-12 bg-primary text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 shadow-md shadow-violet-200 flex items-center justify-center gap-2"
+                                className="w-full h-10 bg-primary text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
-                                <Edit2 size={14} />
+                                <Edit2 size={13} />
                                 Edit Plan
                             </button>
                         </div>

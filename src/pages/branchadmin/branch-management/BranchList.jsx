@@ -319,7 +319,8 @@ const BranchList = () => {
                                                 <MapPin size={20} strokeWidth={3} />
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="text-sm text-slate-800 truncate font-bold">{branch.gymName || branch.branchName}</div>
+                                                <div className="text-sm text-slate-800 truncate font-bold">{branch.branchName || branch.gymName || 'Unnamed Branch'}</div>
+                                                <div className="text-[10px] text-slate-400 truncate">{branch.gymName && branch.branchName ? branch.gymName : ''}</div>
                                                 <div className="text-[10px] text-slate-400 uppercase tracking-tighter truncate md:hidden">Code: BR-{branch.id.toString().padStart(3, '0')}</div>
                                             </div>
                                         </div>
@@ -414,7 +415,10 @@ const BranchList = () => {
                                             <MapPin size={20} strokeWidth={3} />
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-black text-slate-900 leading-tight">{branch.gymName || branch.branchName}</h4>
+                                            <h4 className="text-sm font-black text-slate-900 leading-tight">{branch.branchName || branch.gymName || 'Unnamed Branch'}</h4>
+                                            {branch.gymName && branch.branchName && (
+                                                <p className="text-[10px] text-slate-400 leading-tight">{branch.gymName}</p>
+                                            )}
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">BR-{branch.id?.toString().padStart(3, '0')}</p>
                                         </div>
                                     </div>
@@ -628,9 +632,9 @@ const BranchList = () => {
                                     <optgroup label="Direct Assignment">
                                         <option value="new">+ Register New Manager Account</option>
                                     </optgroup>
-                                    {staffList.length > 0 && (
-                                        <optgroup label="Select Existing Staff">
-                                            {staffList.map(staff => (
+                                    {staffList.filter(s => s.role === 'MANAGER').length > 0 && (
+                                        <optgroup label="Select Existing Manager">
+                                            {staffList.filter(s => s.role === 'MANAGER').map(staff => (
                                                 <option key={staff.id} value={staff.id}>
                                                     {staff.name} ({staff.role})
                                                 </option>
@@ -966,9 +970,9 @@ const BranchList = () => {
                                     <optgroup label="Direct Assignment">
                                         <option value="new">+ Register New Manager Account</option>
                                     </optgroup>
-                                    {staffList.length > 0 && (
-                                        <optgroup label="Select Existing Staff">
-                                            {staffList.map(staff => (
+                                    {staffList.filter(s => s.role === 'MANAGER').length > 0 && (
+                                        <optgroup label="Select Existing Manager">
+                                            {staffList.filter(s => s.role === 'MANAGER').map(staff => (
                                                 <option key={staff.id} value={staff.id}>
                                                     {staff.name} ({staff.role})
                                                 </option>

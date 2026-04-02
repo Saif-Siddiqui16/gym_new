@@ -1,11 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ClipboardList, Building, Type, AlignLeft, Flag, Calendar, UserPlus, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import RightDrawer from '../../components/common/RightDrawer';
 import { getBranchTeam, getMyBranch, createTask } from '../../api/staff/taskApi';
 import Button from '../../components/ui/Button';
+import { useAuth } from '../../context/AuthContext';
+
+// Hierarchy: who can assign to whom
+const ASSIGNABLE_ROLES = {
+    SUPER_ADMIN:  ['MANAGER'],
+    BRANCH_ADMIN: ['MANAGER'],
+    MANAGER:      ['STAFF'],
+    STAFF:        ['TRAINER'],
+    TRAINER:      [],
+};
 
 const CreateTaskDrawer = ({ isOpen, onClose, onSuccess }) => {
+    const { role: currentRole } = useAuth();
     const [formData, setFormData] = useState({
         branch: '',
         title: '',
@@ -19,6 +30,16 @@ const CreateTaskDrawer = ({ isOpen, onClose, onSuccess }) => {
     const [branchInfo, setBranchInfo] = useState(null);
     const [team, setTeam] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const allowedRoles = ASSIGNABLE_ROLES[currentRole] || [];
+    const filteredTeam = useMemo(
+        () => team.filter(m => allowedRoles.includes(m.role)),
+        [team, currentRole]
+    );
+
+    const assignLabel = allowedRoles.length
+        ? `Assign To (${allowedRoles.join(' / ')})`
+        : 'Assign To';
 
     useEffect(() => {
         if (isOpen) {
@@ -160,7 +181,7 @@ const CreateTaskDrawer = ({ isOpen, onClose, onSuccess }) => {
 
                     {/* Assign To */}
                     <div className="space-y-2.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assign To</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{assignLabel}</label>
                         <div className="relative group">
                             <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
                             <select
@@ -169,11 +190,15 @@ const CreateTaskDrawer = ({ isOpen, onClose, onSuccess }) => {
                                 onChange={(e) => setFormData({ ...formData, assignedToId: e.target.value })}
                             >
                                 <option value="">Select user (optional)</option>
-                                {team.map(member => (
-                                    <option key={member.id} value={member.id}>
-                                        {member.name}
-                                    </option>
-                                ))}
+                                {filteredTeam.length === 0 ? (
+                                    <option disabled>No {allowedRoles.join('/')} found</option>
+                                ) : (
+                                    filteredTeam.map(member => (
+                                        <option key={member.id} value={member.id}>
+                                            {member.name} ({member.role})
+                                        </option>
+                                    ))
+                                )}
                             </select>
                         </div>
                     </div>

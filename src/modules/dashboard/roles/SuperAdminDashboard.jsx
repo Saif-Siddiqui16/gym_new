@@ -81,12 +81,12 @@ const SuperAdminDashboard = () => {
     return (
         <div className="  space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             {/* Enhanced Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b-2 border-gray-100">
+            <div className="page-header flex-row items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">System Overview</h1>
-                    <p className="text-gray-600 text-sm">Monitor platform performance and recent activity</p>
+                    <h1 className="page-title">System Overview</h1>
+                    <p className="page-subtitle">Monitor platform performance and recent activity</p>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <div className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
                     <CheckCircle2 size={16} className="text-emerald-600" />
                     <span className="text-sm font-semibold text-emerald-700">All Systems Operational</span>
                 </div>
@@ -95,11 +95,11 @@ const SuperAdminDashboard = () => {
             {/* Stats Grid with Section Header */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="section-title">
                         <TrendingUp size={20} className="text-primary" />
-                        <h2 className="text-lg font-bold text-gray-800">Key Metrics</h2>
+                        Key Metrics
                     </div>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <span className="text-xs text-muted flex items-center gap-1">
                         <Clock size={12} />
                         Updated just now
                     </span>
@@ -117,28 +117,28 @@ const SuperAdminDashboard = () => {
                 {/* Recent Registrations Table */}
                 <div className="lg:col-span-2 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-gray-800">Recent Gym Registrations</h2>
+                        <h2 className="section-title">Recent Gym Registrations</h2>
                         <Button
                             variant="outline"
                             size="small"
-                            className="group hover:bg-primary hover:text-white hover:border-primary text-primary border-violet-200 font-semibold transition-all duration-300"
+                            className="btn-outline group font-semibold"
                         >
                             View All
                             <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </div>
-                    <Card className="overflow-hidden border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <Card className="overflow-hidden p-0 border border-border-color shadow-lg hover:shadow-xl transition-shadow duration-300">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="bg-gradient-to-r from-gray-50 to-gray-100/50 border-b-2 border-gray-200">
+                                <thead className="bg-gray-50 border-b border-border-color">
                                     <tr>
-                                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-700">Gym Name</th>
-                                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-700 hidden sm:table-cell">Location</th>
-                                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-700 hidden md:table-cell">Date</th>
-                                        <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-700">Status</th>
+                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted">Gym Name</th>
+                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted hidden sm:table-cell">Location</th>
+                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted hidden md:table-cell">Date</th>
+                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-border-light">
                                     {recentRegistrations.length > 0 ? (
                                         recentRegistrations.map(gym => (
                                             <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-transparent transition-all duration-200 cursor-pointer">
@@ -152,15 +152,15 @@ const SuperAdminDashboard = () => {
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
+                                                <td className="px-4 py-4 text-muted hidden sm:table-cell">
                                                     <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-7 h-7 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-violet-100 transition-colors">
-                                                            <MapPin size={13} className="text-primary" />
+                                                        <div className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-primary-light transition-colors">
+                                                            <MapPin size={14} className="text-primary" />
                                                         </div>
                                                         <span className="font-medium truncate">{gym.location || 'N/A'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-gray-600 font-medium whitespace-nowrap hidden md:table-cell">
+                                                <td className="px-4 py-4 text-muted font-medium whitespace-nowrap hidden md:table-cell">
                                                     {gym.createdAt ? new Date(gym.createdAt).toISOString().split('T')[0] : 'N/A'}
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -188,8 +188,8 @@ const SuperAdminDashboard = () => {
 
                 {/* System Alerts / Sidebar */}
                 <div className="lg:col-span-1 space-y-4 min-w-0">
-                    <h2 className="text-lg font-bold text-gray-800">System Alerts</h2>
-                    <div className="space-y-4 max-h-[600px]  pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <h2 className="section-title">System Alerts</h2>
+                    <div className="space-y-4 max-h-[600px]  pr-2 scrollbar-thin scrollbar-thumb-border-color scrollbar-track-transparent">
                         {alerts.length > 0 ? (
                             alerts.map(alert => (
                                 <div key={alert.id} className={`bg-white rounded-xl border-l-4 ${alert.type === 'danger' ? 'border-red-500 bg-gradient-to-r from-red-50/80 to-white' : 'border-amber-500 bg-gradient-to-r from-amber-50/80 to-white'} shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group`}>

@@ -323,7 +323,7 @@ export const menuConfig = {
                 { label: 'HRM', path: '/hr/payroll', icon: Users },
                 { label: 'Staff Attendance', path: '/hr/staff/management', icon: ClipboardList },
                 { label: 'Tasks', path: '/branchadmin/tasks/list', icon: ClipboardList },
-                { label: 'Approvals', path: '/branchadmin/trainer-requests', icon: CheckCircle },
+                // { label: 'Approvals', path: '/branchadmin/trainer-requests', icon: CheckCircle }, // temporarily disabled
             ]
         },
         {
@@ -395,7 +395,7 @@ export const menuConfig = {
                 { label: 'HRM / Payroll', path: '/hr/payroll', icon: Users },
                 { label: 'Staff Attendance', path: '/hr/staff/management', icon: ClipboardList },
                 { label: 'Tasks', path: '/branchadmin/tasks/list', icon: ClipboardList },
-                { label: 'Approvals', path: '/branchadmin/trainer-requests', icon: CheckCircle },
+                // { label: 'Approvals', path: '/branchadmin/trainer-requests', icon: CheckCircle }, // temporarily disabled
             ]
         },
         {

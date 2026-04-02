@@ -68,10 +68,18 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
         <aside className={`sidebar ${collapsed ? 'collapsed' : 'show'} `}>
             {/* Logo Area */}
             <div className="sidebar-header">
-                <div className="sidebar-logo">G</div>
+                <div className="sidebar-logo overflow-hidden">
+                    {user?.logo ? (
+                        <img src={user.logo} alt="Logo" className="w-10 h-10 object-contain rounded-xl" />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                            {(user?.tenantName || user?.branchName || 'G').charAt(0).toUpperCase()}
+                        </div>
+                    )}
+                </div>
                 {!collapsed && (
-                    <span className="sidebar-brand">
-                        {user?.branchName || 'Gym CRM'}
+                    <span className="sidebar-brand tracking-wide">
+                        {user?.tenantName || user?.branchName || 'Gym CRM'}
                     </span>
                 )}
             </div>
@@ -136,12 +144,17 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
 
             {/* Role Display */}
             {!collapsed && (
-                <div className="p-4 border-t border-slate-100">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <div className="p-4 border-t border-white/5 m-3 rounded-xl bg-white/5 shadow-inner">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
                         System Role
                     </div>
-                    <div className="text-xs font-bold text-primary">
-                        {role}
+                    <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                            <span className="text-xs text-indigo-400">⚡</span>
+                        </div>
+                        <div className="text-xs font-bold text-slate-200 uppercase tracking-widest drop-shadow-sm">
+                            {role}
+                        </div>
                     </div>
                 </div>
             )}

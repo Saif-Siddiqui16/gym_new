@@ -406,6 +406,7 @@ const Invoices = () => {
                                 <option>All Status</option>
                                 <option>Paid</option>
                                 <option>Unpaid</option>
+                                <option value="Partially Paid">Partial</option>
                                 <option>Overdue</option>
                             </select>
                             <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
@@ -466,6 +467,7 @@ const Invoices = () => {
                                         <div className="flex flex-col gap-1 items-end sm:items-start">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                 inv.status === 'Overdue' ? 'bg-red-50 text-red-600 border-red-100' :
+                                                inv.status === 'Partially Paid' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                                     'bg-amber-50 text-amber-600 border-amber-100'
                                                 }`}>
                                                 {inv.status === 'Paid' ? <CheckCircle2 size={12} /> : inv.status === 'Overdue' ? <AlertCircle size={12} /> : <Clock size={12} />}
@@ -486,6 +488,18 @@ const Invoices = () => {
                                                 title="View Details"
                                             >
                                                 <Eye size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const headers = ["Description", "Qty", "Rate", "Total"];
+                                                    const rows = (inv.items || []).map(item => [item.description, item.quantity, `₹${Number(item.rate).toLocaleString()}`, `₹${Number(item.amount).toLocaleString()}`]);
+                                                    rows.push(["", "", "Total", `₹${Number(inv.amount).toLocaleString()}`]);
+                                                    exportPdf({ title: `Invoice ${inv.invoiceNumber}`, filename: `Invoice_${inv.invoiceNumber}`, headers, rows, gymName: "Gym Academy" });
+                                                }}
+                                                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                title="Download PDF"
+                                            >
+                                                <Download size={18} />
                                             </button>
                                             {inv.status !== 'Paid' && (inv.type !== 'Payroll' || role === 'SUPER_ADMIN' || role === 'BRANCH_ADMIN') && (
                                                 <button
@@ -752,121 +766,105 @@ const Invoices = () => {
                             <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Fetching Details...</p>
                         </div>
                     ) : selectedInvoice && (
-                        <div className="p-8 space-y-8 animate-in fade-in slide-in-from-right-8 duration-300">
-                            {/* Header Info */}
-                            <div className="flex justify-between items-start">
+                        <div className="p-6 space-y-4 animate-in fade-in duration-200">
+
+                            {/* Status + Amount */}
+                            <div className={`rounded-2xl p-5 flex items-center justify-between ${selectedInvoice.status === 'Paid' || selectedInvoice.status === 'Completed' ? 'bg-emerald-50 border border-emerald-100' : Number(selectedInvoice.balance) > 0 && Number(selectedInvoice.paidAmount) > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-rose-50 border border-rose-100'}`}>
                                 <div>
-                                    <span className="text-[10px] font-black text-primary bg-primary-light px-3 py-1 rounded-lg uppercase tracking-widest">
-                                        {selectedInvoice.status}
+                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${selectedInvoice.status === 'Paid' || selectedInvoice.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : Number(selectedInvoice.balance) > 0 && Number(selectedInvoice.paidAmount) > 0 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-600'}`}>
+                                        {selectedInvoice.status === 'Paid' || selectedInvoice.status === 'Completed' ? 'Paid' : Number(selectedInvoice.balance) > 0 && Number(selectedInvoice.paidAmount) > 0 ? 'Partial' : 'Unpaid'}
                                     </span>
-                                    <h3 className="text-2xl font-black text-slate-900 mt-3">{selectedInvoice.invoiceNumber}</h3>
-                                    <p className="text-sm font-bold text-slate-400 mt-1">{new Date(selectedInvoice.dueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                    <p className="text-[10px] font-bold text-slate-500 mt-2">{selectedInvoice.invoiceNumber}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Amount</p>
-                                    <p className="text-3xl font-black text-slate-900">₹{Number(selectedInvoice.amount).toLocaleString()}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
+                                    <p className="text-2xl font-black text-slate-900">₹{Number(selectedInvoice.amount).toLocaleString()}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-8 py-8 border-y border-slate-50">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        {selectedInvoice.type === 'Payroll' ? 'Staff Member' : 'Bill To'}
-                                    </p>
-                                    <p className="text-md font-black text-slate-900">{selectedInvoice.member?.name || 'Walk-in Guest'}</p>
-                                    <p className="text-xs font-bold text-slate-500">{selectedInvoice.member?.memberId || 'GUEST-SALE'}</p>
-                                    {selectedInvoice.member?.phone && <p className="text-xs font-bold text-slate-500">{selectedInvoice.member.phone}</p>}
+                            {/* Member + Branch */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-slate-50 rounded-2xl p-4 space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{selectedInvoice.type === 'Payroll' ? 'Staff Member' : 'Bill To'}</p>
+                                    <p className="text-sm font-black text-slate-800">{selectedInvoice.member?.name || 'Walk-in Guest'}</p>
+                                    <p className="text-[10px] font-bold text-slate-500">{selectedInvoice.member?.memberId || '—'}</p>
+                                    {selectedInvoice.member?.phone && <p className="text-[10px] font-bold text-slate-500">{selectedInvoice.member.phone}</p>}
                                 </div>
-                                <div className="space-y-1 text-right">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Branch</p>
-                                    <p className="text-md font-black text-slate-900">{selectedInvoice.tenant?.name || 'Main Branch'}</p>
-                                </div>
-                            </div>
-
-                            {/* Items Table */}
-                            <div className="space-y-4">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Invoice Items</p>
-                                <div className="bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden">
-                                    <table className="w-full text-left">
-                                        <thead>
-                                            <tr className="border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100/30">
-                                                <th className="px-6 py-4">Item</th>
-                                                <th className="px-6 py-4 text-center">Qty</th>
-                                                <th className="px-6 py-4 text-right">Rate</th>
-                                                <th className="px-6 py-4 text-right">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {selectedInvoice.items?.map((item, idx) => (
-                                                <tr key={idx} className="text-xs font-bold text-slate-700">
-                                                    <td className="px-6 py-4">{item.description}</td>
-                                                    <td className="px-6 py-4 text-center">{item.quantity}</td>
-                                                    <td className="px-6 py-4 text-right">₹{Number(item.rate).toLocaleString()}</td>
-                                                    <td className="px-6 py-4 text-right text-slate-900 font-black">₹{Number(item.amount).toLocaleString()}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <div className="bg-slate-50 rounded-2xl p-4 space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Branch</p>
+                                    <p className="text-sm font-black text-slate-800">{selectedInvoice.tenant?.name || 'Main Branch'}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Invoice Date</p>
+                                    <p className="text-[10px] font-bold text-slate-600">{new Date(selectedInvoice.createdAt || selectedInvoice.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                 </div>
                             </div>
 
-                            {/* Totals Section */}
-                            <div className="space-y-3 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
-                                <div className="flex justify-between text-xs font-bold text-slate-500">
-                                    <span>Subtotal</span>
-                                    <span>₹{Number(selectedInvoice.subtotal || 0).toLocaleString()}</span>
+                            {/* Payment breakdown */}
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-slate-50 rounded-2xl p-3 text-center">
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
+                                    <p className="text-sm font-black text-slate-800 mt-1">₹{Number(selectedInvoice.amount).toLocaleString()}</p>
                                 </div>
-                                {selectedInvoice.discount > 0 && (
-                                    <div className="flex justify-between text-xs font-bold text-red-500">
-                                        <span>Discount</span>
-                                        <span>-₹{Number(selectedInvoice.discount).toLocaleString()}</span>
+                                <div className="bg-emerald-50 rounded-2xl p-3 text-center">
+                                    <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest">Paid</p>
+                                    <p className="text-sm font-black text-emerald-700 mt-1">₹{Number(selectedInvoice.paidAmount || (selectedInvoice.status === 'Paid' ? selectedInvoice.amount : 0)).toLocaleString()}</p>
+                                </div>
+                                <div className={`rounded-2xl p-3 text-center ${Number(selectedInvoice.balance) > 0 ? 'bg-rose-50' : 'bg-slate-50'}`}>
+                                    <p className={`text-[8px] font-bold uppercase tracking-widest ${Number(selectedInvoice.balance) > 0 ? 'text-rose-400' : 'text-slate-400'}`}>Balance</p>
+                                    <p className={`text-sm font-black mt-1 ${Number(selectedInvoice.balance) > 0 ? 'text-rose-600' : 'text-slate-400'}`}>₹{Number(selectedInvoice.balance || 0).toLocaleString()}</p>
+                                </div>
+                            </div>
+
+                            {/* Dates row */}
+                            <div className="flex gap-3">
+                                {selectedInvoice.paidDate && (
+                                    <div className="flex-1 bg-emerald-50 border border-emerald-100 rounded-2xl p-3">
+                                        <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Paid On</p>
+                                        <p className="text-xs font-black text-emerald-800 mt-0.5">{new Date(selectedInvoice.paidDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                     </div>
                                 )}
-                                <div className="flex justify-between text-xs font-bold text-slate-500">
-                                    <span>GST ({selectedInvoice.taxRate}%)</span>
-                                    <span>₹{Number(selectedInvoice.taxAmount || 0).toLocaleString()}</span>
-                                </div>
-                                <div className="h-px bg-slate-200 mt-2"></div>
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Total Amount</span>
-                                    <span className="text-xl font-black text-slate-900">₹{Number(selectedInvoice.amount).toLocaleString()}</span>
-                                </div>
+                                {selectedInvoice.dueDate && selectedInvoice.status !== 'Paid' && selectedInvoice.status !== 'Completed' && (
+                                    <div className="flex-1 bg-rose-50 border border-rose-100 rounded-2xl p-3">
+                                        <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest">{Number(selectedInvoice.paidAmount) > 0 ? 'Next Due Date' : 'Due Date'}</p>
+                                        <p className="text-xs font-black text-rose-700 mt-0.5">{new Date(selectedInvoice.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                    </div>
+                                )}
+                                {selectedInvoice.paymentMode && (
+                                    <div className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl p-3">
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Method</p>
+                                        <p className="text-xs font-black text-slate-700 mt-0.5">{selectedInvoice.paymentMode}</p>
+                                    </div>
+                                )}
                             </div>
 
-                            {selectedInvoice.notes && (
-                                <div className="space-y-2 p-6 bg-amber-50/30 rounded-3xl border border-amber-100/50">
-                                    <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Notes</p>
-                                    <p className="text-xs font-medium text-slate-600 leading-relaxed italic">"{selectedInvoice.notes}"</p>
+                            {/* Items */}
+                            {selectedInvoice.items?.length > 0 && (
+                                <div className="space-y-2">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Items</p>
+                                    <div className="space-y-1.5">
+                                        {selectedInvoice.items.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+                                                <div>
+                                                    <p className="text-xs font-bold text-slate-700">{item.description}</p>
+                                                    <p className="text-[9px] font-bold text-slate-400">Qty: {item.quantity} × ₹{Number(item.rate).toLocaleString()}</p>
+                                                </div>
+                                                <p className="text-xs font-black text-slate-900">₹{Number(item.amount).toLocaleString()}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {(selectedInvoice.discount > 0 || selectedInvoice.taxAmount > 0) && (
+                                        <div className="bg-slate-50 rounded-xl px-4 py-3 space-y-1.5">
+                                            {selectedInvoice.discount > 0 && <div className="flex justify-between text-[10px] font-bold text-slate-500"><span>Discount</span><span className="text-rose-500">-₹{Number(selectedInvoice.discount).toLocaleString()}</span></div>}
+                                            {selectedInvoice.taxAmount > 0 && <div className="flex justify-between text-[10px] font-bold text-slate-500"><span>GST ({selectedInvoice.taxRate}%)</span><span>₹{Number(selectedInvoice.taxAmount).toLocaleString()}</span></div>}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            {(selectedInvoice.status === 'Paid' || selectedInvoice.status === 'Completed') && (
-                                <div className="space-y-4 p-6 bg-emerald-50/30 rounded-3xl border border-emerald-100/50">
-                                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
-                                        <CheckCircle2 size={12} /> Payment Information
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Method</p>
-                                            <p className="text-xs font-black text-slate-900">{selectedInvoice.paymentMode || 'Cash'}</p>
-                                        </div>
-                                        {(selectedInvoice.referenceNumber || selectedInvoice.notes?.includes('[Ref:')) && (
-                                            <div>
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Reference</p>
-                                                <p className="text-xs font-black text-slate-900">
-                                                    {selectedInvoice.referenceNumber ||
-                                                        selectedInvoice.notes?.match(/\[(?:Payment )?Ref: (.*?)\]/)?.[1] ||
-                                                        'N/A'}
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedInvoice.paidDate && (
-                                            <div className="col-span-2">
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Settled On</p>
-                                                <p className="text-xs font-black text-slate-900">{new Date(selectedInvoice.paidDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                                            </div>
-                                        )}
-                                    </div>
+                            {/* Reference */}
+                            {(selectedInvoice.referenceNumber || selectedInvoice.notes) && (
+                                <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 space-y-1">
+                                    {selectedInvoice.referenceNumber && <><p className="text-[8px] font-black text-amber-600 uppercase tracking-widest">Ref / Txn ID</p><p className="text-xs font-bold text-slate-700">{selectedInvoice.referenceNumber}</p></>}
+                                    {selectedInvoice.notes && <><p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mt-1">Notes</p><p className="text-xs font-medium text-slate-600 italic">"{selectedInvoice.notes}"</p></>}
                                 </div>
                             )}
 
@@ -944,38 +942,6 @@ const Invoices = () => {
                                 </div>
                             )}
 
-                            <div className="pt-8">
-                                <button
-                                    onClick={() => {
-                                        if (!selectedInvoice) return;
-                                        const headers = ["Description", "Quantity", "Rate", "Total"];
-                                        const rows = (selectedInvoice.items || []).map(item => [
-                                            item.description,
-                                            item.quantity.toString(),
-                                            `₹${Number(item.rate).toLocaleString()}`,
-                                            `₹${(Number(item.rate) * Number(item.quantity)).toLocaleString()}`
-                                        ]);
-
-                                        // Add summary rows
-                                        rows.push(["", "", "Subtotal", `₹${Number(selectedInvoice.subtotal || selectedInvoice.amount).toLocaleString()}`]);
-                                        if (selectedInvoice.discount) rows.push(["", "", "Discount", `-₹${Number(selectedInvoice.discount).toLocaleString()}`]);
-                                        if (selectedInvoice.taxAmount) rows.push(["", "", "Tax", `₹${Number(selectedInvoice.taxAmount).toLocaleString()}`]);
-                                        rows.push(["", "", "Total Amount", `₹${Number(selectedInvoice.totalAmount || selectedInvoice.amount).toLocaleString()}`]);
-
-                                        exportPdf({
-                                            title: `Invoice ${selectedInvoice.invoiceNumber}`,
-                                            filename: `Invoice_${selectedInvoice.invoiceNumber}`,
-                                            headers,
-                                            rows,
-                                            gymName: "Gym Academy"
-                                        });
-                                    }}
-                                    className="w-full h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-sm font-black text-slate-900 hover:border-violet-200 hover:bg-primary-light/30 transition-all active:scale-[0.98]"
-                                >
-                                    <Download size={18} className="text-primary" />
-                                    Download PDF Invoice
-                                </button>
-                            </div>
                         </div>
                     )}
             </RightDrawer>

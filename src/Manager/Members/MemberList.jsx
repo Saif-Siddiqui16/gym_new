@@ -6,9 +6,10 @@ import {
     MoreHorizontal, Mail, Phone, Calendar, MapPin, Activity, Award, DollarSign, 
     Layers, Smartphone, History, Unlock, ExternalLink, Edit3, PlusCircle, 
     XCircle, UserMinus, Gift, ArrowRightLeft, Repeat, FileSignature, Printer, 
-    ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2 
+    ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2, Receipt
 } from 'lucide-react';
 import { getMembers, getMemberById, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
+import { settleInvoice } from '../../api/finance/financeApi';
 import { membershipApi } from '../../api/membershipApi';
 import { referralApi } from '../../api/referralApi';
 import amenityApi from '../../api/amenityApi';
@@ -38,6 +39,7 @@ const MemberList = () => {
     const [isViewDrawerOpen, setIsViewDrawerOpen] = useState(false);
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
+    const [activeMenu, setActiveMenu] = useState(null);
     const [selectedMember, setSelectedMember] = useState(null);
     const [profileActiveTab, setProfileActiveTab] = useState('Overview');
     const [plans, setPlans] = useState([]);
@@ -75,6 +77,10 @@ const MemberList = () => {
     const [isPTDrawerOpen, setIsPTDrawerOpen] = useState(false);
     const [ptSelection, setPTSelection] = useState({ trainerId: '', sessions: 12, amount: '', description: 'Personal Training Package' });
 
+    const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+    const [settlementData, setSettlementData] = useState({ invoiceId: null, method: 'Cash', amount: 0, fullAmount: 0, referenceNumber: '', date: new Date().toISOString().split('T')[0], isPartial: false, balanceDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] });
+    const [isSettling, setIsSettling] = useState(false);
+
     const location = useLocation();
     const { selectedBranch } = useBranchContext();
 
@@ -86,6 +92,11 @@ const MemberList = () => {
 
     useEffect(() => { loadPlans(); loadTrainers(); }, [selectedBranch]);
     useEffect(() => { loadMembers(); }, [searchTerm, statusFilter, currentPage, itemsPerPage, selectedBranch]);
+    useEffect(() => {
+        const close = () => setActiveMenu(null);
+        document.addEventListener('click', close);
+        return () => document.removeEventListener('click', close);
+    }, []);
 
     const loadTrainers = async () => {
         try {
@@ -137,6 +148,45 @@ const MemberList = () => {
             console.error("Error loading members:", error);
             toast.error("Failed to load members");
         } finally { setLoading(false); }
+    };
+
+    const openSettleModal = (inv) => {
+        const balanceVal = Number(inv.balance);
+        const amountVal = Number(inv.amount);
+        const payableAmount = balanceVal > 0 ? balanceVal : amountVal;
+        setSettlementData({
+            invoiceId: inv.id,
+            method: 'Cash',
+            amount: payableAmount,
+            fullAmount: payableAmount,
+            referenceNumber: '',
+            isPartial: false,
+            date: new Date().toISOString().split('T')[0],
+            balanceDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        });
+        setIsSettleModalOpen(true);
+    };
+
+    const handleSettleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            setIsSettling(true);
+            await settleInvoice(settlementData.invoiceId, {
+                method: settlementData.method,
+                referenceNumber: settlementData.referenceNumber,
+                amount: settlementData.amount,
+                date: settlementData.date,
+                balanceDueDate: settlementData.isPartial ? settlementData.balanceDueDate : null
+            });
+            toast.success("Payment recorded successfully!");
+            setIsSettleModalOpen(false);
+            const updated = await getMemberById(selectedMember.id);
+            setSelectedMember(updated);
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Failed to record payment");
+        } finally {
+            setIsSettling(false);
+        }
     };
 
     const handleRenewalSubmit = async (e) => {
@@ -597,9 +647,35 @@ const MemberList = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4" data-label="Actions">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 relative">
                                                 <button onClick={() => handleView(member)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="View"><Eye size={18} /></button>
-                                                <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="More Options"><MoreHorizontal size={18} /></button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === member.id ? null : member.id); }}
+                                                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                                                    title="More Options"
+                                                >
+                                                    <MoreHorizontal size={18} />
+                                                </button>
+                                                {activeMenu === member.id && (
+                                                    <div
+                                                        className="absolute right-0 top-8 z-50 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 min-w-[140px] overflow-hidden"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <button
+                                                            onClick={() => { setActiveMenu(null); handleEdit(member); }}
+                                                            className="w-full flex items-center gap-2.5 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all"
+                                                        >
+                                                            <Edit3 size={14} className="text-indigo-400" /> Edit
+                                                        </button>
+                                                        <div className="h-px bg-slate-100 mx-3" />
+                                                        <button
+                                                            onClick={() => { setActiveMenu(null); handleDelete(member); }}
+                                                            className="w-full flex items-center gap-2.5 px-4 py-3 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-all"
+                                                        >
+                                                            <Trash2 size={14} className="text-rose-400" /> Delete
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -1034,10 +1110,7 @@ const MemberList = () => {
                                 <button onClick={() => setIsBodyDrawerOpen(true)} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all group">
                                     <Activity size={16} className="text-slate-400 group-hover:text-emerald-500 transition-colors" /> Record Body
                                 </button>
-                                <button onClick={handleCancelPlan} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-rose-500 shadow-sm transition-all group">
-                                    <XCircle size={16} className="text-rose-300 group-hover:text-rose-500 transition-colors" /> Cancel Plan
-                                </button>
-                                <button onClick={handleDeactivateMember} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-rose-500 shadow-sm transition-all group col-span-2">
+                                <button onClick={handleDeactivateMember} className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-rose-500 shadow-sm transition-all group">
                                     <UserMinus size={16} className="text-rose-300 group-hover:text-rose-500 transition-colors" /> Deactivate Member
                                 </button>
                             </div>
@@ -1344,72 +1417,95 @@ const MemberList = () => {
                                                 <span className="text-[10px] font-bold text-slate-400 uppercase">Member ID: {selectedMember.memberId}</span>
                                             </div>
                                             
-                                            <div className="space-y-2.5">
+                                            <div className="space-y-3">
                                                 {selectedMember.invoices?.length > 0 ? (
-                                                    selectedMember.invoices.map((inv, idx) => (
-                                                        <div key={idx} className="flex flex-col p-4 bg-white rounded-2xl border border-slate-100 group hover:border-indigo-200 hover:shadow-md transition-all duration-200">
-                                                            <div className="flex items-center justify-between mb-3">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-500 border border-emerald-100' : 'bg-amber-50 text-amber-500 border border-amber-100'}`}>
-                                                                        <DollarSign size={18} />
-                                                                    </div>
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter leading-none mb-1">{inv.invoiceNumber} • {new Date(inv.createdAt).toLocaleDateString()}</span>
-                                                                        <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{inv.paymentMode || 'Cash'}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="text-right">
-                                                                        <span className="text-sm font-black text-slate-900 leading-none block mb-1">₹{Number(inv.amount).toLocaleString()}</span>
-                                                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
-                                                                            {inv.status}
-                                                                        </span>
-                                                                    </div>
-                                                                    <button 
-                                                                        onClick={async () => {
-                                                                            try {
-                                                                                const { fetchInvoiceById } = await import('../../api/finance/financeApi');
-                                                                                const fullInv = await fetchInvoiceById(inv.id);
-                                                                                const { exportPdf } = await import('../../utils/exportPdf');
-                                                                                exportPdf({
-                                                                                    title: 'Invoice',
-                                                                                    filename: `INV_${fullInv.invoiceNumber}`,
-                                                                                    headers: ["Description", "Qty", "Rate", "Amount"],
-                                                                                    rows: fullInv.items.map(it => [it.description, it.quantity, it.rate, it.amount]),
-                                                                                    gymName: "Gym Academy"
-                                                                                });
-                                                                            } catch (e) { toast.error("Failed to download invoice"); }
-                                                                        }}
-                                                                        className="w-8 h-8 flex items-center justify-center bg-slate-50 rounded-lg text-slate-400 hover:text-indigo-500 border border-slate-100 shadow-sm transition-all md:opacity-0 group-hover:opacity-100"
-                                                                    >
-                                                                        <Download size={14} />
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                                    selectedMember.invoices.map((inv, idx) => {
+                                                        const isPaid = inv.status === 'Paid';
+                                                        const isPartial = Number(inv.balance) > 0 && Number(inv.paidAmount) > 0;
+                                                        const isUnpaid = !isPaid && !isPartial;
+                                                        return (
+                                                        <div key={idx} className={`flex flex-col bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${isPaid ? 'border-emerald-100' : isPartial ? 'border-amber-100' : 'border-rose-100'}`}>
+                                                            {/* Status bar */}
+                                                            <div className={`h-1 w-full ${isPaid ? 'bg-emerald-400' : isPartial ? 'bg-amber-400' : 'bg-rose-400'}`} />
 
-                                                            {/* Detailed Breakdown if pending */}
-                                                            {Number(inv.balance) > 0 && (
-                                                                <div className="mt-1 pt-3 border-t border-slate-50 flex items-center justify-between">
-                                                                    <div className="flex gap-4">
-                                                                        <div>
-                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Paid</span>
-                                                                            <span className="text-[11px] font-bold text-emerald-600">₹{Number(inv.paidAmount || 0).toLocaleString()}</span>
-                                                                        </div>
-                                                                        <div>
-                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Balance</span>
-                                                                            <span className="text-[11px] font-bold text-rose-600">₹{Number(inv.balance).toLocaleString()}</span>
-                                                                        </div>
+                                                            <div className="p-4 space-y-3">
+                                                                {/* Header row */}
+                                                                <div className="flex items-start justify-between">
+                                                                    <div>
+                                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{inv.invoiceNumber}</p>
+                                                                        <p className="text-xs font-black text-slate-800 mt-0.5">{inv.notes || inv.paymentMode || 'Membership Payment'}</p>
                                                                     </div>
-                                                                    {inv.dueDate && (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${isPaid ? 'bg-emerald-50 text-emerald-600' : isPartial ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-500'}`}>
+                                                                            {isPaid ? 'Paid' : isPartial ? 'Partial' : 'Unpaid'}
+                                                                        </span>
+                                                                        {!isPaid && (
+                                                                            <button onClick={() => openSettleModal(inv)} className="w-7 h-7 flex items-center justify-center bg-emerald-50 rounded-lg text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-all" title="Record Payment">
+                                                                                <CreditCard size={13} />
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Amount grid */}
+                                                                <div className="grid grid-cols-3 gap-2">
+                                                                    <div className="bg-slate-50 rounded-xl p-2.5 text-center">
+                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
+                                                                        <p className="text-xs font-black text-slate-800 mt-0.5">₹{Number(inv.amount).toLocaleString()}</p>
+                                                                    </div>
+                                                                    <div className="bg-emerald-50 rounded-xl p-2.5 text-center">
+                                                                        <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest">Paid</p>
+                                                                        <p className="text-xs font-black text-emerald-700 mt-0.5">₹{Number(inv.paidAmount || (isPaid ? inv.amount : 0)).toLocaleString()}</p>
+                                                                    </div>
+                                                                    <div className={`rounded-xl p-2.5 text-center ${Number(inv.balance) > 0 ? 'bg-rose-50' : 'bg-slate-50'}`}>
+                                                                        <p className={`text-[8px] font-bold uppercase tracking-widest ${Number(inv.balance) > 0 ? 'text-rose-400' : 'text-slate-400'}`}>Balance</p>
+                                                                        <p className={`text-xs font-black mt-0.5 ${Number(inv.balance) > 0 ? 'text-rose-600' : 'text-slate-400'}`}>₹{Number(inv.balance || 0).toLocaleString()}</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Date info */}
+                                                                <div className="flex items-center justify-between pt-1 border-t border-slate-50">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div>
+                                                                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Invoice Date</p>
+                                                                            <p className="text-[10px] font-bold text-slate-600">{new Date(inv.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                                        </div>
+                                                                        {inv.paidDate && (
+                                                                            <div>
+                                                                                <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest">Paid On</p>
+                                                                                <p className="text-[10px] font-bold text-emerald-600">{new Date(inv.paidDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    {inv.dueDate && !isPaid && (
                                                                         <div className="text-right">
-                                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Due Date</span>
-                                                                            <span className="text-[11px] font-bold text-slate-600">{new Date(inv.dueDate).toLocaleDateString()}</span>
+                                                                            <p className="text-[8px] font-bold text-rose-400 uppercase tracking-widest">{isPartial ? 'Next Due' : 'Due Date'}</p>
+                                                                            <p className="text-[10px] font-bold text-rose-600">{new Date(inv.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                            )}
+
+                                                                {/* Items breakdown */}
+                                                                {inv.items?.length > 0 && (
+                                                                    <div className="pt-2 border-t border-slate-50 space-y-1.5">
+                                                                        {inv.items.map((item, i) => (
+                                                                            <div key={i} className="flex items-center justify-between">
+                                                                                <p className="text-[10px] font-bold text-slate-500">{item.description}</p>
+                                                                                <p className="text-[10px] font-black text-slate-700">₹{Number(item.amount).toLocaleString()}</p>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Payment mode */}
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <CreditCard size={10} className="text-slate-300" />
+                                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{inv.paymentMode || 'Cash'}</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    ))
+                                                        );
+                                                    })
                                                 ) : (
                                                     <div className="text-center py-10 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center">
                                                         <CreditCard size={32} className="text-slate-200 mb-2" strokeWidth={1.5} />
@@ -1714,6 +1810,92 @@ const MemberList = () => {
                 </div>
             </RightDrawer>
 
+
+            {/* Settle Invoice Drawer */}
+            <RightDrawer
+                isOpen={isSettleModalOpen}
+                onClose={() => setIsSettleModalOpen(false)}
+                title="Record Payment"
+                maxWidth="max-w-md"
+            >
+                <form onSubmit={handleSettleSubmit} className="p-8 space-y-8">
+                    <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex items-center justify-between">
+                        <div>
+                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Payable</p>
+                            <h3 className="text-2xl font-black text-emerald-700">₹{Number(settlementData.fullAmount || settlementData.amount).toLocaleString()}</h3>
+                        </div>
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm shadow-emerald-100">
+                            <Receipt size={24} />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        {Number(settlementData.fullAmount) > 0 && (
+                            <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Partial Payment</p>
+                                    <p className="text-[11px] font-bold text-slate-600">Pay only a portion now</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSettlementData(p => ({ ...p, isPartial: !p.isPartial, amount: !p.isPartial ? p.fullAmount / 2 : p.fullAmount }))}
+                                    className={`w-12 h-6 rounded-full transition-all relative ${settlementData.isPartial ? 'bg-primary' : 'bg-slate-200'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settlementData.isPartial ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+                        )}
+
+                        {settlementData.isPartial && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-[#7c3aed] ml-1">Pay Now (₹)</label>
+                                    <input type="number" required min="1" max={settlementData.fullAmount} value={settlementData.amount} onChange={e => setSettlementData(p => ({ ...p, amount: parseFloat(e.target.value) }))} className="w-full h-14 px-5 bg-primary-light border border-violet-100 rounded-2xl text-[13px] font-bold text-primary focus:outline-none focus:border-primary transition-all" />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Remaining Balance</label>
+                                    <div className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center text-[13px] font-bold text-slate-400">
+                                        ₹{(Number(settlementData.fullAmount) - Number(settlementData.amount || 0)).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div className="col-span-2 space-y-2.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-rose-500 ml-1">Next Due Date *</label>
+                                    <input type="date" required min={new Date().toISOString().split('T')[0]} value={settlementData.balanceDueDate} onChange={e => setSettlementData(p => ({ ...p, balanceDueDate: e.target.value }))} className="w-full h-14 px-5 bg-rose-50 border border-rose-100 rounded-2xl text-[13px] font-bold text-rose-600 focus:outline-none focus:border-rose-400 transition-all" />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Method</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {['Cash', 'UPI', 'QR Code', 'Card', 'Online Link'].map(m => (
+                                    <button key={m} type="button" onClick={() => setSettlementData(p => ({ ...p, method: m }))} className={`px-4 py-3 rounded-xl border-2 transition-all text-[10px] font-black uppercase tracking-widest ${settlementData.method === m ? 'border-primary bg-primary text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'}`}>
+                                        {m}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {settlementData.method !== 'Cash' && (
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reference / Transaction ID</label>
+                                <input type="text" required value={settlementData.referenceNumber} onChange={e => setSettlementData(p => ({ ...p, referenceNumber: e.target.value }))} placeholder="Enter TNX ID..." className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary transition-all" />
+                            </div>
+                        )}
+
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Date</label>
+                            <input type="date" required value={settlementData.date} onChange={e => setSettlementData(p => ({ ...p, date: e.target.value }))} className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-bold text-slate-900 focus:outline-none focus:border-primary transition-all" />
+                        </div>
+                    </div>
+
+                    <div className="pt-2">
+                        <Button type="submit" disabled={isSettling} loading={isSettling} variant="primary" className="w-full h-14 rounded-2xl shadow-xl shadow-primary/20">
+                            Complete Settlement
+                        </Button>
+                    </div>
+                </form>
+            </RightDrawer>
 
             {/* Assign Membership Drawer */}
             <RightDrawer
