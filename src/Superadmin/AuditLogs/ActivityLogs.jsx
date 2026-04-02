@@ -99,62 +99,47 @@ const ActivityLogs = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="relative">
-                    <div className="h-16 w-16 rounded-full border-4 border-slate-100 border-t-primary animate-spin"></div>
-                </div>
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading activity logs...</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen ">
-            {/* Premium Header with Gradient */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <Shield className="text-primary flex-shrink-0" size={24} />
-                            <div className="min-w-0">
-                                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                    System Activity Logs
-                                </h1>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Track user actions and system changes in real-time</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                            <button
-                                onClick={handleExport}
-                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:shadow-md hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group w-full sm:w-auto"
-                            >
-                                <Download className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                                Export as PDF
-                            </button>
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`group relative px-4 sm:px-6 py-2.5 rounded-lg sm:rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 w-full sm:w-auto text-xs sm:text-sm ${showFilters
-                                    ? 'bg-white border border-slate-200 text-slate-700'
-                                    : 'bg-gradient-to-r from-primary to-primary text-white hover:shadow-primary/30/50'
-                                    }`}
-                            >
-                                {!showFilters && <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-lg sm:rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>}
-                                <Filter className={`w-4 h-4 relative transition-transform duration-300 ${showFilters ? '' : 'group-hover:rotate-12'}`} />
-                                <span className="relative">{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-                            </button>
-                        </div>
-                    </div>
+        <div className="w-full animate-fadeIn">
+            {/* Page Header */}
+            <div className="page-header">
+                <div>
+                    <h1 className="page-title">System Activity Logs</h1>
+                    <p className="page-subtitle">Track user actions and system changes in real-time</p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                    <button
+                        onClick={handleExport}
+                        className="btn btn-outline flex items-center justify-center gap-2"
+                    >
+                        <Download className="w-4 h-4" />
+                        Export as PDF
+                    </button>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`btn ${showFilters ? 'btn-outline' : 'btn-primary'} flex items-center justify-center gap-2`}
+                    >
+                        <Filter className="w-4 h-4" />
+                        <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
+                    </button>
                 </div>
             </div>
 
-            {/* Glass Morphism Filter Bar */}
+            {/* Filter Bar */}
             {showFilters && (
-                <div className="mb-6 bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-5 hover:shadow-xl transition-all duration-300 animate-slide-down">
+                <div className="filter-bar mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="relative group">
+                        <div className="search-input-wrapper">
                             <Search
                                 size={20}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
                             />
                             <input
                                 type="text"
@@ -162,20 +147,20 @@ const ActivityLogs = () => {
                                 value={filter.search}
                                 onChange={handleFilterChange}
                                 placeholder="Search by user or action..."
-                                className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300"
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                             />
                         </div>
 
-                        <div className="relative group">
+                        <div className="relative">
                             <Filter
                                 size={20}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10"
                             />
                             <select
                                 name="module"
                                 value={filter.module}
                                 onChange={handleFilterChange}
-                                className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors appearance-none cursor-pointer"
                             >
                                 {moduleOptions.map(option => (
                                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -183,17 +168,17 @@ const ActivityLogs = () => {
                             </select>
                         </div>
 
-                        <div className="relative group">
+                        <div className="relative">
                             <Calendar
                                 size={20}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10"
                             />
                             <input
                                 type="date"
                                 name="date"
                                 value={filter.date}
                                 onChange={handleFilterChange}
-                                className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300"
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                             />
                         </div>
                     </div>
@@ -210,7 +195,7 @@ const ActivityLogs = () => {
                                 title={log.action}
                                 subtitle={log.user}
                                 badge={log.module}
-                                badgeColor="bg-violet-100 text-primary-hover border-violet-200"
+                                badgeColor="bg-primary-light text-primary border-border"
                                 fields={[
                                     { label: 'Affected', value: log.affectedMember, icon: User },
                                     { label: 'Date', value: log.date.split(' ')[0], icon: Calendar },
@@ -222,14 +207,14 @@ const ActivityLogs = () => {
                     </div>
 
                     {/* Desktop Table View */}
-                    <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="hidden md:block saas-card !p-0 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-gradient-to-r from-slate-100 to-slate-200/50 border-b-2 border-slate-300">
+                                    <tr>
                                         <th
                                             onClick={() => handleSort('date')}
-                                            className="px-6 py-5 text-left text-xs font-black uppercase tracking-widest text-slate-700 cursor-pointer hover:text-primary transition-colors"
+                                            className="cursor-pointer"
                                         >
                                             <div className="flex items-center gap-2">
                                                 Date
@@ -238,54 +223,54 @@ const ActivityLogs = () => {
                                         </th>
                                         <th
                                             onClick={() => handleSort('user')}
-                                            className="px-6 py-5 text-left text-xs font-black uppercase tracking-widest text-slate-700 cursor-pointer hover:text-primary transition-colors"
+                                            className="cursor-pointer"
                                         >
                                             <div className="flex items-center gap-2">
                                                 Staff Name
                                                 {sortConfig.key === 'user' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                             </div>
                                         </th>
-                                        <th className="px-6 py-5 text-left text-xs font-black uppercase tracking-widest text-slate-700">Action</th>
-                                        <th className="px-6 py-5 text-left text-xs font-black uppercase tracking-widest text-slate-700">Affected Member</th>
-                                        <th className="px-6 py-5 text-left text-xs font-black uppercase tracking-widest text-slate-700">Details</th>
+                                        <th>Action</th>
+                                        <th>Affected Member</th>
+                                        <th>Details</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-border">
                                     {paginatedLogs.map((log) => (
                                         <tr
                                             key={log.id}
-                                            className="group hover:bg-slate-50/80 transition-all duration-300 border-b border-slate-100"
+                                            className="group cursor-pointer"
                                         >
                                             <td className="px-6 py-5">
-                                                <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                                                    <Clock size={14} className="text-slate-400 group-hover:text-primary transition-colors" />
+                                                <div className="flex items-center gap-2 text-sm font-bold text-body">
+                                                    <Clock size={14} className="text-muted-foreground" />
                                                     {log.date}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-primary-hover font-black text-xs shadow-sm border border-violet-200">
+                                                    <div className="w-8 h-8 rounded-md bg-primary-light flex items-center justify-center text-primary font-black text-xs">
                                                         {(log.user || '?').charAt(0)}
                                                     </div>
-                                                    <span className="text-sm font-bold text-slate-900">{log.user}</span>
+                                                    <span className="text-sm font-bold text-title">{log.user}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="text-sm font-black text-slate-800 tracking-tight">{log.action}</span>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                    <span className="text-sm font-black text-title tracking-tight">{log.action}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                                         {log.module}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-violet-400" />
-                                                    <span className="text-sm font-bold text-slate-700">{log.affectedMember}</span>
+                                                    <div className="w-2 h-2 rounded-full bg-primary" />
+                                                    <span className="text-sm font-bold text-body">{log.affectedMember}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5 max-w-xs">
-                                                <p className="text-sm font-medium text-slate-500 leading-relaxed italic">{log.details}</p>
+                                                <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">{log.details}</p>
                                             </td>
                                         </tr>
                                     ))}
@@ -295,13 +280,13 @@ const ActivityLogs = () => {
                     </div>
 
                     {/* Pagination */}
-                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <span className="text-sm text-slate-600">
+                    <div className="pagination-wrapper">
+                        <span className="pagination-info">
                             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredLogs.length)} of {filteredLogs.length} logs
                         </span>
-                        <div className="flex gap-2">
+                        <div className="pagination-controls">
                             <button
-                                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-md disabled:hover:scale-100"
+                                className="pagination-btn"
                                 onClick={handlePrevPage}
                                 disabled={currentPage === 1}
                             >
@@ -313,10 +298,7 @@ const ActivityLogs = () => {
                                     return (
                                         <button
                                             key={pageNum}
-                                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-110 ${currentPage === pageNum
-                                                ? 'bg-gradient-to-r from-primary to-primary text-white shadow-lg shadow-primary/30/30'
-                                                : 'bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-                                                }`}
+                                            className={`pagination-num ${currentPage === pageNum ? 'active' : ''}`}
                                             onClick={() => handlePageClick(pageNum)}
                                         >
                                             {pageNum}
@@ -325,7 +307,7 @@ const ActivityLogs = () => {
                                 })}
                             </div>
                             <button
-                                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-md disabled:hover:scale-100"
+                                className="pagination-btn"
                                 onClick={handleNextPage}
                                 disabled={currentPage >= totalPages}
                             >
@@ -335,12 +317,12 @@ const ActivityLogs = () => {
                     </div>
                 </>
             ) : (
-                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-16 text-center">
-                    <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
-                        <Activity size={40} className="text-primary" />
+                <div className="empty-state">
+                    <div className="empty-state-icon">
+                        <Activity size={40} />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">No Activity Logs Found</h3>
-                    <p className="text-slate-600">
+                    <h3 className="empty-state-title">No Activity Logs Found</h3>
+                    <p className="empty-state-description">
                         {filter.search || filter.module || filter.date
                             ? 'Try adjusting your search or filter criteria'
                             : 'Activity logs will appear here as users interact with the system'}

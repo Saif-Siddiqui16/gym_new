@@ -39,7 +39,6 @@ const AllGyms = () => {
                 page,
                 limit: 10
             });
-            // Backend returns { gyms, total, page, totalPages }
             setGyms(data.gyms || []);
             setTotalPages(data.totalPages || 1);
             setTotalGyms(data.total || 0);
@@ -104,84 +103,80 @@ const AllGyms = () => {
 
     if (loading && gyms.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 animate-pulse">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-gray-500 font-medium">Loading Gym Data...</p>
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading Gym Data...</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-slide-up">
+        <div className="w-full animate-fadeIn">
+            {/* Page Header */}
+            <div className="page-header">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Gym Management</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage all gym branches and their statuses ({totalGyms} total).</p>
+                    <h1 className="page-title">Gym Management</h1>
+                    <p className="page-subtitle">Manage all gym branches and their statuses ({totalGyms} total)</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleExport}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 hover:shadow-md hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
+                        className="btn btn-outline"
                     >
-                        <Download className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12" />
-                        Export as PDF
+                        <Download size={16} />
+                        Export
                     </button>
                     <button
                         onClick={handleAdd}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary-light border border-violet-100 rounded-xl text-sm font-bold text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 shadow-sm group"
+                        className="btn btn-primary"
                     >
-                        <Plus className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
+                        <Plus size={16} />
                         Add New Gym
                     </button>
                 </div>
             </div>
 
-            {/* Filters & Search */}
-            <div className="saas-card mb-6 animate-slide-up">
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="relative w-full md:w-96 group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                        </div>
-                        <input
-                            type="text"
-                            className="saas-input pl-10 transition-all duration-300 focus:scale-[1.02] focus:shadow-lg"
-                            placeholder="Search gyms, branches..."
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setPage(1); // Reset to first page on search
-                            }}
-                        />
-                    </div>
+            {/* Filter Bar */}
+            <div className="filter-bar">
+                <div className="search-input-wrapper">
+                    <Search size={18} className="search-icon" />
+                    <input
+                        type="text"
+                        className="saas-input"
+                        placeholder="Search gyms, branches..."
+                        value={searchTerm}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                </div>
 
-                    <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                        {['All', 'Active', 'Suspended'].map((status) => (
-                            <button
-                                key={status}
-                                onClick={() => {
-                                    setFilterStatus(status);
-                                    setPage(1); // Reset to first page on filter
-                                }}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap hover:scale-105 hover:-translate-y-0.5 ${filterStatus === status
-                                    ? 'bg-primary-light text-primary-hover border border-violet-100 shadow-md'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:shadow-sm border border-transparent'
-                                    }`}
-                            >
-                                {status}
-                            </button>
-                        ))}
-                    </div>
+                <div className="flex items-center gap-2">
+                    {['All', 'Active', 'Suspended'].map((status) => (
+                        <button
+                            key={status}
+                            onClick={() => {
+                                setFilterStatus(status);
+                                setPage(1);
+                            }}
+                            className={`px-4 py-2 rounded-btn text-sm font-semibold transition-all whitespace-nowrap ${filterStatus === status
+                                ? 'bg-primary-light text-primary border border-primary/20'
+                                : 'text-muted-foreground hover:bg-muted border border-transparent'
+                                }`}
+                        >
+                            {status}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Combined View using Responsive Table */}
-            <div className="saas-card p-0 overflow-hidden animate-slide-up delay-200">
+            {/* Table */}
+            <div className="saas-card !p-0 overflow-hidden">
                 <div className="saas-table-wrapper relative">
                     {loading && (
-                        <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center z-10 transition-opacity">
-                            <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <div className="table-overlay-loader">
+                            <div className="loading-spinner"></div>
                         </div>
                     )}
                     <table className="saas-table saas-table-responsive">
@@ -189,93 +184,81 @@ const AllGyms = () => {
                             <tr>
                                 <th>Gym Detail</th>
                                 <th>Contact Info</th>
-                                 <th>Location</th>
-                                 <th>SaaS Plan</th>
-                                 <th>Status</th>
-                                 <th className="text-center">Actions</th>
+                                <th>Location</th>
+                                <th>SaaS Plan</th>
+                                <th>Status</th>
+                                <th className="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {gyms.length > 0 ? (
                                 gyms.map((gym) => (
-                                    <tr key={gym.id} className="hover:bg-primary-light/30 hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer group">
+                                    <tr key={gym.id} className="group cursor-pointer">
                                         <td data-label="Gym Detail">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-violet-100 flex items-center justify-center text-primary font-bold text-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg">
+                                                <div className="h-10 w-10 flex-shrink-0 rounded-card bg-primary-light flex items-center justify-center text-primary font-bold text-lg">
                                                     {(gym.gymName || '?').charAt(0)}
                                                 </div>
                                                 <div className="ml-4 text-left">
-                                                    <div className="text-sm font-semibold text-gray-900 transition-colors duration-300 group-hover:text-primary">{gym.gymName}</div>
-                                                    <div className="text-sm text-gray-500">{gym.branchName}</div>
+                                                    <div className="text-sm font-semibold text-title">{gym.gymName}</div>
+                                                    <div className="text-sm text-muted-foreground">{gym.branchName}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td data-label="Contact Info">
                                             <div className="text-left">
-                                                <div className="text-sm text-gray-900 font-medium">{gym.owner}</div>
-                                                <div className="text-sm text-gray-500 flex items-center gap-1">
-                                                    <Phone size={12} className="text-gray-400" />
+                                                <div className="text-sm text-title font-medium">{gym.owner}</div>
+                                                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                                    <Phone size={12} />
                                                     {gym.phone}
                                                 </div>
                                             </div>
                                         </td>
                                         <td data-label="Location">
-                                            <div className="flex items-center text-sm text-gray-500 max-w-xs justify-end md:justify-start">
-                                                <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400 transition-transform duration-300 group-hover:scale-125" />
+                                            <div className="flex items-center text-sm text-muted-foreground max-w-xs">
+                                                <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4" />
                                                 <span className="truncate">{gym.location}</span>
                                             </div>
                                         </td>
-                                         <td data-label="SaaS Plan">
-                                            <div className="text-sm font-bold text-primary bg-primary-light px-3 py-1 rounded-lg inline-block whitespace-nowrap">
+                                        <td data-label="SaaS Plan">
+                                            <span className="status-badge status-badge-purple">
                                                 {gym.planName || 'No Plan'}
-                                            </div>
+                                            </span>
                                         </td>
                                         <td data-label="Status">
-                                            <span className={`saas-badge transition-all duration-300 group-hover:scale-105 ${gym.status === 'Active' ? 'badge-green' : 'badge-red'}`}>
-                                                <span className={`badge-dot ${gym.status === 'Active' ? 'animate-pulse bg-green-600' : 'bg-red-600'}`}></span>
+                                            <span className={`status-badge ${gym.status === 'Active' ? 'status-badge-green' : 'status-badge-red'}`}>
+                                                <span className="badge-dot"></span>
                                                 {gym.status}
                                             </span>
                                         </td>
-                                         <td data-label="Actions">
-                                            <div className="flex items-center justify-center gap-1.5 min-w-[140px]">
-                                                <button
-                                                    onClick={() => handleView(gym)}
-                                                    className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    title="View Details"
-                                                >
-                                                    <Eye className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+                                        <td data-label="Actions">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button onClick={() => handleView(gym)} className="action-icon-btn" title="View Details">
+                                                    <Eye size={16} />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleEdit(gym)}
-                                                    className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    title="Edit Gym"
-                                                >
-                                                    <Pencil className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+                                                <button onClick={() => handleEdit(gym)} className="action-icon-btn" title="Edit Gym">
+                                                    <Pencil size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleToggleStatus(gym.id)}
-                                                    className={`p-2 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 hover:rotate-12 group/btn ${gym.status === 'Active' ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'}`}
+                                                    className={`action-icon-btn ${gym.status === 'Active' ? 'warning' : 'success'}`}
                                                     title={gym.status === 'Active' ? 'Suspend' : 'Activate'}
                                                 >
-                                                    <Ban className="w-4 h-4 transition-transform duration-300 group-hover/btn:rotate-180" />
+                                                    <Ban size={16} />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDelete(gym.id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12" />
+                                                <button onClick={() => handleDelete(gym.id)} className="action-icon-btn danger" title="Delete">
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
-                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500 font-medium">
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center">
-                                            <Search className="h-10 w-10 text-gray-200 mb-4" />
-                                            <p>No gyms found matching your criteria.</p>
+                                            <Search className="h-10 w-10 text-border mb-4" />
+                                            <p className="text-muted-foreground font-medium">No gyms found matching your criteria.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -284,38 +267,33 @@ const AllGyms = () => {
                     </table>
                 </div>
 
-                {/* Pagination Section */}
+                {/* Pagination */}
                 {gyms.length > 0 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-100 bg-gray-50/50">
-                        <div className="text-sm text-gray-500 font-medium">
-                            Showing <span className="text-gray-900">{(page - 1) * 10 + 1}</span> to <span className="text-gray-900">{Math.min(page * 10, totalGyms)}</span> of <span className="text-gray-900">{totalGyms}</span> gyms
+                    <div className="pagination-wrapper">
+                        <div className="pagination-info">
+                            Showing <span>{(page - 1) * 10 + 1}</span> to <span>{Math.min(page * 10, totalGyms)}</span> of <span>{totalGyms}</span> gyms
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="pagination-controls">
                             <button
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                                className="pagination-btn"
                             >
                                 Previous
                             </button>
-                            <div className="flex items-center gap-1">
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button
-                                        key={i + 1}
-                                        onClick={() => handlePageChange(i + 1)}
-                                        className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all duration-300 hover:scale-110 ${page === i + 1
-                                            ? 'bg-primary text-white shadow-lg shadow-violet-200'
-                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-violet-300 hover:text-primary hover:shadow-sm'
-                                            }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
-                            </div>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={`pagination-num ${page === i + 1 ? 'active' : ''}`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
                             <button
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === totalPages}
-                                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                                className="pagination-btn"
                             >
                                 Next
                             </button>
@@ -334,30 +312,31 @@ const AllGyms = () => {
             >
                 {selectedGym && (
                     <div className="flex flex-col h-full">
-                        <div className="flex-1  pr-2">
+                        <div className="flex-1 pr-2">
                             <div className="flex flex-col items-center mb-8">
-                                <div className="h-20 w-20 rounded-full bg-violet-100 flex items-center justify-center text-primary font-bold text-3xl mb-4 shadow-lg shadow-violet-100">
+                                <div className="h-20 w-20 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold text-3xl mb-4 shadow-md">
                                     {(selectedGym.gymName || '?').charAt(0)}
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-900 text-center">
+                                <h3 className="text-2xl font-bold text-title text-center">
                                     {selectedGym.gymName}
                                 </h3>
-                                <p className="text-sm font-medium text-gray-500 mt-1">{selectedGym.branchName}</p>
-                                <span className={`mt-3 px-3 py-1 rounded-full text-xs font-bold ${selectedGym.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                <p className="text-sm font-medium text-muted-foreground mt-1">{selectedGym.branchName}</p>
+                                <span className={`mt-3 status-badge ${selectedGym.status === 'Active' ? 'status-badge-green' : 'status-badge-red'}`}>
+                                    <span className="badge-dot"></span>
                                     {selectedGym.status}
                                 </span>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Owner Details</label>
+                            <div className="space-y-4">
+                                <div className="bg-muted p-4 rounded-card border border-border">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">Owner Details</label>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 font-bold border border-gray-100">
+                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-muted-foreground font-bold border border-border">
                                             {(selectedGym.owner || '?').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">{selectedGym.owner}</p>
-                                            <div className="flex items-center text-xs font-medium text-gray-500 mt-0.5">
+                                            <p className="text-sm font-bold text-title">{selectedGym.owner}</p>
+                                            <div className="flex items-center text-xs font-medium text-muted-foreground mt-0.5">
                                                 <Phone className="w-3 h-3 mr-1" />
                                                 {selectedGym.phone}
                                             </div>
@@ -365,26 +344,26 @@ const AllGyms = () => {
                                     </div>
                                 </div>
 
-                                 <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">SaaS Subscription</label>
+                                <div className="bg-muted p-4 rounded-card border border-border">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">SaaS Subscription</label>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-violet-600/10 flex items-center justify-center text-primary font-bold border border-violet-100 italic">
+                                        <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold border border-primary/20">
                                             P
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900">{selectedGym.planName || 'No Active Plan'}</p>
-                                            <p className="text-[10px] font-black uppercase text-violet-500 tracking-widest mt-0.5">Active Membership</p>
+                                            <p className="text-sm font-bold text-title">{selectedGym.planName || 'No Active Plan'}</p>
+                                            <p className="text-xs font-semibold uppercase text-primary tracking-wider mt-0.5">Active Membership</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-violet-100 transition-colors">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Location</label>
+                                <div className="bg-muted p-4 rounded-card border border-border">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">Location</label>
                                     <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-400 shrink-0 border border-gray-100">
+                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-muted-foreground shrink-0 border border-border">
                                             <MapPin className="w-5 h-5" />
                                         </div>
-                                        <p className="text-sm font-medium text-gray-700 pt-2 leading-relaxed">
+                                        <p className="text-sm font-medium text-body pt-2 leading-relaxed">
                                             {selectedGym.location}
                                         </p>
                                     </div>
@@ -392,10 +371,10 @@ const AllGyms = () => {
                             </div>
                         </div>
 
-                        <div className="mt-auto border-t border-gray-100 pt-6">
+                        <div className="mt-auto border-t border-border pt-6">
                             <button
                                 onClick={() => setIsViewDrawerOpen(false)}
-                                className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                                className="btn btn-primary w-full justify-center py-3"
                             >
                                 Close Details
                             </button>

@@ -276,20 +276,20 @@ const LeadsPipeline = () => {
     return (
         <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
             {/* Header Section */}
-            <div className="page-header flex-row items-center justify-between">
+            <div className="page-header">
                 <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-primary-gradient flex items-center justify-center text-white shadow-lg shrink-0">
                         <Users size={28} />
                     </div>
                     <div>
                         <h1 className="page-title">Lead Management</h1>
-                        <p className="page-subtitle">Track and convert your fitness prospects</p>
+                        <p className="page-subtitle">Track and convert your fitness prospects with intelligence</p>
                     </div>
                 </div>
                 <Button
                     onClick={openAddDrawer}
                     variant="primary"
-                    className="btn-primary px-6 h-12 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200"
+                    className="h-12 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl transition-all transform active:scale-95"
                     icon={UserPlus}
                 >
                     Add Lead

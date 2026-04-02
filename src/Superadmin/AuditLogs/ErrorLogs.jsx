@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, AlertTriangle, AlertCircle, FileText, Download } from 'lucide-react';
 import { fetchErrorLogs, exportTable } from '../../api/superadmin/superAdminApi';
-import './TailwindFallback.css';
 import CustomDropdown from '../../components/common/CustomDropdown';
 
 const ErrorLogs = () => {
@@ -68,53 +67,59 @@ const ErrorLogs = () => {
         const lowerSeverity = severity.toLowerCase();
         switch (lowerSeverity) {
             case 'high':
-                return <span className="saas-badge badge-red transition-all duration-300 hover:scale-110 hover:shadow-md"><span className="badge-dot animate-pulse"></span>High</span>;
+                return <span className="status-badge status-badge-red"><span className="badge-dot"></span>High</span>;
             case 'medium':
-                return <span className="saas-badge badge-yellow transition-all duration-300 hover:scale-110 hover:shadow-md"><span className="badge-dot animate-pulse"></span>Medium</span>;
+                return <span className="status-badge status-badge-yellow"><span className="badge-dot"></span>Medium</span>;
             case 'low':
-                return <span className="saas-badge badge-green transition-all duration-300 hover:scale-110 hover:shadow-md"><span className="badge-dot animate-pulse"></span>Low</span>;
+                return <span className="status-badge status-badge-green"><span className="badge-dot"></span>Low</span>;
             default:
-                return <span className="saas-badge badge-gray transition-all duration-300 hover:scale-110">{severity}</span>;
+                return <span className="status-badge">{severity}</span>;
         }
     };
 
     if (loading) {
-        return <div className="p-6 text-center">Loading error logs...</div>;
+        return (
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="w-full">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4 animate-slide-up">
+        <div className="w-full animate-fadeIn">
+            {/* Header */}
+            <div className="page-header">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-800">Error Logs</h1>
-                    <p className="text-sm text-gray-500 mt-1">Track system errors and exceptions</p>
+                    <h1 className="page-title">Error Logs</h1>
+                    <p className="page-subtitle">Track system errors and exceptions</p>
                 </div>
-                <div className="flex gap-3 flex-col sm:flex-row w-full md:w-auto">
+                <div className="flex gap-3">
                     <button
                         onClick={handleExport}
-                        className="saas-btn saas-btn-primary shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group"
+                        className="btn btn-primary flex items-center gap-2"
                     >
-                        <FileText size={16} className="mr-2 transition-transform duration-300 group-hover:scale-110" />
+                        <FileText size={16} />
                         <span>Export as PDF</span>
                     </button>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="saas-card mb-6" style={{ overflow: 'visible', zIndex: 100, position: 'relative' }}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                    <div className="relative group" style={{ zIndex: 30 }}>
-                        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110" />
+            <div className="filter-bar mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
+                    <div className="search-input-wrapper">
+                        <Search size={18} className="search-icon" />
                         <input
                             type="text"
                             name="search"
                             value={filter.search}
                             onChange={handleFilterChange}
                             placeholder="Search error message..."
-                            className="saas-input pl-10 transition-all duration-300 focus:scale-[1.01] focus:shadow-md"
+                            className="saas-input pl-10"
                         />
                     </div>
-                    <div style={{ zIndex: 20 }}>
+                    <div>
                         <CustomDropdown
                             options={[
                                 { value: '', label: 'All Severities' },
@@ -128,20 +133,20 @@ const ErrorLogs = () => {
                             className="w-full"
                         />
                     </div>
-                    <div className="relative group" style={{ zIndex: 10 }}>
+                    <div>
                         <input
                             type="date"
                             name="date"
                             value={filter.date}
                             onChange={handleFilterChange}
-                            className="saas-input transition-all duration-300 focus:scale-[1.01] focus:shadow-md"
+                            className="saas-input"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Logs Table */}
-            <div className="saas-card p-0 overflow-hidden animate-slide-up delay-200">
+            <div className="saas-card !p-0 overflow-hidden">
                 <div className="saas-table-wrapper">
                     <table className="saas-table saas-table-responsive">
                         <thead>
@@ -156,25 +161,25 @@ const ErrorLogs = () => {
                         <tbody>
                             {paginatedLogs.length > 0 ? (
                                 paginatedLogs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-gray-50 hover:shadow-sm transition-all duration-200 cursor-pointer group">
+                                    <tr key={log.id} className="hover:bg-gray-50">
                                         <td data-label="Error Code">
                                             <div className="flex items-center gap-2">
                                                 <AlertTriangle
                                                     size={16}
-                                                    className={`transition-all duration-300 group-hover:scale-125 ${log.severity === 'high' ? 'text-red-500 group-hover:text-red-600' : 'text-yellow-500 group-hover:text-yellow-600'}`}
+                                                    className={log.severity === 'high' ? 'text-red-500' : 'text-yellow-500'}
                                                 />
-                                                <span className="font-mono text-xs font-bold text-gray-700 transition-colors duration-200 group-hover:text-primary">{log.code}</span>
+                                                <span className="font-mono text-xs font-bold text-body">{log.code}</span>
                                             </div>
                                         </td>
-                                        <td data-label="Error Message" className="font-medium text-gray-800 transition-colors duration-200 group-hover:text-gray-900">{log.message}</td>
-                                        <td data-label="Module" className="text-sm text-gray-600 transition-colors duration-200 group-hover:text-primary">{log.module}</td>
+                                        <td data-label="Error Message" className="font-medium text-title">{log.message}</td>
+                                        <td data-label="Module" className="text-sm text-muted-foreground">{log.module}</td>
                                         <td data-label="Severity">{getSeverityBadge(log.severity)}</td>
-                                        <td data-label="Date & Time" className="text-gray-500 text-sm font-mono transition-colors duration-200 group-hover:text-primary">{log.date}</td>
+                                        <td data-label="Date & Time" className="text-muted-foreground text-sm font-mono">{log.date}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                                         No error logs found matching your filters.
                                     </td>
                                 </tr>
@@ -184,17 +189,17 @@ const ErrorLogs = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="p-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50">
-                    <span className="text-sm text-gray-500 text-center md:text-left">
+                <div className="pagination-wrapper">
+                    <span className="pagination-info">
                         {filteredLogs.length > 0 ? (
                             `Showing ${startIndex + 1} to ${Math.min(startIndex + itemsPerPage, filteredLogs.length)} of ${filteredLogs.length} logs`
                         ) : (
                             'No logs'
                         )}
                     </span>
-                    <div className="flex gap-2 flex-wrap justify-center">
+                    <div className="pagination-controls">
                         <button
-                            className="saas-btn saas-btn-secondary py-1 px-3 text-xs disabled:opacity-50 transition-all duration-200 hover:shadow-md disabled:hover:shadow-none"
+                            className="pagination-btn disabled:opacity-50"
                             onClick={handlePrevPage}
                             disabled={currentPage === 1}
                         >
@@ -203,14 +208,14 @@ const ErrorLogs = () => {
                         {[...Array(totalPages)].map((_, index) => (
                             <button
                                 key={index + 1}
-                                className={`saas-btn py-1 px-3 text-xs transition-all duration-200 hover:shadow-md ${currentPage === index + 1 ? 'saas-btn-primary shadow-sm' : 'saas-btn-secondary'}`}
+                                className={`pagination-num ${currentPage === index + 1 ? 'active' : ''}`}
                                 onClick={() => handlePageClick(index + 1)}
                             >
                                 {index + 1}
                             </button>
                         ))}
                         <button
-                            className="saas-btn saas-btn-secondary py-1 px-3 text-xs disabled:opacity-50 transition-all duration-200 hover:shadow-md disabled:hover:shadow-none"
+                            className="pagination-btn disabled:opacity-50"
                             onClick={handleNextPage}
                             disabled={currentPage >= totalPages || totalPages === 0}
                         >

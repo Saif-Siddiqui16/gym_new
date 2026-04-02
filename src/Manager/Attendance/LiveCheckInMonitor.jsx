@@ -135,8 +135,20 @@ const LiveCheckInMonitor = () => {
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
-                                                        {log.avatar || (log.name || '?').charAt(0)}
+                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6 overflow-hidden">
+                                                        {log.avatar ? (
+                                                            <img 
+                                                                src={log.avatar} 
+                                                                alt={log.name} 
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                    e.target.parentElement.innerText = (log.name || '?').charAt(0);
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            (log.name || '?').charAt(0)
+                                                        )}
                                                     </div>
                                                     <span className="font-bold text-slate-700 group-hover/row:text-primary-hover group-hover/row:translate-x-1 transition-all duration-300">
                                                         {log.name}
@@ -190,6 +202,7 @@ const LiveCheckInMonitor = () => {
                                     key={log.id}
                                     title={log.name}
                                     subtitle={log.type}
+                                    avatar={log.avatar}
                                     badge={log.status === 'checked-in' ? 'Checked In' : 'Checked Out'}
                                     badgeColor={log.status === 'checked-in' ? 'emerald' : 'slate'}
                                     fields={[

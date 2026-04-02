@@ -3,6 +3,7 @@ import React from 'react';
 const MobileCard = ({
     title,
     subtitle,
+    avatar,
     badge,
     badgeColor = 'violet',
     fields = [],
@@ -33,8 +34,12 @@ const MobileCard = ({
                 {/* Header with gradient icon */}
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shadow-primary/30/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
-                            <div className="w-5 h-5 rounded-full bg-white/20"></div>
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shadow-primary/30/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0 overflow-hidden">
+                            {avatar ? (
+                                <img src={avatar} alt={title} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-5 h-5 rounded-full bg-white/20"></div>
+                            )}
                         </div>
                         <div className="flex-1 min-w-0">
                             <h3 className="text-base font-bold text-slate-900 group-hover:text-primary-hover transition-colors duration-300 truncate">

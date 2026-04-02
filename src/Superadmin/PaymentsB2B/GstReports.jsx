@@ -38,22 +38,28 @@ const GstReports = () => {
     };
 
     if (loading) {
-        return <div className="p-6 text-center">Loading GST reports...</div>;
+        return (
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="superadmindashboard-gst-container p-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <h1 className="text-xl font-bold text-gray-800 mb-4 md:mb-0">GST Reports</h1>
-
-                {/* Export Buttons */}
+        <div className="w-full animate-fadeIn">
+            {/* Page Header */}
+            <div className="page-header">
+                <div>
+                    <h1 className="page-title">GST Reports</h1>
+                    <p className="page-subtitle">View GST collection, breakdown, and filing status</p>
+                </div>
                 <div className="flex gap-3">
                     <button
                         onClick={handleExport}
-                        className="bg-primary hover:bg-primary text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 shadow-md"
+                        className="btn btn-primary btn-sm flex items-center gap-2"
                     >
-                        <FileText className="w-4 h-4" />
+                        <FileText size={16} />
                         Export as PDF
                     </button>
                 </div>
@@ -62,115 +68,129 @@ const GstReports = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Total GST Collected */}
-                <div className="bg-purple-500 text-white shadow-lg rounded-lg p-6 transform transition hover:scale-105">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold opacity-90">Total GST Collected</h3>
-                        <FileText className="w-8 h-8 opacity-80" />
+                <div className="summary-card">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Total GST Collected</p>
+                            <p className="summary-card-value">{summaryData.totalCollected}</p>
+                            <p className="summary-card-label">All collected GST</p>
+                        </div>
+                        <div className="summary-card-icon bg-purple-50 text-purple-600">
+                            <FileText size={22} />
+                        </div>
                     </div>
-                    <p className="text-3xl font-bold">{summaryData.totalCollected}</p>
-                    <p className="text-sm opacity-75 mt-2">All collected GST</p>
                 </div>
 
                 {/* GST Pending */}
-                <div className="bg-yellow-500 text-white shadow-lg rounded-lg p-6 transform transition hover:scale-105">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold opacity-90">GST Pending</h3>
-                        <Clock className="w-8 h-8 opacity-80" />
+                <div className="summary-card">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">GST Pending</p>
+                            <p className="summary-card-value">{summaryData.pending}</p>
+                            <p className="summary-card-label">Awaiting collection</p>
+                        </div>
+                        <div className="summary-card-icon bg-yellow-50 text-yellow-600">
+                            <Clock size={22} />
+                        </div>
                     </div>
-                    <p className="text-3xl font-bold">{summaryData.pending}</p>
-                    <p className="text-sm opacity-75 mt-2">Awaiting collection</p>
                 </div>
 
                 {/* GST Paid */}
-                <div className="bg-green-500 text-white shadow-lg rounded-lg p-6 transform transition hover:scale-105">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold opacity-90">GST Paid</h3>
-                        <CheckCircle className="w-8 h-8 opacity-80" />
+                <div className="summary-card">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">GST Paid</p>
+                            <p className="summary-card-value">{summaryData.paid}</p>
+                            <p className="summary-card-label">Paid to government</p>
+                        </div>
+                        <div className="summary-card-icon bg-green-50 text-green-600">
+                            <CheckCircle size={22} />
+                        </div>
                     </div>
-                    <p className="text-3xl font-bold">{summaryData.paid}</p>
-                    <p className="text-sm opacity-75 mt-2">Paid to government</p>
                 </div>
             </div>
 
             {/* GST Table */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="superadmindashboard-gst-table w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
+            <div className="saas-card !p-0 overflow-hidden">
+                <div className="saas-table-wrapper">
+                    <table className="saas-table saas-table-responsive">
+                        <thead>
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Invoice No
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Gym Name
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Amount
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    GST %
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    GST Amount
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Date
-                                </th>
+                                <th>Invoice No</th>
+                                <th>Gym Name</th>
+                                <th>Amount</th>
+                                <th>GST %</th>
+                                <th>GST Amount</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {gstData.map((record) => (
-                                <tr key={record.invoiceNo} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-primary">
-                                            {record.invoiceNo}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-800 font-medium">
-                                            {record.gymName}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-gray-900">
-                                            {record.amount}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-600 font-medium">
-                                            {record.gstPercent}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-bold text-primary-hover">
-                                            {record.gstAmount}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-600">
-                                            {new Date(record.date).toLocaleDateString('en-IN')}
-                                        </span>
+                        <tbody>
+                            {gstData.length > 0 ? (
+                                gstData.map((record) => (
+                                    <tr key={record.invoiceNo}>
+                                        <td data-label="Invoice No">
+                                            <span className="text-sm font-semibold text-primary">
+                                                {record.invoiceNo}
+                                            </span>
+                                        </td>
+                                        <td data-label="Gym Name">
+                                            <span className="text-sm text-title font-medium">
+                                                {record.gymName}
+                                            </span>
+                                        </td>
+                                        <td data-label="Amount">
+                                            <span className="text-sm font-semibold text-title">
+                                                {record.amount}
+                                            </span>
+                                        </td>
+                                        <td data-label="GST %">
+                                            <span className="text-sm text-body font-medium">
+                                                {record.gstPercent}
+                                            </span>
+                                        </td>
+                                        <td data-label="GST Amount">
+                                            <span className="text-sm font-bold text-primary">
+                                                {record.gstAmount}
+                                            </span>
+                                        </td>
+                                        <td data-label="Date">
+                                            <span className="text-sm text-muted-foreground">
+                                                {new Date(record.date).toLocaleDateString('en-IN')}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                        <div className="empty-state">
+                                            <div className="empty-state-icon">
+                                                <FileText size={24} />
+                                            </div>
+                                            <p className="empty-state-title">No GST records found</p>
+                                            <p className="empty-state-description">GST data will appear here once available</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Footer Summary */}
-                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div className="border-t border-border px-6 py-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <p className="text-xs text-gray-600 mb-1">Total Records</p>
-                            <p className="text-lg font-bold text-gray-800">{gstData.length}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Total Records</p>
+                            <p className="text-lg font-bold text-title">{gstData.length}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600 mb-1">Total Taxable Amount</p>
-                            <p className="text-lg font-bold text-gray-800">₹1,20,150</p>
+                            <p className="text-xs text-muted-foreground mb-1">Total Taxable Amount</p>
+                            <p className="text-lg font-bold text-title">₹1,20,150</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-600 mb-1">Total GST Amount</p>
-                            <p className="text-lg font-bold text-primary-hover">₹21,627</p>
+                            <p className="text-xs text-muted-foreground mb-1">Total GST Amount</p>
+                            <p className="text-lg font-bold text-primary">₹21,627</p>
                         </div>
                     </div>
                 </div>
@@ -178,42 +198,38 @@ const GstReports = () => {
 
             {/* Additional Information */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">GST Breakdown</h3>
+                <div className="saas-card">
+                    <h3 className="section-title mb-4">GST Breakdown</h3>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600">CGST (9%)</span>
-                            <span className="font-semibold text-gray-800">₹10,813.50</span>
+                            <span className="text-body">CGST (9%)</span>
+                            <span className="font-semibold text-title">₹10,813.50</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600">SGST (9%)</span>
-                            <span className="font-semibold text-gray-800">₹10,813.50</span>
+                            <span className="text-body">SGST (9%)</span>
+                            <span className="font-semibold text-title">₹10,813.50</span>
                         </div>
-                        <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
-                            <span className="text-gray-800 font-semibold">Total GST</span>
-                            <span className="font-bold text-primary-hover">₹21,627</span>
+                        <div className="pt-3 border-t border-border flex justify-between items-center">
+                            <span className="text-title font-semibold">Total GST</span>
+                            <span className="font-bold text-primary">₹21,627</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Filing Status</h3>
+                <div className="saas-card">
+                    <h3 className="section-title mb-4">Filing Status</h3>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Current Month</span>
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
-                                Pending
-                            </span>
+                            <span className="text-body">Current Month</span>
+                            <span className="status-badge status-badge-yellow">Pending</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Last Month</span>
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                Filed
-                            </span>
+                            <span className="text-body">Last Month</span>
+                            <span className="status-badge status-badge-green">Filed</span>
                         </div>
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Next Due Date</span>
-                            <span className="font-semibold text-gray-800">20 Feb 2026</span>
+                            <span className="text-body">Next Due Date</span>
+                            <span className="font-semibold text-title">20 Feb 2026</span>
                         </div>
                     </div>
                 </div>

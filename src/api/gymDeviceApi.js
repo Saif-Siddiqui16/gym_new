@@ -25,11 +25,16 @@ export const fetchGymDevices = async (branchId = null) => {
 };
 
 // ─── Face access records ──────────────────────────────────────────
-export const fetchFaceAccessRecords = async (branchId = null) => {
+export const fetchFaceAccessRecords = async (branchId = null, date = null) => {
     try {
         const headers = branchId ? { 'x-tenant-id': String(branchId) } : {};
-        const response = await apiClient.get('/gym-device/records', { headers });
-        return response.data;
+        const params = {};
+        if (date) params.date = date;
+        if (branchId) params.branchId = branchId;
+        
+        const response = await apiClient.get('/gym-device/records', { headers, params });
+        // Return the array directly to maintain compatibility with existing components
+        return response.data?.data?.acCheckRecordList || [];
     } catch (error) {
         console.error('Error fetching face access records:', error);
         throw error;

@@ -79,31 +79,34 @@ const SuperAdminDashboard = () => {
     }
 
     return (
-        <div className="  space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Enhanced Header */}
-            <div className="page-header flex-row items-center justify-between">
+        <div className="space-y-10 animate-fadeIn">
+            {/* Standard Header Section */}
+            <div className="page-header">
                 <div>
                     <h1 className="page-title">System Overview</h1>
-                    <p className="page-subtitle">Monitor platform performance and recent activity</p>
+                    <p className="page-subtitle">Real-time platform intelligence & operational status</p>
                 </div>
-                <div className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <CheckCircle2 size={16} className="text-emerald-600" />
-                    <span className="text-sm font-semibold text-emerald-700">All Systems Operational</span>
+                <div className="flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[12px] font-bold uppercase text-emerald-700 tracking-wider">All Systems Operational</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Stats Grid with Section Header */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="section-title">
+            {/* Stats Overview */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-border-light pb-4">
+                    <h2 className="section-title">
                         <TrendingUp size={20} className="text-primary" />
-                        Key Metrics
+                        Key Performance Metrics
+                    </h2>
+                    <div className="flex items-center gap-2 text-muted">
+                        <Clock size={14} />
+                        <span className="text-xs font-medium">Auto-synced: Just now</span>
                     </div>
-                    <span className="text-xs text-muted flex items-center gap-1">
-                        <Clock size={12} />
-                        Updated just now
-                    </span>
                 </div>
+                
                 <DashboardGrid>
                     {stats.map(stat => (
                         <StatsCard key={stat.id} {...stat} />
@@ -111,63 +114,58 @@ const SuperAdminDashboard = () => {
                 </DashboardGrid>
             </div>
 
-            {/* Main Content & Sidebar Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* Recent Registrations Table */}
-                <div className="lg:col-span-2 space-y-4 min-w-0">
+            {/* Dashboard Sections Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                {/* Recent Registrations (Column 8) */}
+                <div className="lg:col-span-8 space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="section-title">Recent Gym Registrations</h2>
-                        <Button
-                            variant="outline"
-                            size="small"
-                            className="btn-outline group font-semibold"
-                        >
+                        <Button variant="outline" size="sm" icon={ArrowRight}>
                             View All
-                            <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </div>
-                    <Card className="overflow-hidden p-0 border border-border-color shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-gray-50 border-b border-border-color">
+                    
+                    <Card className="!p-0 overflow-hidden">
+                        <div className="overflow-x-auto overflow-y-hidden custom-scrollbar">
+                            <table className="w-full">
+                                <thead>
                                     <tr>
-                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted">Gym Name</th>
-                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted hidden sm:table-cell">Location</th>
-                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted hidden md:table-cell">Date</th>
-                                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-muted">Status</th>
+                                        <th className="px-6 py-4">Gym Name</th>
+                                        <th className="px-6 py-4 hidden sm:table-cell">Location</th>
+                                        <th className="px-6 py-4 hidden md:table-cell">Date</th>
+                                        <th className="px-6 py-4">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-light">
+                                <tbody>
                                     {recentRegistrations.length > 0 ? (
                                         recentRegistrations.map(gym => (
-                                            <tr key={gym.id} className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-transparent transition-all duration-200 cursor-pointer">
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-9 h-9 flex-shrink-0 bg-gradient-to-br from-primary to-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
+                                            <tr key={gym.id} className="group hover:bg-slate-50 transition-colors cursor-pointer">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-9 h-9 rounded-xl bg-primary-light flex items-center justify-center text-primary font-bold text-sm shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                                                             {gym.gymName?.charAt(0) || 'G'}
                                                         </div>
-                                                        <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors truncate">
+                                                        <span className="font-semibold text-title truncate max-w-[150px]">
                                                             {gym.gymName}
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 text-muted hidden sm:table-cell">
-                                                    <div className="flex items-center gap-2 min-w-0">
-                                                        <div className="w-8 h-8 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-primary-light transition-colors">
-                                                            <MapPin size={14} className="text-primary" />
-                                                        </div>
-                                                        <span className="font-medium truncate">{gym.location || 'N/A'}</span>
+                                                <td className="px-6 py-4 hidden sm:table-cell">
+                                                    <div className="flex items-center gap-2 text-muted">
+                                                        <MapPin size={14} />
+                                                        <span className="truncate max-w-[120px]">{gym.location || 'N/A'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 text-muted font-medium whitespace-nowrap hidden md:table-cell">
+                                                <td className="px-6 py-4 hidden md:table-cell text-muted font-medium">
                                                     {gym.createdAt ? new Date(gym.createdAt).toISOString().split('T')[0] : 'N/A'}
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm transition-all duration-300 group-hover:scale-105 whitespace-nowrap ${gym.status === 'Active'
-                                                        ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border border-emerald-200'
-                                                        : 'bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 border border-amber-200'
-                                                        }`}>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                                        gym.status === 'Active' 
+                                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                                        : 'bg-amber-50 text-amber-600 border-amber-100'
+                                                    }`}>
                                                         {gym.status}
                                                     </span>
                                                 </td>
@@ -175,8 +173,8 @@ const SuperAdminDashboard = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="4" className="px-4 py-8 text-center text-gray-500 font-medium">
-                                                No recent registrations found
+                                            <td colSpan="4" className="px-6 py-12 text-center text-muted italic">
+                                                No registrations found this month
                                             </td>
                                         </tr>
                                     )}
@@ -186,47 +184,38 @@ const SuperAdminDashboard = () => {
                     </Card>
                 </div>
 
-                {/* System Alerts / Sidebar */}
-                <div className="lg:col-span-1 space-y-4 min-w-0">
+                {/* System Alerts (Column 4) */}
+                <div className="lg:col-span-4 space-y-6">
                     <h2 className="section-title">System Alerts</h2>
-                    <div className="space-y-4 max-h-[600px]  pr-2 scrollbar-thin scrollbar-thumb-border-color scrollbar-track-transparent">
+                    <div className="space-y-4">
                         {alerts.length > 0 ? (
                             alerts.map(alert => (
-                                <div key={alert.id} className={`bg-white rounded-xl border-l-4 ${alert.type === 'danger' ? 'border-red-500 bg-gradient-to-r from-red-50/80 to-white' : 'border-amber-500 bg-gradient-to-r from-amber-50/80 to-white'} shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group`}>
-                                    <div className="flex items-start gap-3 p-4">
-                                        <div className={`w-10 h-10 flex-shrink-0 bg-gradient-to-br ${alert.type === 'danger' ? 'from-red-500 to-red-600' : 'from-amber-500 to-amber-600'} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
-                                            {alert.type === 'danger' ? <Server size={20} className="text-white" strokeWidth={2.5} /> : <AlertTriangle size={20} className="text-white" strokeWidth={2.5} />}
+                                <div key={alert.id} className={`p-4 rounded-xl border-l-4 shadow-sm bg-white hover:shadow-md transition-all group ${
+                                    alert.type === 'danger' ? 'border-red-500' : 'border-amber-500'
+                                }`}>
+                                    <div className="flex gap-4">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
+                                            alert.type === 'danger' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                                        }`}>
+                                            {alert.type === 'danger' ? <Server size={20} /> : <AlertTriangle size={20} />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-2 mb-1">
-                                                <h3 className={`font-bold ${alert.type === 'danger' ? 'text-red-900' : 'text-amber-900'} text-sm`}>{alert.title}</h3>
-                                                {alert.type === 'danger' ? (
-                                                    <span className="w-2 h-2 flex-shrink-0 rounded-full bg-red-500 animate-pulse shadow-lg shadow-red-500/50 mt-1"></span>
-                                                ) : (
-                                                    <span className="px-1.5 py-0.5 flex-shrink-0 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg text-xs font-bold shadow-md">Action</span>
-                                                )}
+                                            <div className="flex justify-between items-start mb-1">
+                                                <h3 className="text-sm font-bold text-title truncate">{alert.title}</h3>
+                                                <span className="text-[10px] font-bold text-muted uppercase">{alert.time}</span>
                                             </div>
-                                            <p className={`text-xs ${alert.type === 'danger' ? 'text-red-700' : 'text-amber-700'} font-medium mb-2`}>{alert.message}</p>
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className={`px-2 py-0.5 ${alert.type === 'danger' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'} rounded-lg text-xs font-bold`}>
-                                                    {alert.type === 'danger' ? 'Critical' : 'Pending'}
-                                                </span>
-                                                <span className="text-xs text-gray-500 font-medium">{alert.time}</span>
-                                            </div>
+                                            <p className="text-xs text-muted leading-relaxed line-clamp-2">{alert.message}</p>
                                         </div>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 text-center shadow-inner">
-                                <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2" />
-                                <h3 className="text-emerald-900 font-bold text-sm">All Systems Clear</h3>
-                                <p className="text-emerald-700 text-xs">No active alerts at this time</p>
+                            <div className="p-8 rounded-xl bg-emerald-50/50 border border-emerald-100 text-center">
+                                <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-3" />
+                                <h3 className="text-sm font-bold text-emerald-900 mb-1">Infrastructure Stable</h3>
+                                <p className="text-xs text-emerald-700">No active alerts detected</p>
                             </div>
                         )}
-
-                        {/* Static fallback for demo if no real alerts, but instructions were to remove hardcoded data. 
-                            I've implemented a conditional "All Systems Clear" message instead. */}
                     </div>
                 </div>
             </div>

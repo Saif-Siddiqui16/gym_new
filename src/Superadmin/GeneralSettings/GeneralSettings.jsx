@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, Building2, Mail, Phone, MapPin, ArrowLeft, DollarSign, Sparkles, Server } from 'lucide-react';
+import { Save, Building2, Mail, Phone, MapPin, DollarSign, Sparkles, Server } from 'lucide-react';
 import { fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
 import { toast } from 'react-hot-toast';
 
@@ -65,65 +65,48 @@ const GeneralSettings = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
-                <div className="animate-pulse flex flex-col items-center">
-                    <div className="h-16 w-16 bg-gradient-to-br from-violet-200 to-purple-200 rounded-full mb-4 animate-spin"></div>
-                    <div className="h-4 w-48 bg-slate-200 rounded"></div>
-                </div>
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading settings...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
-            {/* Page Header - Back Button */}
-            <div className="w-full max-w-full mb-6">
+        <div className="w-full animate-fadeIn">
+            {/* Page Header */}
+            <div className="page-header">
+                <div>
+                    <h1 className="page-title">General Settings</h1>
+                    <p className="page-subtitle">Manage your organization's core profile information</p>
+                </div>
                 <button
-                    onClick={() => navigate('/dashboard')}
-                    className="group flex items-center text-slate-500 hover:text-primary transition-all duration-300 hover:scale-105"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="btn btn-primary"
                 >
-                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-all duration-300 mr-2 group-hover:scale-110">
-                        <ArrowLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-1" />
-                    </div>
-                    <span className="font-semibold">Back to Dashboard</span>
+                    <Save size={18} />
+                    <span>{saving ? 'Saving...' : 'Save Changes'}</span>
                 </button>
             </div>
 
-            {/* Premium Header with Gradient */}
-            <div className="w-full max-w-full mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <Building2 size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                General Settings
-                            </h1>
-                            <p className="text-slate-600 text-sm mt-1">Manage your organization's core profile information</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Main Form Card */}
-            <div className="w-full max-w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
-                <div className="p-8 sm:p-10 space-y-8">
+            <div className="saas-card">
+                <div className="space-y-6">
                     {/* Organization Name */}
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-3" htmlFor="orgName">
+                        <label htmlFor="orgName">
                             Organization Name
                         </label>
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                <Building2 size={20} />
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground">
+                                <Building2 size={18} />
                             </div>
                             <input
                                 type="text"
                                 id="orgName"
                                 name="orgName"
-                                className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                className="w-full pl-12"
                                 value={formData.orgName}
                                 onChange={handleChange}
                                 placeholder="Enter organization name"
@@ -133,18 +116,18 @@ const GeneralSettings = () => {
 
                     {/* Address */}
                     <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-3" htmlFor="address">
+                        <label htmlFor="address">
                             Address
                         </label>
-                        <div className="relative group">
-                            <div className="absolute top-3.5 left-4 flex items-start pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                <MapPin size={20} />
+                        <div className="relative">
+                            <div className="absolute top-3 left-4 pointer-events-none text-muted-foreground">
+                                <MapPin size={18} />
                             </div>
                             <textarea
                                 id="address"
                                 name="address"
                                 rows="3"
-                                className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm resize-none focus:shadow-lg"
+                                className="w-full pl-12 resize-none"
                                 value={formData.address}
                                 onChange={handleChange}
                                 placeholder="Enter full address"
@@ -156,18 +139,18 @@ const GeneralSettings = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Contact Email */}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3" htmlFor="email">
+                            <label htmlFor="email">
                                 Contact Email
                             </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                    <Mail size={20} />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground">
+                                    <Mail size={18} />
                                 </div>
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                    className="w-full pl-12"
                                     value={formData.email}
                                     onChange={handleChange}
                                     placeholder="support@example.com"
@@ -177,18 +160,18 @@ const GeneralSettings = () => {
 
                         {/* Contact Phone */}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3" htmlFor="phone">
+                            <label htmlFor="phone">
                                 Contact Phone
                             </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                    <Phone size={20} />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground">
+                                    <Phone size={18} />
                                 </div>
                                 <input
                                     type="tel"
                                     id="phone"
                                     name="phone"
-                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
+                                    className="w-full pl-12"
                                     value={formData.phone}
                                     onChange={handleChange}
                                     placeholder="+91 00000 00000"
@@ -198,61 +181,48 @@ const GeneralSettings = () => {
                     </div>
 
                     {/* Quick Configuration Links */}
-                    <div className="pt-8 border-t border-slate-100">
-                        <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-6">Quick Configuration</h3>
+                    <div className="pt-6 border-t border-border">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Quick Configuration</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <button
                                 onClick={() => navigate('/superadmin/general-settings/booking')}
-                                className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-100 hover:border-violet-200 hover:bg-primary-light transition-all group"
+                                className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-primary-light hover:border-primary/30 transition-colors"
                             >
-                                <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-primary transition-colors">
-                                    <Sparkles size={20} />
+                                <div className="p-2 rounded-lg bg-primary-light text-primary">
+                                    <Sparkles size={18} />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-sm font-bold text-slate-700 group-hover:text-primary-hover">Booking Rules</div>
-                                    <div className="text-[10px] text-slate-500">Limits & Credits</div>
+                                    <div className="text-sm font-semibold text-title">Booking Rules</div>
+                                    <div className="text-xs text-muted-foreground">Limits & Credits</div>
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => navigate('/superadmin/general-settings/invoice')}
-                                className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-100 hover:border-violet-200 hover:bg-primary-light transition-all group"
+                                className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-primary-light hover:border-primary/30 transition-colors"
                             >
-                                <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-primary transition-colors">
-                                    <DollarSign size={20} />
+                                <div className="p-2 rounded-lg bg-primary-light text-primary">
+                                    <DollarSign size={18} />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-sm font-bold text-slate-700 group-hover:text-primary-hover">Invoice Settings</div>
-                                    <div className="text-[10px] text-slate-500">GST & Tax Info</div>
+                                    <div className="text-sm font-semibold text-title">Invoice Settings</div>
+                                    <div className="text-xs text-muted-foreground">GST & Tax Info</div>
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => navigate('/superadmin/general-settings/hardware')}
-                                className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-100 hover:border-violet-200 hover:bg-primary-light transition-all group"
+                                className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-primary-light hover:border-primary/30 transition-colors"
                             >
-                                <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-primary transition-colors">
-                                    <Server size={20} />
+                                <div className="p-2 rounded-lg bg-primary-light text-primary">
+                                    <Server size={18} />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-sm font-bold text-slate-700 group-hover:text-primary-hover">SmartAIoT Settings</div>
-                                    <div className="text-[10px] text-slate-500">MIPS & SDK Config</div>
+                                    <div className="text-sm font-semibold text-title">SmartAIoT Settings</div>
+                                    <div className="text-xs text-muted-foreground">MIPS & SDK Config</div>
                                 </div>
                             </button>
                         </div>
-                    </div>
-
-                    {/* Save Button */}
-                    <div className="flex justify-end pt-6 border-t border-slate-100">
-                        <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <Save size={20} className="mr-2 relative transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                            <span className="relative">{saving ? 'Saving...' : 'Save Changes'}</span>
-                        </button>
                     </div>
                 </div>
             </div>

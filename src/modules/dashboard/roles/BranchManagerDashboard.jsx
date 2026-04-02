@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import LiveAccessControl from '../components/LiveAccessControl';
 import FacilityStatusOverview from '../../operations/components/widgets/FacilityStatusOverview';
 import StatsCard from '../components/StatsCard';
+import SmartAIoTSummary from '../components/SmartAIoTSummary';
 import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import { fetchDashboardStats, fetchRecentActivities, fetchTrainerAvailability, fetchFinancialStats } from '../../../api/branchAdmin/branchAdminApi';
 import { useBranchContext } from '../../../context/BranchContext';
@@ -241,6 +242,9 @@ const BranchManagerDashboard = () => {
                 </div>
             </div>
 
+
+            {/* ─── Smart AIoT Access Control (same as Admin) ─── */}
+            <SmartAIoTSummary />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Revenue Overview Chart */}

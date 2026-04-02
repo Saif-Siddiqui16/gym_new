@@ -84,11 +84,11 @@ const DailyAttendanceReport = () => {
                 date: selectedDate
             };
 
-            const [attendanceRes, statsRes, smartLogData, smartSummaryData] = await Promise.all([
+            const [attendanceRes, statsRes, smartLogs, smartSummaryData] = await Promise.all([
                 apiClient.get('/admin/attendance', { params }),
                 apiClient.get('/admin/attendance/stats'),
-                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords()).catch(() => []),
-                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary().catch(() => ({ today: 0, total: 0 })))
+                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords(null, selectedDate)).catch(() => []),
+                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary(1, 10, null).catch(() => ({ today: 0, total: 0 })))
             ]);
 
             const formatted = (attendanceRes.data.data || []).map(a => ({
@@ -98,10 +98,18 @@ const DailyAttendanceReport = () => {
                 type: a.type,
                 checkIn: a.checkIn || a.time || '-',
                 checkOut: a.checkOut || '-',
-                status: a.status
+                status: a.status,
+                checkInMethod: a.checkInMethod || 'manual'
             }));
 
             setAttendance(formatted);
+
+            const hardwareScans = (smartLogs || []).filter(log => {
+                const scanDateStr = new Date(log.createTime).toLocaleDateString('en-CA');
+                return scanDateStr === selectedDate;
+            });
+            setSmartRecords(hardwareScans);
+
             if (statsRes.data) {
                 setAttendanceStats({
                     totalToday: statsRes.data.totalToday || 0,
@@ -110,14 +118,9 @@ const DailyAttendanceReport = () => {
                 });
             }
 
-            const logsForDate = Array.isArray(smartLogData) ? smartLogData.filter(log => 
-                log.createTime && log.createTime.startsWith(selectedDate)
-            ) : [];
-            
-            setSmartRecords(logsForDate);
             setSmartStats({
-                today: (smartSummaryData?.today > 0) ? smartSummaryData.today : logsForDate.length,
-                total: (smartSummaryData?.total > 0) ? smartSummaryData.total : (Array.isArray(smartLogData) ? smartLogData.length : 0)
+                today: (smartSummaryData?.today > 0) ? smartSummaryData.today : hardwareScans.length,
+                total: (smartSummaryData?.total > 0) ? smartSummaryData.total : (Array.isArray(smartLogs) ? smartLogs.length : 0)
             });
 
         } catch (error) {
@@ -218,10 +221,11 @@ const DailyAttendanceReport = () => {
             </div>
 
             {/* Manual Logs Table */}
+            {/* Attendance Status Table */}
             <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden mb-12">
                 <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Users size={14} className="text-primary" /> Today's Manual Log
+                        <Users size={14} className="text-primary" /> Today's Manual Attendance ({attendance.filter(a => a.checkInMethod !== 'biometric').length})
                     </h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -245,8 +249,8 @@ const DailyAttendanceReport = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : attendance.length > 0 ? (
-                                attendance.map((log) => (
+                            ) : attendance.filter(a => a.checkInMethod !== 'biometric').length > 0 ? (
+                                attendance.filter(a => a.checkInMethod !== 'biometric').map((log) => (
                                     <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
@@ -257,9 +261,14 @@ const DailyAttendanceReport = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${log.type === 'Member' ? 'bg-primary-light text-primary hover' : 'bg-teal-50 text-teal-700'}`}>
-                                                {log.type}
-                                            </span>
+                                            <div className="flex flex-col gap-1">
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase w-fit ${log.type === 'Member' ? 'bg-primary-light text-primary hover' : 'bg-teal-50 text-teal-700'}`}>
+                                                    {log.type}
+                                                </span>
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                    Method: {log.checkInMethod === 'biometric' ? 'Face Scan' : 'Manual'}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm font-black text-slate-700">{log.checkIn}</td>
                                         <td className="px-6 py-4 text-sm font-bold text-slate-400">{log.checkOut}</td>
@@ -339,13 +348,24 @@ const DailyAttendanceReport = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200">
-                                                    {record.passType === 'face_2' ? 'Face Scan' : 'ID Card'}
+                                                    {['face_0', 'face_1', 'face_2'].includes(record.passType) ? 'Face Scan' : (record.passType || 'ID Card')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-xs font-black text-slate-900 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 inline-flex items-center gap-2">
                                                     <Clock size={12} className="text-slate-400" />
-                                                    {record.createTime?.split(' ')[1] || '-'}
+                                                    {(() => {
+                                                        if (!record.createTime) return '-';
+                                                        const date = new Date(record.createTime);
+                                                        // Ensure display is in IST (UTC + 5:30)
+                                                        return date.toLocaleTimeString('en-IN', { 
+                                                            hour: '2-digit', 
+                                                            minute: '2-digit', 
+                                                            second: '2-digit', 
+                                                            hour12: false, 
+                                                            timeZone: 'Asia/Kolkata' 
+                                                        });
+                                                    })()}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">

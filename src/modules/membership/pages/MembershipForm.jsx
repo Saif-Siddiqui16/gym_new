@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { User, Users, Mail, Phone, Calendar, CreditCard, Check, AlertCircle, ArrowRight, Loader2, Upload, CheckCircle2, ArrowLeft, Sparkles, X, Save } from 'lucide-react';
 import { membershipApi } from '../../../api/membershipApi';
+import { syncMemberToMips } from '../../../api/gymDeviceApi';
 import toast from 'react-hot-toast';
 
 import amenityApi from '../../../api/amenityApi';
@@ -146,9 +147,31 @@ const MembershipForm = () => {
             if (isEditMode) {
                 await membershipApi.updateMember(id, formData);
                 toast.success('Member updated successfully!');
+
+                // Re-sync face to devices if photo was changed
+                if (formData.avatar) {
+                    try {
+                        await syncMemberToMips(id);
+                        toast.success('Face re-synced to devices');
+                    } catch (syncErr) {
+                        console.error('MIPS re-sync failed:', syncErr);
+                    }
+                }
             } else {
-                await membershipApi.createMember(formData);
+                const result = await membershipApi.createMember(formData);
                 toast.success('Member created successfully!');
+
+                // Auto-sync face photo to MIPS devices
+                const newMemberId = result?.member?.id;
+                if (formData.avatar && newMemberId) {
+                    try {
+                        await syncMemberToMips(newMemberId);
+                        toast.success('Face registered on devices successfully');
+                    } catch (syncErr) {
+                        console.error('MIPS auto-sync failed:', syncErr);
+                        toast.error('Face sync to devices failed. Please sync manually from member profile.');
+                    }
+                }
             }
             navigate('/memberships');
         } catch (error) {

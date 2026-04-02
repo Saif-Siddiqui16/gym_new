@@ -54,7 +54,7 @@ const HardwareSettings = () => {
         try {
             const data = await fetchAllGyms();
             setGyms(data.gyms || data || []);
-        } catch {}
+        } catch { }
     };
 
     const getBranchName = (branchId) => {
@@ -164,6 +164,44 @@ const HardwareSettings = () => {
                                 Add Connection
                             </button>
                         )}
+                    </div>
+                </div>
+
+                {/* Webhook Notice — Quick Reference for Hardware Setup */}
+                <div className="mt-8 bg-slate-900 rounded-3xl p-8 border border-slate-800 relative overflow-hidden group shadow-2xl">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/20 transition-all duration-700"></div>
+                    <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
+                        <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 rounded-[1.5rem] bg-slate-800 flex items-center justify-center text-primary border border-slate-700 shadow-inner">
+                                <Activity size={28} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-white uppercase tracking-[0.2em]">Global Webhook URL</h3>
+                                <p className="text-xs text-slate-400 font-medium mt-1">Configure this endpoint in your MIPS Cloud Portal for real-time face logs</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 w-full lg:w-auto">
+                            <div className="flex-1 lg:flex-none px-6 py-4 bg-slate-950 border border-slate-800 rounded-2xl font-mono text-sm text-emerald-400 select-all overflow-hidden truncate max-w-[500px]">
+                                {window.location.protocol}//{window.location.host}/api/v1/gym-device/webhook
+                            </div>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.protocol}//${window.location.host}/api/v1/gym-device/webhook`);
+                                    toast.success('Webhook URL copied to clipboard!');
+                                }}
+                                className="h-14 w-14 bg-slate-800 text-slate-400 hover:text-white rounded-2xl border border-slate-700 hover:border-slate-600 transition-all active:scale-90 flex items-center justify-center group/copy"
+                                title="Copy Webhook Link"
+                            >
+                                <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-500" />
+                            </button>
+                        </div>
+                    </div>
+                    <div className="mt-6 flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                        <AlertTriangle size={16} className="text-amber-500 flex-shrink-0" />
+                        <p className="text-[11px] text-amber-200/80 font-medium leading-relaxed">
+                            <span className="text-amber-400 font-black uppercase mr-2 tracking-tighter">Local Warning:</span>
+                            Hardware cannot reach 'localhost'. Use a tool like <b>ngrok</b> or <b>Cloudflare Tunnel</b> to expose your port 8000 and use that public URL instead.
+                        </p>
                     </div>
                 </div>
             </div>

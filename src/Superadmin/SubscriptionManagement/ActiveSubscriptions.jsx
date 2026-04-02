@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, RefreshCw, XCircle } from 'lucide-react';
-import '../SubscriptionManagement/SubscriptionManagement.css';
 import { fetchSubscriptions, toggleSubscriptionStatus } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -105,41 +104,35 @@ const ActiveSubscriptions = () => {
     };
 
     if (loading) {
-        return <div className="p-6 text-center">Loading subscriptions...</div>;
+        return (
+            <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading subscriptions...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="activesub-container">
+        <div className="w-full animate-fadeIn">
             {/* Page Header */}
-            <div className="activesub-page-header">
-                <h1 className="activesub-page-title">Active Subscriptions</h1>
+            <div className="page-header">
+                <h1 className="page-title">Active Subscriptions</h1>
+                <p className="page-subtitle">Manage and monitor all active subscription plans</p>
             </div>
 
             {/* Filter Bar */}
-            <div className="activesub-filter-bar">
-                <div style={{ position: 'relative', flex: 1, minWidth: '250px' }}>
-                    <Search
-                        size={18}
-                        style={{
-                            position: 'absolute',
-                            left: '12px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            color: 'var(--text-secondary)',
-                            transition: 'all 0.3s'
-                        }}
-                        className="group-focus-within:scale-110 group-focus-within:text-primary"
-                    />
+            <div className="filter-bar">
+                <div className="search-input-wrapper">
+                    <Search size={18} className="search-icon" />
                     <input
                         type="text"
                         placeholder="Search by plan, subscriber, gym, or subscription ID..."
-                        className="activesub-search-input transition-all duration-300 focus:scale-[1.02] focus:shadow-lg hover:border-violet-300"
-                        style={{ paddingLeft: '2.5rem' }}
+                        className="search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="group">
+                <div>
                     <CustomDropdown
                         options={[
                             { value: 'all', label: 'All Payment Status' },
@@ -149,7 +142,7 @@ const ActiveSubscriptions = () => {
                         ]}
                         value={statusFilter}
                         onChange={setStatusFilter}
-                        className="w-[200px] transition-all duration-300 hover:scale-105"
+                        className="w-[200px]"
                     />
                 </div>
             </div>
@@ -157,106 +150,102 @@ const ActiveSubscriptions = () => {
             {/* Table */}
             {filteredSubscriptions.length > 0 ? (
                 <>
-                    <div className="saas-table-wrapper">
-                        <table className="saas-table saas-table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>Subscription ID</th>
-                                    <th>Plan Name</th>
-                                    <th>Subscriber</th>
-                                    <th>Gym / Branch</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Payment Status</th>
-                                    <th className="text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedSubscriptions.map((subscription) => (
-                                    <tr key={subscription.id} className="hover:bg-primary-light/30 hover:shadow-md hover:scale-[1.005] transition-all duration-300 cursor-pointer group">
-                                        <td data-label="Subscription ID" style={{ fontWeight: 500, color: '#8e68e5' }} className="transition-all duration-300 group-hover:scale-105 group-hover:text-primary-hover">
-                                            {subscription.id}
-                                        </td>
-                                        <td data-label="Plan Name" style={{ fontWeight: 500 }} className="transition-colors duration-300 group-hover:text-primary">
-                                            {subscription.planName}
-                                        </td>
-                                        <td data-label="Subscriber">{subscription.subscriberName}</td>
-                                        <td data-label="Gym / Branch">{subscription.gymName}</td>
-                                        <td data-label="Start Date">
-                                            {new Date(subscription.startDate).toLocaleDateString('en-IN')}
-                                        </td>
-                                        <td data-label="End Date">
-                                            {new Date(subscription.endDate).toLocaleDateString('en-IN')}
-                                        </td>
-                                        <td data-label="Payment Status">
-                                            <span
-                                                className={`activesub-status-badge activesub-status-${subscription.paymentStatus} transition-all duration-300 group-hover:scale-110`}
-                                            >
-                                                <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 animate-pulse" style={{ backgroundColor: subscription.paymentStatus === 'paid' ? '#10b981' : subscription.paymentStatus === 'pending' ? '#f59e0b' : '#ef4444' }}></span>
-                                                {subscription.paymentStatus.charAt(0).toUpperCase() +
-                                                    subscription.paymentStatus.slice(1)}
-                                            </span>
-                                        </td>
-                                        <td data-label="Actions">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    className="p-2 text-primary hover:bg-primary-light rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    onClick={() => handleView(subscription)}
-                                                    title="View Details"
-                                                >
-                                                    <Eye size={16} className="transition-transform duration-300 group-hover/btn:scale-110" />
-                                                </button>
-                                                <button
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    onClick={() => handleRenew(subscription.id)}
-                                                    title="Renew"
-                                                >
-                                                    <RefreshCw size={16} className="transition-transform duration-300 group-hover/btn:rotate-180" />
-                                                </button>
-                                                <button
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-125 hover:shadow-md hover:-translate-y-0.5 group/btn"
-                                                    onClick={() => handleCancel(subscription.id)}
-                                                    title="Cancel"
-                                                >
-                                                    <XCircle size={16} className="transition-transform duration-300 group-hover/btn:rotate-90 group-hover/btn:scale-110" />
-                                                </button>
-                                            </div>
-                                        </td>
+                    <div className="saas-card !p-0 overflow-hidden">
+                        <div className="saas-table-wrapper">
+                            <table className="saas-table saas-table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th>Subscription ID</th>
+                                        <th>Plan Name</th>
+                                        <th>Subscriber</th>
+                                        <th>Gym / Branch</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Payment Status</th>
+                                        <th className="text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {paginatedSubscriptions.map((subscription) => (
+                                        <tr key={subscription.id}>
+                                            <td data-label="Subscription ID" className="text-primary font-medium">
+                                                {subscription.id}
+                                            </td>
+                                            <td data-label="Plan Name" className="text-title font-medium">
+                                                {subscription.planName}
+                                            </td>
+                                            <td data-label="Subscriber" className="text-body">{subscription.subscriberName}</td>
+                                            <td data-label="Gym / Branch" className="text-body">{subscription.gymName}</td>
+                                            <td data-label="Start Date" className="text-body">
+                                                {new Date(subscription.startDate).toLocaleDateString('en-IN')}
+                                            </td>
+                                            <td data-label="End Date" className="text-body">
+                                                {new Date(subscription.endDate).toLocaleDateString('en-IN')}
+                                            </td>
+                                            <td data-label="Payment Status">
+                                                <span
+                                                    className={`status-badge ${subscription.paymentStatus === 'paid' ? 'status-badge-green' : subscription.paymentStatus === 'pending' ? 'status-badge-yellow' : 'status-badge-red'}`}
+                                                >
+                                                    {subscription.paymentStatus.charAt(0).toUpperCase() +
+                                                        subscription.paymentStatus.slice(1)}
+                                                </span>
+                                            </td>
+                                            <td data-label="Actions">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        className="action-icon-btn"
+                                                        onClick={() => handleView(subscription)}
+                                                        title="View Details"
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="action-icon-btn success"
+                                                        onClick={() => handleRenew(subscription.id)}
+                                                        title="Renew"
+                                                    >
+                                                        <RefreshCw size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="action-icon-btn danger"
+                                                        onClick={() => handleCancel(subscription.id)}
+                                                        title="Cancel"
+                                                    >
+                                                        <XCircle size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6 pb-4">
-                        <div className="text-sm text-gray-500 order-2 md:order-1">
-                            Showing <span className="font-medium text-gray-900">{startIndex + 1}</span> to <span className="font-medium text-gray-900">{Math.min(startIndex + itemsPerPage, filteredSubscriptions.length)}</span> of <span className="font-medium text-gray-900">{filteredSubscriptions.length}</span> subscriptions
+                    <div className="pagination-wrapper">
+                        <div className="pagination-info">
+                            Showing <span className="font-medium text-title">{startIndex + 1}</span> to <span className="font-medium text-title">{Math.min(startIndex + itemsPerPage, filteredSubscriptions.length)}</span> of <span className="font-medium text-title">{filteredSubscriptions.length}</span> subscriptions
                         </div>
-                        <div className="flex items-center gap-2 order-1 md:order-2 overflow-x-auto max-w-full pb-1">
+                        <div className="pagination-controls">
                             <button
-                                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5 disabled:hover:scale-100 disabled:hover:translate-y-0"
+                                className="pagination-btn"
                                 onClick={handlePrevPage}
                                 disabled={currentPage === 1}
                             >
                                 Previous
                             </button>
-                            <div className="flex gap-1">
-                                {[...Array(totalPages)].map((_, index) => (
-                                    <button
-                                        key={index + 1}
-                                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 ${currentPage === index + 1
-                                            ? 'bg-primary text-white shadow-md hover:shadow-lg'
-                                            : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm'
-                                            }`}
-                                        onClick={() => handlePageClick(index + 1)}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-                            </div>
+                            {[...Array(totalPages)].map((_, index) => (
+                                <button
+                                    key={index + 1}
+                                    className={`pagination-num ${currentPage === index + 1 ? 'active' : ''}`}
+                                    onClick={() => handlePageClick(index + 1)}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
                             <button
-                                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-md hover:-translate-y-0.5 disabled:hover:scale-100 disabled:hover:translate-y-0"
+                                className="pagination-btn"
                                 onClick={handleNextPage}
                                 disabled={currentPage === totalPages}
                             >
@@ -266,19 +255,19 @@ const ActiveSubscriptions = () => {
                     </div>
                 </>
             ) : (
-                <div className="activesub-empty-state">
-                    <div className="activesub-empty-icon">
+                <div className="empty-state">
+                    <div className="empty-state-icon">
                         <Search size={64} />
                     </div>
-                    <h3 className="activesub-empty-title">No Active Subscriptions Found</h3>
-                    <p className="activesub-empty-description">
+                    <h3 className="empty-state-title">No Active Subscriptions Found</h3>
+                    <p className="empty-state-description">
                         {searchTerm || statusFilter !== 'all'
                             ? 'Try adjusting your search or filter criteria'
                             : 'There are currently no active subscriptions'}
                     </p>
                 </div>
             )}
-            {/* Subscription Details Modal */}
+
             {/* Subscription Details Drawer */}
             <RightDrawer
                 isOpen={isViewModalOpen}
@@ -289,44 +278,44 @@ const ActiveSubscriptions = () => {
             >
                 {selectedSubscription && (
                     <div className="space-y-6">
-                        <div className="flex flex-col items-center py-6 bg-primary-light/50 rounded-2xl border border-violet-100">
-                            <div className="h-20 w-20 rounded-full bg-white text-primary flex items-center justify-center shadow-md mb-3">
+                        <div className="flex flex-col items-center py-6 bg-muted rounded-card border border-border">
+                            <div className="h-20 w-20 rounded-full bg-primary-light text-primary flex items-center justify-center mb-3">
                                 <Eye size={32} />
                             </div>
-                            <h4 className="text-xl font-bold text-gray-900">{selectedSubscription.subscriberName}</h4>
-                            <span className="text-sm text-gray-500 font-medium">{selectedSubscription.planName}</span>
+                            <h4 className="text-xl font-bold text-title">{selectedSubscription.subscriberName}</h4>
+                            <span className="text-sm text-muted-foreground font-medium">{selectedSubscription.planName}</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Gym / Branch</label>
-                                <p className="text-sm font-bold text-gray-900">{selectedSubscription.gymName}</p>
+                            <div className="p-4 bg-muted rounded-card border border-border">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-1">Gym / Branch</label>
+                                <p className="text-sm font-bold text-title">{selectedSubscription.gymName}</p>
                             </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Payment Status</label>
-                                <span className={`activesub-status-badge activesub-status-${selectedSubscription.paymentStatus}`}>
+                            <div className="p-4 bg-muted rounded-card border border-border">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-1">Payment Status</label>
+                                <span className={`status-badge ${selectedSubscription.paymentStatus === 'paid' ? 'status-badge-green' : selectedSubscription.paymentStatus === 'pending' ? 'status-badge-yellow' : 'status-badge-red'}`}>
                                     {selectedSubscription.paymentStatus.toUpperCase()}
                                 </span>
                             </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Start Date</label>
-                                <p className="text-sm font-bold text-gray-900">{new Date(selectedSubscription.startDate).toLocaleDateString('en-IN')}</p>
+                            <div className="p-4 bg-muted rounded-card border border-border">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-1">Start Date</label>
+                                <p className="text-sm font-bold text-title">{new Date(selectedSubscription.startDate).toLocaleDateString('en-IN')}</p>
                             </div>
-                            <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">End Date</label>
-                                <p className="text-sm font-bold text-gray-900">{new Date(selectedSubscription.endDate).toLocaleDateString('en-IN')}</p>
+                            <div className="p-4 bg-muted rounded-card border border-border">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-1">End Date</label>
+                                <p className="text-sm font-bold text-title">{new Date(selectedSubscription.endDate).toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
 
-                        <div className="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Subscription ID</label>
-                            <p className="text-sm font-mono text-gray-600">{selectedSubscription.id}</p>
+                        <div className="p-4 bg-muted rounded-card border border-border">
+                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-1">Subscription ID</label>
+                            <p className="text-sm font-mono text-body">{selectedSubscription.id}</p>
                         </div>
 
                         <div className="flex gap-3 pt-4">
                             <button
                                 onClick={() => setIsViewModalOpen(false)}
-                                className="flex-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all shadow-sm"
+                                className="btn btn-outline flex-1"
                             >
                                 Close
                             </button>
@@ -335,7 +324,7 @@ const ActiveSubscriptions = () => {
                                     handleRenew(selectedSubscription.id);
                                     setIsViewModalOpen(false);
                                 }}
-                                className="flex-1 py-3 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all shadow-md hover:shadow-lg"
+                                className="btn btn-primary flex-1"
                             >
                                 Renew Now
                             </button>

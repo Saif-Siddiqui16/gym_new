@@ -62,191 +62,192 @@ const WebhookLogs = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen font-sans pb-20">
+        <div className="w-full animate-fadeIn">
             {/* Header */}
-            <div className="max-w-full mx-auto mb-10">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <div className="flex items-center gap-2 text-primary mb-2">
-                            <Terminal size={18} />
-                            <span className="text-xs font-black uppercase tracking-[0.3em]">System Monitor</span>
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tighter flex items-center gap-3">
-                            Webhook <span className="text-primary">Events</span>
-                        </h1>
-                        <p className="text-slate-500 mt-2 text-sm font-medium">Real-time API activity and event broadcasting logs.</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={handleExport}
-                            className="px-5 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
-                        >
-                            <Download size={14} /> Export
-                        </button>
-                        <button onClick={loadLogs} className="p-3 bg-primary text-white rounded-xl shadow-lg shadow-primary/30/20 hover:scale-110 active:scale-95 transition-all">
-                            <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-                        </button>
-                    </div>
+            <div className="page-header">
+                <div>
+                    <h1 className="page-title">Webhook Events</h1>
+                    <p className="page-subtitle">Real-time API activity and event broadcasting logs.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleExport}
+                        className="btn btn-outline flex items-center gap-2"
+                    >
+                        <Download size={16} /> Export
+                    </button>
+                    <button onClick={loadLogs} className="btn btn-primary flex items-center gap-2">
+                        <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh
+                    </button>
                 </div>
             </div>
 
             {/* Dashboard Stats */}
-            <div className="max-w-full mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {[
-                    { label: 'Total Events', val: stats.totalEvents, icon: Zap, color: 'violet', bg: 'bg-primary-light', text: 'text-primary' },
-                    { label: 'Avg Success', val: stats.successRate, icon: ShieldCheck, color: 'emerald', bg: 'bg-emerald-50', text: 'text-emerald-600' },
-                    { label: 'Failed (24h)', val: stats.failedLast24h, icon: AlertCircle, color: 'rose', bg: 'bg-rose-50', text: 'text-rose-600' },
-                    { label: 'Active Webhooks', val: stats.activeWebhooks, icon: RefreshCw, color: 'amber', bg: 'bg-amber-50', text: 'text-amber-600' },
+                    { label: 'Total Events', val: stats.totalEvents, icon: Zap, bg: 'bg-primary-light', text: 'text-primary' },
+                    { label: 'Avg Success', val: stats.successRate, icon: ShieldCheck, bg: 'bg-emerald-50', text: 'text-emerald-600' },
+                    { label: 'Failed (24h)', val: stats.failedLast24h, icon: AlertCircle, bg: 'bg-rose-50', text: 'text-rose-600' },
+                    { label: 'Active Webhooks', val: stats.activeWebhooks, icon: RefreshCw, bg: 'bg-amber-50', text: 'text-amber-600' },
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-all">
-                        <div className={`p-2 w-fit rounded-lg ${stat.bg} ${stat.text} mb-4 group-hover:scale-110 transition-transform`}>
+                    <div key={i} className="summary-card">
+                        <div className={`p-2 w-fit rounded-lg ${stat.bg} ${stat.text} mb-3`}>
                             <stat.icon size={18} />
                         </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                        <p className="text-2xl font-black text-gray-900 tracking-tight">{stat.val}</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">{stat.label}</p>
+                        <p className="text-2xl font-bold text-title">{stat.val}</p>
                     </div>
                 ))}
             </div>
 
+            {/* Filter Bar */}
+            <div className="filter-bar mb-6">
+                <div className="search-input-wrapper flex-1">
+                    <Search className="search-icon" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search by event, ID, or status code..."
+                        className="saas-input pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex gap-2">
+                    <select
+                        className="saas-input"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                        <option value="All">Status: All</option>
+                        <option value="Success">Success</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                    <select
+                        className="saas-input"
+                        value={filterMethod}
+                        onChange={(e) => setFilterMethod(e.target.value)}
+                    >
+                        <option value="All">Method: All</option>
+                        <option value="POST">POST</option>
+                        <option value="GET">GET</option>
+                        <option value="PUT">PUT</option>
+                    </select>
+                </div>
+            </div>
+
             {/* Log Table/Cards */}
-            <div className="max-w-full mx-auto">
-                <div className="bg-white border border-slate-100 rounded-[32px] overflow-hidden shadow-xl shadow-slate-200/50">
-                    <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4">
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search by event, ID, or status code..."
-                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            <select
-                                className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-600 uppercase tracking-widest hover:bg-white transition-all outline-none appearance-none cursor-pointer"
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                            >
-                                <option value="All">Status: All</option>
-                                <option value="Success">Success</option>
-                                <option value="Failed">Failed</option>
-                            </select>
-                            <select
-                                className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-600 uppercase tracking-widest hover:bg-white transition-all outline-none appearance-none cursor-pointer"
-                                value={filterMethod}
-                                onChange={(e) => setFilterMethod(e.target.value)}
-                            >
-                                <option value="All">Method: All</option>
-                                <option value="POST">POST</option>
-                                <option value="GET">GET</option>
-                                <option value="PUT">PUT</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Desktop View Table */}
-                    <div className="hidden lg:block overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50/50">
-                                <tr className="text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-slate-100">
-                                    <th className="px-8 py-4">Event ID</th>
-                                    <th className="px-8 py-4">Event Type</th>
-                                    <th className="px-8 py-4">Status</th>
-                                    <th className="px-8 py-4">Endpoint</th>
-                                    <th className="px-8 py-4 text-right">Actions</th>
+            <div className="saas-card !p-0 overflow-hidden">
+                {/* Desktop View Table */}
+                <div className="hidden lg:block saas-table-wrapper">
+                    <table className="saas-table saas-table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Event ID</th>
+                                <th>Event Type</th>
+                                <th>Status</th>
+                                <th>Endpoint</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5">
+                                        <div className="loading-state">
+                                            <div className="loading-spinner"></div>
+                                            <p className="loading-text">Loading...</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {loading ? (
-                                    <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 text-sm">Loading logs...</td></tr>
-                                ) : filteredLogs.length === 0 ? (
-                                    <tr><td colSpan="5" className="px-8 py-20 text-center opacity-40 uppercase text-[10px] font-black tracking-widest text-slate-400">No terminal events found</td></tr>
-                                ) : (
-                                    filteredLogs.map(log => (
-                                        <tr key={log.id} className="group hover:bg-primary-light/50 transition-colors cursor-pointer" onClick={() => handleViewLog(log)}>
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
-                                                    <span className="text-primary font-medium text-xs">{log.id}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className="flex flex-col">
-                                                    <span className="text-gray-900 font-bold text-sm">{log.event}</span>
-                                                    <span className="text-[9px] text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                                        <Clock size={10} /> {log.time}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.1em] border ${log.status === 'success'
-                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                    : 'bg-rose-50 text-rose-600 border-rose-100'
-                                                    }`}>
-                                                    {log.statusCode} {log.status}
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-black text-slate-500 border border-slate-200">{log.method}</span>
-                                                    <span className="text-xs text-slate-500 tracking-tight font-medium">{log.endpoint}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5 text-right">
-                                                <button className="p-2 text-slate-400 group-hover:text-primary transition-colors">
-                                                    <Eye size={18} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile View Cards */}
-                    <div className="lg:hidden divide-y divide-slate-100">
-                        {loading ? (
-                            <div className="p-12 text-center text-slate-400 text-sm">Loading logs...</div>
-                        ) : filteredLogs.length === 0 ? (
-                            <div className="p-12 text-center opacity-40 uppercase text-[10px] font-black tracking-widest text-slate-400">No terminal events found</div>
-                        ) : (
-                            filteredLogs.map(log => (
-                                <div key={log.id} className="p-6 space-y-4 active:bg-slate-50 transition-colors" onClick={() => handleViewLog(log)}>
-                                    <div className="flex justify-between items-start">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-violet-400" />
-                                                <span className="text-[10px] font-black text-primary tracking-[0.1em]">{log.id}</span>
+                            ) : filteredLogs.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
+                                        No webhook events found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredLogs.map(log => (
+                                    <tr key={log.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleViewLog(log)}>
+                                        <td>
+                                            <span className="text-primary font-medium text-sm">{log.id}</span>
+                                        </td>
+                                        <td>
+                                            <div className="flex flex-col">
+                                                <span className="text-title font-semibold text-sm">{log.event}</span>
+                                                <span className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                                                    <Clock size={12} /> {log.time}
+                                                </span>
                                             </div>
-                                            <h3 className="text-sm font-bold text-gray-900 tracking-tight">{log.event}</h3>
-                                        </div>
-                                        <div className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${log.status === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                            {log.statusCode}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-500 border border-slate-200">{log.method}</span>
-                                            <span>{log.endpoint}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock size={10} /> {log.time}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${log.status === 'success' ? 'status-badge-green' : 'status-badge-red'}`}>
+                                                <span className="badge-dot"></span>
+                                                {log.statusCode} {log.status}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center gap-2">
+                                                <span className="px-2 py-0.5 bg-muted text-body text-xs font-medium rounded">{log.method}</span>
+                                                <span className="text-sm text-muted-foreground">{log.endpoint}</span>
+                                            </div>
+                                        </td>
+                                        <td className="text-right">
+                                            <button className="action-icon-btn">
+                                                <Eye size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
 
-                <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <p className="text-xs text-slate-500 font-medium">System uptime <span className="text-emerald-500 font-bold">99.99%</span> • Latency <span className="text-primary font-bold">142ms</span></p>
-                    <div className="flex gap-2">
-                        <button className="flex-1 md:flex-none px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all">Previous</button>
-                        <button className="flex-1 md:flex-none px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm">Next Page</button>
-                    </div>
+                {/* Mobile View Cards */}
+                <div className="lg:hidden divide-y divide-border">
+                    {loading ? (
+                        <div className="loading-state">
+                            <div className="loading-spinner"></div>
+                            <p className="loading-text">Loading...</p>
+                        </div>
+                    ) : filteredLogs.length === 0 ? (
+                        <div className="p-12 text-center text-muted-foreground">No webhook events found.</div>
+                    ) : (
+                        filteredLogs.map(log => (
+                            <div key={log.id} className="p-4 space-y-3" onClick={() => handleViewLog(log)}>
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-1">
+                                        <span className="text-xs font-medium text-primary">{log.id}</span>
+                                        <h3 className="text-sm font-semibold text-title">{log.event}</h3>
+                                    </div>
+                                    <span className={`status-badge ${log.status === 'success' ? 'status-badge-green' : 'status-badge-red'}`}>
+                                        <span className="badge-dot"></span>
+                                        {log.statusCode}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-2 py-0.5 bg-muted text-body text-xs font-medium rounded">{log.method}</span>
+                                        <span>{log.endpoint}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <Clock size={12} /> {log.time}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* Pagination */}
+            <div className="pagination-wrapper">
+                <div className="pagination-info">
+                    Showing {filteredLogs.length} webhook events
+                </div>
+                <div className="pagination-controls">
+                    <button className="pagination-btn">Previous</button>
+                    <button className="pagination-btn">Next</button>
                 </div>
             </div>
 

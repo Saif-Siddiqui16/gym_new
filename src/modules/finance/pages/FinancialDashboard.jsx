@@ -179,12 +179,12 @@ const FinancialDashboard = () => {
         <div className="min-h-screen pb-20 w-full">
             <div className="w-full px-4 space-y-8">
                 {/* Header */}
-                <div className="page-header flex-row items-center justify-between">
+                <div className="page-header">
                     <div>
                         <h1 className="page-title">Finance Dashboard</h1>
-                        <p className="page-subtitle">Core Financial Intelligence</p>
+                        <p className="page-subtitle">Premium Financial Analytics & Core Business Intelligence</p>
                     </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="flex items-center gap-3">
                         <Button
                             onClick={() => setIsExpenseDrawerOpen(true)}
                             variant="primary"
@@ -195,7 +195,7 @@ const FinancialDashboard = () => {
                         </Button>
                         <button
                             onClick={handleExport}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 transition-all active:scale-95"
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
                         >
                             <Download size={18} /> Export as PDF
                         </button>
@@ -206,15 +206,15 @@ const FinancialDashboard = () => {
                     {/* Revenue Report Chart Section */}
                     <div className="lg:col-span-8 min-w-0 bg-white rounded-[2rem] shadow-sm border border-slate-100 p-5 sm:p-8 md:p-10 flex flex-col transition-all duration-300 hover:shadow-md">
                         <div className="flex justify-between items-center mb-8">
-                                <div className="section-title mb-0">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
-                                        <BarChart3 size={24} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-title">Revenue Report</h3>
-                                        <p className="page-subtitle text-[10px] mt-0.5">Monthly earnings vs expenses</p>
-                                    </div>
+                            <div className="section-title mb-0">
+                                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
+                                    <BarChart3 size={24} />
                                 </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-title">Revenue Report</h3>
+                                    <p className="page-subtitle text-[10px] mt-0.5">Monthly earnings vs expenses</p>
+                                </div>
+                            </div>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-3 h-3 rounded-sm bg-primary"></div>
@@ -255,7 +255,7 @@ const FinancialDashboard = () => {
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fill: '#cbd5e1', fontSize: 10, fontWeight: 700 }}
-                                        tickFormatter={(v) => `₹${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`}
+                                        tickFormatter={(v) => `₹${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
                                         domain={[0, 'dataMax + 5000']}
                                         width={48}
                                     />

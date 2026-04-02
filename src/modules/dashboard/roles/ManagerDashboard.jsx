@@ -62,6 +62,7 @@ const ManagerDashboard = () => {
                         { ...prev.stats[2], value: apiData.paymentsDue?.toString() || '0' }
                     ],
                     attendance: apiData.attendance || prev.attendance,
+                    recentActivities: apiData.recentActivities || [],
                     financials: {
                         collectionToday: apiData.collectionToday || 0,
                         pendingDuesAmount: apiData.pendingDuesAmount || 0,
@@ -184,6 +185,49 @@ const ManagerDashboard = () => {
             <DashboardGrid>
                 {data.stats.map(stat => <StatsCard key={stat.id} {...stat} />)}
             </DashboardGrid>
+
+            {/* Recent Access Feed (Hardware Sync Focus) */}
+            <div className="mt-8">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <div className="p-2 bg-primary-light text-primary rounded-lg">
+                            <Smartphone size={18} strokeWidth={2.5} />
+                        </div>
+                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Live Access Feed (AIoT Sync)</h3>
+                    </div>
+                </div>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden p-6">
+                    <div className="space-y-4">
+                        {data.recentActivities?.length > 0 ? (
+                            data.recentActivities.map((act) => (
+                                <div key={act.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-primary/30 transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-xl ${act.action.includes('Face') ? 'bg-emerald-50 text-emerald-600' : 'bg-primary-light text-primary'} flex items-center justify-center font-black text-[10px] shadow-sm group-hover:scale-110 transition-transform`}>
+                                            {act.action.includes('Face') ? 'BIO' : 'MAN'}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{act.member}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{act.action}</p>
+                                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                <p className="text-[10px] font-bold text-slate-500 italic">{act.time}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${act.action.includes('Face') ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                        Allowed
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-12 text-center">
+                                <Activity className="w-12 h-12 text-slate-200 mx-auto mb-4 animate-pulse" />
+                                <p className="text-slate-400 text-xs font-black uppercase tracking-widest">No activities recorded today</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             {/* Facility Status Section */}
             <div className="mt-8">

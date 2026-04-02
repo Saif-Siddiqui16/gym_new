@@ -123,24 +123,28 @@ const DailyAttendanceReport = () => {
     const loadData = async () => {
         try {
             setLoading(true);
-            const params = {
-                search: searchTerm.trim(),
-                type: typeFilter === 'All' ? undefined : typeFilter,
-                date: selectedDate,
-                page: currentPage,
-                limit: itemsPerPage,
-                branchId: selectedBranch
-            };
+            const page = currentPage;
+            const limit = itemsPerPage;
+            const search = searchTerm.trim();
+            const date = selectedDate;
 
             // Fetch everything needed
-            const [attendanceRes, statsRes, smartLogData, smartSummaryData] = await Promise.all([
-                apiClient.get('/admin/attendance', { params }),
-                apiClient.get('/admin/attendance/stats', { params: { branchId: selectedBranch } }),
-                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords()).catch(() => []),
-                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary().catch(() => ({ today: 0, total: 0 })))
+            const [attendanceRes, statsRes, smartLogs, smartSummaryData] = await Promise.all([
+                apiClient.get(`/admin/attendance?page=${page}&limit=${limit}&search=${search}&date=${date}`),
+                apiClient.get('/admin/attendance/stats'),
+                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords(selectedBranch, date)).catch(() => []),
+                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary(1, 10, selectedBranch).catch(() => ({ today: 0, total: 0 })))
             ]);
 
             const rawData = attendanceRes.data.data || [];
+            
+            // Stats Logic
+            // Backend returns scanTime as ISO or string; we normalize to local comparison
+            const hardwareScans = (smartLogs || []).filter(log => {
+                const scanDateStr = new Date(log.createTime).toLocaleDateString('en-CA');
+                return scanDateStr === date;
+            });
+            setSmartRecords(hardwareScans);
 
             // Backend already returns formatted time strings like "10:33 am"
             // Duration helper using pre-formatted strings (e.g. "10:17 am" vs "10:23 am")
@@ -175,7 +179,8 @@ const DailyAttendanceReport = () => {
                 checkIn: a.checkIn || a.time || '-',
                 checkOut: a.checkOut || '-',
                 duration: calcDuration(a.checkIn || a.time, a.checkOut),
-                status: a.status
+                status: a.status,
+                checkInMethod: a.checkInMethod || 'manual'
             }));
 
             setAttendance(formatted);
@@ -189,18 +194,10 @@ const DailyAttendanceReport = () => {
                 });
             }
 
-            // Smart Attendance Logic
-            // Filter smart logs for the selected date
-            const logsForDate = Array.isArray(smartLogData) ? smartLogData.filter(log => 
-                log.createTime && log.createTime.startsWith(selectedDate)
-            ) : [];
-            
-            setSmartRecords(logsForDate);
-
-            // Use summary API if it has data, otherwise use our calculated count for today
+            // Stats Logic
             setSmartStats({
-                today: (smartSummaryData?.today > 0) ? smartSummaryData.today : logsForDate.length,
-                total: (smartSummaryData?.total > 0) ? smartSummaryData.total : (Array.isArray(smartLogData) ? smartLogData.length : 0)
+                today: (smartSummaryData?.today > 0) ? smartSummaryData.today : hardwareScans.length,
+                total: (smartSummaryData?.total > 0) ? smartSummaryData.total : (Array.isArray(smartLogs) ? smartLogs.length : 0)
             });
 
         } catch (error) {
@@ -450,7 +447,7 @@ const DailyAttendanceReport = () => {
             {/* Today's Log Table Section */}
             <div className="mb-12">
                 <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2 flex items-center gap-2">
-                    <Calendar size={14} className="text-primary" /> Today's Manual Log ({totalItems})
+                    <Calendar size={14} className="text-primary" /> Today's Manual Attendance ({attendance.filter(a => a.checkInMethod !== 'biometric').length})
                 </h2>
 
                 <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
@@ -476,8 +473,8 @@ const DailyAttendanceReport = () => {
                                             </div>
                                         </td>
                                     </tr>
-                                ) : attendance.length > 0 ? (
-                                    attendance.map((row) => (
+                                ) : attendance.filter(a => a.checkInMethod !== 'biometric').length > 0 ? (
+                                    attendance.filter(a => a.checkInMethod !== 'biometric').map((row) => (
                                         <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center gap-3">
@@ -488,7 +485,12 @@ const DailyAttendanceReport = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-500 uppercase tracking-widest">
-                                                {row.memberId || 'MEM-001'}
+                                                <div className="flex flex-col gap-1">
+                                                    <span>{row.memberId || 'MEM-001'}</span>
+                                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                                                        Method: {row.checkInMethod === 'biometric' ? 'Face Scan' : 'Manual'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-700">
                                                 {row.checkIn || '-'}
@@ -605,13 +607,24 @@ const DailyAttendanceReport = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200">
-                                                    {record.passType === 'face_2' ? 'Face Scan' : 'ID Card'}
+                                                    {['face_0', 'face_1', 'face_2'].includes(record.passType) ? 'Face Scan' : (record.passType || 'ID Card')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-xs font-black text-slate-900 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 inline-flex items-center gap-2">
                                                     <Clock size={12} className="text-slate-400" />
-                                                    {record.createTime?.split(' ')[1] || '-'}
+                                                    {(() => {
+                                                        if (!record.createTime) return '-';
+                                                        const date = new Date(record.createTime);
+                                                        // Ensure display is in IST (UTC + 5:30)
+                                                        return date.toLocaleTimeString('en-IN', { 
+                                                            hour: '2-digit', 
+                                                            minute: '2-digit', 
+                                                            second: '2-digit', 
+                                                            hour12: false, 
+                                                            timeZone: 'Asia/Kolkata' 
+                                                        });
+                                                    })()}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">

@@ -9,6 +9,7 @@ import {
     ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2, Receipt
 } from 'lucide-react';
 import { getMembers, getMemberById, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
+import { syncMemberToMips } from '../../api/gymDeviceApi';
 import { settleInvoice } from '../../api/finance/financeApi';
 import { membershipApi } from '../../api/membershipApi';
 import { referralApi } from '../../api/referralApi';
@@ -372,8 +373,23 @@ const MemberList = () => {
             const payload = { ...editMemberData, avatar: editProfileImage };
             await updateMember(selectedMember.id, payload);
             setIsEditDrawerOpen(false);
+
+            // Re-sync face to MIPS devices if photo was changed
+            if (editProfileImage && editProfileImage !== selectedMember.avatar) {
+                const branchId = selectedMember.branchId || selectedBranch;
+                try {
+                    await syncMemberToMips(selectedMember.id, branchId);
+                    toast.success("Member updated & face re-synced to devices");
+                } catch (syncError) {
+                    console.error('MIPS re-sync failed:', syncError);
+                    toast.success("Member updated successfully");
+                    toast.error("Face re-sync to devices failed. Please sync manually.");
+                }
+            } else {
+                toast.success("Member updated successfully");
+            }
+
             setEditProfileImage(null);
-            toast.success("Member updated successfully");
             loadMembers();
         } catch (error) { toast.error(error?.response?.data?.message || "Failed to update member"); }
     };
@@ -399,12 +415,24 @@ const MemberList = () => {
                 memberPayload.duration = newMemberData.duration || 1;
             }
 
-            await createMember(memberPayload);
+            const createdMember = await createMember(memberPayload);
             setIsAddDrawerOpen(false);
             setNewMemberData(initialNewMemberData);
             setProfileImage(null);
             toast.success("Member created successfully");
             loadMembers();
+
+            // Auto-sync face photo to MIPS devices if member has a photo
+            if (profileImage && createdMember?.member?.id) {
+                const branchId = memberPayload.branchId || selectedBranch;
+                try {
+                    await syncMemberToMips(createdMember.member.id, branchId);
+                    toast.success("Face registered on devices successfully");
+                } catch (syncError) {
+                    console.error('MIPS auto-sync failed:', syncError);
+                    toast.error("Member created but face sync to devices failed. Please sync manually from member profile.");
+                }
+            }
         } catch (error) { toast.error(error?.response?.data?.message || "Failed to create member"); }
     };
 
