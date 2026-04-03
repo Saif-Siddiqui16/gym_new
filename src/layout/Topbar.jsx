@@ -139,7 +139,7 @@ const Topbar = ({ collapsed, setCollapsed, title = "Dashboard", role }) => {
     return (
         <header className="topbar">
             {/* Left Side: Mobile Menu Toggle & Page Title */}
-            <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <button
                     onClick={toggleSidebar}
                     className="flex lg:hidden items-center justify-center w-10 h-10 -ml-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"

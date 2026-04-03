@@ -48,7 +48,8 @@ const MyProfile = () => {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        avatar: ''
     });
 
     useEffect(() => {
@@ -69,7 +70,8 @@ const MyProfile = () => {
                 name: profileData.name,
                 email: profileData.email,
                 phone: profileData.phone,
-                address: profileData.address || ''
+                address: profileData.address || '',
+                avatar: profileData.avatar || ''
             });
         } catch (error) {
             console.error("Error loading profile:", error);
@@ -82,6 +84,17 @@ const MyProfile = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSave = async (e) => {
@@ -170,14 +183,21 @@ const MyProfile = () => {
                         <div className="relative flex flex-col md:flex-row md:items-end gap-6 -mt-16">
                             {/* Avatar */}
                             <div className="relative group">
-                                <div className="w-36 h-36 rounded-2xl bg-white p-2 shadow-2xl ring-4 ring-white">
-                                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black shadow-lg">
-                                        {profile.avatar}
+                                <div className="w-36 h-36 rounded-2xl bg-white p-2 shadow-2xl ring-4 ring-white overflow-hidden">
+                                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black shadow-lg overflow-hidden">
+                                        {formData.avatar ? (
+                                            <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (profile.avatar && profile.avatar.length > 10 ? (
+                                            <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            profile.avatar || profile.name?.charAt(0).toUpperCase()
+                                        ))}
                                     </div>
                                 </div>
-                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-xl shadow-lg border border-slate-200 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 group-hover:shadow-xl">
+                                <label className="absolute bottom-2 right-2 p-3 bg-white rounded-xl shadow-lg border border-slate-200 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 group-hover:shadow-xl cursor-pointer">
                                     <Camera size={18} />
-                                </button>
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+                                </label>
                             </div>
 
                             {/* Profile Info */}

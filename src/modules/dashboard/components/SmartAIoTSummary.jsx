@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    Smartphone, 
-    ShieldCheck, 
-    Users as UsersIcon, 
-    XCircle, 
-    LayoutGrid, 
-    Clock as ClockIcon, 
-    ArrowRight 
+import {
+    Smartphone,
+    ShieldCheck,
+    Users as UsersIcon,
+    XCircle,
+    LayoutGrid,
+    Clock as ClockIcon,
+    ArrowRight
 } from 'lucide-react';
 import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
+import { useBranchContext } from '../../../context/BranchContext';
 
 const DeviceStatCard = ({ label, value, color, icon: Icon }) => {
     const activeColors = {
@@ -34,13 +35,15 @@ const DeviceStatCard = ({ label, value, color, icon: Icon }) => {
 
 const SmartAIoTSummary = () => {
     const navigate = useNavigate();
+    const { selectedBranch } = useBranchContext();
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const data = await fetchGymDeviceDashboard();
+            const branchId = selectedBranch && selectedBranch !== 'all' ? selectedBranch : null;
+            const data = await fetchGymDeviceDashboard(branchId);
             setSummary(data);
         } catch (error) {
             console.error('Failed to fetch smart device data:', error);
@@ -53,7 +56,7 @@ const SmartAIoTSummary = () => {
         fetchData();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedBranch]);
 
     if (!summary && !loading) return null;
 

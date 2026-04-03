@@ -460,7 +460,8 @@ export default function App() {
                   <Route path="/branchadmin/settings/website" element={<WebsiteSettings />} />
                   <Route path="/branchadmin/settings/integrations" element={<IntegrationsSettings />} />
                 </Route>
-                <Route path="/branchadmin/profile/me" element={(currentRole === ROLES.BRANCH_ADMIN) ? <BranchAdminProfile /> : <ManagerProfile />} />
+                <Route path="/branchadmin/profile/me" element={<BranchAdminProfile />} />
+                <Route path="/manager/profile/me" element={<ManagerProfile />} />
               </>
             )}
 

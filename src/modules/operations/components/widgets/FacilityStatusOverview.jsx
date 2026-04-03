@@ -19,7 +19,7 @@ const FacilityStatusOverview = ({ equipment = [], equipmentStats }) => {
     ];
 
     return (
-        <div className="bg-white rounded-3xl  shadow-sm border border-slate-200 h-full">
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
             <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div>
                     <h3 className="text-lg font-black text-slate-800 tracking-tight">Facility Status</h3>

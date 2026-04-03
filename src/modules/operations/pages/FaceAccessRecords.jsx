@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Clock, ShieldCheck, Users, Search, Calendar, Filter, Download, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchFaceAccessRecords, fetchGymDepartments } from '../../../api/gymDeviceApi';
+import { useBranchContext } from '../../../context/BranchContext';
 import DashboardGrid from '../../dashboard/components/DashboardGrid';
 
 const FaceAccessRecords = () => {
     const navigate = useNavigate();
+    const { selectedBranch } = useBranchContext();
     const [records, setRecords] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,14 +17,15 @@ const FaceAccessRecords = () => {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [selectedBranch]);
 
     const loadData = async () => {
         setLoading(true);
         try {
+            const branchId = selectedBranch && selectedBranch !== 'all' ? selectedBranch : null;
             const [recordsData, deptsData] = await Promise.all([
-                fetchFaceAccessRecords(),
-                fetchGymDepartments().catch(() => [])
+                fetchFaceAccessRecords(branchId),
+                fetchGymDepartments(branchId).catch(() => [])
             ]);
             console.log('[FaceRecords] Records received:', recordsData?.length);
             if (recordsData?.length > 0) console.log('[FaceRecords] First record:', recordsData[0]);

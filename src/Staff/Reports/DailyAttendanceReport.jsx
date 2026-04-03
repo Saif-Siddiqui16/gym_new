@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Users, UserCheck, UserMinus, Download, Search, ChevronDown, Check, Loader2, Activity, ScanLine, ShieldCheck, Smartphone, Clock, Eye, Trash2 } from 'lucide-react';
+import { Calendar, Users, UserCheck, UserMinus, Download, Search, ChevronDown, Check, Loader2, Activity, ScanLine, ShieldCheck, Smartphone, Clock, Eye, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import apiClient from '../../api/apiClient';
 import { exportReportToCSV } from '../../api/staff/reportApi';
@@ -70,16 +70,47 @@ const DailyAttendanceReport = () => {
     const [smartStats, setSmartStats] = useState({ today: 0, total: 0 });
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [directoryResults, setDirectoryResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         loadData();
-    }, [selectedDate, typeFilter, searchTerm]);
+    }, [selectedDate, typeFilter]);
+
+    // Debounce search for directory results
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchTerm.trim().length >= 2) {
+                fetchDirectoryResults();
+            } else {
+                setDirectoryResults([]);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const fetchDirectoryResults = async () => {
+        try {
+            setIsSearching(true);
+            const res = await apiClient.get('/staff/attendance/search-all', {
+                params: { search: searchTerm.trim() }
+            });
+            const results = (res.data.data || []).filter(r => r.personType !== 'Staff');
+            const checkedInIds = new Set(attendance.filter(a => a.status === 'checked-in' || a.status === 'Inside').map(a => a.memberId));
+            setDirectoryResults(results.filter(r => r.personType !== 'Member' || !checkedInIds.has(r.code)));
+        } catch (err) {
+            console.error("Search error:", err);
+            setDirectoryResults([]);
+        } finally {
+            setIsSearching(false);
+        }
+    };
 
     const loadData = async () => {
         try {
             setLoading(true);
             const params = {
-                search: searchTerm.trim(),
+                search: '',
                 type: typeFilter === 'All' ? undefined : typeFilter,
                 date: selectedDate
             };
@@ -93,9 +124,11 @@ const DailyAttendanceReport = () => {
 
             const formatted = (attendanceRes.data.data || []).map(a => ({
                 id: a.id,
+                userId: a.userId || null,
                 memberId: a.membershipId,
                 name: a.name,
                 type: a.type,
+                role: a.role,
                 checkIn: a.checkIn || a.time || '-',
                 checkOut: a.checkOut || '-',
                 status: a.status,
@@ -105,7 +138,8 @@ const DailyAttendanceReport = () => {
             setAttendance(formatted);
 
             const hardwareScans = (smartLogs || []).filter(log => {
-                const scanDateStr = new Date(log.createTime).toLocaleDateString('en-CA');
+                if (!log.createTime) return false;
+                const scanDateStr = new Date(log.createTime.replace(' ', 'T')).toLocaleDateString('en-CA');
                 return scanDateStr === selectedDate;
             });
             setSmartRecords(hardwareScans);
@@ -131,12 +165,43 @@ const DailyAttendanceReport = () => {
         }
     };
 
+    const handleCheckIn = async (payload) => {
+        try {
+            const body = typeof payload === 'object' ? payload : { memberId: payload, type: 'Member' };
+            await apiClient.post('/staff/attendance/check-in', body);
+            toast.success(`${body.type || 'Member'} checked in successfully`);
+            loadData();
+            setSearchTerm('');
+            setDirectoryResults([]);
+        } catch (error) {
+            console.error('Check-in Error:', error);
+            toast.error(error.response?.data?.message || 'Check-in failed');
+        }
+    };
+
+    const handleCheckOut = async (attendanceId, memberId, entry) => {
+        try {
+            const isStaffOrTrainer = entry?.type === 'Staff' || entry?.type === 'Trainer' || entry?.role === 'TRAINER' || entry?.role === 'STAFF';
+            const body = isStaffOrTrainer
+                ? { userId: entry.userId || attendanceId, type: entry.type || (entry.role === 'TRAINER' ? 'Trainer' : 'Staff') }
+                : { memberId: memberId || attendanceId, type: 'Member' };
+            await apiClient.post('/staff/attendance/check-out', body);
+            toast.success('Successfully checked out');
+            loadData();
+        } catch (error) {
+            console.error('Check-out Error:', error);
+            toast.error(error.response?.data?.message || 'Check-out failed');
+        }
+    };
+
     const handleExport = () => {
         exportReportToCSV(attendance, `Attendance_Report_${selectedDate}`);
     };
 
+    const currentlyIn = attendance.filter(a => a.status === 'checked-in' || a.status === 'Inside');
+
     const stats = [
-        { label: 'Manual In', value: attendance.filter(a => a.status === 'checked-in' || a.status === 'Inside').length, icon: Activity, color: 'from-emerald-500 to-emerald-600' },
+        { label: 'Currently In', value: currentlyIn.length, icon: UserCheck, color: 'from-emerald-500 to-emerald-600' },
         { label: 'Today Total', value: attendanceStats.totalToday, icon: Users, color: 'from-primary to-primary' },
         { label: 'Smart Face (Today)', value: smartStats.today, icon: Smartphone, color: 'from-violet-500 to-purple-600' },
         { label: 'Smart Face (Total)', value: smartStats.total, icon: ShieldCheck, color: 'from-blue-500 to-indigo-600' },
@@ -150,8 +215,8 @@ const DailyAttendanceReport = () => {
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent tracking-tight">Daily Attendance Report</h1>
-                            <p className="text-slate-500 text-sm font-medium mt-1">Detailed log of today's check-ins and hardware activity.</p>
+                            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent tracking-tight">Daily Attendance</h1>
+                            <p className="text-slate-500 text-sm font-medium mt-1">Check-in / check-out members & trainers</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-xl border border-violet-100">
@@ -160,7 +225,7 @@ const DailyAttendanceReport = () => {
                             </div>
                             <button onClick={handleExport} className="h-11 px-6 bg-primary text-white rounded-xl text-sm font-black uppercase tracking-widest flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg active:scale-95">
                                 <Download size={16} />
-                                Export Log
+                                Export
                             </button>
                         </div>
                     </div>
@@ -184,48 +249,151 @@ const DailyAttendanceReport = () => {
                 ))}
             </div>
 
-            {/* Controls Card */}
+            {/* Search & Filters */}
             <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 mb-8 flex flex-col md:flex-row gap-4 items-center">
                 <div className="relative flex-1 w-full group">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
                     <input
                         type="text"
-                        placeholder="Search by name..."
-                        className="pl-10 pr-4 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm transition-all bg-white outline-none text-slate-800 font-medium"
+                        placeholder="Search member or trainer to check in..."
+                        className="pl-10 pr-10 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm transition-all bg-white outline-none text-slate-800 font-medium"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        autoComplete="off"
                     />
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            onClick={() => { setSearchTerm(''); setDirectoryResults([]); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 p-1"
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
                 </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <CustomDropdown
-                        options={[
-                            { value: 'All', label: 'All Types' },
-                            { value: 'Member', label: 'Members' },
-                            { value: 'Staff', label: 'Staff' }
-                        ]}
-                        value={typeFilter}
-                        onChange={setTypeFilter}
-                        icon={Filter}
-                        placeholder="Filter Type"
+                <div className="relative w-full md:w-auto">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <input
+                        type="date"
+                        className="w-full pl-9 h-11 px-6 rounded-xl border-2 border-slate-200 focus:border-primary text-xs font-black uppercase transition-all bg-white outline-none min-w-[170px]"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
                     />
-                    <div className="relative w-full md:w-auto">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input
-                            type="date"
-                            className="w-full pl-9 h-11 px-6 rounded-xl border-2 border-slate-200 focus:border-primary text-xs font-black uppercase transition-all bg-white outline-none min-w-[170px]"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                        />
-                    </div>
                 </div>
             </div>
 
-            {/* Manual Logs Table */}
-            {/* Attendance Status Table */}
+            {/* Search Results - Check In Cards */}
+            {searchTerm && searchTerm.length >= 2 && (
+                <div className="mb-10 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center justify-between mb-4 px-2">
+                        <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <Search size={14} className="text-primary" />
+                            Search Results ({directoryResults.length})
+                            {isSearching && <Loader2 size={14} className="animate-spin text-primary ml-2" />}
+                        </h2>
+                    </div>
+
+                    {directoryResults.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {directoryResults.map((person) => {
+                                const typeColors = {
+                                    Member: 'bg-primary-light text-primary',
+                                    Trainer: 'bg-amber-50 text-amber-700'
+                                };
+                                return (
+                                    <div key={`${person.personType}-${person.id}`} className="bg-white p-5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-violet-200 transition-all group relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full"></div>
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                                {person.name?.charAt(0)}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-slate-900 leading-none mb-1 truncate text-sm">{person.name}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{person.code || '-'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
+                                            <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${typeColors[person.personType] || 'bg-slate-100 text-slate-600'}`}>
+                                                {person.personType}
+                                            </span>
+                                            <button
+                                                onClick={() => handleCheckIn(person.checkInPayload)}
+                                                className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-violet-100 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all"
+                                            >
+                                                Check In
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : !isSearching && (
+                        <div className="bg-white/40 backdrop-blur-sm border-2 border-dashed border-slate-200 rounded-2xl py-8 flex flex-col items-center justify-center opacity-60">
+                            <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">No matching members or trainers found</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Currently In Section */}
+            <div className="mb-10">
+                <div className="flex items-center justify-between mb-4 px-2">
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <UserCheck size={14} className="text-emerald-500" /> Currently In ({currentlyIn.length})
+                    </h2>
+                </div>
+
+                {currentlyIn.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {currentlyIn.map((person) => {
+                            const typeColors = {
+                                Member: 'bg-primary-light text-primary',
+                                Trainer: 'bg-amber-50 text-amber-700',
+                                Staff: 'bg-teal-50 text-teal-700',
+                                TRAINER: 'bg-amber-50 text-amber-700',
+                                STAFF: 'bg-teal-50 text-teal-700'
+                            };
+                            const displayType = person.type || person.role || 'Member';
+                            return (
+                                <div key={person.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-violet-200 transition-all group">
+                                    <div className="flex items-center gap-4 mb-3">
+                                        <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-white transition-all">
+                                            {person.name?.charAt(0)}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-gray-900 leading-none mb-1 truncate">{person.name}</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{person.memberId || '-'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-2 mb-3">
+                                        <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${typeColors[displayType] || 'bg-slate-100 text-slate-600'}`}>
+                                            {displayType}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400">In: {person.checkIn}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => handleCheckOut(person.id, person.memberId, person)}
+                                        className="w-full py-2 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:border-red-100 border border-transparent active:scale-95"
+                                    >
+                                        Check Out
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="bg-white border-2 border-dashed border-gray-100 rounded-xl py-12 flex flex-col items-center justify-center">
+                        <UserMinus size={32} className="text-gray-200 mb-2" />
+                        <p className="text-gray-400 font-bold text-sm">No members currently checked in</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Manual Attendance Table */}
             <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden mb-12">
                 <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Users size={14} className="text-primary" /> Today's Manual Attendance ({attendance.filter(a => a.checkInMethod !== 'biometric').length})
+                        <Calendar size={14} className="text-primary" /> Today's Manual Attendance ({attendance.filter(a => a.checkInMethod !== 'biometric').length})
                     </h2>
                 </div>
                 <div className="overflow-x-auto">
@@ -250,35 +418,40 @@ const DailyAttendanceReport = () => {
                                     </td>
                                 </tr>
                             ) : attendance.filter(a => a.checkInMethod !== 'biometric').length > 0 ? (
-                                attendance.filter(a => a.checkInMethod !== 'biometric').map((log) => (
-                                    <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs group-hover:bg-primary-light group-hover:text-primary transition-colors">
-                                                    {(log.name || '?').charAt(0)}
+                                attendance.filter(a => a.checkInMethod !== 'biometric').map((log) => {
+                                    const typeColors = {
+                                        Member: 'bg-primary-light text-primary',
+                                        Trainer: 'bg-amber-50 text-amber-700',
+                                        Staff: 'bg-teal-50 text-teal-700',
+                                        TRAINER: 'bg-amber-50 text-amber-700',
+                                        STAFF: 'bg-teal-50 text-teal-700'
+                                    };
+                                    const displayType = log.type || log.role || 'Member';
+                                    return (
+                                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs group-hover:bg-primary-light group-hover:text-primary transition-colors">
+                                                        {(log.name || '?').charAt(0)}
+                                                    </div>
+                                                    <span className="text-sm font-bold text-slate-900">{log.name}</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-slate-900">{log.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase w-fit ${log.type === 'Member' ? 'bg-primary-light text-primary hover' : 'bg-teal-50 text-teal-700'}`}>
-                                                    {log.type}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase w-fit ${typeColors[displayType] || 'bg-slate-100 text-slate-600'}`}>
+                                                    {displayType}
                                                 </span>
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                                                    Method: {log.checkInMethod === 'biometric' ? 'Face Scan' : 'Manual'}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-black text-slate-700">{log.checkIn}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-slate-400">{log.checkOut}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${log.status === 'checked-in' || log.status === 'Inside' ? 'bg-emerald-100 text-emerald-700 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
+                                                    {log.status === 'checked-in' ? 'Inside' : log.status}
                                                 </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-black text-slate-700">{log.checkIn}</td>
-                                        <td className="px-6 py-4 text-sm font-bold text-slate-400">{log.checkOut}</td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${log.status === 'Currently Inside' || log.status === 'Inside' ? 'bg-emerald-100 text-emerald-700 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
-                                                {log.status === 'Inside' ? 'Inside' : log.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
@@ -356,14 +529,13 @@ const DailyAttendanceReport = () => {
                                                     <Clock size={12} className="text-slate-400" />
                                                     {(() => {
                                                         if (!record.createTime) return '-';
-                                                        const date = new Date(record.createTime);
-                                                        // Ensure display is in IST (UTC + 5:30)
-                                                        return date.toLocaleTimeString('en-IN', { 
-                                                            hour: '2-digit', 
-                                                            minute: '2-digit', 
-                                                            second: '2-digit', 
-                                                            hour12: false, 
-                                                            timeZone: 'Asia/Kolkata' 
+                                                        const date = new Date(record.createTime.replace(' ', 'T'));
+                                                        return date.toLocaleTimeString('en-IN', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            second: '2-digit',
+                                                            hour12: false,
+                                                            timeZone: 'Asia/Kolkata'
                                                         });
                                                     })()}
                                                 </div>

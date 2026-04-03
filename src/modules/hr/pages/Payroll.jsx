@@ -363,11 +363,19 @@ const Payroll = () => {
                                         </tr>
                                     ) : (
                                         filteredStaff.map((staff, idx) => (
-                                            <tr key={staff.id || idx} className="group hover:bg-white transition-all duration-300">
+                                            <tr 
+                                                key={staff.id || idx} 
+                                                onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })}
+                                                className="group hover:bg-white transition-all duration-300 cursor-pointer"
+                                            >
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shadow-sm">
-                                                            {(staff.name || '?').charAt(0)}
+                                                        <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shadow-sm overflow-hidden shrink-0">
+                                                            {staff.avatar && staff.avatar.length > 10 ? (
+                                                                <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                (staff.name || '?').charAt(0).toUpperCase()
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <div className="font-bold text-slate-800 text-sm leading-tight">{staff.name}</div>
@@ -400,40 +408,57 @@ const Payroll = () => {
                                                     />
                                                 </td>
                                                 <td className="px-6 py-4 text-right relative">
-                                                    <button
-                                                        onClick={e => toggleMenu(e, { ...staff, idx })}
-                                                        className={`p-2 rounded-lg transition-all ${activeMenu?.id === (staff.id || idx) ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-primary hover:bg-primary-light'
-                                                            }`}
-                                                    >
-                                                        <MoreHorizontal size={18} />
-                                                    </button>
-                                                    {activeMenu?.id === (staff.id || idx) && (
-                                                        <>
-                                                            {/* Backdrop to close menu */}
-                                                            <div
-                                                                className="fixed inset-0 z-[90] cursor-default"
-                                                                onClick={(e) => { e.stopPropagation(); setActiveMenu(null); }}
-                                                            />
-                                                            <div
-                                                                className={`absolute right-8 w-48 bg-white border border-slate-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[100] py-2 animate-in fade-in zoom-in-95 duration-200 ${(idx >= filteredStaff.length - 2 && filteredStaff.length > 2) ? 'bottom-12 mb-2 origin-bottom-right' : 'top-12 mt-2 origin-top-right'
-                                                                    }`}
-                                                            >
-                                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
-                                                                    <Eye size={16} /> View Profile
-                                                                </button>
-                                                                <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
-                                                                    <Edit2 size={16} /> Edit Profile
-                                                                </button>
-                                                                <div className="h-px bg-slate-50 my-1 mx-2" />
-                                                                <button
-                                                                    onClick={() => handleDeleteStaff(staff.id)}
-                                                                    className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={e => toggleMenu(e, { ...staff, idx })}
+                                                            className={`p-2 rounded-lg transition-all ${activeMenu?.id === (staff.id || idx) ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-primary hover:bg-primary-light'
+                                                                }`}
+                                                            title="Options"
+                                                        >
+                                                            <MoreHorizontal size={18} />
+                                                        </button>
+                                                        {activeMenu?.id === (staff.id || idx) && (
+                                                            <>
+                                                                {/* Backdrop to close menu */}
+                                                                <div
+                                                                    className="fixed inset-0 z-[90] cursor-default"
+                                                                    onClick={(e) => { e.stopPropagation(); setActiveMenu(null); }}
+                                                                />
+                                                                <div
+                                                                    className={`absolute right-8 w-48 bg-white border border-slate-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[100] py-2 animate-in fade-in zoom-in-95 duration-200 ${(idx >= filteredStaff.length - 2 && filteredStaff.length > 2) ? 'bottom-12 mb-2 origin-bottom-right' : 'top-12 mt-2 origin-top-right'
+                                                                        }`}
                                                                 >
-                                                                    <Trash2 size={16} /> Delete Staff
-                                                                </button>
-                                                            </div>
-                                                        </>
-                                                    )}
+                                                                    <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`, { state: { readOnly: true } })} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                                                                        <Eye size={16} /> View Profile
+                                                                    </button>
+                                                                    <button onClick={() => navigate(`/hr/staff/edit/${staff.id}`)} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+                                                                        <Edit2 size={16} /> Edit Profile
+                                                                    </button>
+                                                                    <div className="h-px bg-slate-50 my-1 mx-2" />
+                                                                    <button
+                                                                        onClick={() => handleDeleteStaff(staff.id)}
+                                                                        className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                                                                    >
+                                                                        <Trash2 size={16} /> Delete Staff
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); navigate(`/hr/staff/edit/${staff.id}`); }}
+                                                            className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-lg transition-colors"
+                                                            title="Edit Staff"
+                                                        >
+                                                            <Edit2 size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteStaff(staff.id); }}
+                                                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                            title="Delete Staff"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -480,8 +505,12 @@ const Payroll = () => {
                                         <tr key={staff.id} className="hover:bg-white transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm">
-                                                        {(staff.name || '?').charAt(0)}
+                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm overflow-hidden shrink-0">
+                                                        {staff.avatar && staff.avatar.length > 10 ? (
+                                                            <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            (staff.name || '?').charAt(0).toUpperCase()
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-slate-800 text-sm">{staff.name}</p>
@@ -765,8 +794,12 @@ const Payroll = () => {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shrink-0">
-                                                            {(staff.name || '?').charAt(0)}
+                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-sm shrink-0 overflow-hidden">
+                                                            {staff.avatar && staff.avatar.length > 10 ? (
+                                                                <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                (staff.name || '?').charAt(0).toUpperCase()
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-slate-800 text-sm">{staff.name}</p>

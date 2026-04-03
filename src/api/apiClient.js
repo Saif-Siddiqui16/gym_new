@@ -25,9 +25,10 @@ apiClient.interceptors.request.use(
         }
 
         // Do not overwrite if already explicitly set or if specifically cleared (null/undefined)
+        // Skip setting header when selectedBranch is "all" — backend does not recognize it
         if (config.headers['x-tenant-id'] === 'none') {
             delete config.headers['x-tenant-id'];
-        } else if (selectedBranch && config.headers['x-tenant-id'] === undefined) {
+        } else if (selectedBranch && selectedBranch !== 'all' && config.headers['x-tenant-id'] === undefined) {
             config.headers['x-tenant-id'] = selectedBranch;
         }
         return config;

@@ -37,12 +37,16 @@ const Login = () => {
         { label: 'Manager', email: 'manager@gmail.com', role: ROLES.MANAGER, color: '#ec4899' },
         { label: 'Trainer', email: 'trainer@gmail.com', role: ROLES.TRAINER, color: '#f59e0b' },
         { label: 'Staff', email: 'staff@gmail.com', role: ROLES.STAFF, color: '#10b981' },
-        { label: 'Member', email: 'member@gmail.com', role: ROLES.MEMBER, color: '#6366f1' }
+        { label: 'Member', email: 'albert@gmail.com', role: ROLES.MEMBER, color: '#6366f1' }
     ];
 
     const fillCredentials = (email, role) => {
         setEmail(email);
-        setPassword('123');
+        if ([ROLES.MANAGER, ROLES.TRAINER, ROLES.STAFF, ROLES.MEMBER].includes(role)) {
+            setPassword('123456');
+        } else {
+            setPassword('123');
+        }
         setSelectedRole(role);
     };
 

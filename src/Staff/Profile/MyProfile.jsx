@@ -23,7 +23,8 @@ const MyProfile = () => {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        avatar: ''
     });
 
     useEffect(() => {
@@ -39,7 +40,8 @@ const MyProfile = () => {
                 name: data.name,
                 email: data.email,
                 phone: data.phone || '',
-                address: data.address || ''
+                address: data.address || '',
+                avatar: data.avatar || ''
             });
         } catch (error) {
             console.error("Error loading staff profile:", error);
@@ -52,6 +54,17 @@ const MyProfile = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSave = async (e) => {
@@ -153,14 +166,21 @@ const MyProfile = () => {
                     <div className="relative px-4 sm:px-8 pb-8 pt-32">
                         <div className="flex flex-col md:flex-row md:items-end gap-8 -mt-20">
                             <div className="relative group/avatar">
-                                <div className="w-40 h-40 rounded-[32px] bg-white p-2 shadow-2xl transform group-hover/avatar:scale-105 transition-transform duration-300 rotate-3 group-hover/avatar:rotate-0">
-                                    <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary text-6xl font-black shadow-inner">
-                                        {profile.avatar}
+                                <div className="w-40 h-40 rounded-[32px] bg-white p-2 shadow-2xl transform group-hover/avatar:scale-105 transition-transform duration-300 rotate-3 group-hover/avatar:rotate-0 overflow-hidden">
+                                    <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary text-6xl font-black shadow-inner overflow-hidden">
+                                        {formData.avatar ? (
+                                            <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (profile.avatar && profile.avatar.length > 10 ? (
+                                            <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            profile.avatar || profile.name.charAt(0).toUpperCase()
+                                        ))}
                                     </div>
                                 </div>
-                                <button className="absolute bottom-2 right-2 p-3 bg-white rounded-2xl shadow-lg border border-slate-100 text-primary hover:bg-primary-light hover:scale-110 active:scale-95 transition-all">
+                                <label className="absolute bottom-2 right-2 p-3 bg-white rounded-2xl shadow-lg border border-slate-100 text-primary hover:bg-primary-light hover:scale-110 active:scale-95 transition-all cursor-pointer">
                                     <Camera size={20} strokeWidth={2.5} />
-                                </button>
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+                                </label>
                             </div>
 
                             <div className="flex-1 pb-4 text-white">

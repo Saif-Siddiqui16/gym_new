@@ -101,17 +101,16 @@ const DailyAttendanceReport = () => {
     const fetchDirectoryResults = async () => {
         try {
             setIsSearching(true);
-            const res = await apiClient.get('/admin/members', {
+            const res = await apiClient.get('/staff/attendance/search-all', {
                 params: {
                     search: searchTerm.trim(),
-                    limit: 8,
                     branchId: selectedBranch
                 }
             });
-            const members = res.data.data || [];
-            // Filter out already checked-in members to avoid duplication
-            const checkedInIds = new Set(attendance.map(a => a.memberId));
-            setDirectoryResults(members.filter(m => !checkedInIds.has(m.memberId)));
+            const results = res.data.data || [];
+            // Filter out already checked-in people
+            const checkedInIds = new Set(attendance.filter(a => a.status === 'Inside').map(a => a.memberId));
+            setDirectoryResults(results.filter(r => r.personType !== 'Member' || !checkedInIds.has(r.code)));
         } catch (err) {
             console.error("Search error:", err);
             setDirectoryResults([]);
@@ -128,12 +127,15 @@ const DailyAttendanceReport = () => {
             const search = searchTerm.trim();
             const date = selectedDate;
 
+            // Normalize branchId — "all" means no filter
+            const branchId = selectedBranch && selectedBranch !== 'all' ? selectedBranch : null;
+
             // Fetch everything needed
             const [attendanceRes, statsRes, smartLogs, smartSummaryData] = await Promise.all([
                 apiClient.get(`/admin/attendance?page=${page}&limit=${limit}&search=${search}&date=${date}`),
                 apiClient.get('/admin/attendance/stats'),
-                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords(selectedBranch, date)).catch(() => []),
-                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary(1, 10, selectedBranch).catch(() => ({ today: 0, total: 0 })))
+                import('../../api/gymDeviceApi').then(api => api.fetchFaceAccessRecords(branchId, date)).catch(() => []),
+                import('../../api/gymDeviceApi').then(api => api.fetchGymAttendanceSummary(1, 10, branchId).catch(() => ({ today: 0, total: 0 })))
             ]);
 
             const rawData = attendanceRes.data.data || [];
@@ -141,7 +143,8 @@ const DailyAttendanceReport = () => {
             // Stats Logic
             // Backend returns scanTime as ISO or string; we normalize to local comparison
             const hardwareScans = (smartLogs || []).filter(log => {
-                const scanDateStr = new Date(log.createTime).toLocaleDateString('en-CA');
+                if (!log.createTime) return false;
+                const scanDateStr = new Date(log.createTime.replace(' ', 'T')).toLocaleDateString('en-CA');
                 return scanDateStr === date;
             });
             setSmartRecords(hardwareScans);
@@ -173,9 +176,11 @@ const DailyAttendanceReport = () => {
 
             const formatted = rawData.map(a => ({
                 id: a.id,
+                userId: a.userId || null,
                 memberId: a.membershipId,
                 name: a.name,
                 type: a.type,
+                role: a.role,
                 checkIn: a.checkIn || a.time || '-',
                 checkOut: a.checkOut || '-',
                 duration: calcDuration(a.checkIn || a.time, a.checkOut),
@@ -230,21 +235,28 @@ const DailyAttendanceReport = () => {
         }
     };
 
-    const handleCheckIn = async (memberId) => {
+    const handleCheckIn = async (payload) => {
         try {
-            await apiClient.post('/staff/attendance/check-in', { memberId });
-            toast.success('Member checked in successfully');
+            // payload = { memberId, type } or { userId, type }
+            const body = typeof payload === 'object' ? payload : { memberId: payload, type: 'Member' };
+            await apiClient.post('/staff/attendance/check-in', body);
+            toast.success(`${body.type || 'Member'} checked in successfully`);
             loadData();
             setSearchTerm('');
+            setDirectoryResults([]);
         } catch (error) {
             console.error('Check-in Error:', error);
             toast.error(error.response?.data?.message || 'Check-in failed');
         }
     };
 
-    const handleCheckOut = async (id, memberId) => {
+    const handleCheckOut = async (attendanceId, memberId, entry) => {
         try {
-            await apiClient.post('/staff/attendance/check-out', { memberId: memberId || id });
+            const isStaffOrTrainer = entry?.type === 'Staff' || entry?.type === 'Trainer' || entry?.role === 'TRAINER' || entry?.role === 'STAFF';
+            const body = isStaffOrTrainer
+                ? { userId: entry.userId || attendanceId, type: entry.type || (entry.role === 'TRAINER' ? 'Trainer' : 'Staff') }
+                : { memberId: memberId || attendanceId, type: 'Member' };
+            await apiClient.post('/staff/attendance/check-out', body);
             toast.success('Successfully checked out');
             loadData();
         } catch (error) {
@@ -368,34 +380,38 @@ const DailyAttendanceReport = () => {
 
                     {directoryResults.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {directoryResults.map((member) => (
-                                <div key={member.id} className="bg-white p-5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-violet-200 transition-all group relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full"></div>
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                                            {member.name?.charAt(0)}
+                            {directoryResults.map((person) => {
+                                const typeColors = {
+                                    Member: 'bg-primary-light text-primary',
+                                    Trainer: 'bg-amber-50 text-amber-700',
+                                    Staff: 'bg-teal-50 text-teal-700'
+                                };
+                                return (
+                                    <div key={`${person.personType}-${person.id}`} className="bg-white p-5 rounded-2xl shadow-sm border-2 border-slate-100 hover:border-violet-200 transition-all group relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full"></div>
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                                {person.name?.charAt(0)}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-slate-900 leading-none mb-1 truncate text-sm">{person.name}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{person.code || '-'}</p>
+                                            </div>
                                         </div>
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-slate-900 leading-none mb-1 truncate text-sm">{member.name}</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{member.memberId || 'MEM-001'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                                            <span className={`text-[10px] font-bold ${member.status === 'Active' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                {member.status}
+                                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
+                                            <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${typeColors[person.personType] || 'bg-slate-100 text-slate-600'}`}>
+                                                {person.personType}
                                             </span>
+                                            <button
+                                                onClick={() => handleCheckIn(person.checkInPayload)}
+                                                className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-violet-100 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all"
+                                            >
+                                                Check In
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => handleCheckIn(member.id)}
-                                            className="px-4 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-violet-100 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all"
-                                        >
-                                            Check In
-                                        </button>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : !loading && (
                         <div className="bg-white/40 backdrop-blur-sm border-2 border-dashed border-slate-200 rounded-2xl py-8 flex flex-col items-center justify-center opacity-60">
@@ -410,31 +426,47 @@ const DailyAttendanceReport = () => {
             <div className="mb-10">
                 <div className="flex items-center justify-between mb-4 px-2">
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <UserCheck size={14} className="text-emerald-500" /> Currently In ({attendance.filter(a => a.status === 'Inside').length})
+                        <UserCheck size={14} className="text-emerald-500" /> Currently In ({attendance.filter(a => a.status === 'Inside' || a.status === 'checked-in').length})
                     </h2>
                 </div>
 
-                {attendance.filter(a => a.status === 'Inside').length > 0 ? (
+                {attendance.filter(a => a.status === 'Inside' || a.status === 'checked-in').length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {attendance.filter(a => a.status === 'Inside').map((member) => (
-                            <div key={member.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-violet-200 transition-all group">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-white transition-all">
-                                        {member.name.charAt(0)}
+                        {attendance.filter(a => a.status === 'Inside' || a.status === 'checked-in').map((person) => {
+                            const typeColors = {
+                                Member: 'bg-primary-light text-primary',
+                                Trainer: 'bg-amber-50 text-amber-700',
+                                Staff: 'bg-teal-50 text-teal-700',
+                                TRAINER: 'bg-amber-50 text-amber-700',
+                                STAFF: 'bg-teal-50 text-teal-700'
+                            };
+                            const displayType = person.type || person.role || 'Member';
+                            return (
+                                <div key={person.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-violet-200 transition-all group">
+                                    <div className="flex items-center gap-4 mb-3">
+                                        <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-white transition-all">
+                                            {person.name?.charAt(0)}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-gray-900 leading-none mb-1 truncate">{person.name}</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{person.memberId || '-'}</p>
+                                        </div>
                                     </div>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-gray-900 leading-none mb-1 truncate">{member.name}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{member.memberId || 'MEM-001'}</p>
+                                    <div className="flex items-center justify-between gap-2 mb-3">
+                                        <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest ${typeColors[displayType] || 'bg-slate-100 text-slate-600'}`}>
+                                            {displayType}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400">In: {person.checkIn}</span>
                                     </div>
+                                    <button
+                                        onClick={() => handleCheckOut(person.id, person.memberId, person)}
+                                        className="w-full py-2 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:border-red-100 border border-transparent active:scale-95"
+                                    >
+                                        Check Out
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => handleCheckOut(member.id, member.memberId)}
-                                    className="w-full py-2 bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:border-red-100 border border-transparent active:scale-95"
-                                >
-                                    Check Out
-                                </button>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="bg-white border-2 border-dashed border-gray-100 rounded-xl py-12 flex flex-col items-center justify-center">

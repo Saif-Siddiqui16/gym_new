@@ -164,8 +164,12 @@ const StaffList = () => {
                                 <tr key={staff.id} className="group hover:bg-gray-50/50 transition-colors">
                                     <td className="py-4 pl-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center text-primary">
-                                                <User size={20} />
+                                            <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center text-primary overflow-hidden">
+                                                {staff.avatar && staff.avatar.length > 10 ? (
+                                                    <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User size={20} />
+                                                )}
                                             </div>
                                             <div>
                                                 <div className="font-bold text-gray-900">{staff.name}</div>

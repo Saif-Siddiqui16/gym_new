@@ -180,10 +180,10 @@ const MyProfile = () => {
                                     <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black overflow-hidden">
                                         {formData.avatar ? (
                                             <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (profile.avatar && profile.avatar.length > 1 ? (
+                                        ) : (profile.avatar && profile.avatar.length > 10 ? (
                                             <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : (
-                                            profile.avatar || profile.name.charAt(0)
+                                            profile.avatar || profile.name?.charAt(0).toUpperCase()
                                         ))}
                                     </div>
                                 </div>
