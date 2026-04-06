@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { Clock, Users, Dumbbell, AlertTriangle, Bell, ArrowRight, IndianRupee, Wallet, TrendingUp, Calendar, AlertCircle, Sparkles, RefreshCw, Activity, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import StatsCard from '../components/StatsCard';
@@ -11,33 +11,36 @@ import { EQUIPMENT_INVENTORY } from '../../operations/data/equipmentData';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
+import Loader from '../../../components/common/Loader';
+
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+};
+
+const S = {
+  ff: "'Plus Jakarta Sans', sans-serif",
+  card: {
+    background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`,
+    boxShadow: '0 2px 12px rgba(124,92,252,0.06)', padding: 22, transition: 'all 0.3s ease'
+  },
+  metricValue: { fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px' },
+  iconBox: { width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }
+};
 
 const INITIAL_MANAGER_DATA = {
     stats: [
-        { id: 1, title: 'Active Members', value: '0', icon: Users, trend: '...', color: 'primary' },
-        { id: 2, title: 'Classes Today', value: '0', icon: Calendar, trend: '...', color: 'success' },
-        { id: 3, title: 'Payments Due', value: '0', icon: AlertCircle, trend: '...', color: 'warning' },
+        { id: 1, title: 'Active Members', value: '0', icon: Users, color: 'primary' },
+        { id: 2, title: 'Classes Today', value: '0', icon: Calendar, color: 'success' },
+        { id: 3, title: 'Payments Due', value: '0', icon: AlertCircle, color: 'warning' },
     ],
     attendance: [],
-    financials: {
-        collectionToday: 0,
-        pendingDuesAmount: 0,
-        localExpenses: 0
-    },
-    equipmentStats: {
-        totalAssets: 0,
-        operational: 0,
-        outOfOrder: 0
-    },
+    financials: { collectionToday: 0, pendingDuesAmount: 0, localExpenses: 0 },
+    equipmentStats: { totalAssets: 0, operational: 0, outOfOrder: 0 },
     tasksAndNotices: [],
-    taskStats: {
-        total: 0,
-        pending: 0,
-        inProgress: 0,
-        completed: 0,
-        approved: 0,
-        overdue: 0
-    }
+    taskStats: { total: 0, pending: 0, inProgress: 0, completed: 0, approved: 0, overdue: 0 }
 };
 
 const ManagerDashboard = () => {
@@ -45,7 +48,6 @@ const ManagerDashboard = () => {
     const { selectedBranch } = useBranchContext();
     const [data, setData] = useState(INITIAL_MANAGER_DATA);
     const [loading, setLoading] = useState(true);
-
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -63,7 +65,6 @@ const ManagerDashboard = () => {
                         { ...prev.stats[2], value: apiData.paymentsDue?.toString() || '0' }
                     ],
                     attendance: apiData.attendance || prev.attendance,
-                    recentActivities: apiData.recentActivities || [],
                     financials: {
                         collectionToday: apiData.collectionToday || 0,
                         pendingDuesAmount: apiData.pendingDuesAmount || 0,
@@ -79,299 +80,161 @@ const ManagerDashboard = () => {
                 setLoading(false);
             }
         };
-
         fetchDashboardData();
     }, [selectedBranch]);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center ">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-slate-500 font-medium animate-pulse uppercase tracking-[0.2em] text-[10px]">Accessing Manager Intelligence...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <Loader message="Accessing manager intelligence..." />;
 
     return (
-        <div className="saas-page space-y-6">
-            {/* Header Section */}
-            <div className="saas-card !p-8 relative overflow-hidden group">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-                <div className="relative flex items-center justify-between">
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
+                .fu { animation: fadeUp 0.38s ease both }
+                .fu1 { animation-delay: .05s } .fu2 { animation-delay: .1s } .fu3 { animation-delay: .15s }
+                .card-h:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(124,92,252,0.12) !important; }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div className="fu fu1" style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 22, padding: '24px 30px', boxShadow: '0 8px 32px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.2)',
+                        backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <Sparkles size={28} color="white" />
+                    </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">Manager Dashboard</h1>
-                        <p className="text-slate-500 text-sm font-medium">Daily overview of your branch performance</p>
+                        <h1 style={{ fontSize: 24, fontWeight: 900, color: 'white', margin: 0, letterSpacing: '-0.2px' }}>Manager Dashboard</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0, fontWeight: 500 }}>Daily branch performance and operations</p>
+                    </div>
+                </div>
+                <button onClick={() => window.location.reload()} style={{
+                    background: 'white', border: 'none', borderRadius: 12, padding: '10px 20px',
+                    color: T.accent, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}>
+                    <RefreshCw size={14} /> Refresh
+                </button>
+            </div>
+
+            {/* FINANCIAL OVERVIEW */}
+            <div className="fu fu2" style={{ marginBottom: 32 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+                    <div style={{ width: 3, height: 16, background: T.accent, borderRadius: 3 }}></div>
+                    <h3 style={{ fontSize: 14, fontWeight: 800, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Revenue Protection Today</h3>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                    <div className="card-h" style={{ ...S.card, cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 15 }}>
+                            <div style={{ ...S.iconBox, background: T.greenLight, color: T.green }}><IndianRupee size={20} /></div>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: T.green, background: T.greenLight, padding: '4px 10px', borderRadius: 20 }}>Healthy</span>
+                        </div>
+                        <div style={{ ...S.metricValue }}>₹{data.financials?.collectionToday.toLocaleString()}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', marginTop: 4 }}>Today's Collection</div>
+                    </div>
+
+                    <div className="card-h" style={{ ...S.card, cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 15 }}>
+                            <div style={{ ...S.iconBox, background: T.amberLight, color: T.amber }}><Wallet size={20} /></div>
+                            <button onClick={() => navigate('/finance/invoices')} style={{ fontSize: 10, fontWeight: 800, color: T.accent, background: T.accentLight, padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer' }}>Send Reminders</button>
+                        </div>
+                        <div style={{ ...S.metricValue }}>₹{data.financials?.pendingDuesAmount.toLocaleString()}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', marginTop: 4 }}>Pending Dues</div>
+                    </div>
+
+                    <div className="card-h" style={{ ...S.card, cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 15 }}>
+                            <div style={{ ...S.iconBox, background: T.roseLight, color: T.rose }}><TrendingUp size={20} /></div>
+                        </div>
+                        <div style={{ ...S.metricValue }}>₹{data.financials?.localExpenses.toLocaleString()}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', marginTop: 4 }}>Local Expenses</div>
                     </div>
                 </div>
             </div>
 
-            {/* Financial Overview Section (New for RBAC Alignment) */}
-            <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-                            <IndianRupee size={18} strokeWidth={2.5} />
-                        </div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Revenue Protection Today</h3>
-                    </div>
-                    <button
-                        onClick={() => navigate('/finance/transactions')}
-                        className="text-[10px] font-black text-primary hover:text-primary-hover flex items-center gap-1 uppercase tracking-widest bg-primary-light px-3 py-1.5 rounded-lg transition-all"
-                    >
-                        View Audit Log <ArrowRight size={10} />
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Collection Widget */}
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-50/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-emerald-100/50 transition-colors"></div>
-                        <div className="relative z-10">
-                            <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Today's Collection</p>
-                            <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
-                                <span className="text-emerald-500 font-bold">₹</span>
-                                {data.financials?.collectionToday.toLocaleString()}
-                            </h4>
-                            <div className="mt-2 flex items-center gap-2">
-                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-md flex items-center gap-1">
-                                    <TrendingUp size={10} /> Healthy
-                                </span>
-                                <span className="text-[9px] font-bold text-slate-400 italic">Cash + Digital</span>
+            {/* MAIN GRID */}
+            <div className="fu fu3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, marginBottom: 32 }}>
+                {/* STATS CARDS */}
+                {data.stats.map((stat, i) => (
+                    <div key={i} className="card-h" style={{
+                       ...S.card,
+                       background: i === 0 ? `linear-gradient(135deg, ${T.accent}, ${T.accent2})` : T.surface,
+                       border: i === 0 ? 'none' : S.card.border,
+                       color: i === 0 ? 'white' : T.text
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 15 }}>
+                            <div style={{
+                                ...S.iconBox,
+                                background: i === 0 ? 'rgba(255,255,255,0.2)' : T.accentLight,
+                                color: i === 0 ? 'white' : T.accent
+                            }}>
+                                <stat.icon size={22} />
                             </div>
                         </div>
+                        <div style={{ fontSize: 32, fontWeight: 900, color: i === 0 ? 'white' : T.text }}>{stat.value}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: i === 0 ? 'rgba(255,255,255,0.8)' : T.muted, textTransform: 'uppercase' }}>{stat.title}</div>
                     </div>
-
-                    {/* Pending Dues Widget */}
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-amber-50/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-amber-100/50 transition-colors"></div>
-                        <div className="relative z-10">
-                            <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Pending Dues</p>
-                            <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
-                                <span className="text-amber-500 font-bold">₹</span>
-                                {data.financials?.pendingDuesAmount.toLocaleString()}
-                            </h4>
-                            <div className="mt-2 flex items-center gap-2">
-                                <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[9px] font-black rounded-md">
-                                    {data.stats.find(s => s.title === 'Payments Due')?.value} Invoices
-                                </span>
-                                <button onClick={() => navigate('/finance/invoices')} className="text-[9px] font-black text-primary underline">Send Reminders</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Petty Cash Widget */}
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-primary-light/50 rounded-bl-full -mr-10 -mt-10 group-hover:bg-violet-100/50 transition-colors"></div>
-                        <div className="relative z-10">
-                            <p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">Local Expenses</p>
-                            <h4 className="text-2xl font-black text-slate-800 flex items-center gap-1">
-                                <span className="text-primary font-bold">₹</span>
-                                {data.financials?.localExpenses.toLocaleString()}
-                            </h4>
-                            <div className="mt-2 flex items-center gap-2">
-                                <button
-                                    onClick={() => navigate('/finance/petty-cash')}
-                                    className="px-3 py-1 bg-primary text-white text-[9px] font-black rounded-lg hover:bg-primary-hover transition-all"
-                                >
-                                    Log Expense
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                ))}
             </div>
 
-            <DashboardGrid>
-                {data.stats.map(stat => <StatsCard key={stat.id} {...stat} />)}
-            </DashboardGrid>
-
-            {/* Smart AIoT Access Control */}
-            <SmartAIoTSummary />
-
-            {/* Facility Status Section */}
-            <div className="mt-8">
-                <FacilityStatusOverview equipmentStats={data.equipmentStats} />
+            {/* AIOT & FACILITY */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+                <div className="card-h" style={S.card}><SmartAIoTSummary /></div>
+                <div className="card-h" style={S.card}><FacilityStatusOverview equipmentStats={data.equipmentStats} /></div>
             </div>
 
-            {/* Today's Classes & Tasks Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
-
-                {/* Today's Classes & Attendance */}
-                <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-                    {/* Premium Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 via-purple-50/20 to-primary-light/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    <div className="relative z-10">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6 pb-4 border-b border-slate-100">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                                    <Dumbbell size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
-                                </div>
-                                <div>
-                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                        <h3 className="text-base sm:text-lg font-black text-slate-900">Today's Classes</h3>
-                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
-                                            PREMIUM ✨
-                                        </span>
-                                    </div>
-                                    <p className="text-[10px] sm:text-xs text-slate-500 font-semibold">Scheduled classes and capacity</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => navigate('/classes')}
-                                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold shadow-lg shadow-primary/30/50 hover:shadow-xl hover:shadow-primary/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2 flex-shrink-0"
-                            >
-                                View Schedule <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
-                            </button>
+            {/* CLASSES & TASKS */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                {/* CLASSES */}
+                <div className="card-h" style={S.card}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Dumbbell size={20} color={T.accent} />
+                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Today's Classes</h3>
                         </div>
-
-                        <div className="space-y-3 sm:space-y-4">
-                            {data.attendance.map((cls, index) => {
-                                const percentage = (cls.attendees / cls.capacity) * 100;
-                                const colors = [
-                                    { gradient: 'from-primary via-purple-500 to-fuchsia-500', bgColor: 'from-primary-light to-purple-50' },
-                                    { gradient: 'from-orange-500 via-red-500 to-pink-500', bgColor: 'from-orange-50 to-red-50' }
-                                ];
-                                const colorScheme = colors[index % 2];
-
-                                return (
-                                    <div
-                                        key={cls.id}
-                                        className="group/class relative p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-slate-50/80 to-white border-2 border-slate-100 hover:border-violet-300 transition-all duration-300 hover:shadow-xl overflow-hidden"
-                                    >
-                                        {/* Gradient Overlay on Hover */}
-                                        <div className={`absolute inset-0 bg-gradient-to-r ${colorScheme.bgColor} opacity-0 group-hover/class:opacity-100 transition-opacity duration-300`}></div>
-
-                                        <div className="relative z-10">
-                                            <div className="flex items-start justify-between mb-3 sm:mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br ${colorScheme.gradient} flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover/class:scale-110 group-hover/class:rotate-12`}>
-                                                        <Dumbbell size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-black text-slate-900 text-sm sm:text-base">{cls.name}</div>
-                                                        <div className="text-[10px] sm:text-xs text-slate-500 font-bold flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1">
-                                                            <Clock size={12} className="text-primary sm:w-[13px] sm:h-[13px]" />
-                                                            {cls.time}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r ${colorScheme.gradient} text-white text-[10px] sm:text-xs font-black shadow-lg`}>
-                                                    {cls.attendees} / {cls.capacity}
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1.5 sm:space-y-2">
-                                                <div className="w-full bg-slate-200 h-2.5 sm:h-3 rounded-full overflow-hidden shadow-inner">
-                                                    <div
-                                                        className={`bg-gradient-to-r ${colorScheme.gradient} h-full rounded-full transition-all duration-700 shadow-lg relative overflow-hidden`}
-                                                        style={{ width: `${percentage}%` }}
-                                                    >
-                                                        <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-[10px] sm:text-xs text-slate-600 font-bold">{percentage.toFixed(0)}% Capacity</p>
-                                                    <span className={`text-[10px] sm:text-xs font-black ${percentage >= 90 ? 'text-red-600' : percentage >= 70 ? 'text-orange-600' : 'text-emerald-600'}`}>
-                                                        {percentage >= 90 ? 'Almost Full' : percentage >= 70 ? 'Filling Fast' : 'Available'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-
-                            {data.attendance.length === 0 && (
-                                <div className="p-4 text-center text-slate-500 font-semibold text-sm">
-                                    No classes scheduled today.
-                                </div>
-                            )}
-                        </div>
+                        <button onClick={() => navigate('/classes')} style={{ background: 'none', border: 'none', color: T.accent, fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            View Schedule <ArrowRight size={14} />
+                        </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {data.attendance.length > 0 ? data.attendance.map((cls, i) => (
+                           <div key={i} style={{ background: T.bg, padding: 16, borderRadius: 16 }}>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                   <span style={{ fontWeight: 800, fontSize: 14, color: T.text }}>{cls.name}</span>
+                                   <span style={{ fontSize: 12, color: T.muted }}>{cls.time}</span>
+                               </div>
+                               <div style={{ height: 6, background: T.surface, borderRadius: 10, overflow: 'hidden' }}>
+                                   <div style={{ height: '100%', background: T.accent, width: `${(cls.attendees/cls.capacity)*100}%` }}></div>
+                               </div>
+                               <div style={{ marginTop: 6, fontSize: 11, fontWeight: 700, color: T.muted }}>{cls.attendees} / {cls.capacity} Attendees</div>
+                           </div>
+                        )) : <div style={{ textAlign: 'center', padding: 20, color: T.muted, fontSize: 13 }}>No classes scheduled today</div>}
                     </div>
                 </div>
 
-                {/* Tasks & Notices */}
-                <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-                    {/* Premium Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-orange-50/20 to-red-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    <div className="relative z-10">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6 pb-4 border-b border-slate-100">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-fuchsia-500 flex flex-shrink-0 items-center justify-center text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                                    <Bell size={20} className="sm:w-[22px] sm:h-[22px] animate-pulse" strokeWidth={2.5} />
-                                </div>
-                                <div>
-                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                        <h3 className="text-base sm:text-lg font-black text-slate-900">Tasks & Notices</h3>
-                                        <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[9px] sm:text-[10px] font-black rounded sm:rounded-md shadow-sm animate-pulse whitespace-nowrap">
-                                            PREMIUM ✨
-                                        </span>
-                                    </div>
-                                    <p className="text-[10px] sm:text-xs text-slate-500 font-semibold">Important updates and reminders</p>
-                                </div>
+                {/* TASKS */}
+                <div className="card-h" style={S.card}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Bell size={20} color={T.rose} />
+                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Tasks & Notices</h3>
+                        </div>
+                        <span style={{ background: T.roseLight, color: T.rose, padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 800 }}>{data.tasksAndNotices.length} Pending</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {data.tasksAndNotices.length > 0 ? data.tasksAndNotices.map((task, i) => (
+                            <div key={i} style={{ background: T.bg, padding: 16, borderRadius: 16, borderLeft: `4px solid ${task.type === 'urgent' ? T.rose : T.accent}` }}>
+                                <div style={{ fontWeight: 800, fontSize: 14, color: T.text }}>{task.title}</div>
+                                <div style={{ fontSize: 12, color: T.muted, marginTop: 4 }}>{task.description}</div>
+                                <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: T.accent }}>Due: {task.dueDate}</div>
                             </div>
-                            <div className="flex items-center justify-start w-full sm:w-auto gap-2">
-                                <span className="w-full sm:w-auto inline-flex justify-center items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-1.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] sm:text-xs font-black shadow-lg shadow-red-500/50">
-                                    {data.tasksAndNotices.length} Pending
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3 sm:space-y-4">
-                            {data.tasksAndNotices.map((task) => {
-                                const isUrgent = task.type === 'urgent';
-                                const colorTheme = isUrgent
-                                    ? { bg: 'red', icon: AlertTriangle, txt: 'red', border: 'red-500' }
-                                    : { bg: 'blue', icon: Users, txt: 'blue', border: 'primary' };
-
-                                const IconComponent = colorTheme.icon;
-
-                                return (
-                                    <div key={task.id} className={`group/task relative p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-${colorTheme.bg}-50 via-${colorTheme.bg}-50/50 to-white border-l-4 border-${colorTheme.border} hover:shadow-2xl transition-all duration-300 overflow-hidden`}>
-                                        <div className={`absolute inset-0 bg-gradient-to-r from-${colorTheme.bg}-100/50 to-transparent opacity-0 group-hover/task:opacity-100 transition-opacity duration-300`}></div>
-
-                                        <div className="relative z-10 flex items-start gap-3 sm:gap-4">
-                                            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-${colorTheme.bg}-500 via-${colorTheme.bg}-600 to-${colorTheme.bg}-700 flex items-center justify-center text-white shadow-xl transition-all duration-300 group-hover/task:scale-110 group-hover/task:rotate-12`}>
-                                                <IconComponent size={20} className="sm:w-[22px] sm:h-[22px]" strokeWidth={2.5} />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-start justify-between mb-1.5 sm:mb-2">
-                                                    <h4 className={`font-black text-${colorTheme.txt}-900 text-sm sm:text-base`}>{task.title}</h4>
-                                                    <span className={`px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-${colorTheme.bg}-500 to-${colorTheme.bg}-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black shadow-lg uppercase`}>
-                                                        {isUrgent ? 'Urgent' : 'Notice'}
-                                                    </span>
-                                                </div>
-                                                <p className={`text-xs sm:text-sm text-${colorTheme.txt}-800 font-semibold mb-2 sm:mb-3`}>{task.description}</p>
-                                                <div className="flex items-center gap-2">
-                                                    <div className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-white/80 backdrop-blur-sm rounded-md sm:rounded-lg border border-${colorTheme.bg}-200`}>
-                                                        <Clock size={12} className={`text-${colorTheme.txt}-500 sm:w-[13px] sm:h-[13px]`} />
-                                                        <span className={`text-[10px] sm:text-xs text-${colorTheme.txt}-700 font-bold`}>{task.dueDate}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-
-                            {data.tasksAndNotices.length === 0 && (
-                                <div className="p-4 text-center text-slate-500 font-semibold text-sm">
-                                    No pending tasks or notices.
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100">
-                            <button
-                                onClick={() => navigate('/facility/maintenance')}
-                                className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all flex items-center justify-center gap-1.5 sm:gap-2"
-                            >
-                                View All Tasks <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" />
-                            </button>
-                        </div>
+                        )) : <div style={{ textAlign: 'center', padding: 20, color: T.muted, fontSize: 13 }}>No pending tasks</div>}
                     </div>
                 </div>
             </div>

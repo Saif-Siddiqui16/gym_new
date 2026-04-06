@@ -1,7 +1,29 @@
 import React, { useState } from 'react';
-import { Box, Plus, X, Monitor, ChevronRight, Layers, CreditCard } from 'lucide-react';
+import { Box, Plus, X, Monitor, ChevronRight, Layers, CreditCard, Sparkles, Hash, ArrowRight, Coins } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
     const { selectedBranch } = useBranchContext();
@@ -52,39 +74,53 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
         return preview;
     };
 
+    const InputLabel = ({ children }) => (
+        <label style={{ display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginLeft: 4 }}>
+            {children}
+        </label>
+    );
+
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white font-sans animate-in slide-in-from-right-4">
-            <div className="flex-1  space-y-10">
+        <div style={{ padding: '0 8px', animation: 'fadeIn 0.4s ease-out' }}>
+            <style>{`
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Prefix & Range */}
-                <div className="space-y-6">
-                    <div className="space-y-2.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Prefix</label>
-                        <input
-                            type="text"
-                            value={formData.prefix}
-                            onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}
-                            className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
-                        />
+                <div style={{ background: T.bg, padding: 24, borderRadius: 28, border: `1.5px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    <div>
+                        <InputLabel>Naming Foundation (Prefix)</InputLabel>
+                        <div style={{ position: 'relative' }}>
+                            <Hash size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                            <input
+                                type="text"
+                                value={formData.prefix}
+                                onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}
+                                style={{ width: '100%', height: 50, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid #fff`, background: '#fff', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s', boxShadow: T.cardShadow }}
+                            />
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Start Number</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 16, alignItems: 'center' }}>
+                        <div>
+                            <InputLabel>Initial Index</InputLabel>
                             <input
                                 type="number"
                                 value={formData.startNumber}
                                 onChange={(e) => setFormData({ ...formData, startNumber: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                style={{ width: '100%', height: 50, padding: '0 16px', borderRadius: 14, border: `1.5px solid #fff`, background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', boxShadow: T.cardShadow }}
                                 min="1"
                             />
                         </div>
-                        <div className="space-y-2.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">End Number</label>
+                        <div style={{ marginTop: 20, color: T.subtle }}><ArrowRight size={20} /></div>
+                        <div>
+                            <InputLabel>Terminal Index</InputLabel>
                             <input
                                 type="number"
                                 value={formData.endNumber}
                                 onChange={(e) => setFormData({ ...formData, endNumber: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                style={{ width: '100%', height: 50, padding: '0 16px', borderRadius: 14, border: `1.5px solid #fff`, background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', boxShadow: T.cardShadow }}
                                 min="1"
                             />
                         </div>
@@ -92,116 +128,104 @@ const BulkCreateLockersDrawer = ({ onClose, onSuccess }) => {
                 </div>
 
                 {/* Configuration */}
-                <div className="space-y-6">
-                    <div className="space-y-2.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Size (all)</label>
-                        <div className="relative group">
-                            <select
-                                value={formData.size}
-                                onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                                className="w-full h-14 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2364748b%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1.25rem_center] bg-no-repeat shadow-sm"
-                            >
-                                <option value="Small">Small</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Large">Large</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between group hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-300">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-primary-light border border-violet-100 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                <CreditCard size={18} />
-                            </div>
-                            <div>
-                                <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Is Chargeable?</h4>
-                                <p className="text-[9px] font-bold text-slate-400 mt-0.5">Enable to set a monthly rental fee</p>
-                            </div>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={formData.isChargeable}
-                                onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
-                            />
-                            <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shadow-inner"></div>
-                        </label>
-                    </div>
-
-                    {formData.isChargeable && (
-                        <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 italic flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                                Monthly Rental Fee (per branch)
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors font-black text-sm">₹</div>
-                                <input
-                                    type="number"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                    placeholder="0.00"
-                                    className="w-full h-14 pl-10 pr-5 bg-white border-2 border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
-                                />
-                            </div>
-                        </div>
-                    )}
+                <div>
+                    <InputLabel>Dimensional Standard</InputLabel>
+                    <select
+                        value={formData.size}
+                        onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                        style={{ width: '100%', height: 50, padding: '0 20px', borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 800, color: T.text, outline: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="Small">Small</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Large">Large</option>
+                    </select>
                 </div>
 
-                {/* Preview Section */}
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center px-1">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Preview ({isNaN(previewCount) ? 0 : previewCount} lockers)</h4>
-                        <div className="flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                            <span className="text-[8px] font-black text-emerald-600 uppercase">Live Preview</span>
+                {/* Chargeable Toggle */}
+                <div style={{ padding: 20, borderRadius: 24, border: `1.5px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: formData.isChargeable ? T.accentLight : 'white', transition: '0.3s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: formData.isChargeable ? T.accent : T.bg, color: formData.isChargeable ? '#fff' : T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s' }}>
+                            <Coins size={20} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Collective Monetization</div>
+                            <div style={{ fontSize: 10, fontWeight: 600, color: T.muted, marginTop: 2 }}>Apply rental rates to all units</div>
                         </div>
                     </div>
-                    <div className="bg-slate-50/50 backdrop-blur-sm border border-slate-100 rounded-[2rem] p-6 grid grid-cols-2 sm:grid-cols-3 gap-3 min-h-[100px] shadow-inner">
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', position: 'relative', width: 50, height: 26, background: formData.isChargeable ? T.accent : T.subtle, borderRadius: 13, transition: '0.3s' }}>
+                        <input
+                            type="checkbox"
+                            checked={formData.isChargeable}
+                            onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
+                            style={{ display: 'none' }}
+                        />
+                        <div style={{ width: 20, height: 20, borderRadius: 10, background: '#fff', transition: '0.3s', position: 'absolute', left: formData.isChargeable ? 26 : 4, boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} />
+                    </label>
+                </div>
+
+                {formData.isChargeable && (
+                    <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                        <InputLabel>Standard Rate (₹)</InputLabel>
+                        <input
+                            type="number"
+                            placeholder="0"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            style={{ width: '100%', height: 50, padding: '0 20px', borderRadius: 14, border: `1.5px solid ${T.accent}`, background: '#fff', fontSize: 14, fontWeight: 800, color: T.text, outline: 'none' }}
+                        />
+                    </div>
+                )}
+
+                {/* Preview Matrix */}
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <InputLabel>Registry Preview ({isNaN(previewCount) ? 0 : previewCount} units)</InputLabel>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.greenLight, padding: '4px 10px', borderRadius: 8 }}>
+                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
+                            <span style={{ fontSize: 9, fontWeight: 900, color: T.green, textTransform: 'uppercase' }}>Live Link</span>
+                        </div>
+                    </div>
+                    <div style={{ background: T.bg + '80', borderRadius: 24, padding: 20, border: `1.5px solid ${T.border}`, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 10, minHeight: 120 }}>
                         {isNaN(previewCount) || previewCount <= 0 ? (
-                            <div className="col-span-full py-8 text-center">
-                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Invalid range</p>
+                            <div style={{ gridColumn: '1/-1', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.3 }}>
+                                <p style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>Awaiting valid range...</p>
                             </div>
                         ) : (
                             <>
-                                {generatePreview().map((lockerId, idx) => (
-                                    <div key={idx} className="bg-white px-4 py-2.5 border border-slate-100 rounded-xl text-[11px] font-black text-slate-700 shadow-sm flex items-center justify-center gap-2 group hover:border-violet-200 hover:scale-105 transition-all">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-violet-400 transition-colors"></div>
-                                        {lockerId}
+                                {generatePreview().map((id, i) => (
+                                    <div key={i} style={{ padding: '8px 12px', background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, fontSize: 11, fontWeight: 800, color: T.text, textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        {id}
                                     </div>
                                 ))}
                                 {previewCount > 10 && (
-                                    <div className="col-span-full text-center pt-2">
-                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest italic group cursor-default">
-                                            ...and {previewCount - 10} more in sequence
-                                        </span>
+                                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '8px 0', opacity: 0.5 }}>
+                                        <span style={{ fontSize: 10, fontWeight: 700, fontStyle: 'italic' }}>+ {previewCount - 10} additional units in sequence</span>
                                     </div>
                                 )}
                             </>
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* Actions */}
-            <div className="p-8 border-t border-slate-50 flex gap-4 sticky bottom-0 bg-white/80 backdrop-blur-md">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 h-12 bg-white border border-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:text-slate-600 transition-all shadow-sm"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    disabled={loading || isNaN(previewCount) || previewCount <= 0}
-                    className="flex-[1.5] h-12 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-primary-hover hover:scale-105 transition-all disabled:opacity-50"
-                >
-                    {loading ? 'Creating...' : `Create ${isNaN(previewCount) ? 0 : previewCount} Lockers`}
-                </button>
-            </div>
-        </form>
+                {/* Footer Actions */}
+                <div style={{ marginTop: 12 }}>
+                    <button
+                        type="submit"
+                        disabled={loading || isNaN(previewCount) || previewCount <= 0}
+                        style={{ width: '100%', height: 54, borderRadius: 16, border: 'none', background: T.accent, color: '#fff', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', transition: '0.3s', boxShadow: T.shadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                    >
+                        {loading ? 'Initializing...' : <><Layers size={18} /> Deploy Collective</>}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        style={{ width: '100%', height: 50, marginTop: 12, borderRadius: 16, border: 'none', background: 'transparent', color: T.muted, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer' }}
+                    >
+                        Decommission Action
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 

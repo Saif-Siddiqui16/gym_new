@@ -1,8 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { fetchStaffMembers } from '../../../api/superadmin/superAdminApi';
 import toast from 'react-hot-toast';
-import { Users, Search, Filter, Calendar, Clock, User, Shield, Briefcase } from 'lucide-react';
+import { 
+    Users, 
+    Search, 
+    Filter, 
+    Calendar, 
+    Clock, 
+    User, 
+    Shield, 
+    Briefcase,
+    ChevronRight,
+    Search as SearchIcon,
+    Box,
+    MoreHorizontal
+} from 'lucide-react';
 import MobileCard from '../../../components/common/MobileCard';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const StaffSchedule = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +63,7 @@ const StaffSchedule = () => {
                 id: s.id,
                 name: s.name,
                 role: s.role.charAt(0) + s.role.slice(1).toLowerCase(),
-                shift: 'Full Day (9AM - 6PM)', // Mocking shift as its not in DB currently
+                shift: 'Full Day (9AM - 6PM)', // Mocking shift
                 status: s.status === 'Active' ? 'On Duty' : 'Off Duty'
             }));
             setStaffList(formatted);
@@ -43,197 +82,150 @@ const StaffSchedule = () => {
         return matchesSearch && matchesRole && matchesStatus;
     });
 
-    const getStatusBadge = (status) => {
-        const styles = {
-            'On Duty': 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border border-emerald-200',
-            'On Leave': 'bg-gradient-to-r from-red-50 to-red-100 text-red-700 border border-red-200',
-            'Off Duty': 'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border border-slate-200',
-        };
-        return (
-            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transition-all duration-300 hover:scale-110 hover:shadow-md ${styles[status] || styles['Off Duty']}`}>
-                {status}
-            </span>
-        );
-    };
-
-    const getStatusColor = (status) => {
-        const colors = {
-            'On Duty': 'emerald',
-            'On Leave': 'red',
-            'Off Duty': 'slate',
-        };
-        return colors[status] || 'slate';
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'On Duty': return { bg: T.greenLight, color: T.green };
+            case 'On Leave': return { bg: T.roseLight, color: T.rose };
+            default: return { bg: T.bg, color: T.muted };
+        }
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
-            {/* Premium Header with Gradient */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <Users className="text-primary flex-shrink-0" size={24} />
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Staff Schedule
-                                    </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
-                                        PREMIUM ✨
-                                    </span>
-                                </div>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Manage staff shifts and availability</p>
-                            </div>
-                        </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .staff-row:hover { background: ${T.bg} !important; }
+            `}</style>
+
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${T.accent}, ${T.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 30px -10px rgba(124, 92, 252, 0.3)' }}>
+                        <Users size={28} strokeWidth={2.5} />
                     </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Staff Deployment</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Global roster management and shift synchronization</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex' }}>
+                   <div style={{ padding: '4px 16px', borderRadius: 10, background: T.accentLight, color: T.accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>Active Roster</div>
                 </div>
             </div>
 
-            {/* Glass Morphism Filter Bar */}
-            <div className="mb-4 sm:mb-6 bg-white/60 backdrop-blur-md rounded-xl shadow-lg border border-white/50 p-4 sm:p-5 hover:shadow-xl transition-all duration-300">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="relative group">
-                        <Search
-                            size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300"
-                        />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search by name or role..."
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300"
-                        />
-                    </div>
-
-                    <div className="relative group">
-                        <Filter
-                            size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
-                        />
-                        <select
-                            value={filterRole}
-                            onChange={(e) => setFilterRole(e.target.value)}
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
-                        >
-                            <option value="">All Roles</option>
-                            <option value="Trainer">Trainer</option>
-                            <option value="Receptionist">Receptionist</option>
-                            <option value="Cleaner">Cleaner</option>
-                        </select>
-                    </div>
-
-                    <div className="relative group">
-                        <Shield
-                            size={20}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10"
-                        />
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-full pl-12 pr-4 py-2.5 sm:py-3 bg-white/80 border-2 border-slate-200 rounded-lg sm:rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all duration-300 hover:border-slate-300 appearance-none cursor-pointer"
-                        >
-                            <option value="">All Status</option>
-                            <option value="On Duty">On Duty</option>
-                            <option value="On Leave">On Leave</option>
-                            <option value="Off Duty">Off Duty</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3 sm:space-y-4 mb-6">
-                {filteredStaff.map((staff) => (
-                    <MobileCard
-                        key={staff.id}
-                        title={staff.name}
-                        subtitle={staff.role}
-                        badge={staff.status}
-                        badgeColor={getStatusColor(staff.status)}
-                        fields={[
-                            { label: 'Shift', value: staff.shift, icon: Clock },
-                        ]}
+            {/* Filters Bar */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 200px 200px', gap: 16, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <div style={{ position: 'relative' }}>
+                    <SearchIcon size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <input
+                        type="text"
+                        placeholder="Search operators, roles, or IDs..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', height: 52, padding: '0 16px 0 48px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
                     />
-                ))}
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Filter size={16} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <select
+                        value={filterRole}
+                        onChange={(e) => setFilterRole(e.target.value)}
+                        style={{ width: '100%', height: 52, padding: '0 16px 0 44px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="">Functional Role</option>
+                        <option value="Trainer">Trainer</option>
+                        <option value="Receptionist">Receptionist</option>
+                        <option value="Cleaner">Cleaner</option>
+                    </select>
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Shield size={16} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        style={{ width: '100%', height: 52, padding: '0 16px 0 44px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                    >
+                        <option value="">Duty Status</option>
+                        <option value="On Duty">On Duty</option>
+                        <option value="On Leave">On Leave</option>
+                        <option value="Off Duty">Off Duty</option>
+                    </select>
+                </div>
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                <div className="saas-table-wrapper border-0 rounded-none">
-                    <table className="saas-table saas-table-responsive w-full">
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                        <Users size={20} strokeWidth={2.5} />
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Human Resource Ledger</h3>
+                </div>
+
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b-2 border-slate-200">
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Staff Member</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Role</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Shift</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-700">Status</th>
+                            <tr style={{ background: T.bg + '50' }}>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Personnel Profile</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Assigned Class</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Temporal Shift</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Operational State</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {filteredStaff.map((staff) => (
-                                <tr
-                                    key={staff.id}
-                                    className="group hover:bg-gradient-to-r hover:from-primary-light/50 hover:via-purple-50/30 hover:to-transparent transition-all duration-300 cursor-pointer"
-                                >
-                                    <td className="px-6 py-4" data-label="Staff Member">
-                                        <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                                                {(staff.name || '?').charAt(0)}
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors duration-300">
-                                                    {staff.name}
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="4" style={{ padding: 100, textAlign: 'center' }}><div style={{ width: 40, height: 40, border: `4px solid ${T.accentLight}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} /></td></tr>
+                            ) : filteredStaff.length === 0 ? (
+                                <tr><td colSpan="4" style={{ padding: 100, textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}><div style={{ width: 80, height: 80, borderRadius: 30, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><User size={32} /></div><p style={{ fontSize: 15, fontWeight: 700, color: T.muted }}>No personnel detected in current matrix.</p></div></td></tr>
+                            ) : (
+                                filteredStaff.map((staff) => {
+                                    const st = getStatusStyle(staff.status);
+                                    return (
+                                        <tr key={staff.id} className="staff-row" style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s' }}>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${T.accent}, ${T.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 16, fontWeight: 900, boxShadow: T.shadow }}>
+                                                        {staff.name.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>{staff.name}</div>
+                                                        <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, fontStyle: 'italic' }}>ID: {staff.id.slice(-6).toUpperCase()}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Role">
-                                        <div className="flex justify-end sm:justify-start">
-                                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border border-slate-200 shadow-sm group-hover:scale-110 group-hover:shadow-md group-hover:from-primary-light group-hover:to-purple-50 group-hover:text-primary-hover group-hover:border-violet-200 transition-all duration-300">
-                                                {staff.role}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Shift">
-                                        <div className="flex items-center gap-2 text-sm text-slate-600 justify-end sm:justify-start">
-                                            <Clock className="w-4 h-4 text-slate-400 transition-transform duration-300 group-hover:scale-125" />
-                                            {staff.shift}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Status">
-                                        <div className="flex justify-end sm:justify-start">
-                                            {getStatusBadge(staff.status)}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: T.accentLight, color: T.accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>
+                                                    <Briefcase size={12} strokeWidth={3} />
+                                                    {staff.role}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                    <div style={{ width: 32, height: 32, borderRadius: 8, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted }}>
+                                                        <Clock size={16} />
+                                                    </div>
+                                                    <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{staff.shift}</div>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px', textAlign: 'right' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: st.bg, color: st.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: `1.2px solid ${st.color}20` }}>
+                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: st.color }} />
+                                                    {staff.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
-
-                {filteredStaff.length === 0 && (
-                    <div className="p-12 sm:p-16 text-center">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
-                            <Users size={32} className="sm:w-10 sm:h-10 text-primary" />
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Staff Found</h3>
-                        <p className="text-slate-600 text-sm">Try adjusting your search or filter criteria</p>
-                    </div>
-                )}
             </div>
 
-            {/* Mobile Empty State */}
-            {filteredStaff.length === 0 && (
-                <div className="md:hidden bg-white rounded-xl shadow-xl border border-slate-100 p-12 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center">
-                        <Users size={32} className="text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">No Staff Found</h3>
-                    <p className="text-slate-600 text-sm">Try adjusting your search or filter criteria</p>
-                </div>
-            )}
+            {/* Mobile Empty Grid Fallback (Handled by table conditional) */}
         </div>
     );
 };

@@ -158,6 +158,24 @@ const MyProfile = () => {
         );
     }
 
+    const T = {
+        accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+        border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
+        text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+        green: '#22C97A', greenLight: '#E8FBF2',
+        rose: '#F43F5E', roseLight: '#FFF1F4',
+        amber: '#F59E0B', amberLight: '#FEF3C7',
+    };
+
+    const S = {
+        ff: "'Plus Jakarta Sans', sans-serif",
+        card: { background: T.surface, borderRadius: '32px', border: `1px solid ${T.border}`, boxShadow: '0 8px 32px rgba(124,92,252,0.06)' },
+        input: { width: '100%', height: '52px', borderRadius: '16px', border: `2px solid ${T.border}`, background: T.bg, padding: '0 16px 0 46px', fontSize: '14px', fontWeight: '700', color: T.text, outline: 'none', transition: '0.2s', fontFamily: "'Plus Jakarta Sans', sans-serif" },
+        label: { display: 'block', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', marginLeft: '4px' },
+        icon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: T.subtle },
+        btn: { height: '52px', padding: '0 32px', borderRadius: '16px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', border: 'none', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: `0 8px 24px rgba(124,92,252,0.3)` }
+    };
+
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
         { id: 'security', label: 'Security', icon: Shield },
@@ -165,288 +183,167 @@ const MyProfile = () => {
     ];
 
     return (
-        <div className="min-h-screen ">
-            <div className="max-w-full mx-auto space-y-8">
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
 
-                {/* Profile Header Card */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-300">
-                    <div className="h-32 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 opacity-50 blur-2xl"></div>
-                    </div>
-                    <div className="px-8 pb-8">
-                        <div className="relative flex flex-col md:flex-row md:items-end gap-6 -mt-12">
-                            <div className="relative group/avatar">
-                                <div className="w-32 h-32 rounded-3xl bg-white p-2 shadow-xl ring-4 ring-violet-100 overflow-hidden">
-                                    <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black overflow-hidden">
-                                        {formData.avatar ? (
-                                            <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (profile.avatar && profile.avatar.length > 10 ? (
-                                            <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (
-                                            profile.avatar || profile.name?.charAt(0).toUpperCase()
-                                        ))}
-                                    </div>
-                                </div>
-                                <label className="absolute bottom-2 right-2 p-2.5 bg-white rounded-xl shadow-lg border border-violet-100 text-primary hover:scale-110 hover:rotate-6 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center">
-                                    <Camera size={18} />
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
-                                </label>
-                            </div>
-
-                            <div className="flex-1 pb-2">
-                                <h1 className="text-3xl font-black text-gray-900 tracking-tight">{profile.name}</h1>
-                                <div className="flex flex-wrap gap-4 mt-2">
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary-light to-purple-50 text-primary-hover text-xs font-bold border border-violet-200">
-                                        {profile.role.replace('_', ' ')}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-bold uppercase">
-                                        <Activity size={14} className="text-green-500" /> {profile.status}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-bold uppercase">
-                                        <Calendar size={14} className="text-violet-400" /> Joined {profile.joinedDate}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="md:mb-2 text-right">
-                                <span className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 rounded-2xl text-primary font-bold text-sm border border-primary/20 shadow-lg">
-                                    <CheckCircle2 size={18} className="text-emerald-500" /> Manager Account
-                                </span>
+            <div style={{ ...S.card, marginBottom: '24px', overflow: 'hidden' }}>
+                <div style={{ height: '140px', background: `linear-gradient(135deg, ${T.accent}, #AE52FF)` }} />
+                <div style={{ padding: '0 32px 32px', display: 'flex', gap: '32px', alignItems: 'flex-end', marginTop: '-48px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <div style={{ width: '120px', height: '120px', borderRadius: '24px', background: T.surface, padding: '4px', boxShadow: '0 8px 24px rgba(124, 92, 252, 0.15)' }}>
+                            <div style={{ width: '100%', height: '100%', borderRadius: '20px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', fontSize: '36px', fontWeight: '900' }}>
+                                {formData.avatar ? (
+                                    <img src={formData.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (profile.avatar && profile.avatar.length > 10 ? (
+                                    <img src={profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    profile.avatar || profile.name?.charAt(0).toUpperCase()
+                                ))}
                             </div>
                         </div>
+                        <label style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '36px', height: '36px', background: T.surface, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', border: `1px solid ${T.border}` }}>
+                            <Camera size={16} />
+                            <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
+                        </label>
                     </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-                    {/* Sidebar Tabs */}
-                    <div className="lg:col-span-1 space-y-2">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-gradient-to-r from-primary to-primary text-white shadow-xl shadow-primary/30/50'
-                                    : 'text-gray-500 hover:bg-white border border-transparent hover:border-violet-100 hover:text-primary hover:shadow-md'
-                                    }`}
-                            >
-                                <tab.icon size={18} />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Form Area */}
-                    <div className="lg:col-span-3">
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl hover:shadow-2xl hover:border-violet-200 transition-all duration-300 p-6 sm:p-10">
-
-                            {message.text && (
-                                <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
-                                    }`}>
-                                    <Activity size={18} /> {message.text}
-                                </div>
-                            )}
-
-                            {activeTab === 'personal' && (
-                                <form onSubmit={handleSave} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Full Name</label>
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                <input
-                                                    type="text"
-                                                    name="name"
-                                                    value={formData.name}
-                                                    onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
-                                                    placeholder="Enter your name"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Email Address</label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
-                                                    placeholder="Enter your email"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Phone Number</label>
-                                            <div className="relative">
-                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                <input
-                                                    type="text"
-                                                    name="phone"
-                                                    value={formData.phone}
-                                                    onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
-                                                    placeholder="Enter phone number"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Location</label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                                <input
-                                                    type="text"
-                                                    name="address"
-                                                    value={formData.address}
-                                                    onChange={handleInputChange}
-                                                    className="w-full pl-12 h-12 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-slate-300"
-                                                    placeholder="Enter city, country"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 border-t border-gray-50">
-                                        <button
-                                            type="submit"
-                                            disabled={isSaving}
-                                            className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-sm font-black shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {isSaving ? (
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            ) : (
-                                                <CheckCircle2 size={18} />
-                                            )}
-                                            Save Profile Changes
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-
-                            {activeTab === 'security' && (
-                                <div className="space-y-8">
-                                    <div className="p-6 rounded-[28px] bg-red-50/30 border border-red-100/50 flex flex-col md:flex-row items-center justify-between gap-4">
-                                        <div className="flex-1">
-                                            <h4 className="text-red-700 font-bold flex items-center gap-2">
-                                                <Lock size={18} /> Password Management
-                                            </h4>
-                                            <p className="text-red-600/70 text-sm mt-1 font-medium">It's recommended to update your password every 90 days for maximum security.</p>
-                                        </div>
-                                        <button
-                                            onClick={() => setIsPasswordModalOpen(true)}
-                                            className="px-6 py-2.5 bg-red-600 text-white rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all"
-                                        >
-                                            Change Password
-                                        </button>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest px-1">Security Options</h4>
-                                        <div
-                                            onClick={() => setIsPasswordModalOpen(true)}
-                                            className="p-6 rounded-[28px] border border-gray-100 bg-gray-50/30 hover:bg-white hover:border-primary/20 transition-all cursor-pointer group"
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="p-3 bg-primary/10 text-primary rounded-xl group-hover:bg-primary group-hover:text-white transition-all">
-                                                        <Key size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-gray-800">Update Credentials</p>
-                                                        <p className="text-xs text-gray-500 mt-1">Change your account password to stay secure.</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-primary font-bold text-xs">Update</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'notifications' && (
-                                <NotificationsList />
-                            )}
+                    
+                    <div style={{ flex: 1, paddingBottom: '8px' }}>
+                        <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: '0 0 8px 0' }}>{profile.name}</h1>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                            <span style={{ padding: '4px 12px', background: T.accentLight, color: T.accent, borderRadius: '20px', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{profile.role.replace('_', ' ')}</span>
+                            <span style={{ fontSize: '11px', fontWeight: '800', color: T.success, display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}><Activity size={14} /> {profile.status}</span>
+                            <span style={{ fontSize: '11px', fontWeight: '800', color: T.muted, display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}><Calendar size={14} /> Joined {profile.joinedDate}</span>
                         </div>
+                    </div>
+                    <div style={{ paddingBottom: '16px' }}>
+                        <span style={{ padding: '8px 16px', background: T.successLight, color: T.success, borderRadius: '14px', fontSize: '11px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CheckCircle2 size={16} /> Manager Account
+                        </span>
                     </div>
                 </div>
             </div>
 
-            {/* Password Change Modal */}
-            {isPasswordModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-primary to-purple-600 text-white">
-                            <h3 className="text-xl font-bold">Change Password</h3>
-                            <button
-                                onClick={() => setIsPasswordModalOpen(false)}
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 3fr)', gap: '24px', alignItems: 'start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            style={{ 
+                                height: '48px', padding: '0 20px', borderRadius: '16px', border: 'none', 
+                                display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', fontWeight: '800', cursor: 'pointer',
+                                background: activeTab === tab.id ? T.accent : T.surface, 
+                                color: activeTab === tab.id ? '#FFF' : T.muted,
+                                boxShadow: activeTab === tab.id ? '0 8px 20px rgba(124, 92, 252, 0.2)' : `0 2px 8px ${T.border}`
+                            }}
+                        >
+                            <tab.icon size={18} /> {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div style={{ ...S.card, padding: '32px' }}>
+                    {message.text && (
+                        <div style={{ padding: '16px', borderRadius: '16px', marginBottom: '24px', backgroundColor: message.type === 'success' ? T.successLight : T.dangerLight, color: message.type === 'success' ? T.success : '#F43F5E', fontSize: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Activity size={16} /> {message.text}
                         </div>
-                        <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <Lock className="w-4 h-4 text-gray-400" />
-                                    Current Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                    placeholder="Enter current password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
-                                />
+                    )}
+
+                    {activeTab === 'personal' && (
+                        <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                            <div>
+                                <label style={S.label}>Full Name</label>
+                                <div style={{ position: 'relative' }}>
+                                    <User size={16} style={S.icon} />
+                                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} style={S.input} />
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <Key className="w-4 h-4 text-gray-400" />
-                                    New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
-                                />
+                            <div>
+                                <label style={S.label}>Email Address</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Mail size={16} style={S.icon} />
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} style={S.input} />
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <Shield className="w-4 h-4 text-gray-400" />
-                                    Confirm New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    placeholder="Confirm new password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-primary outline-none transition-all"
-                                />
+                            <div>
+                                <label style={S.label}>Phone Number</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Phone size={16} style={S.icon} />
+                                    <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} style={S.input} />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={S.label}>Location</label>
+                                <div style={{ position: 'relative' }}>
+                                    <MapPin size={16} style={S.icon} />
+                                    <input type="text" name="address" value={formData.address} onChange={handleInputChange} style={S.input} />
+                                </div>
+                            </div>
+                            <div style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+                                <button type="submit" disabled={isSaving} style={S.btn}>
+                                    {isSaving ? <Loader size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Save Profile Changes
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {activeTab === 'security' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <div style={{ background: '#FFF1F4', border: '1px solid #FFE4E6', padding: '24px', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h4 style={{ fontSize: '14px', fontWeight: '900', color: '#E11D48', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}><Lock size={16} /> Password Management</h4>
+                                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#F43F5E', margin: 0 }}>It's recommended to update your password every 90 days for maximum security.</p>
+                                </div>
+                                <button onClick={() => setIsPasswordModalOpen(true)} style={{ height: '36px', padding: '0 16px', borderRadius: '10px', background: '#E11D48', color: '#FFF', border: 'none', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'notifications' && (
+                        <NotificationsList />
+                    )}
+                </div>
+            </div>
+
+            {/* ──────── PASSWORD MODAL ──────── */}
+            {isPasswordModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 100001, background: 'rgba(13,10,31,0.6)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                    <div style={{ background: T.surface, width: '100%', maxWidth: 460, borderRadius: 32, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.4)', animation: 'fadeUp 0.3s ease both' }}>
+                        <div style={{ padding: '28px 36px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>Reset Security</h3>
+                                <p style={{ fontSize: 11, fontWeight: 700, margin: '4px 0 0', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Create a new robust password</p>
+                            </div>
+                            <button onClick={() => setIsPasswordModalOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: 36, height: 36, borderRadius: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} strokeWidth={2.5} /></button>
+                        </div>
+                        
+                        <form onSubmit={handlePasswordChange} style={{ padding: 36, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                            <div>
+                                <label style={S.label}>Current Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={18} style={S.icon} />
+                                    <input type="password" required value={passwordData.currentPassword} onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={S.label}>New Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Key size={18} style={S.icon} />
+                                    <input type="password" required value={passwordData.newPassword} onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={S.label}>Confirm New Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Shield size={18} style={S.icon} />
+                                    <input type="password" required value={passwordData.confirmPassword} onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
+                                </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={isChangingPassword}
-                                className="w-full py-4 bg-gradient-to-r from-primary to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                {isChangingPassword ? (
-                                    <>
-                                        <Loader className="w-5 h-5 animate-spin" />
-                                        Updating Password...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="w-5 h-5" />
-                                        Update Password
-                                    </>
-                                )}
+                            <button type="submit" disabled={isChangingPassword} style={{ ...S.btn, marginTop: 10 }}>
+                                {isChangingPassword ? <Loader size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <><Save size={20} strokeWidth={2.5} /> ROTATE PASSWORD</>}
                             </button>
                         </form>
                     </div>

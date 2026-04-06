@@ -1,9 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { FilePlus, XCircle, Banknote, Users, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { 
+    FilePlus, XCircle, Banknote, Users, Calendar, Clock, 
+    CheckCircle, IndianRupee, TrendingUp, MinusCircle, 
+    Sparkles, ArrowLeft, Send
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { ROLES } from '../../config/roles';
 import { fetchPayrollStaffAPI, createPayrollAPI } from '../../api/admin/adminApi';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF',
+};
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+   ───────────────────────────────────────────── */
+const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+    <div style={{
+        background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+        borderRadius: 20, padding: '20px 26px',
+        boxShadow: '0 8px 32px rgba(124,92,252,0.28)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 28, position: 'relative'
+    }} className="fu">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <div style={{
+                width: 52, height: 52, borderRadius: 14,
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', flexShrink: 0
+            }}>
+                <Icon size={26} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>{title}</h1>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '4px 0 0', fontWeight: 500 }}>{sub}</p>
+            </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>{actions}</div>
+    </div>
+);
+
+const Field = ({ label, icon: Icon, children }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <label style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginLeft: 2 }}>{label}</label>
+        <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: T.accent, pointerEvents: 'none', zIndex: 2 }}>
+                <Icon size={16} strokeWidth={2.2} />
+            </div>
+            {children}
+        </div>
+    </div>
+);
 
 const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
     const navigate = useNavigate();
@@ -21,218 +77,173 @@ const PayrollCreation = ({ role = ROLES.SUPER_ADMIN }) => {
         const loadStaff = async () => {
             try {
                 const data = await fetchPayrollStaffAPI();
-                // If it's a Branch Admin or Manager, the API already filters by tenantId.
-                setStaffList(data);
-                console.log("Loaded Staff List:", data); // Debugging
-            } catch (error) {
-                console.error("Error loading staff for payroll:", error);
-            } finally {
-                setLoading(false);
-            }
+                setStaffList(data || []);
+            } catch (error) { console.error(error); }
+            finally { setLoading(false); }
         };
         loadStaff();
     }, []);
 
     const selectedStaff = staffList.find(s => s.id === parseInt(selectedStaffId));
-
-    // Ensure baseSalary is treated as a number. Prisma Decimal comes as string or decimal object.
-    const getBaseSalary = () => {
-        if (!selectedStaff) return 0;
-        const val = selectedStaff.baseSalary;
-        return val ? Number(val) : 0;
-    };
-
-    const baseSalary = getBaseSalary();
-    const netSalary = Number(baseSalary) + Number(incentives) - Number(deductions);
+    const baseSalary = selectedStaff?.baseSalary ? Number(selectedStaff.baseSalary) : 0;
+    const netSalary = baseSalary + Number(incentives) - Number(deductions);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!selectedStaffId) {
-            toast.error("Please select a staff member");
-            return;
-        }
+        if (!selectedStaffId) return toast.error("Please select a staff member");
 
-        const payrollData = {
-            staffId: selectedStaffId,
-            month,
-            year,
-            amount: netSalary,
-            status
-        };
-
+        const payrollData = { staffId: selectedStaffId, month, year, amount: netSalary, status };
         try {
             await createPayrollAPI(payrollData);
-            toast.success("Payroll created successfully!");
+            toast.success("Payroll established successfully");
             navigate('/superadmin/payroll/history');
-        } catch (error) {
-            console.error("Error creating payroll:", error);
-            toast.error("Failed to create payroll: " + (error.response?.data?.message || error.message));
-        }
-    };
-
-    const handleCancel = () => {
-        navigate(-1);
+        } catch (error) { toast.error(error.response?.data?.message || error.message); }
     };
 
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen">
-            <div className="max-w-full mx-auto">
-                {/* Header */}
-                <div className="mb-8 p-6 bg-white rounded-2xl shadow-xl border border-slate-100 flex justify-between items-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-fuchsia-500/5"></div>
-                    <div className="relative z-10">
-                        <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-1">
-                            Create Payroll
-                        </h1>
-                        <p className="text-slate-500 text-sm font-medium">Assign salary, incentives, deductions, and mark as paid</p>
+        <div style={{
+            background: T.bg, minHeight: '100vh', padding: '28px 28px 48px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif", animation: 'fadeUp 0.38s ease both'
+        }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                
+                input, select { 
+                    width: 100%; height: 44px; padding: 0 14px 0 42px; background: ${T.surface};
+                    border: 1px solid ${T.border}; borderRadius: 12px; font-size: 13px; font-weight: 700; color: ${T.text};
+                    outline: none; transition: 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+                input:focus, select:focus { border-color: ${T.accent}; box-shadow: 0 0 0 4px ${T.accentLight}; }
+                select { appearance: none; cursor: pointer; }
+            `}</style>
+
+            <HeaderBanner 
+                title="Payroll Provisioning"
+                sub="Generate settlement records, incentives & deductions"
+                icon={FilePlus}
+                actions={
+                    <button 
+                        onClick={() => navigate(-1)}
+                        style={{
+                            background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)',
+                            borderRadius: 10, padding: '10px 16px', cursor: 'pointer', color: '#fff',
+                            fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8
+                        }}
+                    >
+                        <ArrowLeft size={16} /> Discard
+                    </button>
+                }
+            />
+
+            <div style={{ 
+                background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, 
+                padding: 32, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' 
+            }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                    
+                    {/* Period & Agent Selection */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+                        <Field label="Target Personnel" icon={Users}>
+                            <select value={selectedStaffId} onChange={e => setSelectedStaffId(e.target.value)} required disabled={loading}>
+                                <option value="">{loading ? 'Synchronizing…' : 'Select Employee'}</option>
+                                {staffList.map(s => <option key={s.id} value={s.id}>{s.name} ({s.role})</option>)}
+                            </select>
+                        </Field>
+                        
+                        <Field label="Settlement Month" icon={Calendar}>
+                            <select value={month} onChange={e => setMonth(e.target.value)}>
+                                {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
+                                    <option key={m} value={m}>{m}</option>
+                                ))}
+                            </select>
+                        </Field>
+
+                        <Field label="Fiscal Year" icon={Calendar}>
+                            <select value={year} onChange={e => setYear(e.target.value)}>
+                                {[2024, 2025, 2026, 2027].map(y => (
+                                    <option key={y} value={y.toString()}>{y}</option>
+                                ))}
+                            </select>
+                        </Field>
                     </div>
-                    <div className="hidden sm:flex w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary items-center justify-center text-white shadow-lg shadow-violet-200">
-                        <FilePlus size={28} />
+
+                    {/* Breakdown Card */}
+                    <div style={{ background: T.bg, borderRadius: 20, padding: 24, border: `1px solid ${T.border}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                            <Banknote size={18} color={T.accent} strokeWidth={2.5} />
+                            <h3 style={{ fontSize: 11, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.12em', margin: 0 }}>Calculation Breakdown</h3>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+                            <div>
+                                <label style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, display: 'block' }}>Base Compensation</label>
+                                <div style={{ height: 52, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, display: 'flex', alignItems: 'center', padding: '0 16px', fontSize: 16, fontWeight: 900, color: T.text }}>
+                                    ₹{baseSalary.toLocaleString()}
+                                </div>
+                            </div>
+
+                            <Field label="Incentives (+)" icon={TrendingUp}>
+                                <input 
+                                    type="number" style={{ height: 52, fontSize: 16, borderLeft: `4px solid ${T.green}` }} 
+                                    value={incentives} onChange={e => setIncentives(e.target.value)} 
+                                />
+                            </Field>
+
+                            <Field label="Deductions (-)" icon={MinusCircle}>
+                                <input 
+                                    type="number" style={{ height: 52, fontSize: 16, borderLeft: `4px solid ${T.rose}` }} 
+                                    value={deductions} onChange={e => setDeductions(e.target.value)} 
+                                />
+                            </Field>
+                        </div>
+
+                        <div style={{ marginTop: 32, paddingTop: 32, borderTop: `1px dashed ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.15em' }}>Settlement Amount</div>
+                                <div style={{ fontSize: 36, fontWeight: 900, color: T.accent, letterSpacing: '-1px' }}>₹{netSalary.toLocaleString()}</div>
+                            </div>
+
+                            <div style={{ display: 'flex', background: '#fff', padding: 6, borderRadius: 16, border: `1px solid ${T.border}` }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setStatus('Paid')}
+                                    style={{
+                                        padding: '10px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                                        fontSize: 11, fontWeight: 900, transition: '0.2s',
+                                        background: status === 'Paid' ? T.green : 'transparent',
+                                        color: status === 'Paid' ? '#fff' : T.muted
+                                    }}
+                                >PAID</button>
+                                <button
+                                    type="button"
+                                    onClick={() => setStatus('Pending')}
+                                    style={{
+                                        padding: '10px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                                        fontSize: 11, fontWeight: 900, transition: '0.2s',
+                                        background: status === 'Pending' ? T.amber : 'transparent',
+                                        color: status === 'Pending' ? '#fff' : T.muted
+                                    }}
+                                >PENDING</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                {/* Form Card */}
-                <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative">
-                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                        {/* Section 1: Staff & Period */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Select Staff</label>
-                                <div className="relative group">
-                                    <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
-                                    <select
-                                        required
-                                        disabled={loading}
-                                        value={selectedStaffId}
-                                        onChange={(e) => setSelectedStaffId(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
-                                    >
-                                        <option value="">{loading ? 'Loading...' : 'Choose Employee'}</option>
-                                        {staffList.map(s => (
-                                            <option key={s.id} value={s.id}>{s.name} ({s.role})</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Month</label>
-                                <div className="relative group">
-                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
-                                    <select
-                                        value={month}
-                                        onChange={(e) => setMonth(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
-                                    >
-                                        {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (
-                                            <option key={m} value={m}>{m}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-wider text-slate-400 ml-1">Year</label>
-                                <div className="relative group">
-                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary z-10" />
-                                    <select
-                                        value={year}
-                                        onChange={(e) => setYear(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer"
-                                    >
-                                        {[2024, 2025, 2026, 2027].map(y => (
-                                            <option key={y} value={y.toString()}>{y}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 2: Salary Breakdown */}
-                        <div className="bg-slate-50 rounded-3xl border border-slate-100">
-                            <div className="flex items-center gap-2 mb-6">
-                                <Banknote className="text-primary" size={20} />
-                                <h2 className="text-sm font-black text-slate-800 tracking-tight uppercase">Salary Calculation</h2>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Base Salary</label>
-                                    <div className="p-4 bg-white border-2 border-slate-100 rounded-2xl text-lg font-black text-slate-900 shadow-inner">
-                                        ₹{Number(baseSalary).toLocaleString()}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Incentives</label>
-                                    <div className="relative group">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-black">+₹</span>
-                                        <input
-                                            type="number"
-                                            value={incentives}
-                                            onChange={(e) => setIncentives(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-lg font-black text-emerald-600 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-300 shadow-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Deductions</label>
-                                    <div className="relative group">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-red-600 font-black">-₹</span>
-                                        <input
-                                            type="number"
-                                            value={deductions}
-                                            onChange={(e) => setDeductions(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-lg font-black text-red-600 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-300 shadow-sm"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-8 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-6">
-                                <div className="flex flex-col items-center sm:items-start">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Final Net Salary</span>
-                                    <span className="text-4xl font-black text-primary tracking-tighter shadow-violet-100">₹{netSalary.toLocaleString()}</span>
-                                </div>
-
-                                <div className="flex items-center gap-4 bg-white p-2 border-2 border-slate-100 rounded-2xl shadow-sm">
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatus('Paid')}
-                                        className={`px-6 py-3 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 ${status === 'Paid' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-slate-500 hover:bg-slate-50'}`}
-                                    >
-                                        <CheckCircle size={16} /> PAID
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setStatus('Pending')}
-                                        className={`px-6 py-3 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2 ${status === 'Pending' ? 'bg-amber-400 text-amber-950 shadow-lg shadow-amber-100' : 'text-slate-500 hover:bg-slate-50'}`}
-                                    >
-                                        <Clock size={16} /> PENDING
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Footer Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button
-                                type="submit"
-                                className="flex-1 py-4 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-violet-200 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3"
-                            >
-                                <CheckCircle size={24} /> Confirm & Create Payroll
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCancel}
-                                className="px-10 py-4 bg-white text-slate-500 border-2 border-slate-100 rounded-2xl font-black text-lg hover:bg-slate-50 transition-all duration-300 flex items-center justify-center gap-3"
-                            >
-                                <XCircle size={24} /> Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <button
+                        type="submit"
+                        style={{
+                            width: '100%', height: 56, borderRadius: 16, border: 'none', cursor: 'pointer',
+                            background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                            color: '#fff', fontSize: 15, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+                            boxShadow: `0 8px 24px rgba(124,92,252,0.3)`, transition: '0.2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 12px 32px rgba(124,92,252,0.4)`; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 8px 24px rgba(124,92,252,0.3)`; }}
+                    >
+                        <Send size={18} strokeWidth={2.5} /> Finalize & Issue Settlement
+                    </button>
+                </form>
             </div>
         </div>
     );

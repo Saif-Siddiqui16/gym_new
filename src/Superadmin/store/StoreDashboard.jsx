@@ -1,10 +1,115 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Box, TrendingUp, Layers, AlertTriangle, Search, Clock, Package, CheckCircle, ChevronRight, LayoutGrid, ReceiptText, User } from 'lucide-react';
+import { 
+    ShoppingCart, Box, TrendingUp, Layers, AlertTriangle, Search, Clock, 
+    Package, CheckCircle, ChevronRight, LayoutGrid, ReceiptText, User,
+    ShoppingBag, IndianRupee, ArrowRight, Sparkles, RefreshCw
+} from 'lucide-react';
 import { getStoreStats } from '../../api/storeApi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF',
+};
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+   ───────────────────────────────────────────── */
+const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+    <div style={{
+        background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+        borderRadius: 20, padding: '20px 26px',
+        boxShadow: '0 8px 32px rgba(124,92,252,0.28)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 28, position: 'relative', overflow: 'hidden'
+    }} className="fu">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, position: 'relative', zIndex: 2 }}>
+            <div style={{
+                width: 52, height: 52, borderRadius: 14,
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', flexShrink: 0
+            }}>
+                <Icon size={26} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>{title}</h1>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '4px 0 0', fontWeight: 500 }}>{sub}</p>
+            </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+            {actions}
+        </div>
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, trend, isFirst = false }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <div 
+            style={{
+                background: isFirst ? `linear-gradient(135deg, ${T.accent}, ${T.accent2})` : T.surface,
+                borderRadius: 18,
+                border: isFirst ? 'none' : `1px solid ${T.border}`,
+                boxShadow: isFirst ? '0 8px 24px rgba(124,92,252,0.28)' : '0 2px 12px rgba(124,92,252,0.06)',
+                padding: 22,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'default',
+                transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+                ...(hover && !isFirst && { boxShadow: '0 8px 28px rgba(124,92,252,0.14)' }),
+                ...(hover && isFirst && { boxShadow: '0 12px 32px rgba(124,92,252,0.36)' })
+            }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div style={{
+                    width: 38, height: 38, borderRadius: 11,
+                    background: isFirst ? 'rgba(255,255,255,0.2)' : iconBg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                    <Icon size={18} color={isFirst ? '#fff' : iconColor} strokeWidth={2.5} />
+                </div>
+                {trend && (
+                    <span style={{
+                        fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
+                        padding: '4px 10px', borderRadius: 20,
+                        background: isFirst ? 'rgba(255,255,255,0.15)' : T.greenLight,
+                        color: isFirst ? '#fff' : T.green,
+                        border: isFirst ? '1px solid rgba(255,255,255,0.2)' : `1px solid #A7F3D0`
+                    }}>{trend}</span>
+                )}
+            </div>
+            <div style={{
+                fontSize: 28, fontWeight: 900, letterSpacing: '-1px',
+                color: isFirst ? '#fff' : T.text, marginBottom: 4
+            }}>{value}</div>
+            <div style={{
+                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
+                color: isFirst ? 'rgba(255,255,255,0.7)' : T.muted
+            }}>{title}</div>
+        </div>
+    );
+};
+
+const SectionDivider = ({ title, sub }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, marginTop: 12 }}>
+        <div style={{ width: 4, height: 22, borderRadius: 4, background: `linear-gradient(to bottom, ${T.accent}, ${T.accent2})`, flexShrink: 0 }} />
+        <div>
+            <h2 style={{ fontSize: 15, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.3px' }}>{title}</h2>
+            {sub && <p style={{ fontSize: 10, color: T.muted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '2px 0 0' }}>{sub}</p>}
+        </div>
+    </div>
+);
 
 const StoreDashboard = () => {
     const { selectedBranch } = useBranchContext();
@@ -12,7 +117,7 @@ const StoreDashboard = () => {
     const { role } = useAuth();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
-    const [activeTab, setActiveTab] = useState('pos'); // pos, orders, products
+    const [activeTab, setActiveTab] = useState('pos');
 
     const fetchData = async () => {
         try {
@@ -27,261 +132,249 @@ const StoreDashboard = () => {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, [selectedBranch]);
+    useEffect(() => { fetchData(); }, [selectedBranch]);
 
-    if (loading || !data) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8fafc]">
-                <div className="w-12 h-12 border-4 border-violet-100 border-t-primary rounded-full animate-spin mb-4"></div>
-                <p className="text-slate-400 font-bold animate-pulse tracking-widest text-xs uppercase">Initializing Store...</p>
-            </div>
-        );
-    }
+    if (loading || !data) return (
+        <div style={{
+            background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', 
+            alignItems: 'center', justifyContent: 'center', gap: 16,
+            fontFamily: "'Plus Jakarta Sans', sans-serif"
+        }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes spin { to { transform: rotate(360deg) } }
+            `}</style>
+            <div style={{
+                width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent,
+                borderRadius: '50%', animation: 'spin 0.8s linear infinite'
+            }} />
+            <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, uppercase: true, letterSpacing: '0.18em', margin: 0, textTransform: 'uppercase' }}>
+                Initializing Store Ecosystem...
+            </p>
+        </div>
+    );
 
     const { stats, recentTransactions, orders } = data;
-
     const basePath = role === 'SUPER_ADMIN' ? '/superadmin/store' : '/branchadmin/store';
 
     return (
-        <div className="bg-[#f8fafc] min-h-screen ">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Store Management</h1>
-                    <p className="text-slate-500 text-sm font-medium">POS, products & online store overview</p>
-                </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button
-                        onClick={() => navigate(`${basePath}/pos`)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#7c3aed] text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-200 hover:bg-[#6d28d9] transition-all"
-                    >
-                        <ShoppingCart size={18} /> Open POS
-                    </button>
-                    <button
-                        onClick={() => navigate(`${basePath}/products`)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-all"
-                    >
-                        <Box size={18} /> Manage Products
-                    </button>
-                </div>
+        <div style={{
+            background: T.bg, minHeight: '100vh', padding: '28px 28px 48px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            animation: 'fadeUp 0.38s ease both'
+        }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                @keyframes spin { to { transform: rotate(360deg) } }
+                
+                .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+                .grid-main { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+                
+                @media (max-width: 1280px) {
+                    .grid-stats { grid-template-columns: repeat(2, 1fr); }
+                    .grid-main { grid-template-columns: 1fr; }
+                }
+                @media (max-width: 640px) {
+                    .grid-stats { grid-template-columns: 1fr; }
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 16px; padding: 16px 18px !important; }
+                    .hide-mobile { display: none; }
+                    .table-row { grid-template-columns: 1fr !important; gap: 10px; padding: 16px !important; border-bottom: 4px solid ${T.bg} !important; position: relative; }
+                }
+            `}</style>
+
+            <HeaderBanner 
+                title="Store Operations"
+                sub="Inventory tracking, POS history & multi-channel commerce"
+                icon={ShoppingBag}
+                actions={
+                    <div style={{ display: 'flex', gap: 12 }}>
+                        <button
+                            onClick={() => navigate(`${basePath}/products`)}
+                            style={{
+                                background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 12,
+                                padding: '10px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                                color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif"
+                            }}
+                        >
+                            <Box size={16} /> Products
+                        </button>
+                        <button
+                            onClick={() => navigate(`${basePath}/pos`)}
+                            style={{
+                                background: '#fff', border: 'none', borderRadius: 12,
+                                padding: '10px 22px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                                color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                            }}
+                        >
+                            <ShoppingCart size={16} strokeWidth={2.5} /> Open POS
+                        </button>
+                    </div>
+                }
+            />
+
+            <div className="grid-stats fu1">
+                <MetricCard 
+                    isFirst={true} title="Total Revenue" 
+                    value={`₹${stats.totalRevenue.toLocaleString()}`} 
+                    icon={TrendingUp} trend={stats.revenueTrend?.value}
+                />
+                <MetricCard 
+                    title="Stock Value" 
+                    value={`₹${stats.stockValue.toLocaleString()}`} 
+                    icon={Layers} iconColor={T.blue} iconBg={T.blueLight}
+                />
+                <MetricCard 
+                    title="Gross Profit" 
+                    value={`₹${stats.profit.toLocaleString()}`} 
+                    icon={IndianRupee} iconColor={T.green} iconBg={T.greenLight}
+                    trend={stats.profitTrend?.value}
+                />
+                <MetricCard 
+                    title="Inventory Alerts" 
+                    value={stats.lowStockCount} 
+                    icon={AlertTriangle} 
+                    iconColor={stats.lowStockCount > 0 ? T.rose : T.green} 
+                    iconBg={stats.lowStockCount > 0 ? T.roseLight : T.greenLight}
+                />
             </div>
 
-            {/* Store Overview Banner */}
-            <div className="bg-white rounded-[2rem] mb-8 text-slate-900 relative overflow-hidden shadow-sm border border-slate-200">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-light rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                    <div>
-                        <h2 className="text-2xl font-black mb-1 text-slate-900">Store Overview</h2>
-                        <p className="text-slate-500 text-sm font-medium">Today's sales & inventory at a glance</p>
-                    </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-16 w-full md:w-auto">
-                        <div className="text-center md:text-left">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Sales</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.totalSales}</p>
-                            {stats.salesTrend && (
-                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${stats.salesTrend.direction === 'up' ? 'bg-emerald-50 text-emerald-600' : stats.salesTrend.direction === 'down' ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-                                    {stats.salesTrend.value}
-                                </span>
-                            )}
-                        </div>
-                        <div className="text-center md:text-left">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Products</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.productsCount}</p>
-                        </div>
-                        <div className="text-center md:text-left">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Today's POS</p>
-                            <p className="text-2xl font-black text-slate-900">₹{stats.todayPos.toLocaleString()}</p>
-                            {stats.posTrend && (
-                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${stats.posTrend.direction === 'up' ? 'bg-emerald-50 text-emerald-600' : stats.posTrend.direction === 'down' ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-                                    {stats.posTrend.value}
-                                </span>
-                            )}
-                        </div>
-                        <div className="text-center md:text-left">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Revenue</p>
-                            <p className="text-2xl font-black text-slate-900">₹{stats.totalRevenue.toLocaleString()}</p>
-                            {stats.revenueTrend && (
-                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${stats.revenueTrend.direction === 'up' ? 'bg-emerald-50 text-emerald-600' : stats.revenueTrend.direction === 'down' ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-                                    {stats.revenueTrend.value}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Primary Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Profit */}
-                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-slate-500 text-sm font-bold">Profit</h3>
-                        <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                            <TrendingUp size={16} />
-                        </div>
-                    </div>
-                    <p className="text-3xl font-black text-slate-900">₹{stats.profit.toLocaleString()}</p>
-                    {stats.profitTrend && (
-                        <div className="mt-2">
-                             <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${stats.profitTrend.direction === 'up' ? 'bg-emerald-50 text-emerald-600' : stats.profitTrend.direction === 'down' ? 'bg-red-50 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
-                                {stats.profitTrend.value}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Stock Value */}
-                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-slate-500 text-sm font-bold">Stock Value</h3>
-                        <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center">
-                            <Layers size={16} />
-                        </div>
-                    </div>
-                    <div className="flex items-end gap-3">
-                        <p className="text-3xl font-black text-slate-900">₹{stats.stockValue.toLocaleString()}</p>
-                        <p className="text-slate-400 text-xs font-bold mb-1.5">{stats.productsCount} items in stock</p>
-                    </div>
-                    <div className="absolute bottom-8 right-8 w-12 h-12 rounded-full border-4 border-slate-50 border-t-primary opacity-20 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-
-                {/* Low Stock Alert */}
-                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 relative group hover:scale-[1.02] transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-slate-500 text-sm font-bold">Low Stock Alert</h3>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stats.lowStockCount > 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'}`}>
-                            <AlertTriangle size={16} />
-                        </div>
-                    </div>
-                    <div className="flex items-end gap-3">
-                        <p className={`text-3xl font-black ${stats.lowStockCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{stats.lowStockCount}</p>
-                        <p className="text-slate-400 text-xs font-bold mb-1.5">{stats.lowStockCount === 0 ? 'All stock levels are healthy' : 'Items need restocking'}</p>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                        <span className="px-2.5 py-1 bg-primary-light text-primary text-[9px] font-black uppercase tracking-tighter rounded-full">{stats.pendingOrders} pending orders</span>
-                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-tighter rounded-full">{stats.todaySalesCount} sales today</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                {/* Recent Transactions */}
-                <div className="lg:col-span-2">
-                    <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[400px]">
-                        <h3 className="text-lg font-black text-slate-900 mb-6 px-2">Recent Transactions</h3>
-                        {recentTransactions.length > 0 ? (
-                            <div className="space-y-4">
-                                {recentTransactions.map((tx, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
-                                                <ReceiptText size={20} />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-900">Order #{tx.id.slice(-6)}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{tx.itemsCount} items • {new Date(tx.date).toLocaleDateString()}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-black text-slate-900">₹{parseFloat(tx.amount).toLocaleString()}</p>
-                                            <span className={`text-[9px] font-black uppercase tracking-tighter ${tx.status === 'Completed' ? 'text-emerald-600' : 'text-orange-500'}`}>{tx.status}</span>
-                                        </div>
+            <div className="grid-main fu2">
+                {/* ──────── RECENT TRANSACTIONS ──────── */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <SectionDivider title="Direct Ledger" sub="Live transaction stream" />
+                    {recentTransactions.map((tx, idx) => (
+                        <div 
+                            key={idx}
+                            style={{
+                                background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`,
+                                padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                boxShadow: '0 2px 8px rgba(124,92,252,0.05)', transition: '0.2s', cursor: 'pointer'
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(124,92,252,0.1)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(124,92,252,0.05)'; }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                <div style={{ 
+                                    width: 40, height: 40, borderRadius: 12, background: T.bg, 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent 
+                                }}>
+                                    <ReceiptText size={20} strokeWidth={2.2} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Order #{tx.id.slice(-6).toUpperCase()}</div>
+                                    <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                        {tx.itemsCount} Items • {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
-                                ))}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <p className="text-slate-400 font-bold italic">No sales yet</p>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>₹{parseFloat(tx.amount).toLocaleString()}</div>
+                                <div style={{ fontSize: 9, fontWeight: 800, color: T.green, textTransform: 'uppercase' }}>{tx.status}</div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Tabs Section */}
-                <div className="lg:col-span-3">
-                    <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
-                        {/* Tab Headers */}
-                        <div className="flex items-center gap-1 p-2 bg-slate-50/50 border-b border-slate-100">
+                {/* ──────── TABS SECTION ──────── */}
+                <div>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
+                        {['pos', 'orders', 'products'].map(tab => (
                             <button
-                                onClick={() => setActiveTab('pos')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all ${activeTab === 'pos' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                style={{
+                                    padding: '8px 18px', borderRadius: 10, fontSize: 11, fontWeight: 800,
+                                    textTransform: 'uppercase', letterSpacing: '0.06em', cursor: 'pointer', transition: '0.2s',
+                                    background: activeTab === tab ? T.accentLight : 'transparent',
+                                    color: activeTab === tab ? T.accent : T.muted,
+                                    border: `1.5px solid ${activeTab === tab ? T.accentMid : 'transparent'}`,
+                                }}
                             >
-                                <ShoppingCart size={16} /> POS History ({stats.totalSales})
+                                {tab === 'pos' ? 'POS History' : tab === 'orders' ? 'Store Orders' : 'Core Catalog'}
                             </button>
-                            <button
-                                onClick={() => setActiveTab('orders')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all ${activeTab === 'orders' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                <Package size={16} /> Store Orders ({stats.pendingOrders})
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('products')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all ${activeTab === 'products' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                <Box size={16} /> Products
-                            </button>
-                        </div>
+                        ))}
+                    </div>
 
-                        {/* Tab Content */}
-                        <div className="p-4">
-                            {activeTab === 'pos' && (
-                                <div className="space-y-2">
-                                    {orders.length > 0 ? (
-                                        <table className="w-full">
-                                            <thead>
-                                                <tr className="text-[10px] text-slate-400 font-black uppercase tracking-widest text-left">
-                                                    <th className="px-4 py-3">Order ID</th>
-                                                    <th className="px-4 py-3">Member</th>
-                                                    <th className="px-4 py-3">Amount</th>
-                                                    <th className="px-4 py-3">Status</th>
-                                                    <th className="px-4 py-3 text-right">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-50">
-                                                {orders.map(o => (
-                                                    <tr key={o.id} className="text-sm group hover:bg-slate-50/50">
-                                                        <td className="px-4 py-3 font-bold text-slate-900">#{o.id.toString().padStart(4, '0')}</td>
-                                                        <td className="px-4 py-3 text-slate-600 font-medium">{o.memberName || 'Guest'}</td>
-                                                        <td className="px-4 py-3 font-black text-slate-900">₹{parseFloat(o.totalAmount).toLocaleString()}</td>
-                                                        <td className="px-4 py-3">
-                                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${o.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                                {o.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-right text-slate-400 text-xs">{new Date(o.createdAt).toLocaleDateString()}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center py-20">
-                                            <div className="w-12 h-12 border-4 border-slate-100 border-t-slate-900 rounded-full animate-spin"></div>
+                    <div style={{
+                        background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`,
+                        boxShadow: '0 2px 12px rgba(124,92,252,0.06)', overflow: 'hidden'
+                    }}>
+                        {activeTab === 'pos' && (
+                            <div style={{ width: '100%' }}>
+                                <div style={{
+                                    display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1fr 1fr 120px',
+                                    padding: '12px 22px', background: T.bg, borderBottom: `1px solid ${T.border}`
+                                }} className="hide-mobile">
+                                    {['Ref ID', 'Customer/Member', 'Amount', 'Status', 'Timestamp'].map(h => (
+                                        <span key={h} style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</span>
+                                    ))}
+                                </div>
+                                <div style={{ minHeight: 300 }}>
+                                    {orders.length > 0 ? orders.map((o, i) => (
+                                        <div 
+                                            key={o.id}
+                                            style={{
+                                                display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1fr 1fr 120px',
+                                                padding: '16px 22px', borderBottom: i < orders.length - 1 ? `1px solid ${T.border}` : 'none',
+                                                alignItems: 'center', transition: '0.1s'
+                                            }}
+                                            className="table-row"
+                                            onMouseEnter={e => { e.currentTarget.style.background = T.bg; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                                        >
+                                            <div style={{ fontSize: 12, fontWeight: 800, color: T.accent, fontFamily: 'monospace' }}>#{o.id.toString().padStart(5, '0')}</div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <div style={{ width: 28, height: 28, borderRadius: 8, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted }}>
+                                                    <User size={14} />
+                                                </div>
+                                                <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{o.memberName || 'Guest Checkout'}</span>
+                                            </div>
+                                            <div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>₹{parseFloat(o.totalAmount).toLocaleString()}</div>
+                                            <div>
+                                                <span style={{ 
+                                                    fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
+                                                    padding: '4px 10px', borderRadius: 20, 
+                                                    background: o.status === 'Completed' ? T.greenLight : T.amberLight,
+                                                    color: o.status === 'Completed' ? T.green : T.amber,
+                                                    border: `1px solid ${o.status === 'Completed' ? '#A7F3D0' : '#FDE68A'}`
+                                                }}>{o.status}</span>
+                                            </div>
+                                            <div style={{ fontSize: 11, fontWeight: 700, color: T.muted }}>{new Date(o.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                    )) : (
+                                        <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                                            <p style={{ fontSize: 13, color: T.muted, fontStyle: 'italic' }}>No session records found</p>
                                         </div>
                                     )}
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {activeTab === 'orders' && (
-                                <div className="flex flex-col items-center justify-center py-20">
-                                    <Package size={48} className="text-slate-200 mb-4" />
-                                    <p className="text-slate-400 font-bold">No online orders yet</p>
+                        {(activeTab === 'orders' || activeTab === 'products') && (
+                            <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+                                <div style={{ 
+                                    width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'
+                                }}>
+                                    <Package size={24} color={T.subtle} />
                                 </div>
-                            )}
-
-                            {activeTab === 'products' && (
-                                <div className="flex flex-col items-center justify-center py-10">
-                                    <button
-                                        onClick={() => navigate(`${basePath}/products`)}
-                                        className="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md shadow-violet-200 hover:bg-primary-hover transition-all"
-                                    >
-                                        View Product List
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                                <h3 style={{ fontSize: 14, fontWeight: 700, color: T.muted, margin: '0 0 4px' }}>Inventory Gateway</h3>
+                                <p style={{ fontSize: 11, color: T.subtle, italic: true }}>Please navigate to {activeTab} list for full synchronization</p>
+                                <button 
+                                    onClick={() => navigate(`${basePath}/${activeTab}`)}
+                                    style={{
+                                        marginTop: 18, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                                        border: 'none', borderRadius: 10, padding: '8px 20px', color: '#fff',
+                                        fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6
+                                    }}
+                                >
+                                    Enter Gateway <ArrowRight size={14} />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

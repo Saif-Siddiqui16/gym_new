@@ -20,16 +20,80 @@ import {
     GitBranch,
     LayoutDashboard,
     ChevronRight,
-    Loader
+    Loader2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import Card from '../../../components/ui/Card';
-import StatsCard from '../components/StatsCard';
-import DashboardGrid from '../components/DashboardGrid';
 import { useAuth } from '../../../context/AuthContext';
 import { useBranchContext } from '../../../context/BranchContext';
 import apiClient from '../../../api/apiClient';
 import TodayFollowUpsWidget from '../../crm/components/TodayFollowUpsWidget';
+import Loader from '../../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF'
+};
+
+const SectionDivider = ({ title, sub }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, marginTop: 10 }}>
+        <div style={{ width: 4, height: 24, borderRadius: 4, background: `linear-gradient(to bottom, ${T.accent}, ${T.accent2})` }} />
+        <div>
+            <h2 style={{ fontSize: 15, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.3px' }}>{title}</h2>
+            {sub && <p style={{ fontSize: 10, color: T.muted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '2px 0 0' }}>{sub}</p>}
+        </div>
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, color, bg, trend, index }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <div 
+            style={{
+                background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}`,
+                display: 'flex', flexDirection: 'column', gap: 16, cursor: 'default',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+                boxShadow: hover ? '0 12px 30px rgba(124,92,252,0.12)' : '0 2px 14px rgba(0,0,0,0.02)',
+                animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`
+            }}
+            onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+        >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                    <Icon size={24} strokeWidth={2.5} />
+                </div>
+                {trend && (
+                    <div style={{ fontSize: 9, fontWeight: 900, color: color, background: bg, padding: '4px 8px', borderRadius: 20, textTransform: 'uppercase', border: `1px solid ${color}20` }}>
+                        {trend}
+                    </div>
+                )}
+            </div>
+            <div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: T.text, letterSpacing: '-1px' }}>{value}</div>
+            </div>
+        </div>
+    );
+};
 
 const StaffDashboard = () => {
     const navigate = useNavigate();
@@ -47,12 +111,10 @@ const StaffDashboard = () => {
         try {
             setLoading(true);
             const queryParams = selectedBranch !== 'all' ? { tenantId: selectedBranch } : {};
-
             const response = await apiClient.get('/dashboard/staff', { params: queryParams });
             const data = response.data;
 
-            // Try to get branch name
-            let branchName = 'All Branches';
+            let branchName = 'Main Gym';
             if (selectedBranch !== 'all') {
                 try {
                     const branchesRes = await apiClient.get('/branches');
@@ -66,7 +128,6 @@ const StaffDashboard = () => {
                 todayCheckIns: data.checkinsToday || 0,
                 checkIns: data.checkins || [],
                 invoicesCount: data.pendingPayments || 0,
-                leads: data.newEnquiries || 0,
                 activeLeads: data.newEnquiries || 0,
                 pendingActions: data.pendingActions || [],
                 expiring: data.renewalAlerts?.expiringSoon || [],
@@ -84,10 +145,10 @@ const StaffDashboard = () => {
     }, [selectedBranch]);
 
     const quickActions = [
-        { icon: UserPlus, label: 'Add Member', path: '/staff/members/add', color: 'bg-emerald-50 text-emerald-600' },
-        { icon: CheckCircle, label: 'Check-in', path: '/staff/attendance/check-in', color: 'bg-blue-50 text-blue-600' },
-        { icon: IndianRupee, label: 'Payments', path: '/finance/pos', color: 'bg-amber-50 text-amber-600' },
-        { icon: FileText, label: 'View Invoices', path: '/finance/invoices', color: 'bg-rose-50 text-rose-600' },
+        { icon: UserPlus, label: 'Add Member', path: '/staff/members/add', color: T.green, bg: T.greenLight },
+        { icon: CheckCircle, label: 'Check-in', path: '/staff/attendance/check-in', color: T.blue, bg: T.blueLight },
+        { icon: IndianRupee, label: 'Payments', path: '/finance/pos', color: T.amber, bg: T.amberLight },
+        { icon: FileText, label: 'Documents', path: '/finance/invoices', color: T.rose, bg: T.roseLight },
     ];
 
     const getInitials = (name) => {
@@ -95,264 +156,164 @@ const StaffDashboard = () => {
         return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     };
 
-    const formatTime = (dt) => {
-        if (!dt) return '—';
-        return new Date(dt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
-    };
-
-    const daysUntilExpiry = (date) => {
-        if (!date) return null;
-        const diff = Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
-        return diff;
-    };
-
-    if (loading && !dashData) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader className="w-12 h-12 text-primary animate-spin" />
-            </div>
-        );
-    }
+    if (loading && !dashData) return <Loader message="Staff terminal initializing..." />;
 
     return (
-        <div className="min-h-screen animate-fadeIn">
-            {/* Header */}
-            <div className="mb-6 sm:mb-10 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl sm:rounded-3xl blur-2xl opacity-10"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-1">
-                        <h1 className="text-xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                            Hello, {user?.name?.split(' ')[0] || 'Staff'}!
-                        </h1>
-                        <p className="text-slate-500 font-black text-[9px] sm:text-[10px] uppercase tracking-[0.3em]">
-                            {dashData?.branchName || 'Main Branch'} • {today}
-                        </p>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both; }
+            `}</style>
+
+            {/* ──────── HEADER BANNER ──────── */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="fu">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <LayoutDashboard size={28} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div className="flex items-center">
-                        <div className="px-4 py-2 sm:px-5 sm:py-2.5 bg-primary text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200">
-                            Staff Portal
-                        </div>
+                    <div>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Hello, {user?.name?.split(' ')[0] || 'Staff'}!</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: '4px 0 0', fontWeight: 600 }}>{dashData?.branchName} • {today}</p>
                     </div>
+                </div>
+                <div style={{
+                    padding: '10px 20px', background: 'rgba(255,255,255,0.15)', borderRadius: 14,
+                    color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em',
+                    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)'
+                }}>
+                    Staff Portal
                 </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="mb-10">
-                <div className="flex items-center gap-3 mb-6 px-2">
-                    <div className="w-8 h-8 rounded-xl bg-primary-light text-primary flex items-center justify-center shadow-sm">
-                        <LayoutDashboard size={18} />
-                    </div>
-                    <h2 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Quick Actions</h2>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-6 px-1 md:px-0">
-                    {quickActions.map((action, idx) => (
+            {/* ──────── QUICK ACTIONS ──────── */}
+            <div className="fu" style={{ marginBottom: 32, animationDelay: '0.1s' }}>
+                <SectionDivider title="Quick Access" sub="Operational Short-cuts" />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+                    {quickActions.map((action, i) => (
                         <button
-                            key={idx}
-                            onClick={action.onClick || (() => navigate(action.path))}
-                            className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-primary/10 hover:border-violet-200 transition-all duration-300 group flex flex-col items-center text-center gap-2 sm:gap-4"
+                            key={i}
+                            onClick={() => navigate(action.path)}
+                            style={{
+                                background: T.surface, padding: 24, borderRadius: 28, border: `1px solid ${T.border}`,
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+                                cursor: 'pointer', transition: '0.3s', boxShadow: '0 2px 14px rgba(0,0,0,0.02)'
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(124,92,252,0.12)'; e.currentTarget.style.borderColor = T.accentMid; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.02)'; e.currentTarget.style.borderColor = T.border; }}
                         >
-                            <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl ${action.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm`}>
-                                <action.icon size={20} className="sm:w-6 sm:h-6" />
+                            <div style={{ width: 52, height: 52, borderRadius: 16, background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s' }}>
+                                <action.icon size={24} strokeWidth={2.5} />
                             </div>
-                            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-primary leading-tight">{action.label}</span>
+                            <span style={{ fontSize: 11, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{action.label}</span>
                         </button>
                     ))}
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <DashboardGrid>
-                <StatsCard
-                    title="Today's Check-ins"
-                    value={dashData?.todayCheckIns ?? 0}
-                    trend={`${dashData?.checkIns?.length ?? 0} recent`}
-                    icon={CheckCircle}
-                    color="primary"
-                    isEarningsLayout={true}
-                />
-                <StatsCard
-                    title="Pending Invoices"
-                    value={dashData?.invoicesCount ?? 0}
-                    icon={Receipt}
-                    color="danger"
-                    isEarningsLayout={true}
-                />
-                <StatsCard
-                    title="Active Leads"
-                    value={dashData?.activeLeads ?? 0}
-                    icon={GitBranch}
-                    color="success"
-                    isEarningsLayout={true}
-                />
-                <StatsCard
-                    title="Expiring Soon"
-                    value={dashData?.expiring?.length ?? 0}
-                    trend="next 30 days"
-                    icon={Clock}
-                    color="warning"
-                    isEarningsLayout={true}
-                />
-            </DashboardGrid>
+            {/* ──────── STATS GRID ──────── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 40 }}>
+                <MetricCard title="Today's Check-ins" value={dashData?.todayCheckIns ?? 0} trend={`${dashData?.checkIns?.length ?? 0} active`} icon={CheckCircle} color={T.accent} bg={T.accentLight} index={1} />
+                <MetricCard title="Pending Invoices" value={dashData?.invoicesCount ?? 0} icon={Receipt} color={T.rose} bg={T.roseLight} index={2} />
+                <MetricCard title="Active Leads" value={dashData?.activeLeads ?? 0} icon={GitBranch} color={T.green} bg={T.greenLight} index={3} />
+                <MetricCard title="Expiring Soon" value={dashData?.expiring?.length ?? 0} trend="30 Days" icon={Clock} color={T.amber} bg={T.amberLight} index={4} />
+            </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-                {/* Left Column */}
-                <div className="space-y-8">
-                    {/* Recent Check-ins */}
+            {/* ──────── MAIN CONTENT ──────── */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }} className="fu">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
                     <TodayFollowUpsWidget />
-
-                    <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Recent Check-ins</h3>
-                            <button
-                                onClick={() => navigate('/staff/attendance/today')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
-                            >
-                                View All
-                            </button>
+                    
+                    {/* Recent Check-ins */}
+                    <div style={{ background: T.surface, padding: 32, borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                            <SectionDivider title="Recent Check-ins" sub="Last 4 Member Visits" />
+                            <button onClick={() => navigate('/staff/attendance/today')} style={{ padding: '8px 16px', background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10, fontSize: 10, fontWeight: 900, color: T.muted, cursor: 'pointer', textTransform: 'uppercase' }}>View All</button>
                         </div>
-                        <div className="space-y-4">
-                            {dashData?.checkIns?.length > 0 ? (
-                                dashData.checkIns.slice(0, 4).map((c, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-200 transition-all duration-500 cursor-pointer">
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600 flex items-center justify-center font-black text-sm shadow-inner">
-                                                {getInitials(c.member?.name || c.user?.name || c.name || 'Member')}
-                                            </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{c.member?.name || c.user?.name || c.name || 'Member'}</h4>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{c.member?.memberId || c.memberId || '—'}</p>
-                                            </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {dashData?.checkIns?.slice(0, 4).map((c, i) => (
+                                <div key={i} style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.01)', border: `1px solid ${T.border}`, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: T.greenLight, color: T.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900 }}>
+                                            {getInitials(c.member?.name || c.user?.name || c.name || 'Member')}
                                         </div>
-                                        <div className="text-right space-y-1">
-                                            <div className="text-base font-black text-slate-900 tracking-tight">{formatTime(c.checkIn || c.createdAt)}</div>
-                                            <div className="flex items-center gap-1.5 justify-end">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">{c.status || 'Active'}</span>
-                                            </div>
+                                        <div>
+                                            <div style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase' }}>{c.member?.name || c.user?.name || c.name || 'Member'}</div>
+                                            <div style={{ fontSize: 9, fontWeight: 800, color: T.subtle, letterSpacing: '0.1em' }}>{c.member?.memberId || c.memberId || '—'}</div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="py-12 text-center text-slate-300 text-xs font-black uppercase tracking-widest">No check-ins today</div>
-                            )}
-                        </div>
-                    </Card>
-
-                    {/* Pending Actions */}
-                    <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Pending Actions</h3>
-                            <button
-                                onClick={() => navigate('/crm/pipeline')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
-                            >
-                                View All
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            {dashData?.pendingActions?.length > 0 ? (
-                                dashData.pendingActions.slice(0, 4).map((action, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-primary/30/5 hover:border-violet-200 transition-all duration-500 cursor-pointer">
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-light to-violet-100 text-primary flex items-center justify-center font-black text-sm shadow-inner">
-                                                {getInitials(action.title)}
-                                            </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{action.title}</h4>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{action.subtitle}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`px-4 py-1.5 text-white text-[9px] font-black rounded-xl uppercase tracking-widest shadow-lg ${action.type === 'Payment' ? 'bg-rose-600 shadow-rose-100' : 'bg-amber-500 shadow-amber-100'}`}>
-                                            {action.type || 'Action'}
-                                        </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: 13, fontWeight: 900, color: T.text }}>{new Date(c.checkIn || c.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
+                                        <div style={{ fontSize: 9, fontWeight: 900, color: T.green, textTransform: 'uppercase' }}>Active</div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="py-12 text-center text-slate-300 text-xs font-black uppercase tracking-widest">No pending actions</div>
-                            )}
+                                </div>
+                            ))}
                         </div>
-                    </Card>
+                    </div>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-8">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
                     {/* Expiring Soon */}
-                    <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Expiring Soon</h3>
-                            <button
-                                onClick={() => navigate('/members/renewal-alerts')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
-                            >
-                                View All
-                            </button>
+                    <div style={{ background: T.surface, padding: 32, borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                            <SectionDivider title="Expiring Soon" sub="Renewal Alerts" />
+                            <button onClick={() => navigate('/members/renewal-alerts')} style={{ padding: '8px 16px', background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10, fontSize: 10, fontWeight: 900, color: T.muted, cursor: 'pointer', textTransform: 'uppercase' }}>View All</button>
                         </div>
-                        <div className="space-y-4">
-                            {dashData?.expiring?.length > 0 ? (
-                                dashData.expiring.slice(0, 4).map((m, idx) => {
-                                    const days = daysUntilExpiry(m.endDate);
-                                    return (
-                                        <div key={idx} className="flex items-center justify-between p-5 bg-rose-50/50 border border-rose-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-rose-500/5 hover:border-rose-300 transition-all duration-500 cursor-pointer">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-14 h-14 rounded-2xl bg-white text-rose-500 flex items-center justify-center shadow-lg shadow-rose-100/50 border border-rose-100 group-hover:scale-110 transition-transform duration-500">
-                                                    <Clock size={28} strokeWidth={2.5} />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{m.memberName}</h4>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{m.planName || 'No plan'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className={`px-4 py-1.5 text-white text-[9px] font-black rounded-xl uppercase tracking-widest shadow-lg ${days === 0 ? 'bg-rose-600 shadow-rose-100' : 'bg-amber-500 shadow-amber-100'}`}>
-                                                    {days === 0 ? 'Today' : days !== null ? `${days}d left` : 'Expired'}
-                                                </div>
-                                            </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {dashData?.expiring?.slice(0, 4).map((m, i) => (
+                                <div key={i} style={{ padding: '16px 20px', background: T.roseLight + '10', border: `1px solid ${T.rose}15`, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff', color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(244,63,94,0.1)' }}>
+                                            <Clock size={24} strokeWidth={2.5} />
                                         </div>
-                                    );
-                                })
-                            ) : (
-                                <div className="py-12 text-center text-slate-300 text-xs font-black uppercase tracking-widest">No expiring memberships</div>
-                            )}
-                        </div>
-                    </Card>
-
-                    {/* Equipment Alerts */}
-                    <Card className="border-none overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white p-4 sm:p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-base font-black text-slate-800 uppercase tracking-widest">Equipment Alerts</h3>
-                            <button
-                                onClick={() => navigate('/operations/equipment')}
-                                className="px-5 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all duration-300 border border-slate-100"
-                            >
-                                View All
-                            </button>
-                        </div>
-                        <div className="space-y-5">
-                            {dashData?.tasks?.length > 0 ? (
-                                dashData.tasks.slice(0, 5).map((task, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-[2rem] group hover:bg-white hover:shadow-xl hover:shadow-amber-500/5 hover:border-amber-200 transition-all duration-500 cursor-pointer">
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 group-hover:bg-amber-50 group-hover:text-amber-500 group-hover:border-amber-200 transition-all duration-300 shadow-sm">
-                                                <div className="w-4 h-4 border-2 border-current rounded-md" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-sm font-black text-slate-900 tracking-tight">{task.equipmentName || task.issue || 'Equipment Issue'}</h4>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                                                    Status: <span className="text-amber-600">{task.status || 'Pending'}</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                                            <ChevronRight size={18} />
+                                        <div>
+                                            <div style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase' }}>{m.memberName}</div>
+                                            <div style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{m.planName || 'Plan'}</div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="py-12 text-center text-slate-300 text-xs font-black uppercase tracking-widest">No equipment alerts</div>
-                            )}
+                                    <div style={{ padding: '6px 12px', background: T.rose, color: '#fff', fontSize: 9, fontWeight: 900, borderRadius: 8, textTransform: 'uppercase' }}>
+                                        Immediate
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </Card>
+                    </div>
+
+                    {/* Pending Actions */}
+                    <div style={{ background: T.surface, padding: 32, borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                            <SectionDivider title="Pending Actions" sub="System Lifecycle Sync" />
+                            <button onClick={() => navigate('/crm/pipeline')} style={{ padding: '8px 16px', background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10, fontSize: 10, fontWeight: 900, color: T.muted, cursor: 'pointer', textTransform: 'uppercase' }}>Workflow</button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {dashData?.pendingActions?.slice(0, 4).map((action, i) => (
+                                <div key={i} style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.01)', border: `1px solid ${T.border}`, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900 }}>
+                                            {getInitials(action.title)}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase' }}>{action.title}</div>
+                                            <div style={{ fontSize: 9, fontWeight: 800, color: T.subtle, letterSpacing: '0.05em' }}>{action.subtitle}</div>
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: 9, fontWeight: 900, padding: '5px 10px', borderRadius: 8, background: T.amber, color: '#fff', textTransform: 'uppercase' }}>{action.type || 'Alert'}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

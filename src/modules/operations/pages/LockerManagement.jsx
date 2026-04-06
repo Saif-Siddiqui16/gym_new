@@ -18,14 +18,41 @@ import {
     Clock,
     Filter,
     X,
-    Plus
+    Plus,
+    RefreshCw
 } from 'lucide-react';
-import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddLockerDrawer from './AddLockerDrawer';
 import BulkCreateLockersDrawer from './BulkCreateLockersDrawer';
 import LockerDetailsDrawer from './LockerDetailsDrawer';
-import StatsCard from '../../dashboard/components/StatsCard';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const LockerManagement = () => {
     const { selectedBranch } = useBranchContext();
@@ -53,8 +80,8 @@ const LockerManagement = () => {
                 }),
                 lockerApi.getStats({ branchId: selectedBranch })
             ]);
-            setLockers(lockerData);
-            setStats(statsData);
+            setLockers(lockerData || []);
+            setStats(statsData || { total: 0, available: 0, assigned: 0, maintenance: 0, occupancyRate: 0 });
         } catch (error) {
             console.error(error);
             toast.error('Failed to load locker data');
@@ -77,184 +104,186 @@ const LockerManagement = () => {
         setSelectedLocker(null);
     };
 
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
     return (
-        <div className="min-h-screen pb-24">
-            <div className="max-w-full mx-auto space-y-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-violet-100">
-                            <Lock size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Locker Management</h1>
-                            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Manage assignments and availability</p>
-                        </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .locker-row:hover { background: ${T.accentLight}50 !important; cursor: pointer; }
+                input::placeholder, select::placeholder { color: ${T.subtle}; opacity: 1; }
+            `}</style>
+
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
+                        <Lock size={28} strokeWidth={2.5} />
                     </div>
-                    <div className="flex items-center gap-3">
-                        <Button
-                            onClick={() => openDrawer('bulk')}
-                            variant="outline"
-                            className="h-11 px-6 rounded-xl"
-                            icon={Settings}
-                        >
-                            Bulk Create
-                        </Button>
-                        <Button
-                            onClick={() => openDrawer('add')}
-                            variant="primary"
-                            className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
-                            icon={Plus}
-                        >
-                            Add Locker
-                        </Button>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Locker Management</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Manage assignments, availability and maintenance</p>
                     </div>
                 </div>
-
-                {/* KPI Section */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatsCard title="Total Lockers" value={stats.total.toString()} icon={Package} color="primary" />
-                    <StatsCard title="Available" value={stats.available.toString()} icon={Unlock} color="success" />
-                    <StatsCard title="Assigned" value={stats.assigned.toString()} icon={User} color="primary" subtitle={`${stats.occupancyRate}% Occupancy`} />
-                    <StatsCard title="Maintenance" value={stats.maintenance.toString()} icon={AlertCircle} color="warning" />
-                </div>
-
-                {/* Main Content Area */}
-                <div className="bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-xl shadow-slate-100/50 overflow-hidden">
-                    {/* Filters Toolbar */}
-                    <div className="p-6 border-b-2 border-slate-50 flex flex-col lg:flex-row justify-between items-center gap-6 bg-white/50 backdrop-blur-sm">
-                        <div className="flex items-center gap-4 w-full lg:w-auto">
-                            <div className="relative flex-1 md:w-80">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input
-                                    type="text"
-                                    placeholder="Search locker number..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-12 pr-4 h-12 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none"
-                                />
-                            </div>
-                            <div className="relative w-48 hidden md:block">
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="w-full pl-4 pr-10 h-12 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl text-sm font-bold transition-all outline-none appearance-none cursor-pointer"
-                                >
-                                    <option>All Status</option>
-                                    <option>Available</option>
-                                    <option>Assigned</option>
-                                    <option>Maintenance</option>
-                                    <option>Reserved</option>
-                                </select>
-                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-                            <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl">
-                                <TabButton active={activeTab === 'Overview'} onClick={() => setActiveTab('Overview')}>Overview</TabButton>
-                                <TabButton active={activeTab === 'Assigned'} onClick={() => setActiveTab('Assigned')}>Member List</TabButton>
-                            </div>
-                            <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl">
-                                <IconButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')} icon={LayoutGrid} />
-                                <IconButton active={viewMode === 'list'} onClick={() => setViewMode('list')} icon={List} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Table/Grid Content */}
-                    <div className="p-8">
-                        {loading ? (
-                            <div className="h-96 flex flex-col items-center justify-center gap-4">
-                                <div className="w-12 h-12 border-4 border-violet-100 border-t-primary rounded-full animate-spin"></div>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Lockers...</p>
-                            </div>
-                        ) : lockers.length === 0 ? (
-                            <div className="h-96 flex flex-col items-center justify-center text-center">
-                                <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-6">
-                                    <Lock size={40} />
-                                </div>
-                                <h3 className="text-xl font-black text-slate-400 uppercase">No Lockers Found</h3>
-                                <p className="text-sm font-bold text-slate-300 mt-2 uppercase tracking-wide">Try adjusting your search or filters</p>
-                            </div>
-                        ) : (
-                            <>
-                                {activeTab === 'Overview' ? (
-                                    viewMode === 'grid' ? (
-                                        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4">
-                                            {lockers.map((locker) => (
-                                                <LockerCard key={locker.id} locker={locker} onClick={() => openDrawer('details', locker)} />
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <LockerTable lockers={lockers} onRowClick={(l) => openDrawer('details', l)} />
-                                    )
-                                ) : (
-                                    <AssignedMemberTable lockers={lockers.filter(l => l.status === 'Assigned')} onRowClick={(l) => openDrawer('details', l)} />
-                                )}
-                            </>
-                        )}
-                    </div>
-
-                    {/* Legend */}
-                    {!loading && lockers.length > 0 && activeTab === 'Overview' && (
-                        <div className="p-6 bg-slate-50/50 border-t-2 border-slate-50 flex items-center gap-6 justify-center flex-wrap">
-                            <LegendItem color="bg-emerald-500" label="Available" />
-                            <LegendItem color="bg-primary" label="Assigned" />
-                            <LegendItem color="bg-amber-500" label="Maintenance" />
-                            <LegendItem color="bg-primary" label="Reserved" />
-                            <LegendItem color="bg-rose-500" label="Expired" />
-                        </div>
-                    )}
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <ActionButton onClick={() => openDrawer('bulk')} variant="outline" icon={Settings}>Bulk Create</ActionButton>
+                    <ActionButton onClick={() => openDrawer('add')} icon={Plus}>Add Locker</ActionButton>
                 </div>
             </div>
 
-            {/* Forms / Drawers */}
-            <RightDrawer
-                isOpen={drawerType === 'add'}
-                onClose={closeDrawer}
-                title="Add New Locker"
-                subtitle="Create a single locker entry"
-            >
-                <AddLockerDrawer
-                    onClose={closeDrawer}
-                    onSuccess={loadData}
-                />
+            {/* KPI Section */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                {[
+                    { label: 'Total Units', value: stats.total, icon: Package, color: T.accent, bg: T.accentLight },
+                    { label: 'Available', value: stats.available, icon: Unlock, color: T.green, bg: T.greenLight },
+                    { label: 'Assigned', value: stats.assigned, icon: User, color: T.blue, bg: T.blueLight, subtitle: `${stats.occupancyRate}% Occupancy` },
+                    { label: 'In Service', value: stats.maintenance, icon: AlertCircle, color: T.amber, bg: T.amberLight },
+                ].map((stat, i) => (
+                    <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 28, boxShadow: T.cardShadow, display: 'flex', alignItems: 'center', gap: 20 }}>
+                        <div style={{ width: 64, height: 64, borderRadius: 20, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                            <stat.icon size={26} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</p>
+                            <h4 style={{ margin: '2px 0 0', fontSize: 24, fontWeight: 900, color: T.text }}>{stat.value}</h4>
+                            {stat.subtitle && <p style={{ margin: '2px 0 0', fontSize: 10, fontWeight: 700, color: T.blue }}>{stat.subtitle}</p>}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Main Content Area */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                {/* Filters Toolbar */}
+                <div style={{ padding: 24, borderBottom: `1.5px solid ${T.bg}`, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 300 }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} size={18} />
+                            <input 
+                                type="text"
+                                placeholder="Search locker ID..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: '100%', height: 48, background: T.bg, border: 'none', borderRadius: 16, padding: '0 20px 0 52px', color: T.text, fontSize: 13, fontWeight: 600, outline: 'none' }}
+                            />
+                        </div>
+                        <div style={{ position: 'relative', width: 200 }}>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                style={{ width: '100%', height: 48, background: T.bg, border: 'none', borderRadius: 16, padding: '0 40px 0 20px', color: T.text, fontSize: 13, fontWeight: 600, outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                            >
+                                <option>All Status</option>
+                                <option>Available</option>
+                                <option>Assigned</option>
+                                <option>Maintenance</option>
+                                <option>Reserved</option>
+                            </select>
+                            <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 12 }}>
+                        <div style={{ background: T.bg, padding: 4, borderRadius: 14, display: 'flex', gap: 4 }}>
+                            <TabButton active={activeTab === 'Overview'} onClick={() => setActiveTab('Overview')}>Overview</TabButton>
+                            <TabButton active={activeTab === 'Assigned'} onClick={() => setActiveTab('Assigned')}>Members</TabButton>
+                        </div>
+                        <div style={{ background: T.bg, padding: 4, borderRadius: 14, display: 'flex', gap: 4 }}>
+                            <IconButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')} icon={LayoutGrid} />
+                            <IconButton active={viewMode === 'list'} onClick={() => setViewMode('list')} icon={List} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Locker Body */}
+                <div style={{ padding: 32 }}>
+                    {loading ? (
+                        <div style={{ height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+                            <RefreshCw size={48} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
+                            <p style={{ fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Calibrating Lockers...</p>
+                        </div>
+                    ) : lockers.length === 0 ? (
+                        <div style={{ height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                            <div style={{ width: 100, height: 100, borderRadius: 40, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, marginBottom: 24 }}>
+                                <Lock size={48} />
+                            </div>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>No Units Found</h3>
+                            <p style={{ color: T.muted, fontSize: 14, fontWeight: 500, marginTop: 8 }}>We couldn't find any lockers matching your search criteria.</p>
+                        </div>
+                    ) : (
+                        <>
+                            {activeTab === 'Overview' ? (
+                                viewMode === 'grid' ? (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 16 }}>
+                                        {lockers.map((locker) => (
+                                            <LockerCard key={locker.id} locker={locker} onClick={() => openDrawer('details', locker)} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <LockerTable lockers={lockers} onRowClick={(l) => openDrawer('details', l)} />
+                                )
+                            ) : (
+                                <AssignedMemberTable lockers={lockers.filter(l => l.status === 'Assigned')} onRowClick={(l) => openDrawer('details', l)} />
+                            )}
+                        </>
+                    )}
+                </div>
+
+                {/* Legend */}
+                {!loading && lockers.length > 0 && activeTab === 'Overview' && (
+                    <div style={{ padding: '24px 32px', background: T.bg, display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+                        <LegendItem color={T.green} label="Available" />
+                        <LegendItem color={T.accent} label="Assigned" />
+                        <LegendItem color={T.amber} label="Maintenance" />
+                        <LegendItem color={T.indigo} label="Reserved" />
+                        <LegendItem color={T.rose} label="Expired" />
+                    </div>
+                )}
+            </div>
+
+            {/* Drawers */}
+            <RightDrawer isOpen={drawerType === 'add'} onClose={closeDrawer} title="Add New Locker" subtitle="Manual registry">
+                <AddLockerDrawer onClose={closeDrawer} onSuccess={loadData} />
             </RightDrawer>
 
-            <RightDrawer
-                isOpen={drawerType === 'bulk'}
-                onClose={closeDrawer}
-                title="Bulk Create Lockers"
-                subtitle="Create multiple lockers at once"
-            >
-                <BulkCreateLockersDrawer
-                    onClose={closeDrawer}
-                    onSuccess={loadData}
-                />
+            <RightDrawer isOpen={drawerType === 'bulk'} onClose={closeDrawer} title="Bulk Operations" subtitle="Process multiple units">
+                <BulkCreateLockersDrawer onClose={closeDrawer} onSuccess={loadData} />
             </RightDrawer>
 
-            {/* Details Drawer (Outside main flow) */}
-            {drawerType === 'details' && (
-                <LockerDetailsDrawer
-                    isOpen={drawerType === 'details'}
-                    locker={selectedLocker}
-                    onClose={closeDrawer}
-                    onSuccess={loadData}
-                />
+            {drawerType === 'details' && selectedLocker && (
+                <LockerDetailsDrawer isOpen={drawerType === 'details'} locker={selectedLocker} onClose={closeDrawer} onSuccess={loadData} />
             )}
         </div>
     );
 };
 
-/* ── UI Components ── */
-
-
+/* ── UI COMPONENTS ── */
 
 const TabButton = ({ active, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        style={{
+            padding: '8px 20px', borderRadius: 10, border: 'none',
+            background: active ? '#fff' : 'transparent', color: active ? T.accent : T.muted,
+            fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
+            cursor: 'pointer', transition: '0.2s', boxShadow: active ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+        }}
     >
         {children}
     </button>
@@ -263,9 +292,14 @@ const TabButton = ({ active, onClick, children }) => (
 const IconButton = ({ active, onClick, icon: Icon }) => (
     <button
         onClick={onClick}
-        className={`p-2 rounded-xl transition-all ${active ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+        style={{
+            width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 8, border: 'none', background: active ? '#fff' : 'transparent',
+            color: active ? T.accent : T.muted, cursor: 'pointer', transition: '0.2s',
+            boxShadow: active ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+        }}
     >
-        <Icon size={18} />
+        <Icon size={18} strokeWidth={2.5} />
     </button>
 );
 
@@ -276,109 +310,111 @@ const LockerCard = ({ locker, onClick }) => {
     const isReserved = locker.status === 'Reserved';
     const isExpired = isAssigned && locker.assignedTo?.expiryDate && new Date(locker.assignedTo.expiryDate) < new Date();
 
-    let style = "bg-white border-slate-200 text-slate-400";
-    let iconColor = "text-slate-400";
-    let dotColor = "bg-slate-300";
+    let bgColor = T.bg;
+    let textColor = T.muted;
+    let dotColor = T.subtle;
+    let borderColor = 'transparent';
 
-    if (isAvailable) { style = "bg-emerald-50 border-emerald-100 text-emerald-700"; iconColor = "text-emerald-500"; dotColor = "bg-emerald-500"; }
+    if (isAvailable) { bgColor = T.greenLight; textColor = T.green; dotColor = T.green; borderColor = `${T.green}20`; }
     else if (isAssigned) {
-        if (isExpired) { style = "bg-rose-50 border-rose-200 text-rose-700"; iconColor = "text-rose-500"; dotColor = "bg-rose-500"; }
-        else { style = "bg-primary-light border-violet-100 text-primary-hover"; iconColor = "text-primary"; dotColor = "bg-primary"; }
+        if (isExpired) { bgColor = T.roseLight; textColor = T.rose; dotColor = T.rose; borderColor = `${T.rose}20`; }
+        else { bgColor = T.accentLight; textColor = T.accent; dotColor = T.accent; borderColor = `${T.accent}20`; }
     }
-    else if (isMaintenance) { style = "bg-amber-50 border-amber-200 text-amber-700"; iconColor = "text-amber-500"; dotColor = "bg-amber-500"; }
-    else if (isReserved) { style = "bg-primary-light border-violet-200 text-primary-hover"; iconColor = "text-primary"; dotColor = "bg-primary"; }
+    else if (isMaintenance) { bgColor = T.amberLight; textColor = T.amber; dotColor = T.amber; borderColor = `${T.amber}20`; }
+    else if (isReserved) { bgColor = T.indigoLight; textColor = T.indigo; dotColor = T.indigo; borderColor = `${T.indigo}20`; }
 
     return (
         <div
             onClick={onClick}
-            className={`relative flex flex-col items-center justify-center p-5 rounded-3xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 group shadow-sm ${style}`}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{ 
+                height: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                background: bgColor, borderRadius: 20, border: `2px solid ${borderColor}`, cursor: 'pointer',
+                transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', position: 'relative'
+            }}
         >
-            <div className={`absolute top-3 right-3 w-2 h-2 rounded-full ${dotColor} ${isExpired ? 'animate-pulse' : ''}`} />
-            <Lock size={22} className={`mb-2 ${iconColor} opacity-80 group-hover:rotate-12 transition-transform`} strokeWidth={2.5} />
-            <span className="text-[11px] font-black uppercase tracking-widest">{locker.number}</span>
+            <div style={{ position: 'absolute', top: 10, right: 10, width: 6, height: 6, borderRadius: 3, background: dotColor }} />
+            <Lock size={20} color={textColor} strokeWidth={2.5} style={{ marginBottom: 6 }} />
+            <span style={{ fontSize: 13, fontWeight: 900, color: textColor }}>{locker.number}</span>
         </div>
     );
 };
 
 const LockerTable = ({ lockers, onRowClick }) => (
-    <div className="overflow-x-auto">
-        <table className="w-full text-left">
-            <thead>
-                <tr className="bg-slate-50">
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Number</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Size</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <thead>
+            <tr style={{ background: T.bg }}>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Number</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Configuration</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Location</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {lockers.map(locker => (
+                <tr key={locker.id} className="locker-row" style={{ borderBottom: `1px solid ${T.bg}`, transition: '0.2s' }} onClick={() => onRowClick(locker)}>
+                    <td style={{ padding: '20px 24px', fontSize: 14, fontWeight: 900, color: T.text }}># {locker.number}</td>
+                    <td style={{ padding: '20px 24px', fontSize: 13, fontWeight: 600, color: T.muted }}>{locker.size} Unit</td>
+                    <td style={{ padding: '20px 24px', fontSize: 13, fontWeight: 600, color: T.muted }}>{locker.area || '--'}</td>
+                    <td style={{ padding: '20px 24px' }}><StatusBadge status={locker.status} /></td>
                 </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-                {lockers.map(locker => (
-                    <tr key={locker.id} className="hover:bg-slate-50 transition-colors cursor-pointer group" onClick={() => onRowClick(locker)}>
-                        <td className="px-6 py-4 font-black text-slate-900">{locker.number}</td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-500">{locker.size}</td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-500">{locker.area || '--'}</td>
-                        <td className="px-6 py-4">
-                            <StatusBadge status={locker.status} />
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
+            ))}
+        </tbody>
+    </table>
 );
 
 const AssignedMemberTable = ({ lockers, onRowClick }) => (
-    <div className="overflow-x-auto">
-        <table className="w-full text-left">
-            <thead>
-                <tr className="bg-slate-50">
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Locker</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Member Name</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Member ID</th>
-                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry</th>
+    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <thead>
+            <tr style={{ background: T.bg }}>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Locker</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member details</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Assignment ID</th>
+                <th style={{ padding: '16px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Safety Expiry</th>
+            </tr>
+        </thead>
+        <tbody>
+            {lockers.map(locker => (
+                <tr key={locker.id} className="locker-row" style={{ borderBottom: `1px solid ${T.bg}`, transition: '0.2s' }} onClick={() => onRowClick(locker)}>
+                    <td style={{ padding: '20px 24px', fontSize: 14, fontWeight: 900, color: T.text }}>{locker.number}</td>
+                    <td style={{ padding: '20px 24px', fontSize: 14, fontWeight: 800, color: T.text }}>{locker.assignedTo?.name || 'N/A'}</td>
+                    <td style={{ padding: '20px 24px', fontSize: 12, fontWeight: 700, color: T.accent }}>{locker.assignedTo?.memberId || '--'}</td>
+                    <td style={{ padding: '20px 24px' }}>
+                        <span style={{ 
+                            padding: '6px 12px', borderRadius: 10, fontSize: 11, fontWeight: 900,
+                            background: new Date(locker.assignedTo?.expiryDate) < new Date() ? T.roseLight : T.bg,
+                            color: new Date(locker.assignedTo?.expiryDate) < new Date() ? T.rose : T.muted
+                        }}>
+                            {locker.assignedTo?.expiryDate ? new Date(locker.assignedTo.expiryDate).toLocaleDateString('en-GB') : '--'}
+                        </span>
+                    </td>
                 </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-                {lockers.map(locker => (
-                    <tr key={locker.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => onRowClick(locker)}>
-                        <td className="px-6 py-4 font-black text-slate-900"># {locker.number}</td>
-                        <td className="px-6 py-4 text-sm font-black text-slate-800">{locker.assignedTo?.name || 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-500">{locker.assignedTo?.memberId || '--'}</td>
-                        <td className="px-6 py-4">
-                            <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${new Date(locker.assignedTo?.expiryDate) < new Date() ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-600'}`}>
-                                {locker.assignedTo?.expiryDate ? new Date(locker.assignedTo.expiryDate).toLocaleDateString('en-GB') : '--'}
-                            </span>
-                        </td>
-                    </tr>
-                ))}
-                {lockers.length === 0 && (
-                    <tr><td colSpan="4" className="px-6 py-12 text-center text-slate-400 font-bold uppercase text-xs">No active assignments</td></tr>
-                )}
-            </tbody>
-        </table>
-    </div>
+            ))}
+        </tbody>
+    </table>
 );
 
 const StatusBadge = ({ status }) => {
-    const styles = {
-        Available: 'bg-emerald-50 text-emerald-700',
-        Assigned: 'bg-primary-light text-primary-hover',
-        Maintenance: 'bg-amber-50 text-amber-700',
-        Reserved: 'bg-primary-light text-primary-hover'
+    const config = {
+        Available: { bg: T.greenLight, text: T.green },
+        Assigned: { bg: T.accentLight, text: T.accent },
+        Maintenance: { bg: T.amberLight, text: T.amber },
+        Reserved: { bg: T.indigoLight, text: T.indigo }
     };
+    const { bg, text } = config[status] || { bg: T.bg, text: T.muted };
     return (
-        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
+        <span style={{ padding: '6px 14px', borderRadius: 12, background: bg, color: text, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {status}
         </span>
     );
 };
 
 const LegendItem = ({ color, label }) => (
-    <div className="flex items-center gap-2">
-        <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 5, background: color }} />
+        <span style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
     </div>
 );
-
 
 export default LockerManagement;

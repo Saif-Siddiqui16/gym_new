@@ -1,27 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/common/Modal';
 import {
-    FileText,
-    Receipt,
-    Download,
-    IndianRupee,
-    ArrowUpRight,
-    CreditCard,
-    CheckCircle,
-    Clock,
-    AlertCircle,
-    Calendar,
-    Search,
-    ChevronRight,
-    TrendingUp,
-    Sparkles,
-    X,
-    Loader2
+    FileText, Receipt, Download, IndianRupee, ArrowUpRight, CreditCard, 
+    CheckCircle, Clock, AlertCircle, Calendar, Search, ChevronRight, 
+    TrendingUp, Sparkles, X, Loader2, RefreshCw, ShieldCheck, History,
+    ArrowDownToLine, Zap
 } from 'lucide-react';
 import { getInvoices, payInvoice, failPayment } from '../../api/member/memberApi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, color, bg, subtitle, index }) => (
+    <div 
+        style={{
+            background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}`,
+            display: 'flex', flexDirection: 'column', gap: 16, flex: 1,
+            animation: `fadeUp 0.4s ease both ${0.3 + index * 0.05}s`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+        }}
+    >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={20} strokeWidth={2.5} />
+            </div>
+        </div>
+        <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>{value}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle, textTransform: 'uppercase', marginTop: 4 }}>{subtitle}</div>
+        </div>
+    </div>
+);
 
 const MemberPayments = () => {
     const [loading, setLoading] = useState(true);
@@ -32,6 +79,7 @@ const MemberPayments = () => {
 
     const loadData = async () => {
         try {
+            setLoading(true);
             const invoicesData = await getInvoices();
             setInvoices(invoicesData || []);
         } catch (error) {
@@ -42,227 +90,139 @@ const MemberPayments = () => {
         }
     };
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    useEffect(() => { loadData(); }, []);
 
     const handleDownloadInvoice = (inv) => {
         try {
             const doc = new jsPDF();
-            doc.setFontSize(20);
-            doc.text(`Invoice #${inv.id}`, 14, 22);
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+            doc.setFontSize(20); doc.text(`Invoice #${inv.id}`, 14, 22);
+            doc.setFontSize(10); doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
             doc.text(`Status: ${inv.status}`, 14, 35);
-
             autoTable(doc, {
-                startY: 45,
-                head: [['Description', 'Amount', 'Date']],
+                startY: 45, head: [['Description', 'Amount', 'Date']],
                 body: [[`Gym Membership Services`, `INR ${Number(inv.amount).toLocaleString()}`, new Date(inv.dueDate).toLocaleDateString()]],
-                theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] } // primary
+                theme: 'striped', headStyles: { fillColor: [124, 92, 252] }
             });
-
             doc.save(`Invoice_${inv.id}.pdf`);
             toast.success("Invoice downloaded");
-        } catch (err) {
-            console.error("PDF generation failed", err);
-            toast.error("Download failed");
-        }
+        } catch (err) { toast.error("Download failed"); }
     };
 
-    const handleOpenPaymentGateway = (inv) => {
-        setSelectedInvoice(inv);
-        setIsPaymentModalOpen(true);
-    };
+    const handleOpenPaymentGateway = (inv) => { setSelectedInvoice(inv); setIsPaymentModalOpen(true); };
 
     const handleProcessPayment = async (status) => {
         if (!selectedInvoice) return;
         setProcessingPayment(true);
         try {
-            if (status === 'success') {
-                await payInvoice(selectedInvoice.dbId);
-                toast.success("Payment successful!");
-            } else {
-                await failPayment(selectedInvoice.dbId);
-                toast.error("Transaction Failed. Please try again.");
-            }
-            setIsPaymentModalOpen(false);
-            loadData();
-        } catch (error) {
-            toast.error(error?.message || "Payment processing failed");
-        } finally {
-            setProcessingPayment(false);
-        }
+            if (status === 'success') { await payInvoice(selectedInvoice.dbId); toast.success("Payment successful!"); }
+            else { await failPayment(selectedInvoice.dbId); toast.error("Transaction Failed."); }
+            setIsPaymentModalOpen(false); loadData();
+        } catch (error) { toast.error(error?.message || "Failed"); }
+        finally { setProcessingPayment(false); }
     };
 
     const pendingAmount = invoices.filter(i => i.status !== 'Paid').reduce((sum, i) => sum + Number(i.amount), 0);
     const pendingCount = invoices.filter(i => i.status !== 'Paid').length;
     const paidCount = invoices.filter(i => i.status === 'Paid').length;
 
-    const stats = [
-        {
-            id: 1,
-            title: 'Pending Amount',
-            value: `₹${pendingAmount.toLocaleString()}`,
-            icon: IndianRupee,
-            gradient: 'from-rose-500 to-red-600',
-            lightColor: 'bg-rose-50',
-            textColor: 'text-rose-600'
-        },
-        {
-            id: 2,
-            title: 'Pending Invoices',
-            value: pendingCount.toString(),
-            icon: Clock,
-            gradient: 'from-amber-400 to-orange-500',
-            lightColor: 'bg-amber-50',
-            textColor: 'text-amber-600'
-        },
-        {
-            id: 3,
-            title: 'Paid Invoices',
-            value: paidCount.toString(),
-            icon: CheckCircle,
-            gradient: 'from-emerald-400 to-teal-600',
-            lightColor: 'bg-emerald-50',
-            textColor: 'text-emerald-600'
-        },
-    ];
+    if (loading) return <Loader message="Securely fetching your invoices..." />;
 
     return (
-        <div className="saas-container min-h-screen p-4 sm:p-8 space-y-10 animate-fadeIn bg-slate-50/30">
-            {/* Header Section */}
-            <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-violet-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-200 animate-pulse-subtle">
-                            <Receipt size={32} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">My Invoices</h1>
-                            <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.3em] flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-primary h-2 w-2"></span>
-                                View and pay your invoices
-                            </p>
-                        </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <Receipt size={28} color="#fff" strokeWidth={2.5} />
                     </div>
+                    <div>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Invoices</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage subscriptions, billing and transaction history</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                    <CreditCard size={18} strokeWidth={2.5} />
+                    <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Secure Billing Portal</span>
                 </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stats.map(stat => (
-                    <div key={stat.id} className="relative group overflow-hidden bg-white rounded-2xl border border-slate-100 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full -mr-10 -mt-10 blur-2xl opacity-60 transition-all group-hover:scale-110" />
-                        <div className="relative flex items-center gap-4 px-5 py-4">
-                            <div className={`shrink-0 ${stat.lightColor} w-12 h-12 rounded-xl flex items-center justify-center ${stat.textColor} shadow-sm`}>
-                                <stat.icon size={22} strokeWidth={2.5} />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 truncate">{stat.title}</p>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight truncate">{stat.value}</h3>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
-            {/* Main Content Area */}
-            <div className="bg-white rounded-[3rem] border-2 border-slate-100 p-6 sm:p-10 shadow-2xl shadow-slate-200/30 relative overflow-hidden">
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-50 rounded-full blur-3xl -ml-32 -mb-32"></div>
+                {/* STATS ROW */}
+                <div style={{ display: 'flex', gap: 24 }}>
+                    <MetricCard title="Pending Amount" value={`₹${pendingAmount.toLocaleString()}`} icon={IndianRupee} color={T.rose} bg={T.roseLight} subtitle="Awaiting Settlement" index={0} />
+                    <MetricCard title="Open Invoices" value={pendingCount} icon={Clock} color={T.amber} bg={T.amberLight} subtitle="Action Required" index={1} />
+                    <MetricCard title="Settled Bills" value={paidCount} icon={CheckCircle} color={T.green} bg={T.greenLight} subtitle="Payment History" index={2} />
+                    <MetricCard title="Last Transaction" value="Today" icon={History} color={T.blue} bg={T.blueLight} subtitle="Activity Status" index={3} />
+                </div>
 
-                <div className="relative">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-primary-light rounded-xl text-primary flex items-center justify-center shadow-sm">
-                                <Receipt size={24} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Recent Billing</h2>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Full transaction and history</p>
-                            </div>
-                        </div>
+                {/* INVOICES SECTION */}
+                <PremiumCard index={4}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+                        <SectionHeader icon={Receipt} title="Recent Billing" subtitle="Full transaction history" />
+                        <div style={{ padding: '8px 16px', borderRadius: 12, background: T.bg, color: T.accent, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Logs: {invoices.length}</div>
                     </div>
 
-                    {loading ? (
-                        <div className="py-32 flex flex-col items-center justify-center gap-4 opacity-50">
-                            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                            <p className="text-[10px] font-black uppercase tracking-widest">Loading Invoices...</p>
-                        </div>
-                    ) : invoices.length > 0 ? (
-                        <div className="overflow-x-auto pb-4">
-                            <table className="w-full text-left border-separate border-spacing-y-4">
+                    {invoices.length > 0 ? (
+                        <div style={{ overflowX: 'auto' }}>
+                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
-                                    <tr>
-                                        <th className="px-8 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction / Service</th>
-                                        <th className="px-6 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Raise Date</th>
-                                        <th className="px-6 py-2 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Status</th>
-                                        <th className="px-6 py-2 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Amount</th>
-                                        <th className="px-8 py-2"></th>
+                                    <tr style={{ textAlign: 'left', borderBottom: `2px solid ${T.bg}` }}>
+                                        <th style={{ padding: '16px 24px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Service Details</th>
+                                        <th style={{ padding: '16px 24px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Raise Date</th>
+                                        <th style={{ padding: '16px 24px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Status</th>
+                                        <th style={{ padding: '16px 24px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>Total Amount</th>
+                                        <th style={{ padding: '16px 24px' }}></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {invoices.map(inv => (
-                                        <tr key={inv.id} className="group transition-all">
-                                            <td className="px-8 py-8 bg-slate-50/50 group-hover:bg-white border-y-2 border-l-2 border-slate-100 first:rounded-l-[2rem] first:border-l-2 group-hover:border-violet-100 group-hover:shadow-lg group-hover:shadow-slate-100/50 transition-all">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-14 h-14 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:border-violet-100 transition-all shadow-sm group-hover:rotate-6">
-                                                        <FileText size={24} strokeWidth={2} />
-                                                    </div>
+                                    {invoices.map((inv, idx) => (
+                                        <tr key={inv.id} style={{ borderBottom: `1px solid ${T.bg}`, transition: '0.2s' }}>
+                                            <td style={{ padding: '24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}><FileText size={20} /></div>
                                                     <div>
-                                                        <div className="text-base font-black text-slate-900 tracking-tight">#{inv.id}</div>
-                                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-2">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-primary transition-colors"></div>
-                                                            {inv.serviceName || (inv.bookingId ? 'Session Booking' : 'Gym Membership')}
-                                                        </div>
+                                                        <p style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>#{inv.id}</p>
+                                                        <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{inv.serviceName || (inv.bookingId ? 'Session Booking' : 'Gym Membership')}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-8 bg-slate-50/50 group-hover:bg-white border-y-2 border-slate-100 group-hover:border-violet-100 transition-all">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-slate-700">{new Date(inv.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Next Billing Due</span>
-                                                </div>
+                                            <td style={{ padding: '24px', fontSize: 13, fontWeight: 800, color: T.text }}>{new Date(inv.dueDate).toLocaleDateString('en-GB')}</td>
+                                            <td style={{ padding: '24px' }}>
+                                                <span style={{ 
+                                                    padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase',
+                                                    background: inv.status === 'Paid' ? T.greenLight : T.roseLight,
+                                                    color: inv.status === 'Paid' ? T.green : T.rose,
+                                                    border: `1px solid ${inv.status === 'Paid' ? T.green : T.rose}20`
+                                                }}>{inv.status}</span>
                                             </td>
-                                            <td className="px-6 py-8 bg-slate-50/50 group-hover:bg-white border-y-2 border-slate-100 text-center group-hover:border-violet-100 transition-all">
-                                                <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 shadow-sm ${inv.status === 'Paid'
-                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                    : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse-subtle'
-                                                    }`}>
-                                                    {inv.status === 'Paid' ? <CheckCircle size={10} /> : <Clock size={10} />}
-                                                    {inv.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-8 bg-slate-50/50 group-hover:bg-white border-y-2 border-slate-100 text-right group-hover:border-violet-100 transition-all">
-                                                <div className="text-xl font-black text-slate-900 tracking-tight">₹{Number(inv.amount).toLocaleString()}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Incl. Taxes</div>
-                                            </td>
-                                            <td className="px-8 py-8 bg-slate-50/50 group-hover:bg-white border-y-2 border-r-2 border-slate-100 last:rounded-r-[2rem] last:border-r-2 text-right group-hover:border-violet-100 transition-all">
-                                                <div className="flex justify-end gap-3">
-                                                    <button
-                                                        onClick={() => handleDownloadInvoice(inv)}
-                                                        className="p-3.5 text-slate-400 hover:text-primary bg-white hover:bg-primary-light border-2 border-slate-100 hover:border-violet-100 rounded-2xl transition-all shadow-sm"
-                                                        title="Download Invoice"
-                                                    >
-                                                        <Download size={20} />
-                                                    </button>
+                                            <td style={{ padding: '24px', fontSize: 18, fontWeight: 900, color: T.text, textAlign: 'right' }}>₹{Number(inv.amount).toLocaleString()}</td>
+                                            <td style={{ padding: '24px', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                                                    <button onClick={() => handleDownloadInvoice(inv)} style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${T.border}`, background: '#fff', color: T.subtle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowDownToLine size={20} /></button>
                                                     {inv.status !== 'Paid' ? (
-                                                        <button
-                                                            onClick={() => handleOpenPaymentGateway(inv)}
-                                                            className="flex items-center gap-2 px-8 h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-primary-hover hover:-translate-y-1 transition-all active:scale-95 group/btn"
-                                                        >
-                                                            Pay Now
-                                                            <CreditCard size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                                                        </button>
+                                                        <button onClick={() => handleOpenPaymentGateway(inv)} style={{ padding: '0 24px', height: 44, background: T.accent, color: '#fff', borderRadius: 12, border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.2)' }}>Pay Now</button>
                                                     ) : (
-                                                        <div className="flex items-center gap-2 px-8 h-14 bg-emerald-50 text-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-2 border-emerald-100/50 shadow-inner">
-                                                            Settled
-                                                            <CheckCircle size={16} />
-                                                        </div>
+                                                        <div style={{ height: 44, padding: '0 24px', background: T.bg, color: T.green, borderRadius: 12, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}><ShieldCheck size={18} /> Settled</div>
                                                     )}
                                                 </div>
                                             </td>
@@ -272,150 +232,56 @@ const MemberPayments = () => {
                             </table>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-40 border-4 border-dashed border-slate-100 rounded-[3rem] bg-slate-50/50">
-                            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-slate-200 mb-8 shadow-xl shadow-slate-200/50 border-2 border-slate-50 animate-bounce-subtle">
-                                <Receipt size={44} strokeWidth={1} />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No invoices found</h3>
-                            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mt-3">All your billing activities will appear here</p>
+                        <div style={{ textAlign: 'center', padding: 80, border: `2px dashed ${T.border}`, borderRadius: 24, background: T.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <Receipt size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+                            <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text }}>No Billing Records Found</h4>
+                            <p style={{ color: T.muted, fontSize: 13, fontWeight: 700 }}>Your invoices and transaction logs will be displayed here.</p>
                         </div>
                     )}
+                </PremiumCard>
 
-                    <div className="mt-12 flex items-center justify-center">
-                        <div className="px-10 py-4 bg-primary-light/50 backdrop-blur-md rounded-2xl flex items-center gap-4 text-primary border border-violet-100/50">
-                            <Sparkles size={18} className="animate-spin-slow" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">All transactions are secured with 256-bit SSL encryption</span>
-                        </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }} className="animate-fadeIn">
+                     <div style={{ padding: '12px 24px', borderRadius: 16, background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <Zap size={18} />
+                        <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Transactions are secured with industrial-grade 256-bit SSL Encryption</span>
                     </div>
                 </div>
+
             </div>
 
-            {/* Premium Payment Gateway Modal */}
-            <Modal
-                isOpen={isPaymentModalOpen && selectedInvoice}
-                onClose={() => setIsPaymentModalOpen(false)}
-                showCloseButton={false}
-                maxWidth="max-w-xl"
-            >
-                {selectedInvoice && (
-                    <div className="relative overflow-hidden">
-                        {/* Decorative Header bg - Fixed positioning to show correctly inside Modal */}
-                        <div className="absolute top-0 inset-x-0 h-48 bg-slate-900 border-b border-white/10">
-                            <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
-                            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+            {/* PAYMENT MODAL */}
+            <Modal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} showCloseButton={false} maxWidth="max-w-xl">
+                 <div style={{ background: T.dark, borderBottom: '1px solid rgba(255,255,255,0.1)', padding: 32 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CreditCard size={24} /></div>
+                            <div>
+                                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0 }}>Authorize Payment</h3>
+                                <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', margin: 0 }}>Encrypted Sandbox Session</p>
+                            </div>
                         </div>
-
-                        <div className="relative p-8 sm:p-12">
-                            {/* Modal Header */}
-                            <div className="flex items-center justify-between mb-12 relative z-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-xl">
-                                        <CreditCard size={28} strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-black text-white tracking-widest uppercase">Payment Portal</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Encrypted Sandbox</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button 
-                                    onClick={() => setIsPaymentModalOpen(false)}
-                                    className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/10 text-white hover:text-white hover:bg-white/20 transition-all border border-white/10"
-                                >
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-8 relative z-10">
-                                {/* Amount Section */}
-                                <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-10 border border-slate-100 shadow-2xl relative overflow-hidden group hover:shadow-primary/5 transition-all duration-500">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                                    <div className="text-center space-y-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Total Receivable</p>
-                                        <div className="flex items-center justify-center gap-2">
-                                            <span className="text-2xl font-black text-slate-900 mt-2">₹</span>
-                                            <h2 className="text-6xl font-black text-slate-900 tracking-tighter">
-                                                {Number(selectedInvoice.amount).toLocaleString()}
-                                            </h2>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-slate-100">
-                                        <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center uppercase tracking-widest">Invoice Unit</p>
-                                            <p className="text-[11px] font-black text-slate-900 uppercase text-center truncate tracking-tight">{selectedInvoice.id || selectedInvoice.invoiceNumber || 'N/A'}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest text-center uppercase tracking-widest">Plan / Service</p>
-                                            <p className="text-[11px] font-black text-slate-900 uppercase text-center truncate tracking-tight">{selectedInvoice.benefitType || selectedInvoice.serviceName || 'Standard Plan'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Simulation Controls */}
-                                <div className="space-y-6">
-                                    <div className="flex items-center justify-center gap-3">
-                                        <div className="h-px w-10 bg-slate-100"></div>
-                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Simulation Controls (Testing Only)</span>
-                                        <div className="h-px w-10 bg-slate-100"></div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            onClick={() => handleProcessPayment('success')}
-                                            disabled={processingPayment}
-                                            className="group relative h-20 rounded-[1.5rem] bg-slate-900 text-white overflow-hidden transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 shadow-xl shadow-slate-200"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                            <div className="relative flex items-center justify-center gap-3">
-                                                {processingPayment ? (
-                                                    <Loader2 className="animate-spin" />
-                                                ) : (
-                                                    <>
-                                                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20">
-                                                            <CheckCircle size={20} />
-                                                        </div>
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em]">Authorize</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </button>
-                                        
-                                        <button
-                                            onClick={() => handleProcessPayment('failure')}
-                                            disabled={processingPayment}
-                                            className="group relative h-20 rounded-[1.5rem] bg-slate-50 text-slate-900 border border-slate-200 overflow-hidden transition-all hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 hover:-translate-y-1 active:scale-95 disabled:opacity-50"
-                                        >
-                                            <div className="relative flex items-center justify-center gap-3">
-                                                {processingPayment ? (
-                                                    <Loader2 className="animate-spin" />
-                                                ) : (
-                                                    <>
-                                                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:border-rose-100">
-                                                            <X size={20} />
-                                                        </div>
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em]">Decline</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-center gap-4 opacity-30 grayscale pt-4">
-                                    <div className="flex items-center gap-3 font-black text-[9px] uppercase tracking-tighter text-slate-400">
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg">VISA</span>
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg">MASTERCARD</span>
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg">UPI</span>
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg">GOOGLE PAY</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <button onClick={() => setIsPaymentModalOpen(false)} style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer' }}><X size={20} /></button>
+                    </div>
+                </div>
+                <div style={{ padding: 48, background: '#fff' }}>
+                    <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                        <p style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Amount Payable</p>
+                        <h2 style={{ fontSize: 64, fontWeight: 900, color: T.text, margin: '8px 0', letterSpacing: '-2px' }}>₹{selectedInvoice ? Number(selectedInvoice.amount).toLocaleString() : 0}</h2>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 16 }}>
+                            <span style={{ padding: '4px 12px', background: T.bg, borderRadius: 8, fontSize: 10, fontWeight: 900, color: T.muted }}>REF: #{selectedInvoice?.id}</span>
+                            <span style={{ padding: '4px 12px', background: T.bg, borderRadius: 8, fontSize: 10, fontWeight: 900, color: T.muted }}>PLAN: {selectedInvoice?.serviceName || 'SERVICES'}</span>
                         </div>
                     </div>
-                )}
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                         <button onClick={() => handleProcessPayment('success')} disabled={processingPayment} style={{ height: 64, background: T.dark, color: '#fff', borderRadius: 16, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
+                            {processingPayment ? <RefreshCw className="animate-spin" /> : <CheckCircle size={20} />} Authorize
+                         </button>
+                         <button onClick={() => handleProcessPayment('failure')} disabled={processingPayment} style={{ height: 64, background: T.bg, color: T.rose, borderRadius: 16, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                            {processingPayment ? <RefreshCw className="animate-spin" /> : <X size={20} />} Decline
+                         </button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );

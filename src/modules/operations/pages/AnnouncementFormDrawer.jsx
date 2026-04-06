@@ -1,9 +1,28 @@
 import React, { useState } from 'react';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronDown, Loader2, Megaphone, Zap, Users, Info } from 'lucide-react';
 import { addAnnouncement } from '../../../api/communication/communicationApi';
 import RightDrawer from '../../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
-import Button from '../../../components/ui/Button';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -62,112 +81,177 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
+    const InputLabel = ({ children }) => (
+        <label style={{ display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, marginLeft: 4 }}>
+            {children}
+        </label>
+    );
+
     return (
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
             title="Create Announcement"
-            subtitle="Create a new announcement for your members"
+            subtitle="Broadcast a new message to your community"
             maxWidth="max-w-2xl"
             footer={
-                <div className="flex gap-3 w-full justify-end px-2">
-                    <Button
+                <div style={{ display: 'flex', gap: 12, width: '100%', justifyContent: 'flex-end', padding: '0 8px' }}>
+                    <button
                         type="button"
-                        variant="outline"
                         onClick={onClose}
-                        className="px-6 h-11 rounded-xl"
+                        style={{
+                            padding: '0 24px', height: 48, borderRadius: 14, border: `2px solid ${T.border}`,
+                            background: '#fff', color: T.text, fontSize: 13, fontWeight: 800, cursor: 'pointer', transition: '0.2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = T.bg; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
                     >
                         Cancel
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                         type="submit"
                         form="announcement-form"
-                        variant="primary"
-                        loading={isSubmitting}
-                        className="px-8 h-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
+                        disabled={isSubmitting}
+                        style={{
+                            padding: '0 32px', height: 48, borderRadius: 14, border: 'none',
+                            background: T.accent, color: '#fff', fontSize: 13, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            transition: '0.3s', boxShadow: T.shadow, display: 'flex', alignItems: 'center', gap: 10
+                        }}
+                        onMouseEnter={e => { if(!isSubmitting) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={e => { if(!isSubmitting) e.currentTarget.style.transform = 'none'; }}
                     >
-                        Create Announcement
-                    </Button>
+                        {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
+                        {isSubmitting ? 'Processing...' : 'Broadcast Now'}
+                    </button>
                 </div>
             }
         >
-            <div className="px-8 py-8">
-                <form id="announcement-form" onSubmit={handleSubmit} className="space-y-8">
+            <div style={{ padding: '32px 40px', background: T.bg, minHeight: '100%', display: 'flex', flexDirection: 'column', gap: 32 }}>
+                <style>{`
+                    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    .form-anim { animation: slideIn 0.4s ease-out backwards; }
+                `}</style>
+                
+                <form id="announcement-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+                    {/* Header Card */}
+                    <div className="form-anim" style={{ background: '#fff', padding: 28, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, display: 'flex', alignItems: 'center', gap: 20 }}>
+                        <div style={{ width: 56, height: 56, borderRadius: 18, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                            <Megaphone size={28} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Announcement Details</h3>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: T.muted, margin: '4px 0 0' }}>Define the message and target audience</p>
+                        </div>
+                    </div>
 
                     {/* Title Field */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Title *</label>
+                    <div className="form-anim" style={{ animationDelay: '0.1s' }}>
+                        <InputLabel>Announcement Title *</InputLabel>
                         <input
                             required
                             type="text"
-                            placeholder="Announcement title"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
+                            placeholder="Brief catchy headline..."
+                            style={{
+                                width: '100%', height: 54, padding: '0 20px', borderRadius: 16, border: `2px solid ${T.border}`,
+                                background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s'
+                            }}
                             value={formData.title}
+                            onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                            onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
 
                     {/* Content Field */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Content *</label>
+                    <div className="form-anim" style={{ animationDelay: '0.2s' }}>
+                        <InputLabel>Broadcast Message Content *</InputLabel>
                         <textarea
                             required
-                            rows={5}
-                            placeholder="Announcement content..."
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 resize-none"
+                            rows={6}
+                            placeholder="Type your announcement here..."
+                            style={{
+                                width: '100%', padding: '20px', borderRadius: 20, border: `2px solid ${T.border}`,
+                                background: '#fff', fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s',
+                                resize: 'none', lineHeight: 1.6
+                            }}
+                            onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                            onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         />
                     </div>
 
-                    {/* Target Audience */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Audience</label>
-                        <div className="relative group">
-                            <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
-                                value={formData.targetAudience}
-                                onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
-                            >
-                                <option>All Members</option>
-                                <option>Active Members</option>
-                                <option>Expired Members</option>
-                                <option>Staff Only</option>
-                                <option>Trainers Only</option>
-                            </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
+                    {/* Grid Section */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 24 }}>
+                        <div className="form-anim" style={{ animationDelay: '0.3s' }}>
+                            <InputLabel>Target Audience</InputLabel>
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    style={{
+                                        width: '100%', height: 54, padding: '0 44px 0 20px', borderRadius: 16, border: `2px solid ${T.border}`,
+                                        background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s',
+                                        appearance: 'none', cursor: 'pointer'
+                                    }}
+                                    onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                                    onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+                                    value={formData.targetAudience}
+                                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
+                                >
+                                    <option>All Members</option>
+                                    <option>Active Members</option>
+                                    <option>Expired Members</option>
+                                    <option>Staff Only</option>
+                                    <option>Trainers Only</option>
+                                </select>
+                                <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                                <Users size={18} style={{ position: 'absolute', right: 48, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none', opacity: 0.5 }} />
+                            </div>
+                        </div>
+
+                        <div className="form-anim" style={{ animationDelay: '0.4s' }}>
+                            <InputLabel>Priority (0-10)</InputLabel>
+                            <input
+                                type="number"
+                                min="0"
+                                max="10"
+                                style={{
+                                    width: '100%', height: 54, padding: '0 20px', borderRadius: 16, border: `2px solid ${T.border}`,
+                                    background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s'
+                                }}
+                                onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                                onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+                                value={formData.priority}
+                                onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
+                            />
                         </div>
                     </div>
 
-                    {/* Priority */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Priority (0-10)</label>
-                        <input
-                            type="number"
-                            min="0"
-                            max="10"
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-slate-50/50"
-                            value={formData.priority}
-                            onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-                        />
-                    </div>
-
                     {/* Active Toggle */}
-                    <div className="flex items-center justify-between p-4 bg-slate-50/30 border-2 border-slate-50 rounded-2xl group transition-all hover:bg-white hover:border-slate-100 shadow-sm">
-                        <div className="space-y-0.5">
-                            <p className="text-[13px] font-black text-slate-900 tracking-tight">Active Status</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Show announcement to members</p>
+                    <div className="form-anim" style={{ animationDelay: '0.5s', display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', padding: '24px 28px', background: 'linear-gradient(135deg, #fff, #F9F9FF)', border: `1px solid ${T.border}`, borderRadius: 24, boxShadow: T.cardShadow }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: formData.isActive ? T.greenLight : T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: formData.isActive ? T.green : T.accent }}>
+                                <Info size={20} strokeWidth={2.5} />
+                            </div>
+                            <div>
+                                <p style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>Active Visibility</p>
+                                <p style={{ fontSize: 11, fontWeight: 600, color: T.subtle, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Show this to members immediately</p>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${formData.isActive ? 'bg-[#4f46e5]' : 'bg-slate-200'
-                                }`}
+                            style={{
+                                position: 'relative', display: 'inline-flex', height: 28, width: 52, flexShrink: 0, cursor: 'pointer',
+                                borderRadius: 100, border: '2px solid transparent', transition: '0.2s cubic-bezier(0.4, 0, 0.2, 1)', outline: 'none',
+                                background: formData.isActive ? T.green : T.subtle
+                            }}
                         >
                             <span
-                                aria-hidden="true"
-                                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${formData.isActive ? 'translate-x-5' : 'translate-x-0'
-                                    }`}
+                                style={{
+                                    pointerEvents: 'none', display: 'inline-block', height: 24, width: 24, transform: formData.isActive ? 'translateX(24px)' : 'translateX(0)',
+                                    borderRadius: '50%', background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.2)', transition: '0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                                }}
                             />
                         </button>
                     </div>
@@ -178,10 +262,11 @@ const AnnouncementFormDrawer = ({ isOpen, onClose, onSuccess }) => {
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
             `}</style>
         </RightDrawer>
     );
 };
 
 export default AnnouncementFormDrawer;
+

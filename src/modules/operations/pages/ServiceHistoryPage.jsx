@@ -13,8 +13,39 @@ import {
     ArrowUpRight,
     Filter,
     ChevronRight,
-    XCircle
+    XCircle,
+    MoreHorizontal,
+    Box
 } from 'lucide-react';
+import RightDrawer from '../../../components/common/RightDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const ServiceHistoryPage = () => {
     const [records, setRecords] = useState([]);
@@ -37,7 +68,7 @@ const ServiceHistoryPage = () => {
                 filters.status = activeTab;
             }
             const data = await equipmentApi.getMaintenanceRequests(filters);
-            setRecords(data);
+            setRecords(data || []);
         } catch (error) {
             console.error("Failed to fetch service history:", error);
             toast.error("Failed to load service history");
@@ -66,407 +97,262 @@ const ServiceHistoryPage = () => {
         return equipName.includes(term) || issue.includes(term) || `#T-${r.id}`.toLowerCase().includes(term);
     });
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'Completed': return <CheckCircle2 size={14} className="text-emerald-500" />;
-            case 'In Progress': return <Clock size={14} className="text-amber-500" />;
-            case 'Cancelled': return <XCircle size={14} className="text-red-500" />;
-            default: return <Clock size={14} className="text-primary" />;
-        }
-    };
-
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'Completed': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-            case 'In Progress': return 'bg-amber-50 text-amber-700 border-amber-200';
-            case 'Cancelled': return 'bg-red-50 text-red-700 border-red-200';
-            case 'Pending': return 'bg-primary-light text-primary-hover border-violet-200';
-            default: return 'bg-slate-50 text-slate-700 border-slate-200';
+            case 'Completed': return { bg: T.greenLight, color: T.green, icon: CheckCircle2 };
+            case 'In Progress': return { bg: T.amberLight, color: T.amber, icon: Clock };
+            case 'Cancelled': return { bg: T.roseLight, color: T.rose, icon: XCircle };
+            case 'Pending': return { bg: T.accentLight, color: T.accent, icon: Clock };
+            default: return { bg: '#F1F5F9', color: '#64748B', icon: Clock };
         }
     };
 
     const getPriorityStyle = (priority) => {
         switch (priority) {
-            case 'Critical': return 'bg-red-100 text-red-700 border-red-200';
-            case 'High': return 'bg-orange-100 text-orange-700 border-orange-200';
-            case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            case 'Low': return 'bg-green-100 text-green-700 border-green-200';
-            default: return 'bg-slate-100 text-slate-700 border-slate-200';
+            case 'Critical': return { bg: T.roseLight, color: T.rose };
+            case 'High': return { bg: T.amberLight, color: T.amber };
+            case 'Medium': return { bg: T.blueLight, color: T.blue };
+            case 'Low': return { bg: T.greenLight, color: T.green };
+            default: return { bg: T.indigoLight, color: T.indigo };
         }
     };
 
-    // Stats
-    const totalRecords = records.length;
-    const completed = records.filter(r => r.status === 'Completed').length;
-    const inProgress = records.filter(r => r.status === 'In Progress').length;
-    const pending = records.filter(r => r.status === 'Pending').length;
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
+    const StatCard = ({ label, value, icon: Icon, color, subValue }) => (
+        <div style={{ background: '#fff', padding: '20px 24px', borderRadius: 24, boxShadow: T.cardShadow, border: `1.5px solid #fff`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+                <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+                <h3 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 900, color: T.text }}>{value}</h3>
+            </div>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', color: color }}>
+                <Icon size={20} strokeWidth={2.5} />
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] pb-20">
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
-                <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-200 shrink-0">
-                                    <History size={24} />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-black text-slate-800 tracking-tight">Service History</h1>
-                                    <p className="text-slate-500 text-sm font-medium">Complete log of all equipment maintenance and service records</p>
-                                </div>
-                            </div>
-                        </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .history-row:hover { background: ${T.bg} !important; }
+                .history-row:hover td { color: ${T.text} !important; }
+            `}</style>
 
-                        {/* Stats Row */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Records</p>
-                                <p className="text-2xl font-black text-slate-800 mt-1">{totalRecords}</p>
-                            </div>
-                            <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
-                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Completed</p>
-                                <p className="text-2xl font-black text-emerald-700 mt-1">{completed}</p>
-                            </div>
-                            <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
-                                <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest">In Progress</p>
-                                <p className="text-2xl font-black text-amber-700 mt-1">{inProgress}</p>
-                            </div>
-                            <div className="bg-primary-light rounded-xl p-3 border border-violet-100">
-                                <p className="text-[10px] font-black text-primary uppercase tracking-widest">Pending</p>
-                                <p className="text-2xl font-black text-primary-hover mt-1">{pending}</p>
-                            </div>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className="flex bg-slate-100 p-1 rounded-xl overflow-x-auto no-scrollbar">
-                            {tabs.map(tab => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`
-                                        px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap
-                                        ${activeTab === tab
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'}
-                                    `}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Search */}
-                        <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search by equipment name, issue, or ticket ID..."
-                                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all font-medium text-slate-600"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${T.green}, ${T.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 30px -10px rgba(34, 201, 122, 0.3)' }}>
+                        <History size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Service Archive</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Comprehensive logs and equipment maintenance history</p>
                     </div>
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                {loading ? (
-                    <div className="flex items-center justify-center p-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-                    </div>
-                ) : (
-                    <>
-                        {filteredRecords.length === 0 ? (
-                            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-20 flex flex-col items-center justify-center text-center">
-                                <div className="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
-                                    <CheckCircle2 size={32} />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-800">No service records found</h3>
-                                <p className="text-slate-400 text-sm mt-1">
-                                    {activeTab !== 'All'
-                                        ? `No ${activeTab.toLowerCase()} records at this time.`
-                                        : 'All equipment is running smoothly. No service history yet.'}
-                                </p>
-                            </div>
-                        ) : (
-                            <>
-                                {/* Desktop Table */}
-                                <div className="hidden lg:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <table className="w-full text-left">
-                                        <thead>
-                                            <tr className="bg-slate-50/50 border-b border-slate-100">
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ticket</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipment</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Issue</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {filteredRecords.map(record => (
-                                                <tr
-                                                    key={record.id}
-                                                    className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                                                    onClick={() => setSelectedRecord(record)}
-                                                >
-                                                    <td className="px-6 py-5">
-                                                        <span className="text-xs font-black text-slate-900 group-hover:text-emerald-600 transition-colors uppercase">
-                                                            #T-{record.id}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-all">
-                                                                <Package size={16} />
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-bold text-slate-800 text-sm">{record.equipment?.name || 'Unknown'}</p>
-                                                                <p className="text-[10px] text-slate-400 font-bold">{record.equipment?.category || ''}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <p className="text-xs font-semibold text-slate-600 max-w-[200px] truncate">{record.issue}</p>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${getPriorityStyle(record.priority)}`}>
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-                                                            {record.priority}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                                                            <Calendar size={12} className="text-slate-400" />
-                                                            {new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${getStatusStyle(record.status)}`}>
-                                                            {getStatusIcon(record.status)}
-                                                            {record.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-5 text-right" onClick={e => e.stopPropagation()}>
-                                                        <select
-                                                            className="text-[10px] font-black uppercase tracking-tight bg-slate-50 border-none rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
-                                                            value={record.status}
-                                                            onChange={(e) => handleStatusUpdate(record.id, e.target.value)}
-                                                        >
-                                                            <option value="Pending">Pending</option>
-                                                            <option value="In Progress">In Progress</option>
-                                                            <option value="Completed">Completed</option>
-                                                            <option value="Cancelled">Cancelled</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+            {/* KPI Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <StatCard label="Total Records" value={records.length} icon={History} color={T.indigo} />
+                <StatCard label="Completed Tasks" value={records.filter(r => r.status === 'Completed').length} icon={CheckCircle2} color={T.green} />
+                <StatCard label="In Progress" value={records.filter(r => r.status === 'In Progress').length} icon={Clock} color={T.amber} />
+                <StatCard label="Pending" value={records.filter(r => r.status === 'Pending').length} icon={Clock} color={T.accent} />
+            </div>
 
-                                {/* Mobile Card View */}
-                                <div className="lg:hidden space-y-4">
-                                    {filteredRecords.map(record => (
-                                        <div
-                                            key={record.id}
-                                            className={`bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4 cursor-pointer active:scale-[0.98] transition-all ${record.priority === 'Critical' ? 'border-l-4 border-l-red-500' : ''}`}
-                                            onClick={() => setSelectedRecord(record)}
+            {/* Filters */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <div style={{ display: 'flex', background: '#fff', padding: 6, borderRadius: 20, boxShadow: T.cardShadow, border: `1.5px solid #fff` }}>
+                    {tabs.map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            style={{
+                                padding: '10px 24px', borderRadius: 14, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.02em', cursor: 'pointer', transition: '0.3s',
+                                background: activeTab === tab ? T.accent : 'transparent',
+                                color: activeTab === tab ? '#fff' : T.muted,
+                                boxShadow: activeTab === tab ? T.shadow : 'none'
+                            }}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                <div style={{ position: 'relative', width: 340 }}>
+                    <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <input
+                        type="text"
+                        placeholder="Search machines or tickets..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', height: 52, padding: '0 16px 0 48px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
+                    />
+                </div>
+            </div>
+
+            {/* History Table */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.indigoLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.indigo }}>
+                        <Box size={20} strokeWidth={2.5} />
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Maintenance Ledger</h3>
+                </div>
+
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg + '50' }}>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Ticket</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Equipment Info</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Service Issue</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Priority</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Status</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Lifecycle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="6" style={{ padding: 100, textAlign: 'center' }}><Clock size={40} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} /></td></tr>
+                            ) : filteredRecords.length === 0 ? (
+                                <tr><td colSpan="6" style={{ padding: 100, textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}><div style={{ width: 80, height: 80, borderRadius: 30, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><History size={32} /></div><p style={{ fontSize: 15, fontWeight: 700, color: T.muted }}>No service records in archive.</p></div></td></tr>
+                            ) : (
+                                filteredRecords.map((item) => {
+                                    const st = getStatusStyle(item.status);
+                                    const sev = getPriorityStyle(item.priority);
+                                    return (
+                                        <tr 
+                                            key={item.id} 
+                                            className="history-row" 
+                                            style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s', cursor: 'pointer' }}
+                                            onClick={() => setSelectedRecord(item)}
                                         >
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                                        <Wrench size={18} />
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ fontSize: 13, fontWeight: 900, color: T.text, fontStyle: 'italic' }}>#T-{item.id}</span>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                    <div style={{ width: 36, height: 36, borderRadius: 10, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted }}>
+                                                        <Package size={18} />
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-bold text-slate-800 text-sm">{record.equipment?.name || 'Unknown'}</h4>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">#T-{record.id}</span>
+                                                        <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{item.equipment?.name || 'Unknown'}</div>
+                                                        <div style={{ fontSize: 11, fontWeight: 600, color: T.muted }}>{item.equipment?.category || 'N/A'}</div>
                                                     </div>
                                                 </div>
-                                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${getStatusStyle(record.status)}`}>
-                                                    {getStatusIcon(record.status)}
-                                                    {record.status}
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <p style={{ margin: 0, fontSize: 14, color: T.muted, fontWeight: 500, maxWidth: 200, truncate: 'true', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.issue}</p>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: sev.bg, color: sev.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>
+                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: sev.color }} />
+                                                    {item.priority}
                                                 </span>
-                                            </div>
-
-                                            <p className="text-xs text-slate-600 font-medium line-clamp-2">{record.issue}</p>
-
-                                            <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50">
-                                                <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</p>
-                                                    <span className={`inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${getPriorityStyle(record.priority)}`}>
-                                                        {record.priority}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</p>
-                                                    <p className="text-xs font-bold text-slate-700 mt-1 flex items-center gap-1">
-                                                        <Calendar size={12} className="text-slate-300" />
-                                                        {new Date(record.createdAt).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center justify-between pt-1" onClick={e => e.stopPropagation()}>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: st.bg, color: st.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: `1.2px solid ${st.color}20` }}>
+                                                    <st.icon size={12} strokeWidth={3} />
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '20px 32px', textAlign: 'right' }} onClick={e => e.stopPropagation()}>
                                                 <select
-                                                    className="text-[10px] font-black uppercase tracking-tight bg-slate-50 border-none rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
-                                                    value={record.status}
-                                                    onChange={(e) => handleStatusUpdate(record.id, e.target.value)}
+                                                    value={item.status}
+                                                    onChange={(e) => handleStatusUpdate(item.id, e.target.value)}
+                                                    style={{ height: 36, padding: '0 12px', borderRadius: 10, border: `1.5px solid ${T.border}`, fontSize: 11, fontWeight: 800, color: T.text, outline: 'none', cursor: 'pointer', background: '#fff' }}
                                                 >
                                                     <option value="Pending">Pending</option>
                                                     <option value="In Progress">In Progress</option>
                                                     <option value="Completed">Completed</option>
                                                     <option value="Cancelled">Cancelled</option>
                                                 </select>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setSelectedRecord(record); }}
-                                                    className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-1"
-                                                >
-                                                    Details <ChevronRight size={12} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </>
-                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Detail Drawer */}
-            {selectedRecord && (
-                <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
-                    <div className="absolute inset-0 overflow-hidden">
-                        <div
-                            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity duration-300"
-                            onClick={() => setSelectedRecord(null)}
-                        ></div>
-                        <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
-                            <div className="relative w-screen sm:max-w-[440px] transform transition-transform duration-300 ease-in-out shadow-2xl">
-                                <div className="flex h-full flex-col bg-white  shadow-2xl">
-                                    {/* Drawer Header */}
-                                    <div className="px-6 py-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative">
-                                        <button
-                                            onClick={() => setSelectedRecord(null)}
-                                            className="absolute top-4 right-4 p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all"
-                                        >
-                                            <XCircle className="h-5 w-5" />
-                                        </button>
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 text-emerald-400">
-                                                <Wrench size={24} />
-                                            </div>
-                                            <div>
-                                                <h2 className="text-xl font-black tracking-tight">Service Record</h2>
-                                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Ticket #T-{selectedRecord.id}</p>
-                                            </div>
-                                        </div>
-                                    </div>
+            <RightDrawer
+                isOpen={!!selectedRecord}
+                onClose={() => setSelectedRecord(null)}
+                title={selectedRecord ? `Service Record #T-${selectedRecord.id}` : ''}
+            >
+                {selectedRecord && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                        <div style={{ background: T.bg, padding: 24, borderRadius: 28, border: `1.5px solid ${T.border}` }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                                <h4 style={{ margin: 0, fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Reported Problem</h4>
+                                <span style={{ fontSize: 11, fontWeight: 900, color: T.accent, textTransform: 'uppercase' }}>Verified Issue</span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: 16, color: T.text, fontWeight: 600, lineHeight: 1.6 }}>{selectedRecord.issue}</p>
+                        </div>
 
-                                    {/* Drawer Body */}
-                                    <div className="flex-1 p-6 space-y-6">
-                                        {/* Issue */}
-                                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Issue Reported</p>
-                                                    <p className="text-base font-black text-slate-800 mt-1">{selectedRecord.issue}</p>
-                                                </div>
-                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${getStatusStyle(selectedRecord.status)}`}>
-                                                    {getStatusIcon(selectedRecord.status)}
-                                                    {selectedRecord.status}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Details Grid */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipment</p>
-                                                <p className="text-sm font-bold text-slate-800 mt-1">{selectedRecord.equipment?.name || 'Unknown'}</p>
-                                            </div>
-                                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</p>
-                                                <p className="text-sm font-bold text-slate-800 mt-1">{selectedRecord.equipment?.category || 'N/A'}</p>
-                                            </div>
-                                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</p>
-                                                <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${getPriorityStyle(selectedRecord.priority)}`}>
-                                                    {selectedRecord.priority}
-                                                </span>
-                                            </div>
-                                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date Reported</p>
-                                                <p className="text-sm font-bold text-slate-800 mt-1">
-                                                    {new Date(selectedRecord.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* Equipment Info */}
-                                        {selectedRecord.equipment && (
-                                            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 space-y-3">
-                                                <p className="text-xs font-black text-emerald-700 uppercase tracking-widest flex items-center gap-2">
-                                                    <Package size={14} /> Equipment Details
-                                                </p>
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-emerald-500">Brand</p>
-                                                        <p className="text-xs font-bold text-emerald-900">{selectedRecord.equipment.brand || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-emerald-500">Location</p>
-                                                        <p className="text-xs font-bold text-emerald-900">{selectedRecord.equipment.location || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-emerald-500">Serial Number</p>
-                                                        <p className="text-xs font-bold text-emerald-900">{selectedRecord.equipment.serialNumber || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-emerald-500">Equipment Status</p>
-                                                        <p className="text-xs font-bold text-emerald-900">{selectedRecord.equipment.status || 'N/A'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Update Status */}
-                                        <div className="space-y-3">
-                                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Update Status</p>
-                                            <select
-                                                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all cursor-pointer"
-                                                value={selectedRecord.status}
-                                                onChange={(e) => handleStatusUpdate(selectedRecord.id, e.target.value)}
-                                            >
-                                                <option value="Pending">Pending</option>
-                                                <option value="In Progress">In Progress</option>
-                                                <option value="Completed">Completed</option>
-                                                <option value="Cancelled">Cancelled</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Footer */}
-                                    <div className="px-6 py-4 border-t border-slate-100">
-                                        <button
-                                            onClick={() => setSelectedRecord(null)}
-                                            className="w-full bg-slate-900 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-colors"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
-                                </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <div style={{ background: '#fff', padding: 20, borderRadius: 20, border: `1.5px solid ${T.border}` }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Machine Name</span>
+                                <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.name || 'N/A'}</p>
+                            </div>
+                            <div style={{ background: '#fff', padding: 20, borderRadius: 20, border: `1.5px solid ${T.border}` }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Equipment Class</span>
+                                <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.category || 'N/A'}</p>
                             </div>
                         </div>
+
+                        <div style={{ background: T.greenLight, padding: 24, borderRadius: 28, border: `1.5px solid ${T.green}20`, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <h4 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.green, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <Package size={16} /> Asset Intelligence
+                            </h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                <div><p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.green }}>Serial Trace</p><p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.serialNumber || 'N/A'}</p></div>
+                                <div><p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.green }}>Current Loc</p><p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.location || 'Floor A'}</p></div>
+                                <div><p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.green }}>Manufacturer</p><p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.brand || 'Premium Fitness'}</p></div>
+                                <div><p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.green }}>Global Status</p><p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: T.text }}>{selectedRecord.equipment?.status || 'Active'}</p></div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <h4 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.text }}>Status Lifecycle</h4>
+                            <select
+                                value={selectedRecord.status}
+                                onChange={(e) => handleStatusUpdate(selectedRecord.id, e.target.value)}
+                                style={{ width: '100%', height: 52, padding: '0 20px', borderRadius: 16, border: `2px solid ${T.border}`, fontSize: 14, fontWeight: 800, color: T.text, background: '#fff', outline: 'none', cursor: 'pointer' }}
+                            >
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginTop: 'auto' }}>
+                            <ActionButton style={{ width: '100%' }} icon={XCircle} onClick={() => setSelectedRecord(null)}>Close Ledger Entry</ActionButton>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </RightDrawer>
         </div>
     );
 };

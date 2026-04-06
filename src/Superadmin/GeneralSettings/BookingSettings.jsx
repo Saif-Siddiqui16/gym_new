@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, Calendar, Clock, CreditCard, ArrowLeft, AlertCircle, Shield, Ban, Dumbbell, Gift } from 'lucide-react';
+import { Save, Calendar, Clock, CreditCard, ArrowLeft, AlertCircle, Shield, Ban, Dumbbell, Gift, Sparkles, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { fetchBookingSettings, updateBookingSettings } from '../../api/superadmin/superAdminApi';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
+  text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+  green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  amber: '#F59E0B', amberLight: '#FEF3C7',
+};
 
 const BookingSettings = () => {
     const navigate = useNavigate();
@@ -13,15 +25,10 @@ const BookingSettings = () => {
         creditsPerBooking: 1,
         maxBookingsPerDay: 2,
         maxBookingsPerWeek: 10,
-
-        // Classes specific
-        classCancellationWindow: 4, // hours
+        classCancellationWindow: 4,
         classAdvanceBookingDays: 7,
-
-        // Premium Benefits specific
-        benefitCancellationWindow: 24, // hours
+        benefitCancellationWindow: 24,
         benefitAdvanceBookingDays: 14,
-
         penaltyEnabled: true,
         penaltyCredits: 1
     });
@@ -31,212 +38,188 @@ const BookingSettings = () => {
             try {
                 const data = await fetchBookingSettings();
                 setSettings(prev => ({ ...prev, ...data }));
-            } catch (error) {
-                console.error("Failed to load booking settings:", error);
-            } finally {
-                setFetching(false);
-            }
+            } catch (error) { console.error(error); }
+            finally { setFetching(false); }
         };
         loadSettings();
     }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setSettings(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        setSettings(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
     const handleSave = async () => {
         setLoading(true);
         try {
             await updateBookingSettings(settings);
-            toast.success('Booking rules updated successfully!');
-        } catch (error) {
-            console.error("Failed to save booking settings:", error);
-            toast.error("Failed to save: " + error.message);
-        } finally {
-            setLoading(false);
-        }
+            toast.success('Sync Protocol Manifested');
+        } catch (error) { toast.error("Transmission Error"); }
+        finally { setLoading(false); }
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
-            <div className="w-full max-w-full mb-6">
-                <button
-                    onClick={() => navigate('/superadmin/general-settings/general')}
-                    className="group flex items-center text-slate-500 hover:text-primary transition-all duration-300 hover:scale-105"
-                >
-                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-all duration-300 mr-2 group-hover:scale-110">
-                        <ArrowLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-1" />
-                    </div>
-                    <span className="font-semibold">Back to Dashboard</span>
-                </button>
-            </div>
+    const inputStyle = (err) => ({
+        width: '100%', padding: '12px 16px 12px 42px', background: T.surface, border: `1.5px solid ${err ? T.rose : T.border}`,
+        borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: T.text, outline: 'none', transition: 'all 0.2s',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+    });
 
-            <div className="w-full max-w-full mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <Calendar size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                Booking Rules
-                            </h1>
-                            <p className="text-slate-600 text-sm mt-1">Configure specific windows for classes and premium benefits</p>
-                        </div>
+    const Card = ({ children, style = {} }) => (
+        <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '24px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)', ...style }}>
+            {children}
+        </div>
+    );
+
+    if (fetching) {
+        return (
+            <div style={{ background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                <div style={{ width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+            </div>
+        );
+    }
+
+    return (
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+            `}</style>
+
+            <div style={{ maxWidth: '1000px', margin: '0 auto', animation: 'fadeUp 0.4s ease both' }}>
+                
+                {/* Back Link */}
+                <button 
+                    onClick={() => navigate('/superadmin/general-settings/general')}
+                    style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: 10, color: T.muted, fontSize: 13, fontWeight: 800, cursor: 'pointer', marginBottom: 24, padding: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.color = T.accent}
+                    onMouseLeave={e => e.currentTarget.style.color = T.muted}
+                >
+                    <ArrowLeft size={18} /> BACK TO SECTOR HUB
+                </button>
+
+                {/* Header Banner */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #1A1533 0%, #2D274D 55%, #3F396D 100%)',
+                    borderRadius: 24, padding: '24px 32px', boxShadow: '0 8px 32px rgba(13,10,31,0.28)',
+                    display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32
+                }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                        <Calendar size={28} color={T.accent2} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>Booking Settings</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: '4px 0 0', fontWeight: 600 }}>Configure cancellation windows and booking rules</p>
                     </div>
                 </div>
-            </div>
 
-            <div className="w-full max-w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
-                <div className="p-8 sm:p-10 space-y-10">
-
-                    {/* Class Rules */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-primary-light rounded-lg text-primary">
-                                <Dumbbell size={20} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 28 }}>
+                    
+                    {/* Class Settings */}
+                    <Card>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Dumbbell size={20} strokeWidth={2.5} />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800">Group Class Rules</h3>
+                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Class Settings</h3>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Cancellation Window (Classes)</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <Clock size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="classCancellationWindow"
-                                        value={settings.classCancellationWindow}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all font-semibold"
-                                    />
-                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Hours Before</span>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cancellation Window (Classes)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Clock size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="number" name="classCancellationWindow" value={settings.classCancellationWindow} onChange={handleChange} style={inputStyle()} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
+                                    <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Hours</span>
                                 </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Advance Booking Window (Classes)</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <Calendar size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="classAdvanceBookingDays"
-                                        value={settings.classAdvanceBookingDays}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all font-semibold"
-                                    />
-                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">Days Out</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Advance Booking (Classes)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Calendar size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="number" name="classAdvanceBookingDays" value={settings.classAdvanceBookingDays} onChange={handleChange} style={inputStyle()} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
+                                    <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Days</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="border-t border-slate-100 my-8"></div>
-
-                    {/* Benefit Rules */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
-                                <Gift size={20} />
+                    {/* Amenity Settings */}
+                    <Card>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Gift size={20} strokeWidth={2.5} />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800">Premium Benefit Rules (Sauna, PT, etc.)</h3>
+                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Amenity Settings</h3>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Cancellation Window (Benefits)</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-rose-400">
-                                        <Clock size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="benefitCancellationWindow"
-                                        value={settings.benefitCancellationWindow}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-rose-100 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 hover:border-rose-200 transition-all font-semibold"
-                                    />
-                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-rose-400">Hours Before</span>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cancellation Window (Benefits)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Clock size={18} color={T.rose} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                    <input type="number" name="benefitCancellationWindow" value={settings.benefitCancellationWindow} onChange={handleChange} style={{ ...inputStyle(), borderColor: T.roseLight }} onFocus={e => e.currentTarget.style.borderColor = T.rose} onBlur={e => e.currentTarget.style.borderColor = T.roseLight} />
+                                    <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontWeight: 800, color: T.rose, textTransform: 'uppercase', opacity: 0.6 }}>Hours</span>
                                 </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-3">Advance Booking Window (Benefits)</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-rose-400">
-                                        <Calendar size={18} />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        name="benefitAdvanceBookingDays"
-                                        value={settings.benefitAdvanceBookingDays}
-                                        onChange={handleChange}
-                                        className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-rose-100 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 hover:border-rose-200 transition-all font-semibold"
-                                    />
-                                    <span className="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-rose-400">Days Out</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Advance Booking (Benefits)</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Calendar size={18} color={T.rose} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                    <input type="number" name="benefitAdvanceBookingDays" value={settings.benefitAdvanceBookingDays} onChange={handleChange} style={{ ...inputStyle(), borderColor: T.roseLight }} onFocus={e => e.currentTarget.style.borderColor = T.rose} onBlur={e => e.currentTarget.style.borderColor = T.roseLight} />
+                                    <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontWeight: 800, color: T.rose, textTransform: 'uppercase', opacity: 0.6 }}>Days</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="border-t border-slate-100 my-8"></div>
-
-                    {/* Consumption & Penalties */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-slate-50 rounded-lg text-slate-600">
-                                <Shield size={20} />
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-800">Consumption & Penalties</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col justify-between">
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="text-sm font-bold text-slate-700">Late Cancellation Penalty</span>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="penaltyEnabled" checked={settings.penaltyEnabled} onChange={handleChange} className="sr-only peer" />
-                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                    </label>
+                    {/* Penalty Settings */}
+                    <Card style={{ border: `2px solid ${T.accentMid}`, background: T.accentLight + '20' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ width: 40, height: 40, borderRadius: 11, background: T.surface, border: `1px solid ${T.accentMid}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                                    <Shield size={22} strokeWidth={2.5} />
                                 </div>
-
-                                {settings.penaltyEnabled && (
-                                    <div className="animate-in fade-in slide-in-from-top-2">
-                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Penalty Credits</label>
-                                        <input
-                                            type="number"
-                                            name="penaltyCredits"
-                                            value={settings.penaltyCredits}
-                                            onChange={handleChange}
-                                            className="block w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 text-sm focus:border-primary focus:ring-2 focus:ring-violet-200 transition-all"
-                                        />
-                                    </div>
-                                )}
+                                <div>
+                                    <h4 style={{ fontSize: 15, fontWeight: 900, color: T.text, margin: 0 }}>Penalty Settings</h4>
+                                    <p style={{ fontSize: 11, fontWeight: 600, color: T.muted, margin: '2px 0 0' }}>Configure late cancellation and no-show penalties</p>
+                                </div>
                             </div>
+                            <label style={{ position: 'relative', width: 44, height: 24, cursor: 'pointer' }}>
+                                <input type="checkbox" name="penaltyEnabled" checked={settings.penaltyEnabled} onChange={handleChange} style={{ opacity: 0, width: 0, height: 0 }} />
+                                <div style={{ position: 'absolute', inset: 0, background: settings.penaltyEnabled ? T.accent : T.subtle, borderRadius: 20, transition: '0.2s' }} />
+                                <div style={{ position: 'absolute', top: 3, left: settings.penaltyEnabled ? 23 : 3, width: 18, height: 18, background: '#fff', borderRadius: '50%', transition: '0.2s cubic-bezier(0.4, 0, 0.2, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} />
+                            </label>
                         </div>
-                    </div>
 
+                        {settings.penaltyEnabled && (
+                            <div style={{ marginTop: 24, padding: 20, background: T.surface, borderRadius: 16, border: `1px solid ${T.accentMid}`, animation: 'fadeUp 0.3s forwards' }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 10 }}>Penalty Credits</label>
+                                <div style={{ position: 'relative' }}>
+                                    <AlertCircle size={18} color={T.accent} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="number" name="penaltyCredits" value={settings.penaltyCredits} onChange={handleChange} style={{ ...inputStyle(), background: T.bg }} />
+                                    <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 10, fontWeight: 900, color: T.accent, textTransform: 'uppercase' }}>Credits</span>
+                                </div>
+                            </div>
+                        )}
+                    </Card>
 
-                    {/* Save Button */}
-                    <div className="flex justify-end pt-6 border-t border-slate-100">
+                    {/* Action Bar */}
+                    <div style={{
+                        marginTop: 10, display: 'flex', justifyContent: 'flex-end', padding: '24px 32px',
+                        background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderRadius: 24, border: `1.5px solid ${T.accentMid}`,
+                    }}>
                         <button
-                            onClick={handleSave}
-                            disabled={loading}
-                            className="group relative flex items-center justify-center px-8 py-4 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
+                            onClick={handleSave} disabled={loading}
+                            style={{
+                                padding: '14px 44px', borderRadius: 14, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                                color: '#fff', border: 'none', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: '0.2s',
+                                boxShadow: `0 8px 24px rgba(124,92,252,0.3)`, display: 'flex', alignItems: 'center', gap: 12, width: '100%'
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <Save size={20} className="mr-2 relative transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                            <span className="relative">{loading ? 'Saving...' : 'Save Configuration'}</span>
+                            <Save size={20} strokeWidth={2.5} /> {loading ? 'Saving…' : 'SAVE SETTINGS'}
                         </button>
                     </div>
 

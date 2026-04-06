@@ -57,147 +57,121 @@ const WebhookSettings = () => {
 
     const tabs = ['All', 'Open', 'Resolved'];
 
+    const T = {
+        accent: '#7C5CFC', accentLight: '#F0ECFF', border: '#EAE7FF', bg: '#F6F5FF', 
+        surface: '#FFFFFF', text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+        success: '#22C97A', successLight: '#E8FBF2', danger: '#F43F5E', dangerLight: '#FFF1F4',
+        info: '#3B82F6', infoLight: '#EFF6FF'
+    };
+
+    const S = {
+        ff: "'Plus Jakarta Sans', sans-serif",
+        card: { background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08)', padding: '24px' },
+        btn: { height: '44px', padding: '0 20px', borderRadius: '14px', border: 'none', fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }
+    };
+
     return (
-        <div className="p-4 sm:p-8 bg-gradient-to-br from-[#f8fafc] via-white to-primary-light/20 min-h-screen pb-24 font-sans text-slate-800">
-            <div className="max-w-full mx-auto space-y-10">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 ring-4 ring-primary-light">
-                            <Activity size={32} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">System Health</h1>
-                            <p className="text-sm font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Real-time Diagnostic Intelligence</p>
-                        </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '60px', height: '60px', borderRadius: '20px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(124, 92, 252, 0.4)' }}>
+                        <Activity size={28} />
                     </div>
-                    <button
-                        onClick={loadData}
-                        className="h-14 px-8 bg-white text-slate-600 border-2 border-slate-100 rounded-2xl flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-sm hover:border-violet-100 hover:text-primary transition-all active:scale-95 group"
-                    >
-                        <RefreshCcw size={18} className="group-hover:rotate-180 transition-transform duration-500" /> Refresh Diagnostics
-                    </button>
+                    <div>
+                         <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>System Health</h1>
+                         <p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, marginTop: '6px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Real-time Diagnostic Intelligence</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={loadData}
+                    style={{ ...S.btn, background: T.surface, color: T.text, border: `1px solid ${T.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+                >
+                    <RefreshCcw size={16} /> Refresh Diagnostics
+                </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+                <div style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity size={24} /></div>
+                    <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0, letterSpacing: '0.05em' }}>Total Logs</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: '2px 0' }}>{data.stats.total}</h2><p style={{ fontSize: '10px', fontWeight: '700', color: T.subtle, margin: 0 }}>Monitoring events</p></div>
+                </div>
+                <div style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.dangerLight, color: T.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Zap size={24} /></div>
+                    <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0, letterSpacing: '0.05em' }}>Open Issues</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: '2px 0' }}>{data.stats.open}</h2><p style={{ fontSize: '10px', fontWeight: '700', color: T.subtle, margin: 0 }}>Requires attention</p></div>
+                </div>
+                <div style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.successLight, color: T.success, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle2 size={24} /></div>
+                    <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0, letterSpacing: '0.05em' }}>Resolved Today</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: '2px 0' }}>{data.stats.resolved}</h2><p style={{ fontSize: '10px', fontWeight: '700', color: T.subtle, margin: 0 }}>Auto-fixed</p></div>
+                </div>
+                <div style={{ ...S.card, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.infoLight, color: T.info, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Cpu size={24} /></div>
+                    <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0, letterSpacing: '0.05em' }}>System Uptime</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: '2px 0' }}>99.9%</h2><p style={{ fontSize: '10px', fontWeight: '700', color: T.subtle, margin: 0 }}>Real-time</p></div>
+                </div>
+            </div>
+
+            <div style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '24px', borderBottom: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px', background: T.bg, padding: '6px', borderRadius: '16px' }}>
+                        {tabs.map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                style={{ ...S.btn, height: '36px', background: activeTab === tab ? T.surface : 'transparent', color: activeTab === tab ? T.accent : T.muted, boxShadow: activeTab === tab ? '0 2px 8px rgba(0,0,0,0.05)' : 'none' }}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', fontWeight: '900', color: T.success, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: T.success }} />
+                        Real-time Monitoring Active
+                    </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {statsCards.map((card, idx) => (
-                        <StatsCard
-                            key={idx}
-                            title={card.label}
-                            value={card.value.toString()}
-                            subtitle={card.subtitle}
-                            icon={card.icon}
-                            color={card.color === 'emerald' ? 'success' : card.color === 'rose' ? 'danger' : card.color === 'indigo' ? 'primary' : 'info'}
-                        />
-                    ))}
-                </div>
-
-                {/* Main Content Area */}
-                <div className="bg-white rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                    {/* Toolbar */}
-                    <div className="p-8 border-b border-slate-50 flex flex-col lg:flex-row justify-between items-center gap-6 bg-white/50 backdrop-blur-sm">
-                        <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-2xl">
-                            {tabs.map(tab => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === tab
-                                        ? 'bg-white text-primary shadow-sm ring-1 ring-slate-100'
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
-                                >
-                                    {tab}
-                                </button>
+                <div style={{ padding: '24px', minHeight: '400px' }}>
+                    {loading ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', opacity: 0.5 }}>
+                            <Loader2 size={40} className="animate-spin" color={T.accent} style={{ marginBottom: '20px' }} />
+                            <p style={{ fontSize: '12px', fontWeight: '800', color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Synchronizing Core Engine...</p>
+                        </div>
+                    ) : data.logs.length === 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
+                            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: T.successLight, color: T.success, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+                                <CheckCircle2 size={40} />
+                            </div>
+                            <h3 style={{ fontSize: '20px', fontWeight: '900', color: T.text, margin: '0 0 12px 0' }}>System Status Optimal</h3>
+                            <p style={{ fontSize: '12px', fontWeight: '700', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>No critical anomalies detected</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {data.logs.map(log => (
+                                <div key={log.id} style={{ padding: '24px', background: T.bg, borderRadius: '20px', border: `1px solid ${T.border}` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <span style={{ padding: '6px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', background: log.status === 'Open' ? T.dangerLight : T.successLight, color: log.status === 'Open' ? T.danger : T.success }}>{log.status}</span>
+                                            <span style={{ fontSize: '11px', fontWeight: '800', color: T.muted, display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={12} /> {new Date(log.createdAt).toLocaleString()}</span>
+                                        </div>
+                                        <div style={{ fontSize: '10px', fontWeight: '900', color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em', background: T.surface, padding: '8px 16px', borderRadius: '12px', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Terminal size={12} /> Action: {log.action || 'UNDEFINED'}
+                                        </div>
+                                    </div>
+                                    <h4 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}><Shield size={16} color={T.subtle} /> {log.affectedEntity || 'Core System Trace'}</h4>
+                                    <div style={{ background: T.surface, padding: '16px', borderRadius: '16px', border: `1px solid ${T.border}`, fontFamily: 'monospace', fontSize: '12px', color: T.muted, fontWeight: '600', marginBottom: '20px' }}>
+                                        {log.details || 'No trace available'}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '20px', borderTop: `1px solid ${T.border}` }}>
+                                        <div style={{ display: 'flex', gap: '24px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '32px', height: '32px', background: T.surface, borderRadius: '10px', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><User size={14} /></div><span style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{log.user || 'Unknown'}</span></div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '32px', height: '32px', background: T.surface, borderRadius: '10px', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><Building size={14} /></div><span style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{log.branch || 'Global'}</span></div>
+                                        </div>
+                                        <button style={{ ...S.btn, background: T.text, color: '#FFF' }}>Generate AI Fix <ArrowUpRight size={14} /></button>
+                                    </div>
+                                </div>
                             ))}
                         </div>
-
-                        <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <span className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" /> Real-time Monitoring Active
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Table View */}
-                    <div className="p-8 min-h-[400px]">
-                        {loading ? (
-                            <div className="py-32 flex flex-col items-center justify-center opacity-30">
-                                <Loader2 className="animate-spin text-primary mb-6" size={48} />
-                                <p className="text-sm font-black text-slate-900 uppercase tracking-widest animate-pulse">Synchronizing Core Engine...</p>
-                            </div>
-                        ) : data.logs.length === 0 ? (
-                            <div className="py-32 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-                                <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner ring-1 ring-emerald-100 rotate-3 animate-bounce">
-                                    <CheckCircle2 size={40} />
-                                </div>
-                                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">System Status Optimal</h3>
-                                <p className="text-sm font-bold text-slate-400 leading-relaxed uppercase tracking-wide">No critical anomalies detected across the current infrastructure layer.</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {data.logs.map(log => (
-                                    <div
-                                        key={log.id}
-                                        className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100/80 flex flex-col gap-6 hover:bg-white hover:border-violet-100 hover:shadow-lg hover:shadow-primary-light/50 transition-all group overflow-hidden relative"
-                                    >
-                                        <div className="flex flex-wrap items-center justify-between gap-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${log.status === 'Open'
-                                                    ? 'bg-rose-50 text-rose-600 border-rose-100'
-                                                    : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                    }`}>
-                                                    {log.status}
-                                                </div>
-                                                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
-                                                    <Clock size={12} />
-                                                    {new Date(log.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-violet-100 shadow-sm">
-                                                <Terminal size={14} className="text-violet-400" />
-                                                Action: {log.action || 'UNDEFINED'}
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-3 relative z-10">
-                                            <h4 className="text-md font-black text-slate-900 flex items-center gap-2">
-                                                <Shield size={18} className="text-slate-300" />
-                                                {log.affectedEntity || 'Core System Trace'}
-                                            </h4>
-                                            <div className="bg-slate-900/5 backdrop-blur-md p-5 rounded-2xl border border-slate-200/50 font-mono">
-                                                <p className="text-xs text-slate-600 leading-relaxed font-bold break-all">
-                                                    {log.details || 'No trace available'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center justify-between gap-6 pt-6 border-t border-slate-100 relative z-10">
-                                            <div className="flex items-center gap-6">
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 shadow-sm group-hover:border-violet-200 transition-colors">
-                                                        <User size={14} />
-                                                    </div>
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{log.user || 'Unknown'}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 shadow-sm group-hover:border-violet-200 transition-colors">
-                                                        <Building size={14} />
-                                                    </div>
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{log.branch || 'Global'}</span>
-                                                </div>
-                                            </div>
-
-                                            <button className="h-10 px-6 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary transition-all shadow-xl shadow-slate-200 flex items-center gap-2 group/btn active:scale-95">
-                                                Generate AI Fix <ArrowUpRight size={14} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                                            </button>
-                                        </div>
-                                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary-light/20 rounded-full blur-3xl group-hover:bg-violet-100/30 transition-all pointer-events-none" />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

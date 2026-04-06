@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { ROLES } from '../../config/roles';
-import { useNavigate } from 'react-router-dom';
-import { Save, FileText, Loader2, Receipt, Hash, Percent, Eye, ArrowLeft } from 'lucide-react';
+import { Save, FileText, Loader2, Receipt, Hash, Percent, Eye, ArrowLeft, ArrowUpRight, Sparkles } from 'lucide-react';
 import { fetchAllGyms, fetchInvoiceSettings, updateInvoiceSettings } from '../../api/superadmin/superAdminApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import BranchScopeSelector from '../../components/common/BranchScopeSelector';
 import { toast } from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
+  text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+  green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  amber: '#F59E0B', amberLight: '#FEF3C7',
+};
 
 const InvoiceSettings = () => {
     const navigate = useNavigate();
@@ -15,18 +26,12 @@ const InvoiceSettings = () => {
     const isReadOnly = role === ROLES.MANAGER;
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [branches, setBranches] = useState([]);
-    const [formData, setFormData] = useState({
-        prefix: 'INV-',
-        startNumber: '1001',
-        gstPercent: '18'
-    });
+    const [formData, setFormData] = useState({ prefix: 'INV-', startNumber: '1001', gstPercent: '18' });
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        const init = async () => {
-            await Promise.all([loadSettings(), loadBranches()]);
-        };
+        const init = async () => { await Promise.all([loadSettings(), loadBranches()]); };
         init();
     }, []);
 
@@ -34,14 +39,8 @@ const InvoiceSettings = () => {
         try {
             const data = await fetchAllGyms();
             const gymList = data.gyms || [];
-            const formattedBranches = gymList.map(gym => ({
-                id: gym.id,
-                name: gym.gymName + (gym.branchName ? ` - ${gym.branchName}` : '')
-            }));
-            setBranches(formattedBranches);
-        } catch (error) {
-            console.error('Failed to fetch branches:', error);
-        }
+            setBranches(gymList.map(gym => ({ id: gym.id, name: gym.gymName + (gym.branchName ? ` - ${gym.branchName}` : '') })));
+        } catch (error) { console.error(error); }
     };
 
     const loadSettings = async () => {
@@ -49,260 +48,178 @@ const InvoiceSettings = () => {
         try {
             const data = await fetchInvoiceSettings();
             setFormData(data);
-        } catch (error) {
-            console.error('Error fetching invoice settings:', error);
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error(error); }
+        finally { setLoading(false); }
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
             await updateInvoiceSettings(formData);
-            toast.success('Invoice settings updated successfully!');
-        } catch (error) {
-            console.error('Error saving invoice settings:', error);
-            toast.error('Failed to save invoice settings.');
-        } finally {
-            setIsSaving(false);
-        }
+            toast.success('Monetary Logic Operational');
+        } catch (error) { toast.error('Vault Sync Failed'); }
+        finally { setIsSaving(false); }
     };
+
+    const inputStyle = (focused) => ({
+        width: '100%', height: '48px', padding: '0 16px 0 44px', background: T.bg, border: `1.5px solid ${focused ? T.accent : T.border}`,
+        borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: T.text, outline: 'none', transition: 'all 0.2s',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+    });
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <Loader2 className="animate-spin text-primary mb-4" size={48} />
-                    <span className="text-lg font-semibold text-slate-600">Loading settings...</span>
-                </div>
+            <div style={{ background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                <div style={{ width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center">
-            {/* Page Header - Back Button */}
-            <div className="w-full max-w-full mb-6">
-                <button
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+            `}</style>
+
+            <div style={{ maxWidth: '1200px', margin: '0 auto', animation: 'fadeUp 0.4s ease both' }}>
+                
+                {/* Back Link */}
+                <button 
                     onClick={() => navigate('/superadmin/general-settings/general')}
-                    className="group flex items-center text-slate-500 hover:text-primary transition-all duration-300 hover:scale-105"
+                    style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: 10, color: T.muted, fontSize: 13, fontWeight: 800, cursor: 'pointer', marginBottom: 24, padding: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.color = T.accent}
+                    onMouseLeave={e => e.currentTarget.style.color = T.muted}
                 >
-                    <div className="p-1 rounded-full group-hover:bg-primary-light transition-all duration-300 mr-2 group-hover:scale-110">
-                        <ArrowLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-1" />
-                    </div>
-                    <span className="font-semibold">Back to Settings</span>
+                    <ArrowLeft size={18} /> BACK TO SETTINGS CLUSTER
                 </button>
-            </div>
-            {/* Premium Header with Gradient */}
-            <div className="max-w-full mx-auto mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <Receipt size={24} className="sm:w-7 sm:h-7" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                Invoice Settings
-                            </h1>
-                            <p className="text-slate-600 text-xs sm:text-sm mt-0.5 sm:mt-1">Configure invoice numbering and tax details</p>
-                        </div>
+
+                {/* Header Banner */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #1A1533 0%, #2D274D 55%, #3F396D 100%)',
+                    borderRadius: 24, padding: '24px 32px', boxShadow: '0 8px 32px rgba(13,10,31,0.28)',
+                    display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32
+                }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                        <Receipt size={28} color={T.green} strokeWidth={2.5} />
                     </div>
-                </div>
-            </div>
-
-            <div className="max-w-full mx-auto w-full px-4 mb-6">
-                <BranchScopeSelector
-                    value={selectedBranch}
-                    onChange={setSelectedBranch}
-                    branches={branches}
-                />
-            </div>
-
-            <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                {/* Settings Form */}
-                <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-6 sm:p-8 hover:shadow-2xl transition-all duration-300">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-slate-100">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary shadow-md transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <FileText size={20} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Configuration</h2>
-                                {isReadOnly && (
-                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-xs font-bold rounded border border-slate-200 uppercase tracking-wide">
-                                        Read-Only 🔒
-                                    </span>
-                                )}
-                            </div>
-                            <p className="text-xs sm:text-sm text-slate-500">
-                                {isReadOnly ? 'View invoice numbering and tax details.' : 'Set up invoice numbering and tax details'}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-5 sm:space-y-6">
-                        {/* Invoice Prefix */}
-                        <div>
-                            <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3" htmlFor="prefix">
-                                Invoice Prefix
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                    <Hash size={18} className="sm:w-5 sm:h-5" />
-                                </div>
-                                <input
-                                    type="text"
-                                    id="prefix"
-                                    name="prefix"
-                                    className={`block w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg ${isReadOnly ? 'cursor-not-allowed bg-slate-50 text-slate-500' : ''}`}
-                                    value={formData.prefix}
-                                    onChange={handleChange}
-                                    placeholder="e.g. INV-"
-                                    disabled={isReadOnly}
-                                />
-                            </div>
-                            <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 inline-block"></span>
-                                Prefix for all generated invoice numbers
-                            </p>
-                        </div>
-
-                        {/* Starting Number */}
-                        <div>
-                            <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3" htmlFor="startNumber">
-                                Starting Number
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                    <Hash size={18} className="sm:w-5 sm:h-5" />
-                                </div>
-                                <input
-                                    type="number"
-                                    id="startNumber"
-                                    name="startNumber"
-                                    className={`block w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg ${isReadOnly ? 'cursor-not-allowed bg-slate-50 text-slate-500' : ''}`}
-                                    value={formData.startNumber}
-                                    onChange={handleChange}
-                                    placeholder="e.g. 1001"
-                                    disabled={isReadOnly}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Tax Settings */}
-                        <div>
-                            <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3" htmlFor="gstPercent">
-                                Tax Settings (GST %)
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 z-10">
-                                    <Percent size={18} className="sm:w-5 sm:h-5" />
-                                </div>
-                                <CustomDropdown
-                                    options={[
-                                        { value: '0', label: '0% (Tax Exempt)' },
-                                        { value: '5', label: '5%' },
-                                        { value: '12', label: '12%' },
-                                        { value: '18', label: '18% (Standard)' },
-                                        { value: '28', label: '28%' }
-                                    ]}
-                                    value={formData.gstPercent}
-                                    onChange={(val) => handleChange({ target: { name: 'gstPercent', value: val } })}
-                                    className={`w-full pl-10 sm:pl-12 ${isReadOnly ? 'cursor-not-allowed bg-slate-50 text-slate-500' : ''}`}
-                                    disabled={isReadOnly}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Save Button */}
-                    <div className="flex justify-end mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100">
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving || isReadOnly}
-                            className="group relative flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full md:w-auto bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-lg sm:rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            {isSaving ? (
-                                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin relative mr-2" />
-                            ) : (
-                                <Save className="w-4 h-4 sm:w-5 sm:h-5 relative mr-2 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                            )}
-                            <span className="relative">{isSaving ? 'Saving...' : 'Save Configuration'}</span>
-                        </button>
+                    <div>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>Invoice Settings</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: '4px 0 0', fontWeight: 600 }}>Configure invoice numbering and tax details</p>
                     </div>
                 </div>
 
-                {/* Template Preview */}
-                <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-6 sm:p-8 hover:shadow-2xl transition-all duration-300">
-                    <div className="flex items-center justify-between mb-6 sm:mb-8">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-600 shadow-md transition-all duration-300 hover:scale-110 hover:rotate-6">
-                                <Eye size={16} className="sm:w-5 sm:h-5" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 32 }}>
+                    
+                    {/* Settings Hub */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <BranchScopeSelector value={selectedBranch} onChange={setSelectedBranch} branches={branches} />
+                        
+                        <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '32px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                                <div style={{ width: 40, height: 40, borderRadius: 11, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <FileText size={22} strokeWidth={2.5} />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Invoice Configuration</h3>
+                                    <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, margin: '2px 0 0' }}>{isReadOnly ? 'View invoice settings' : 'Set up invoice numbering and tax'}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 flex items-center gap-2">
-                                    Live Preview
-                                    <span className="text-[9px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200">
-                                        Updated
-                                    </span>
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Invoice Preview Card */}
-                    <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-lg sm:rounded-xl p-4 sm:p-6 border-2 border-slate-200 shadow-inner">
-                        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md">
-                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 mb-4 sm:mb-6">
-                                <div className="text-left">
-                                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
-                                            <span className="text-white font-bold text-xs sm:text-sm">G</span>
-                                        </div>
-                                        <span className="font-bold text-slate-800 text-base sm:text-lg">GymName</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>Invoice Prefix</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Hash size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input name="prefix" value={formData.prefix} onChange={handleChange} disabled={isReadOnly} style={inputStyle()} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
                                     </div>
-                                    <div className="h-1.5 sm:h-2 w-24 sm:w-32 bg-slate-200 rounded mb-1 sm:mb-1.5"></div>
-                                    <div className="h-1.5 sm:h-2 w-20 sm:w-24 bg-slate-200 rounded"></div>
                                 </div>
-                                <div className="text-left sm:text-right w-full sm:w-auto">
-                                    <h3 className="text-xl sm:text-2xl font-black text-slate-300 tracking-wider">INVOICE</h3>
-                                    <p className="font-mono text-xs sm:text-sm text-primary font-bold mt-1.5 sm:mt-2 bg-primary-light px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-violet-200 inline-block">
-                                        #{formData.prefix}{formData.startNumber}
-                                    </p>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>Starting Number</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Hash size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input type="number" name="startNumber" value={formData.startNumber} onChange={handleChange} disabled={isReadOnly} style={inputStyle()} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="space-y-2 sm:space-y-3">
-                                <div className="flex justify-between border-b border-slate-100 pb-2 sm:pb-3 hover:bg-slate-50 px-2 sm:px-3 -mx-2 sm:-mx-3 rounded transition-colors">
-                                    <span className="text-xs sm:text-sm text-slate-500 font-semibold">Date Issued</span>
-                                    <span className="text-xs sm:text-sm font-bold text-slate-700">{new Date().toLocaleDateString()}</span>
-                                </div>
-                                <div className="flex justify-between border-b border-slate-100 pb-2 sm:pb-3 hover:bg-slate-50 px-2 sm:px-3 -mx-2 sm:-mx-3 rounded transition-colors">
-                                    <span className="text-xs sm:text-sm text-slate-500 font-semibold">Total Amount</span>
-                                    <span className="text-xs sm:text-sm font-black text-slate-900">₹0.00</span>
-                                </div>
-                                <div className="flex justify-between pt-1 sm:pt-2 hover:bg-slate-50 px-2 sm:px-3 -mx-2 sm:-mx-3 rounded transition-colors">
-                                    <span className="text-xs sm:text-sm text-slate-500 font-semibold">Tax ({formData.gstPercent}%)</span>
-                                    <span className="text-xs sm:text-sm font-bold text-emerald-600">Included</span>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>Tax Settings (GST %)</label>
+                                    <CustomDropdown
+                                        options={[ { value: '0', label: '0% (Exempt)' }, { value: '5', label: '5%' }, { value: '12', label: '12%' }, { value: '18', label: '18% (Standard)' }, { value: '28', label: '28%' } ]}
+                                        value={formData.gstPercent}
+                                        onChange={(val) => handleChange({ target: { name: 'gstPercent', value: val } })}
+                                        disabled={isReadOnly}
+                                    />
                                 </div>
                             </div>
 
-                            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-primary-light to-purple-50 rounded-lg border border-violet-100 text-center">
-                                <p className="text-[10px] sm:text-xs text-slate-600 font-semibold">This is how your invoice header will look to customers.</p>
+                            {!isReadOnly && (
+                                <div style={{ marginTop: 40, paddingTop: 24, borderTop: `1.5px solid ${T.bg}` }}>
+                                    <button
+                                        onClick={handleSave} disabled={isSaving}
+                                        style={{
+                                            width: '100%', padding: '14px', borderRadius: '14px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                                            color: '#fff', border: 'none', fontSize: '14px', fontWeight: 900, cursor: 'pointer', transition: '0.2s',
+                                            boxShadow: `0 8px 24px rgba(124,92,252,0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                                    >
+                                        <Save size={20} strokeWidth={2.5} /> {isSaving ? 'Saving…' : 'SAVE SETTINGS'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Live Preview */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '32px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)', position: 'sticky', top: 20 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <Eye size={18} color={T.green} />
+                                    <span style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live Preview</span>
+                                </div>
+                                <span style={{ fontSize: 9, fontWeight: 900, background: T.greenLight, color: T.green, padding: '4px 8px', borderRadius: 8, border: `1px solid ${T.green}20` }}>SYNCED</span>
+                            </div>
+
+                            <div style={{ background: T.bg, padding: 16, borderRadius: 20, border: `1.5px solid ${T.border}` }}>
+                                <div style={{ background: T.surface, borderRadius: 16, padding: '24px', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: isReadOnly ? T.subtle : T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 900 }}>G</div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <h4 style={{ fontSize: 13, fontWeight: 900, color: T.subtle, margin: 0, letterSpacing: '0.1em' }}>INVOICE</h4>
+                                            <p style={{ fontSize: 14, fontWeight: 900, color: T.accent, margin: '4px 0 0' }}>#{formData.prefix}{formData.startNumber}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{ height: '1.5px', background: T.bg, margin: '20px 0' }} />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: T.muted }}>
+                                            <span>Issued To</span>
+                                            <span style={{ color: T.text }}>Strategic Member</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: T.muted }}>
+                                            <span>Billing Point</span>
+                                            <span style={{ color: T.text }}>Hub Alpha - Sector 1</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: T.muted }}>
+                                            <span>Tax Index</span>
+                                            <span style={{ color: T.green }}>{formData.gstPercent}% Applied</span>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: 24, padding: 12, background: T.bg, borderRadius: 12, textAlign: 'center' }}>
+                                        <p style={{ fontSize: 9, fontWeight: 800, color: T.subtle, margin: 0, textTransform: 'uppercase' }}>Protocol integrity verified at source</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

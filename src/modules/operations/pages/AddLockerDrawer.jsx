@@ -2,7 +2,29 @@ import React, { useState } from 'react';
 import { lockerApi } from '../../../api/lockerApi';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
-import Button from '../../../components/ui/Button';
+import { Box, MapPin, Hash, Sparkles, ChevronDown, Check, Coins } from 'lucide-react';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const AddLockerDrawer = ({ onClose, onSuccess }) => {
     const { selectedBranch } = useBranchContext();
@@ -38,104 +60,133 @@ const AddLockerDrawer = ({ onClose, onSuccess }) => {
         }
     };
 
+    const InputLabel = ({ children }) => (
+        <label style={{ display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginLeft: 4 }}>
+            {children}
+        </label>
+    );
+
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white">
-            <div className="flex-1  p-6 space-y-5">
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Locker Number</label>
-                    <input
-                        type="text"
-                        placeholder="A-001"
-                        value={formData.number}
-                        onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                        className="w-full px-4 py-2 border border-orange-400 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                    />
+        <div style={{ padding: '0 8px', animation: 'fadeIn 0.4s ease-out' }}>
+            <style>{`
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {/* Locker Number */}
+                <div style={{ background: T.bg, padding: 20, borderRadius: 24, border: `1.5px solid ${T.border}` }}>
+                    <InputLabel>Node Designation (Number)</InputLabel>
+                    <div style={{ position: 'relative' }}>
+                        <Hash size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                        <input
+                            type="text"
+                            placeholder="e.g. A-102"
+                            value={formData.number}
+                            onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                            style={{ width: '100%', height: 50, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid #fff`, background: '#fff', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s', boxShadow: T.cardShadow }}
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Size</label>
-                    <select
-                        value={formData.size}
-                        onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                        className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJtNiA5IDYgNiA2LTYiLz48L3N2Zz4=')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
-                    >
-                        <option value="Small">Small</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Large">Large</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Area / Location</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. Men's Changing Room"
-                        value={formData.area}
-                        onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Notes (Optional)</label>
-                    <textarea
-                        placeholder="Any notes..."
-                        rows={3}
-                        value={formData.notes}
-                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 resize-none"
-                    ></textarea>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" /></svg>
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-900 leading-none">Is Chargeable?</p>
-                            <p className="text-[10px] text-slate-500 mt-1">Enable for rental fees</p>
+                {/* Size & Location */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                        <InputLabel>Dimensional Class</InputLabel>
+                        <div style={{ position: 'relative' }}>
+                            <Box size={16} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                            <select
+                                value={formData.size}
+                                onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                                style={{ width: '100%', height: 50, padding: '0 40px 0 44px', borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', cursor: 'pointer', appearance: 'none' }}
+                            >
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                            </select>
+                            <ChevronDown size={14} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
                         </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <div>
+                        <InputLabel>Sector / Zone</InputLabel>
+                        <div style={{ position: 'relative' }}>
+                            <MapPin size={16} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                            <input
+                                type="text"
+                                placeholder="e.g. Zone A"
+                                value={formData.area}
+                                onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                                style={{ width: '100%', height: 50, padding: '0 16px 0 44px', borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Chargeable Toggle */}
+                <div style={{ padding: 20, borderRadius: 24, border: `1.5px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: formData.isChargeable ? T.accentLight : 'white', transition: '0.3s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: formData.isChargeable ? T.accent : T.bg, color: formData.isChargeable ? '#fff' : T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s' }}>
+                            <Coins size={20} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Monetized Node</div>
+                            <div style={{ fontSize: 10, fontWeight: 600, color: T.muted, marginTop: 2 }}>Apply periodic rental fees</div>
+                        </div>
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', position: 'relative', width: 50, height: 26, background: formData.isChargeable ? T.accent : T.subtle, borderRadius: 13, transition: '0.3s' }}>
                         <input
                             type="checkbox"
-                            className="sr-only peer"
                             checked={formData.isChargeable}
                             onChange={(e) => setFormData({ ...formData, isChargeable: e.target.checked })}
+                            style={{ display: 'none' }}
                         />
-                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        <div style={{ width: 20, height: 20, borderRadius: 10, background: '#fff', transition: '0.3s', position: 'absolute', left: formData.isChargeable ? 26 : 4, boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} />
                     </label>
                 </div>
 
                 {formData.isChargeable && (
-                    <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5 italic">Monthly Rental Price</label>
-                        <div className="relative">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                            <input
-                                type="number"
-                                placeholder="0.00"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                className="w-full pl-8 pr-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                            />
-                        </div>
+                    <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                        <InputLabel>Monthly Revenue Rate (₹)</InputLabel>
+                        <input
+                            type="number"
+                            placeholder="0"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            style={{ width: '100%', height: 50, padding: '0 20px', borderRadius: 14, border: `1.5px solid ${T.accent}`, background: '#fff', fontSize: 14, fontWeight: 800, color: T.text, outline: 'none' }}
+                        />
                     </div>
                 )}
-            </div>
 
-            <div className="p-6 border-t border-slate-200 sticky bottom-0 bg-white">
-                <Button
-                    type="submit"
-                    variant="primary"
-                    loading={loading}
-                    className="w-full h-12 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
-                >
-                    Create Locker
-                </Button>
-            </div>
-        </form>
+                {/* Notes */}
+                <div>
+                    <InputLabel>Internal Directives (Notes)</InputLabel>
+                    <textarea
+                        placeholder="Log any technical specifics..."
+                        rows={3}
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        style={{ width: '100%', padding: 16, borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 600, color: T.text, outline: 'none', resize: 'none' }}
+                    />
+                </div>
+
+                {/* Footer Actions */}
+                <div style={{ marginTop: 24 }}>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{ width: '100%', height: 54, borderRadius: 16, border: 'none', background: T.accent, color: '#fff', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', transition: '0.3s', boxShadow: T.shadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                    >
+                        {loading ? 'Initializing...' : <><Sparkles size={18} /> Catalog Node</>}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        style={{ width: '100%', height: 50, marginTop: 12, borderRadius: 16, border: 'none', background: 'transparent', color: T.muted, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer' }}
+                    >
+                        Abort Protocol
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 

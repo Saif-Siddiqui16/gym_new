@@ -46,6 +46,11 @@ export const deletePayrollAPI = async (id) => {
     return response.data;
 };
 
+export const downloadPayslipAPI = async (id) => {
+    const response = await apiClient.get(`/payroll/${id}/payslip`, { responseType: 'blob' });
+    return response.data;
+};
+
 // Leave Requests
 export const fetchLeaveRequestsAPI = async () => {
     const response = await apiClient.get('/admin/leave-requests');

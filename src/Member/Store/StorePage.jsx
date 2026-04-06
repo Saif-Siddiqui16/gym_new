@@ -1,10 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, ShoppingCart, Package, Trash2, ChevronRight, RefreshCw, Sparkles } from 'lucide-react';
+import { Search, ShoppingBag, ShoppingCart, Package, Trash2, ChevronRight, RefreshCw, Sparkles, X, Plus, Minus, Tag, ShieldCheck, Zap } from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import ProductCard from './ProductCard';
 import StorePaymentModal from './StorePaymentModal';
 import { getStoreProducts, checkoutStoreOrder, validateCoupon, getAvailableCoupons } from '../../api/storeApi';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
 
 const StorePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,90 +55,60 @@ const StorePage = () => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
     const [availableCoupons, setAvailableCoupons] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchProducts();
-    }, [selectedCategory, searchTerm]);
-
-    useEffect(() => {
-        fetchCoupons();
-    }, []);
+    useEffect(() => { fetchProducts(); }, [selectedCategory, searchTerm]);
+    useEffect(() => { fetchCoupons(); }, []);
 
     const fetchCoupons = async () => {
         try {
             const data = await getAvailableCoupons();
-            // In the store, only show pos-applicable or all-applicable coupons
             setAvailableCoupons(data.filter(c => c.applicableService === 'All' || c.applicableService === 'POS'));
-        } catch (error) {
-            console.error("Failed to fetch coupons:", error);
-        }
+        } catch (error) { console.error("Failed to fetch coupons:", error); }
     };
 
     const fetchProducts = async () => {
         try {
-            const data = await getStoreProducts({
-                category: selectedCategory,
-                search: searchTerm
-            });
+            setLoading(true);
+            const data = await getStoreProducts({ category: selectedCategory, search: searchTerm });
             setProducts(data);
-        } catch (error) {
-            console.error("Failed to fetch products:", error);
-        }
+        } catch (error) { console.error("Failed to fetch products:", error); }
+        finally { setLoading(false); }
     };
 
     const addToCart = (product) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
-            if (existing) {
-                return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-            }
+            if (existing) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
             return [...prev, { ...product, quantity: 1 }];
         });
     };
 
-    const removeFromCart = (id) => {
-        setCart(prev => prev.filter(item => item.id !== id));
-    };
+    const removeFromCart = (id) => { setCart(prev => prev.filter(item => item.id !== id)); };
 
     const updateQuantity = (id, delta) => {
         setCart(prev => prev.map(item => {
-            if (item.id === id) {
-                const newQty = Math.max(1, item.quantity + delta);
-                return { ...item, quantity: newQty };
-            }
+            if (item.id === id) return { ...item, quantity: Math.max(1, item.quantity + delta) };
             return item;
         }));
     };
 
-    const viewProductDetails = (product) => {
-        setSelectedProduct(product);
-        setIsProductDrawerOpen(true);
-    };
+    const viewProductDetails = (product) => { setSelectedProduct(product); setIsProductDrawerOpen(true); };
 
-    const handleApplyCoupon = async () => {
-        if (!couponCode) return;
-        await handleApplyCouponWithCode(couponCode);
-    };
+    const handleApplyCoupon = async () => { if (couponCode) await handleApplyCouponWithCode(couponCode); };
 
     const handleApplyCouponWithCode = async (codeToApply) => {
         try {
             setIsValidatingCoupon(true);
             const result = await validateCoupon(codeToApply, cartTotal);
             setAppliedCoupon(result.coupon);
-            setCouponCode(result.coupon.code); // ensure input reflects the applied code
+            setCouponCode(result.coupon.code);
             toast.success("Coupon applied!");
-        } catch (error) {
-            toast.error(error);
-            setAppliedCoupon(null);
-        } finally {
-            setIsValidatingCoupon(false);
-        }
+        } catch (error) { toast.error(error); setAppliedCoupon(null); }
+        finally { setIsValidatingCoupon(false); }
     };
 
-    const handleCheckout = async () => {
-        if (cart.length === 0) return;
-        setIsPaymentModalOpen(true);
-    };
+    const handleCheckout = () => { if (cart.length > 0) setIsPaymentModalOpen(true); };
 
     const confirmCheckout = async ({ paymentMethod, referenceNumber }) => {
         try {
@@ -109,265 +116,206 @@ const StorePage = () => {
             toast.loading("Processing Order...", { id: 'checkout' });
             const payload = {
                 items: cart.map(c => ({ productId: c.id, quantity: c.quantity, price: c.price })),
-                total: finalTotal,
-                paymentMethod,
-                referenceNumber
+                total: finalTotal, paymentMethod, referenceNumber
             };
-            if (appliedCoupon) {
-                payload.couponCode = appliedCoupon.code;
-            }
+            if (appliedCoupon) payload.couponCode = appliedCoupon.code;
             await checkoutStoreOrder(payload);
             toast.success("Purchase Successful!", { id: 'checkout' });
-            setCart([]);
-            setAppliedCoupon(null);
-            setCouponCode('');
-        } catch (error) {
-            toast.error(error.message || error || "Transaction Failed", { id: 'checkout' });
-        }
+            setCart([]); setAppliedCoupon(null); setCouponCode('');
+        } catch (error) { toast.error(error.message || error || "Failed", { id: 'checkout' }); }
     };
 
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const discountAmount = appliedCoupon 
-        ? (appliedCoupon.type === 'Percentage' ? (cartTotal * appliedCoupon.value / 100) : appliedCoupon.value)
-        : 0;
+    const discountAmount = appliedCoupon ? (appliedCoupon.type === 'Percentage' ? (cartTotal * appliedCoupon.value / 100) : appliedCoupon.value) : 0;
     const finalTotal = Math.max(0, cartTotal - discountAmount);
 
+    if (loading && products.length === 0) return <Loader message="Stocking the premium store shelves..." />;
+
     return (
-        <div className="saas-container pb-24 space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header Section - Restored Premium Style */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <ShoppingBag size={32} strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <ShoppingBag size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">Store</h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.3em]">Browse and purchase products</p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Store Page</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Browse high-performance gear and nutrition</p>
                     </div>
+                </div>
+                <div style={{ position: 'relative', width: 340 }}>
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white opacity-60" size={18} />
+                    <input 
+                        type="text" placeholder="Search premium gear..." 
+                        value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.1)', padding: '0 16px 0 48px', fontSize: 13, fontWeight: 700, color: '#fff', outline: 'none' }}
+                    />
                 </div>
             </div>
 
-            {/* Search Bar - Premium Refined */}
-            <div className="relative group w-full">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={20} />
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    className="w-full h-16 pl-16 pr-8 bg-white border-2 border-slate-100 rounded-[2rem] text-sm font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-slate-300"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                {/* Left Column: Products Grid */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                            <Sparkles size={16} />
-                        </div>
-                        <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Available Gear</h2>
-                    </div>
-
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 32 }}>
+                
+                {/* PRODUCTS COLUMN */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                    <SectionHeader icon={Sparkles} title="Featured Collection" subtitle="Curated for enthusiasts" />
+                    
                     {products.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {products.map(product => (
-                                <ProductCard
-                                    key={product.id}
-                                    product={product}
-                                    onAddToCart={addToCart}
-                                    onViewDetails={viewProductDetails}
-                                />
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+                            {products.map((p, idx) => (
+                                <ProductCard key={p.id} product={p} onAddToCart={addToCart} onViewDetails={viewProductDetails} index={idx} />
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
-                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8">
-                                <Package size={48} strokeWidth={1} />
-                            </div>
-                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">No products found</h3>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Try adjusting your search terms</p>
+                        <div style={{ textAlign: 'center', padding: 100, background: T.surface, borderRadius: 32, border: `2px dashed ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                             <Package size={64} style={{ opacity: 0.1, marginBottom: 20 }} />
+                             <h4 style={{ fontSize: 18, fontWeight: 900, color: T.text }}>No products found</h4>
+                             <p style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>Adjust your search to explore the collection.</p>
                         </div>
                     )}
                 </div>
 
-                {/* Right Column: Persistent Cart Sidebar */}
-                <div className="lg:col-span-1">
-                    <div className="bg-white rounded-[3rem] border-2 border-slate-100 flex flex-col min-h-[500px] p-6 lg:p-8 shadow-xl shadow-slate-200/50 sticky top-0">
-                        <div className="flex items-center gap-3 pb-6 border-b border-slate-100">
-                            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shrink-0">
-                                <ShoppingCart size={20} strokeWidth={2.5} />
-                            </div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Your Cart</h2>
+                {/* CART COLUMN */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <PremiumCard style={{ position: 'sticky', top: 28, height: 'fit-content' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, paddingBottom: 24, borderBottom: `1px solid ${T.bg}` }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: T.dark, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingCart size={22} /></div>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>Gear Bag</h3>
                         </div>
 
                         {cart.length > 0 ? (
-                            <div className="flex-1 flex flex-col h-full mt-6">
-                                <div className="flex-1 space-y-6 custom-scrollbar pr-2 mb-8 max-h-[300px] overflow-y-auto">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxHeight: 320, overflowY: 'auto', paddingRight: 4 }}>
                                     {cart.map(item => (
-                                        <div key={item.id} className="flex gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 group transition-all hover:bg-white hover:shadow-xl hover:shadow-purple-500/5">
-                                            <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-white">
-                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                        <div key={item.id} style={{ display: 'flex', gap: 16, padding: 16, borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, position: 'relative' }}>
+                                            <div style={{ width: 72, height: 72, borderRadius: 14, overflow: 'hidden', border: `1px solid ${T.border}`, background: '#fff' }}>
+                                                <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             </div>
-                                            <div className="flex-1 min-w-0 py-1">
-                                                <h4 className="font-bold text-slate-900 text-xs truncate uppercase tracking-tight leading-tight">{item.name}</h4>
-                                                <p className="text-primary font-black text-sm mt-1">₹{(item.price || 0).toLocaleString()}</p>
-                                                <div className="flex items-center gap-4 mt-3">
-                                                    <div className="flex items-center bg-white border border-slate-200 rounded-lg p-1 px-3 gap-4">
-                                                        <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-primary font-black">-</button>
-                                                        <span className="text-xs font-black text-slate-900">{item.quantity}</span>
-                                                        <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-primary font-black">+</button>
-                                                    </div>
+                                            <div style={{ flex: 1 }}>
+                                                <h4 style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: '0 0 4px', textTransform: 'uppercase' }}>{item.name}</h4>
+                                                <p style={{ fontSize: 14, fontWeight: 900, color: T.accent, margin: '0 0 10px' }}>₹{item.price.toLocaleString()}</p>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', width: 'fit-content', padding: '4px 12px', borderRadius: 10, border: `1px solid ${T.border}` }}>
+                                                     <button onClick={() => updateQuantity(item.id, -1)} style={{ border: 'none', background: 'none', color: T.subtle, cursor: 'pointer', fontWeight: 900 }}><Minus size={14} /></button>
+                                                     <span style={{ fontSize: 12, fontWeight: 900, color: T.text }}>{item.quantity}</span>
+                                                     <button onClick={() => updateQuantity(item.id, 1)} style={{ border: 'none', background: 'none', color: T.subtle, cursor: 'pointer', fontWeight: 900 }}><Plus size={14} /></button>
                                                 </div>
                                             </div>
-                                            <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-rose-500 self-start p-1">
-                                                <Trash2 size={16} />
-                                            </button>
+                                            <button onClick={() => removeFromCart(item.id)} style={{ position: 'absolute', top: 12, right: 12, border: 'none', background: 'none', color: T.subtle, cursor: 'pointer' }}><Trash2 size={16} /></button>
                                         </div>
                                     ))}
                                 </div>
-                                    {/* Coupon Section */}
-                                    <div className="pt-6 border-t border-slate-100 space-y-3">
-                                        
-                                        {/* Available Coupons Chips */}
+
+                                <div style={{ paddingTop: 24, borderTop: `1px solid ${T.bg}`, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <p style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rewards & Coupons</p>
+                                        <div style={{ display: 'flex', gap: 8 }}>
+                                            <div style={{ flex: 1, position: 'relative' }}>
+                                                <input 
+                                                    type="text" placeholder="Promo code..." value={couponCode} 
+                                                    onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                                                    disabled={appliedCoupon || isValidatingCoupon}
+                                                    style={{ width: '100%', height: 44, borderRadius: 12, border: `1px solid ${T.border}`, padding: '0 12px', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', outline: 'none' }}
+                                                />
+                                                {appliedCoupon && <button onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', color: T.rose, cursor: 'pointer' }}><X size={16} /></button>}
+                                            </div>
+                                            {!appliedCoupon && <button onClick={handleApplyCoupon} disabled={!couponCode || isValidatingCoupon} style={{ width: 80, height: 44, borderRadius: 12, background: T.dark, color: '#fff', border: 'none', fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer' }}>Apply</button>}
+                                        </div>
                                         {availableCoupons.length > 0 && !appliedCoupon && (
-                                            <div className="mb-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">Available Offers</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {availableCoupons.map(coupon => (
-                                                        <button
-                                                            key={coupon.id}
-                                                            onClick={() => {
-                                                                setCouponCode(coupon.code);
-                                                                // Slight delay to allow state to update before applying
-                                                                setTimeout(() => handleApplyCouponWithCode(coupon.code), 0);
-                                                            }}
-                                                            className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest transition-colors flex items-center gap-1"
-                                                        >
-                                                            <Sparkles size={10} />
-                                                            {coupon.code} (-{coupon.type === 'Percentage' ? `${coupon.value}%` : `₹${coupon.value}`})
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                                                {availableCoupons.map(c => <button key={c.id} onClick={() => handleApplyCouponWithCode(c.code)} style={{ padding: '6px 12px', borderRadius: 8, background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}`, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer' }}>{c.code}</button>)}
                                             </div>
                                         )}
-
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discount Coupon</p>
-                                        <div className="flex gap-2">
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Code"
-                                                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-primary transition-all uppercase"
-                                                    value={couponCode}
-                                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                                    disabled={appliedCoupon || isValidatingCoupon}
-                                                />
-                                                {appliedCoupon && (
-                                                    <button 
-                                                        onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
-                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-red-500 hover:bg-red-50 rounded-lg"
-                                                    >
-                                                        <Trash2 size={12} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                            {!appliedCoupon && (
-                                                <button 
-                                                    onClick={handleApplyCoupon}
-                                                    disabled={!couponCode || isValidatingCoupon}
-                                                    className="h-11 px-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-50"
-                                                >
-                                                    {isValidatingCoupon ? '...' : 'Apply'}
-                                                </button>
-                                            )}
-                                        </div>
                                     </div>
 
-                                    <div className="pt-6 border-t-2 border-slate-100 space-y-3">
-                                        <div className="flex justify-between items-center px-1">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subtotal</span>
-                                            <span className="text-sm font-bold text-slate-900">₹{(cartTotal || 0).toLocaleString()}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px 0', borderTop: `2px solid ${T.bg}` }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Subtotal</span>
+                                            <span style={{ fontSize: 14, fontWeight: 900, color: T.text }}>₹{cartTotal.toLocaleString()}</span>
                                         </div>
                                         {appliedCoupon && (
-                                            <div className="flex justify-between items-center px-1 text-emerald-600">
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Discount</span>
-                                                <span className="text-sm font-bold">-₹{discountAmount.toLocaleString()}</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: T.green }}>
+                                                <span style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>Savings</span>
+                                                <span style={{ fontSize: 14, fontWeight: 900 }}>-₹{discountAmount.toLocaleString()}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between items-center px-1 pt-2 border-t border-dashed border-slate-100">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Grand Total</span>
-                                            <span className="text-2xl font-black text-slate-900 tracking-tight">₹{(finalTotal || 0).toLocaleString()}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                                            <span style={{ fontSize: 12, fontWeight: 900, color: T.text, textTransform: 'uppercase' }}>Grand Total</span>
+                                            <span style={{ fontSize: 28, fontWeight: 900, color: T.text, letterSpacing: '-1px' }}>₹{finalTotal.toLocaleString()}</span>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={handleCheckout}
-                                        className="w-full h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 flex items-center justify-center gap-3"
-                                    >
-                                        Complete Checkout
-                                        <ChevronRight size={16} />
-                                    </button>
+
+                                    <button onClick={handleCheckout} style={{ width: '100%', height: 64, borderRadius: 20, background: T.accent, color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(124,92,252,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>Check Out <ChevronRight size={20} /></button>
                                 </div>
+                            </div>
                         ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center py-10 mt-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                                <div className="w-20 h-20 flex items-center justify-center text-slate-200 mb-6 bg-slate-50 rounded-[2rem]">
-                                    <ShoppingBag size={40} strokeWidth={1} />
-                                </div>
-                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Your bag is empty</h4>
-                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-2">Gear up to reach your goals</p>
+                            <div style={{ textAlign: 'center', padding: '48px 24px', border: `2px dashed ${T.border}`, borderRadius: 24, background: T.bg }}>
+                                <div style={{ width: 64, height: 64, borderRadius: 22, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, margin: '0 auto 20px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)' }}><ShoppingBag size={32} /></div>
+                                <h4 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: '0 0 8px' }}>Your Bag is Empty</h4>
+                                <p style={{ fontSize: 11, fontWeight: 700, color: T.subtle, margin: 0 }}>Add premium performance gear to start training with style.</p>
                             </div>
                         )}
+                    </PremiumCard>
+
+                    <div style={{ padding: 24, borderRadius: 24, background: T.greenLight, border: `1px solid ${T.green}20`, display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <ShieldCheck size={28} color={T.green} />
+                        <div>
+                             <p style={{ fontSize: 11, fontWeight: 900, color: T.green, textTransform: 'uppercase', margin: 0 }}>Secure Transaction</p>
+                             <p style={{ fontSize: 10, fontWeight: 700, color: T.muted, margin: 0 }}>End-to-end encrypted billing</p>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            {/* Details Drawer */}
-            <RightDrawer
-                isOpen={isProductDrawerOpen}
-                onClose={() => setIsProductDrawerOpen(false)}
-                title={selectedProduct?.name || 'Product Details'}
-                maxWidth="max-w-md"
-            >
+             {/* DETAILS DRAWER */}
+            <RightDrawer isOpen={isProductDrawerOpen} onClose={() => setIsProductDrawerOpen(false)} title="Gear Specifications" subtitle={selectedProduct?.name}>
                 {selectedProduct && (
-                    <div className="p-10 space-y-8">
-                        <div className="aspect-square rounded-[2rem] overflow-hidden bg-white border-2 border-slate-100 shadow-sm">
-                            <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: 4 }}>
+                         <div style={{ aspectRatio: '1', borderRadius: 24, overflow: 'hidden', border: `1px solid ${T.border}`, background: '#fff' }}>
+                            <img src={selectedProduct.image} alt={selectedProduct.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                        <div className="space-y-4">
-                            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{selectedProduct.name}</h3>
-                            <div className="inline-block px-4 py-1.5 bg-primary-light rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                                Premium Selection
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <h3 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: 0 }}>{selectedProduct.name}</h3>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <span style={{ padding: '6px 12px', borderRadius: 8, background: T.accentLight, color: T.accent, fontSize: 9, fontWeight: 900, textTransform: 'uppercase' }}>Premium Performance</span>
+                                <span style={{ padding: '6px 12px', borderRadius: 8, background: T.greenLight, color: T.green, fontSize: 9, fontWeight: 900, textTransform: 'uppercase' }}>In Stock</span>
                             </div>
-                            <p className="text-slate-500 font-medium leading-relaxed pt-2">
-                                {selectedProduct.description || "Expertly crafted for peak performance and maximum comfort during your most intense training sessions."}
-                            </p>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: T.muted, lineHeight: 1.6, marginTop: 8 }}>{selectedProduct.description || "Unleash your potential with our elite gear. Designed for durability, breathability, and peak performance during your most demanding sessions."}</p>
                         </div>
-                        <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</span>
-                                <span className="text-4xl font-black text-primary tracking-tight">₹{(selectedProduct.price || 0).toLocaleString()}</span>
+                        <div style={{ paddingTop: 32, borderTop: `1px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                                <p style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 4 }}>Unit Price</p>
+                                <p style={{ fontSize: 26, fontWeight: 900, color: T.accent, margin: 0 }}>₹{selectedProduct.price.toLocaleString()}</p>
                             </div>
-                            <button
-                                onClick={() => {
-                                    addToCart(selectedProduct);
-                                    setIsProductDrawerOpen(false);
-                                    toast.success("Added to Gear Bag");
-                                }}
-                                className="px-8 h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95"
-                            >
-                                Add to Cart
-                            </button>
+                            <button 
+                                onClick={() => { addToCart(selectedProduct); setIsProductDrawerOpen(false); toast.success("Added to Bag"); }}
+                                style={{ padding: '0 32px', height: 56, background: T.accent, color: '#fff', borderRadius: 16, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.1)' }}
+                            >Add to Cart</button>
                         </div>
                     </div>
                 )}
             </RightDrawer>
 
-            <StorePaymentModal
-                isOpen={isPaymentModalOpen}
-                onClose={() => setIsPaymentModalOpen(false)}
-                onConfirm={confirmCheckout}
-                totalAmount={finalTotal}
-            />
+            <StorePaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onConfirm={confirmCheckout} totalAmount={finalTotal} />
         </div>
     );
 };

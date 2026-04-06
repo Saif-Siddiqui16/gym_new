@@ -1,90 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-    Search,
-    User,
-    CreditCard,
-    Banknote,
-    Smartphone,
-    Building,
-    Plus,
-    ArrowRight,
-    CheckCircle2,
-    Users,
-    ChevronDown,
-    X,
-    Receipt,
-    History,
-    Zap,
-    Tag,
-    Calculator
+    Search, User, CreditCard, Banknote, Smartphone, Building, Plus, ArrowRight,
+    CheckCircle2, Users, ChevronDown, X, Receipt, History, Zap, Tag, Calculator
 } from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/apiClient';
 import { submitCashierPayment } from '../../../api/finance/financeApi';
 import ReceiptModal from '../components/ReceiptModal';
 
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    input: { height: '48px', padding: '0 16px', borderRadius: '14px', border: `2px solid ${T.border}`, fontSize: '14px', fontWeight: '600', color: T.text, outline: 'none', transition: 'all 0.2s ease', background: '#FFF' },
+    btn: { height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
+
 const CashierMode = () => {
     const navigate = useNavigate();
-
-    // Fetch User from local storage
     const userStr = localStorage.getItem('userData');
-    const loggedInUser = userStr ? JSON.parse(userStr) : {
-        name: 'Operator',
-        role: 'STAFF',
-        branchId: 'Unknown'
-    };
+    const loggedInUser = userStr ? JSON.parse(userStr) : { name: 'Operator', role: 'STAFF', branchId: 'Unknown' };
 
     const [members, setMembers] = useState([]);
     const [selectedMember, setSelectedMember] = useState(null);
     const [memberSearch, setMemberSearch] = useState('');
     const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+    const [paymentDetails, setPaymentDetails] = useState({ type: '', amount: '', discount: 0, method: 'Cash', referenceNumber: '', notes: '' });
+    const [showReceipt, setShowReceipt] = useState(false);
+    const [processedPayment, setProcessedPayment] = useState(null);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [loadingMembers, setLoadingMembers] = useState(false);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const fetchMembers = async () => {
-            try {
-                const response = await apiClient.get('/admin/members');
-                setMembers(response.data);
-            } catch (err) {
-                console.error("Failed fetching members", err);
-            }
+            try { setLoadingMembers(true); const response = await apiClient.get('/admin/members'); setMembers(response.data); }
+            catch (err) { console.error("Failed fetching members", err); }
+            finally { setLoadingMembers(false); }
         };
         fetchMembers();
     }, []);
 
-    const [paymentDetails, setPaymentDetails] = useState({
-        type: '',
-        amount: '',
-        discount: 0,
-        method: 'Cash',
-        referenceNumber: '',
-        notes: ''
-    });
-
-    const [showReceipt, setShowReceipt] = useState(false);
-    const [processedPayment, setProcessedPayment] = useState(null);
-    const [isSuccess, setIsSuccess] = useState(false);
+    useEffect(() => {
+        const handleClickOutside = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowMemberDropdown(false); };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const paymentTypes = [
-        { id: 'membership', label: 'New Membership', icon: Building, color: 'text-primary' },
-        { id: 'renewal', label: 'Renewal', icon: History, color: 'text-amber-500' },
-        { id: 'pt', label: 'Personal Training', icon: Zap, color: 'text-rose-500' },
-        { id: 'diet', label: 'Diet Plan', icon: Tag, color: 'text-emerald-500' },
-        { id: 'addon', label: 'Add-On', icon: Plus, color: 'text-primary' },
-        { id: 'other', label: 'Other', icon: Calculator, color: 'text-slate-500' }
+        { id: 'membership', label: 'Membership', icon: Building },
+        { id: 'renewal', label: 'Renewal', icon: History },
+        { id: 'pt', label: 'PT Session', icon: Zap },
+        { id: 'diet', label: 'Diet Plan', icon: Tag },
+        { id: 'addon', label: 'Add-On', icon: Plus },
+        { id: 'other', label: 'Other', icon: Calculator }
     ];
 
     const methods = [
         { id: 'Cash', label: 'Cash', icon: Banknote },
         { id: 'Card', label: 'Card', icon: CreditCard },
         { id: 'UPI', label: 'UPI / QR', icon: Smartphone },
-        { id: 'Bank Transfer', label: 'Bank Transfer', icon: Building },
-        { id: 'Online Link', label: 'Online Link', icon: Smartphone }
+        { id: 'Bank Transfer', label: 'Transfer', icon: Building },
+        { id: 'Online Link', label: 'Pay Link', icon: Smartphone }
     ];
 
-    const filteredMembers = members.filter(m =>
-        (m.name?.toLowerCase().includes(memberSearch.toLowerCase()) || m.phone?.includes(memberSearch))
-    );
+    const filteredMembers = members.filter(m => (m.name?.toLowerCase().includes(memberSearch.toLowerCase()) || m.phone?.includes(memberSearch))).slice(0, 5);
 
     const calculateFinal = () => {
         const base = parseFloat(paymentDetails.amount) || 0;
@@ -93,350 +82,130 @@ const CashierMode = () => {
     };
 
     const handleReceivePayment = async () => {
-        if (!selectedMember || !paymentDetails.type || !paymentDetails.amount) {
-            toast.error('Please complete all required fields.');
-            return;
-        }
-
-        if (paymentDetails.method !== 'Cash' && !paymentDetails.referenceNumber) {
-            toast.error('Reference number is required for non-cash payments.');
-            return;
-        }
-
-        const finalAmount = calculateFinal();
+        if (!selectedMember || !paymentDetails.type || !paymentDetails.amount) return toast.error('Complete all fields');
+        if (paymentDetails.method !== 'Cash' && !paymentDetails.referenceNumber) return toast.error('Reference number required');
 
         try {
-            // Log to Backend Endpoint
+            const finalAmount = calculateFinal();
             const res = await submitCashierPayment({
-                memberId: selectedMember.id,
-                paymentType: paymentDetails.type,
-                amount: paymentDetails.amount,
-                discount: paymentDetails.discount,
-                method: paymentDetails.method,
-                referenceNumber: paymentDetails.referenceNumber,
-                notes: paymentDetails.notes
+                memberId: selectedMember.id, paymentType: paymentDetails.type, amount: paymentDetails.amount,
+                discount: paymentDetails.discount, method: paymentDetails.method, referenceNumber: paymentDetails.referenceNumber, notes: paymentDetails.notes
             });
 
             const paymentRecord = {
-                id: res.receipt.invoiceNumber,
-                memberId: selectedMember.memberId || selectedMember.id,
-                memberName: selectedMember.name,
-                paymentType: paymentDetails.type,
-                amount: paymentDetails.amount,
-                discount: paymentDetails.discount,
-                finalAmount: finalAmount,
-                method: paymentDetails.method,
-                referenceNumber: paymentDetails.referenceNumber,
-                receivedBy: loggedInUser.name,
-                date: new Date().toLocaleDateString('en-IN'),
-                branchId: loggedInUser.branchName || 'GYM',
-                status: 'completed'
+                id: res.receipt.invoiceNumber, memberId: selectedMember.memberId || selectedMember.id, memberName: selectedMember.name,
+                paymentType: paymentDetails.type, amount: paymentDetails.amount, discount: paymentDetails.discount, finalAmount,
+                method: paymentDetails.method, referenceNumber: paymentDetails.referenceNumber, receivedBy: loggedInUser.name,
+                date: new Date().toLocaleDateString('en-IN'), branchId: loggedInUser.branchName || 'GYM', status: 'completed'
             };
 
-            setProcessedPayment(paymentRecord);
-            setIsSuccess(true);
-            toast.success('Payment recorded successfully!');
-
-            // Finalize state
-            setTimeout(() => {
-                setShowReceipt(true);
-                setIsSuccess(false);
-                // Reset form for next customer
-                setSelectedMember(null);
-                setPaymentDetails({
-                    type: '',
-                    amount: '',
-                    discount: 0,
-                    method: 'Cash',
-                    referenceNumber: '',
-                    notes: ''
-                });
-            }, 1500);
-
-        } catch (error) {
-            toast.error('Payment failed to record. Check connection.');
-        }
+            setProcessedPayment(paymentRecord); setIsSuccess(true); toast.success('Recorded!');
+            setTimeout(() => { setShowReceipt(true); setIsSuccess(false); setSelectedMember(null); setPaymentDetails({ type: '', amount: '', discount: 0, method: 'Cash', referenceNumber: '', notes: '' }); }, 1500);
+        } catch (error) { toast.error('Check connection'); }
     };
 
     return (
-        <div className="min-h-screen ">
-            <div className="max-w-full mx-auto">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                    <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-                            <Receipt size={32} />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-2">Cashier Mode</h1>
-                            <p className="text-slate-500 font-medium italic">Collect offline payments and generate instant receipts.</p>
-                        </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            `}</style>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: T.success, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0, 200, 83, 0.2)' }}><Receipt size={32} /></div>
+                    <div>
+                        <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Cashier Mode</h1>
+                        <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Offline payment collection & instant receipts</p>
                     </div>
-                    <button
-                        onClick={() => navigate('/finance/transactions')}
-                        className="px-6 py-3 bg-white border-2 border-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-emerald-500 hover:border-emerald-100 hover:bg-emerald-50/30 transition-all shadow-sm flex items-center gap-2 group"
-                    >
-                        <History size={16} className="group-hover:rotate-[-45deg] transition-transform" />
-                        Branch Transactions
-                    </button>
                 </div>
-
-                {isSuccess ? (
-                    <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 p-12 text-center animate-in zoom-in-95 duration-500">
-                        <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-6 animate-bounce">
-                            <CheckCircle2 size={48} />
-                        </div>
-                        <h2 className="text-3xl font-black text-slate-800 mb-2">Payment Received!</h2>
-                        <p className="text-slate-500 font-medium max-w-md mx-auto">The transaction has been recorded and the receipt is being generated.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        {/* Lef Column: Form */}
-                        <div className="lg:col-span-8 space-y-8">
-                            {/* Member Selection */}
-                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Step 1: Select Member
-                                </h3>
-
-                                <div className="relative">
-                                    <div
-                                        className={`flex items-center justify-between px-6 py-4 bg-slate-50 border-2 rounded-2xl cursor-pointer transition-all ${selectedMember ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-100 hover:border-slate-200'
-                                            }`}
-                                        onClick={() => setShowMemberDropdown(!showMemberDropdown)}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${selectedMember ? 'bg-white text-emerald-500' : 'bg-slate-200 text-slate-400'
-                                                }`}>
-                                                <Users size={24} />
-                                            </div>
-                                            {selectedMember ? (
-                                                <div className="text-left">
-                                                    <p className="text-sm font-black text-slate-800">{selectedMember.name}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">{selectedMember.phone} • {selectedMember.memberId}</p>
-                                                </div>
-                                            ) : (
-                                                <span className="text-sm font-black text-slate-300">Search member by name or phone...</span>
-                                            )}
-                                        </div>
-                                        <ChevronDown size={20} className={`text-slate-300 transition-transform duration-300 ${showMemberDropdown ? 'rotate-180' : ''}`} />
-                                    </div>
-
-                                    {showMemberDropdown && (
-                                        <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-                                            <div className="p-4 bg-slate-50 border-b border-slate-100">
-                                                <div className="relative">
-                                                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
-                                                    <input
-                                                        type="text"
-                                                        value={memberSearch}
-                                                        onChange={(e) => setMemberSearch(e.target.value)}
-                                                        placeholder="Quick search..."
-                                                        className="w-full pl-12 pr-4 h-12 rounded-xl bg-white border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold text-sm outline-none transition-all"
-                                                        autoFocus
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="max-h-64 ">
-                                                {filteredMembers.length > 0 ? filteredMembers.map(member => (
-                                                    <button
-                                                        key={member.id}
-                                                        onClick={() => {
-                                                            setSelectedMember(member);
-                                                            setShowMemberDropdown(false);
-                                                        }}
-                                                        className="w-full px-6 py-4 flex items-center gap-4 hover:bg-emerald-50 transition-colors border-b border-slate-50 last:border-none text-left"
-                                                    >
-                                                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-black text-slate-400 text-xs uppercase">
-                                                            {member.name ? member.name.charAt(0) : 'A'}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-black text-slate-800 leading-none mb-1">{member.name}</p>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{member.phone} • {member.memberId}</p>
-                                                        </div>
-                                                    </button>
-                                                )) : (
-                                                    <div className="p-8 text-center bg-slate-50/50">
-                                                        <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No members found</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Payment Configuration */}
-                            <div className="bg-white rounded-[32px] shadow-xl border border-slate-100">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Step 2: Payment Details
-                                </h3>
-
-                                <div className="space-y-8">
-                                    {/* Action Type */}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        {paymentTypes.map(type => (
-                                            <button
-                                                key={type.id}
-                                                onClick={() => setPaymentDetails({ ...paymentDetails, type: type.id })}
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 group ${paymentDetails.type === type.id
-                                                    ? 'border-emerald-500 bg-emerald-50/30'
-                                                    : 'border-slate-50 bg-slate-50 hover:border-slate-200'
-                                                    }`}
-                                            >
-                                                <div className={`p-3 rounded-xl transition-all ${paymentDetails.type === type.id ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white text-slate-400'
-                                                    }`}>
-                                                    <type.icon size={20} />
-                                                </div>
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${paymentDetails.type === type.id ? 'text-emerald-700' : 'text-slate-500'
-                                                    }`}>{type.label}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    {/* Financial Inputs */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Bill Amount (₹)</label>
-                                            <div className="relative">
-                                                <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                                <input
-                                                    type="number"
-                                                    value={paymentDetails.amount}
-                                                    onChange={e => setPaymentDetails({ ...paymentDetails, amount: e.target.value })}
-                                                    className="w-full pl-11 pr-4 h-14 rounded-2xl border-2 border-slate-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-black text-slate-800 bg-slate-50/50"
-                                                    placeholder="0.00"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Discount (₹)</label>
-                                            <div className="relative">
-                                                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                                <input
-                                                    type="number"
-                                                    value={paymentDetails.discount}
-                                                    onChange={e => setPaymentDetails({ ...paymentDetails, discount: e.target.value })}
-                                                    className="w-full pl-11 pr-4 h-14 rounded-2xl border-2 border-slate-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-black text-slate-800 bg-slate-50/50"
-                                                    placeholder="0"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Payment Method */}
-                                    <div className="space-y-4">
-                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</label>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            {methods.map(method => (
-                                                <button
-                                                    key={method.id}
-                                                    onClick={() => setPaymentDetails({ ...paymentDetails, method: method.id })}
-                                                    className={`px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-3 font-black text-[10px] uppercase tracking-widest ${paymentDetails.method === method.id
-                                                        ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg'
-                                                        : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
-                                                        }`}
-                                                >
-                                                    <method.icon size={16} />
-                                                    {method.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Additional info strictly based on method */}
-                                    {paymentDetails.method !== 'Cash' && (
-                                        <div className="space-y-3 animate-in slide-in-from-left-4">
-                                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Reference / Transaction ID</label>
-                                            <div className="relative">
-                                                <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" size={18} />
-                                                <input
-                                                    type="text"
-                                                    value={paymentDetails.referenceNumber}
-                                                    onChange={e => setPaymentDetails({ ...paymentDetails, referenceNumber: e.target.value })}
-                                                    className="w-full pl-11 pr-4 h-14 rounded-2xl border-2 border-emerald-100 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-black text-slate-800 bg-emerald-50/10"
-                                                    placeholder="Enter TXN ID..."
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Column: Calculations & Actions */}
-                        <div className="lg:col-span-4 h-fit sticky top-8">
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 text-slate-900 relative overflow-hidden group">
-                                {/* Decorative elements */}
-                                <div className="absolute top-0 right-0 p-12 opacity-[0.03] text-slate-900 translate-x-1/2 -translate-y-1/4 group-hover:scale-125 transition-transform duration-1000">
-                                    <Receipt size={240} strokeWidth={1} />
-                                </div>
-
-                                <div className="relative z-10 space-y-8">
-                                    <div className="text-center">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">Final Payable</p>
-                                        <h2 className="text-5xl lg:text-6xl font-black italic tracking-tighter tabular-nums drop-shadow-sm text-slate-900">
-                                            ₹{calculateFinal().toLocaleString()}
-                                        </h2>
-                                    </div>
-
-                                    <div className="space-y-4 pt-8 border-t border-slate-100">
-                                        <div className="flex justify-between items-center text-slate-500">
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Base Amount</span>
-                                            <span className="font-bold tabular-nums">₹{parseFloat(paymentDetails.amount || 0).toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-rose-500">
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Instant Discount</span>
-                                            <span className="font-bold tabular-nums">-₹{parseFloat(paymentDetails.discount || 0).toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 text-emerald-600">
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Method</span>
-                                            <span className="font-black uppercase tracking-widest">{paymentDetails.method}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-4">
-                                        <button
-                                            onClick={handleReceivePayment}
-                                            className="w-full py-4 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-sm shadow-sm hover:!bg-emerald-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 border border-transparent"
-                                        >
-                                            Receive Payment <ArrowRight size={20} />
-                                        </button>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center mt-6">
-                                            Secure Branch Level Encryption
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Staff Status */}
-                            <div className="mt-6 p-6 rounded-3xl bg-white border border-slate-100 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
-                                        <User size={20} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Operator</p>
-                                        <p className="text-xs font-bold text-slate-700">{loggedInUser.name}</p>
-                                    </div>
-                                </div>
-                                <div className="px-3 py-1 bg-primary-light text-primary rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                    {loggedInUser.role}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <button onClick={() => navigate('/finance/transactions')} style={{ ...S.btn, background: '#FFF', color: T.text, border: `1px solid ${T.border}` }}><History size={18} /> Branch History</button>
             </div>
 
-            {/* Receipt Modal */}
-            <ReceiptModal
-                isOpen={showReceipt}
-                onClose={() => setShowReceipt(false)}
-                payment={processedPayment}
-            />
+            {isSuccess ? (
+                <div style={{ ...S.card, padding: '80px', textAlign: 'center', animation: 'slideUp 0.4s ease' }}>
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#F0FDF4', color: T.success, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}><CheckCircle2 size={48} /></div>
+                    <h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: '0 0 8px' }}>Payment Recorded!</h2>
+                    <p style={{ fontSize: '14px', fontWeight: '600', color: T.muted }}>Invoice generated & synced with ledger.</p>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div ref={dropdownRef} style={{ ...S.card, padding: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>STEP 1</span><h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Select Member</h3></div>
+                            <div style={{ position: 'relative' }}>
+                                <div onClick={() => setShowMemberDropdown(!showMemberDropdown)} style={{ ...S.input, height: '64px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', background: selectedMember ? T.accentLight : '#FFF', border: selectedMember ? `2px solid ${T.accentMid}` : `2px solid ${T.border}` }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: selectedMember ? '#FFF' : T.bg, color: selectedMember ? T.accent : T.subtle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={20} /></div>
+                                        {selectedMember ? (
+                                            <div><p style={{ fontSize: '15px', fontWeight: '800', color: T.text, margin: 0 }}>{selectedMember.name}</p><p style={{ fontSize: '11px', fontWeight: '600', color: T.muted, margin: 0 }}>ID: {selectedMember.memberId} • {selectedMember.phone}</p></div>
+                                        ) : <span style={{ color: T.subtle, fontSize: '14px' }}>Search by name or phone...</span>}
+                                    </div>
+                                    <ChevronDown size={20} color={T.subtle} style={{ transform: showMemberDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }} />
+                                </div>
+                                {showMemberDropdown && (
+                                    <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: '#FFF', borderRadius: '20px', border: `1px solid ${T.border}`, boxShadow: '0 20px 40px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden' }}>
+                                        <div style={{ padding: '16px', background: T.bg }}><input style={{ ...S.input, width: '100%', height: '44px' }} placeholder="Filter results..." value={memberSearch} onChange={e => setMemberSearch(e.target.value)} autoFocus /></div>
+                                        <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                                            {loadingMembers ? <div style={{ padding: '20px' }}><Loader message="Finding Members..." /></div> : filteredMembers.length > 0 ? filteredMembers.map(m => (
+                                                <div key={m.id} onClick={() => { setSelectedMember(m); setShowMemberDropdown(false); }} style={{ padding: '16px 20px', cursor: 'pointer', borderBottom: `1px solid ${T.bg}`, transition: 'background 0.2s' }}>
+                                                    <p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{m.name}</p>
+                                                    <p style={{ fontSize: '11px', fontWeight: '600', color: T.muted, margin: 0 }}>{m.phone} • {m.memberId}</p>
+                                                </div>
+                                            )) : <div style={{ padding: '20px', textAlign: 'center', color: T.subtle, fontSize: '12px' }}>No matches found</div>}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div style={{ ...S.card, padding: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>STEP 2</span><h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Transaction Type</h3></div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
+                                {paymentTypes.map(type => (
+                                    <button key={type.id} onClick={() => setPaymentDetails({ ...paymentDetails, type: type.id })} style={{ padding: '24px 16px', borderRadius: '20px', border: `2px solid ${paymentDetails.type === type.id ? T.accent : T.border}`, background: paymentDetails.type === type.id ? T.accentLight : 'transparent', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: paymentDetails.type === type.id ? T.accent : T.bg, color: paymentDetails.type === type.id ? '#FFF' : T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><type.icon size={20} /></div>
+                                        <span style={{ fontSize: '11px', fontWeight: '900', color: T.text, textTransform: 'uppercase' }}>{type.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+                                <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Bill Amount (₹)</label><input type="number" style={S.input} value={paymentDetails.amount} onChange={e => setPaymentDetails({ ...paymentDetails, amount: e.target.value })} placeholder="0.00" /></div>
+                                <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Discount (₹)</label><input type="number" style={S.input} value={paymentDetails.discount} onChange={e => setPaymentDetails({ ...paymentDetails, discount: e.target.value })} placeholder="0" /></div>
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Payment Method</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px' }}>
+                                    {methods.map(m => (
+                                        <button key={m.id} onClick={() => setPaymentDetails({ ...paymentDetails, method: m.id })} style={{ padding: '12px 20px', borderRadius: '12px', border: 'none', background: paymentDetails.method === m.id ? T.accent : T.bg, color: paymentDetails.method === m.id ? '#FFF' : T.text, fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}><m.icon size={16} /> {m.label}</button>
+                                    ))}
+                                </div>
+                                {paymentDetails.method !== 'Cash' && <div style={{ animation: 'slideUp 0.3s ease' }}><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Reference / TXN ID</label><input style={{ ...S.input, width: '100%', borderColor: T.accentMid }} value={paymentDetails.referenceNumber} onChange={e => setPaymentDetails({ ...paymentDetails, referenceNumber: e.target.value })} placeholder="TXN-999..." /></div>}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <div style={{ ...S.card, padding: '32px', textAlign: 'center', position: 'sticky', top: '24px' }}>
+                            <p style={{ fontSize: '11px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Final Receivable</p>
+                            <h2 style={{ fontSize: '48px', fontWeight: '900', color: T.text, margin: '0 0 32px' }}>₹{calculateFinal().toLocaleString()}</h2>
+                            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700', color: T.subtle }}><span>Bill Total</span><span>₹{Number(paymentDetails.amount || 0).toLocaleString()}</span></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700', color: T.error }}><span>Discount</span><span>- ₹{Number(paymentDetails.discount || 0).toLocaleString()}</span></div>
+                                <div style={{ height: '1px', background: T.bg }}></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '900', color: T.text }}><span>Pay Via</span><span>{paymentDetails.method}</span></div>
+                            </div>
+                            <button onClick={handleReceivePayment} style={{ ...S.btn, width: '100%', height: '56px', background: T.success, color: '#FFF', fontSize: '14px', boxShadow: '0 8px 24px rgba(0, 200, 83, 0.2)' }}>RECEIVE PAYMENT <ArrowRight size={18} /></button>
+                        </div>
+                        <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={20} color={T.subtle} /></div>
+                            <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>OPERATOR</p><p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{loggedInUser.name}</p></div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <ReceiptModal isOpen={showReceipt} onClose={() => setShowReceipt(false)} payment={processedPayment} />
         </div>
     );
 };

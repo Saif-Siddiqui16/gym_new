@@ -1,18 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Megaphone,
-    Calendar,
-    BellRing,
-    Clock,
-    AlertCircle,
-    ChevronRight,
-    Search,
-    Sparkles,
-    Info
+    Megaphone, Calendar, BellRing, Clock, AlertCircle, 
+    ChevronRight, Search, Sparkles, Info, RefreshCw, Layers, Send, X
 } from 'lucide-react';
 import { fetchAnnouncements } from '../../api/communication/communicationApi';
 import RightDrawer from '../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
 
 const MemberAnnouncements = () => {
     const [announcements, setAnnouncements] = useState([]);
@@ -22,191 +52,152 @@ const MemberAnnouncements = () => {
     const loadData = async () => {
         try {
             setLoading(true);
-            // Backend now handles filtering for status: 'Active' and targetRole
             const data = await fetchAnnouncements({ portal: 'member' });
             setAnnouncements(data || []);
-        } catch (error) {
-            console.error('Error fetching announcements:', error);
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error('Error fetching announcements:', error); }
+        finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    useEffect(() => { loadData(); }, []);
 
     const getPriorityStyle = (priority) => {
         const p = parseInt(priority) || 0;
-        const config = {
-            high: {
-                bg: 'bg-rose-50',
-                text: 'text-rose-600',
-                border: 'border-rose-100',
-                icon: AlertCircle,
-                badge: 'bg-rose-100 text-rose-700'
-            },
-            medium: {
-                bg: 'bg-amber-50',
-                text: 'text-amber-600',
-                border: 'border-amber-100',
-                icon: Info,
-                badge: 'bg-amber-100 text-amber-700'
-            },
-            low: {
-                bg: 'bg-primary-light',
-                text: 'text-primary',
-                border: 'border-violet-100',
-                icon: Info,
-                badge: 'bg-violet-100 text-primary-hover'
-            },
-        };
-
-        if (p >= 8) return config.high;
-        if (p >= 4) return config.medium;
-        return config.low;
+        if (p >= 8) return { color: T.rose, bg: T.roseLight, icon: AlertCircle };
+        if (p >= 4) return { color: T.amber, bg: T.amberLight, icon: Info };
+        return { color: T.accent, bg: T.accentLight, icon: Info };
     };
 
+    if (loading && announcements.length === 0) return <Loader message="Broadcasting updates..." />;
+
     return (
-        <div className="saas-container h-screen  space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <Megaphone size={32} strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <Megaphone size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">Announcements</h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.3em]">Stay updated with the latest news from your gym</p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Announcements</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Stay updated with the latest news from your gym</p>
                     </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                    <BellRing size={18} strokeWidth={2.5} />
+                    <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Hub Update</span>
                 </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-0">
-                {announcements.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-8">
-                        {announcements.map((item) => {
-                            const style = getPriorityStyle(item.priority);
-                            const PriorityIcon = style.icon;
-                            return (
-                                <div key={item.id} className="group relative bg-white rounded-[3.5rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-1 p-8 sm:p-14 overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl transition-all group-hover:scale-110" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32, maxWidth: 1000, margin: '0 auto' }}>
 
-                                    <div className="relative">
-                                        <div className="flex items-center justify-between mb-10">
-                                            <div className="flex items-center gap-5">
-                                                <div className={`w-14 h-14 rounded-[1.5rem] ${style.bg} ${style.text} flex items-center justify-center shadow-sm`}>
-                                                    <PriorityIcon size={28} strokeWidth={2.5} />
+                {/* ANNOUNCEMENTS LIST */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <SectionHeader icon={Sparkles} title="Global Broadcasts" subtitle="Official communications from gym management" />
+                    
+                    {announcements.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                            {announcements.map((item, idx) => {
+                                const style = getPriorityStyle(item.priority);
+                                const Icon = style.icon;
+                                return (
+                                    <PremiumCard key={item.id} index={idx} style={{ padding: '32px 40px', background: '#fff', position: 'relative', overflow: 'hidden' }}>
+                                        <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: `${style.color}05`, blur: '40px' }} />
+                                        
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                <div style={{ width: 44, height: 44, borderRadius: 12, background: style.bg, color: style.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Icon size={22} strokeWidth={2.5} />
                                                 </div>
-                                                <div className={`px-5 py-2 rounded-full ${style.badge} text-[11px] font-black uppercase tracking-[0.2em]`}>
-                                                    {item.priority || 'Update'}
-                                                </div>
+                                                <div style={{ padding: '4px 12px', borderRadius: 8, background: style.bg, color: style.color, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.priority ? `Priority ${item.priority}` : 'General Update'}</div>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                                                <Calendar size={16} />
-                                                {new Date(item.createdAt).toLocaleDateString()}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>
+                                                <Calendar size={14} />
+                                                {new Date(item.createdAt).toLocaleDateString('en-GB')}
                                             </div>
                                         </div>
 
-                                        <h3 className="text-3xl font-black text-slate-900 tracking-tight mb-6 group-hover:text-primary transition-colors leading-tight">
-                                            {item.title}
-                                        </h3>
+                                        <h3 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-0.5px' }}>{item.title}</h3>
+                                        <p style={{ fontSize: 14, fontWeight: 600, color: T.muted, lineHeight: 1.6, margin: '0 0 28px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.content}</p>
 
-                                        <p className="text-slate-500 text-sm font-bold leading-[1.8] mb-10 max-w-4xl line-clamp-3">
-                                            {item.content}
-                                        </p>
-
-                                        <div className="flex items-center justify-between pt-10 border-t-2 border-slate-50">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
-                                                    <BellRing size={18} />
-                                                </div>
-                                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Broadcasted to Members</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: T.subtle }}>
+                                                <BellRing size={16} />
+                                                <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Public Broadcast</span>
                                             </div>
-                                            <button
+                                            <button 
                                                 onClick={() => setSelectedAnnouncement(item)}
-                                                className="flex items-center gap-3 text-[11px] font-black text-primary uppercase tracking-[0.2em] hover:translate-x-2 transition-transform py-3 px-8 rounded-2xl bg-primary/5 hover:bg-primary hover:text-white shadow-sm"
+                                                style={{ padding: '12px 24px', borderRadius: 12, background: T.bg, border: `1.5px solid ${T.border}`, color: T.accent, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', gap: 8 }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = T.accent; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.background = T.bg; e.currentTarget.style.color = T.accent; e.currentTarget.style.borderColor = T.border; }}
                                             >
-                                                Read More <ChevronRight size={16} strokeWidth={3} />
+                                                Read Fully <ChevronRight size={14} strokeWidth={3} />
                                             </button>
                                         </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[4rem] border-2 border-dashed border-slate-100">
-                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-200">
-                            <Megaphone size={48} strokeWidth={1} />
+                                    </PremiumCard>
+                                );
+                            })}
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">No Announcements</h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">There are no announcements at this time. Check back later!</p>
-                    </div>
-                )}
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '100px 40px', background: T.surface, borderRadius: 32, border: `2px dashed ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                             <Megaphone size={64} style={{ opacity: 0.1, marginBottom: 20 }} />
+                             <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text }}>No Broadcasts Currently</h3>
+                             <p style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>You're currently up to date with all gym news.</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Announcement Detail Drawer */}
-            <RightDrawer
-                isOpen={!!selectedAnnouncement}
-                onClose={() => setSelectedAnnouncement(null)}
-                title="Announcement Detail"
-            >
+            <RightDrawer isOpen={!!selectedAnnouncement} onClose={() => setSelectedAnnouncement(null)} title="Official Announcement" subtitle={selectedAnnouncement?.title}>
                 {selectedAnnouncement && (
-                    <div className="p-10 sm:p-14 space-y-10 animate-in fade-in slide-in-from-right-8 duration-300">
-                        <div className="flex items-center justify-between">
-                            <div className={`px-4 py-1.5 rounded-full ${getPriorityStyle(selectedAnnouncement.priority).badge} text-[10px] font-black uppercase tracking-widest`}>
-                                {selectedAnnouncement.priority || 'Update'}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 32, padding: 4 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ padding: '6px 14px', borderRadius: 8, background: T.accentLight, color: T.accent, fontSize: 9, fontWeight: 900, textTransform: 'uppercase' }}>Authorized Communication</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 800, color: T.subtle }}>
                                 <Calendar size={14} />
-                                {new Date(selectedAnnouncement.createdAt).toLocaleDateString()}
+                                {new Date(selectedAnnouncement.createdAt).toLocaleDateString('en-GB')}
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-                                {selectedAnnouncement.title}
-                            </h3>
-                            <div className="h-1.5 w-20 bg-primary rounded-full mb-8" />
+                            <h3 style={{ fontSize: 28, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-0.8px', lineHeight: 1.2 }}>{selectedAnnouncement.title}</h3>
+                            <div style={{ height: 4, width: 44, background: T.accent, borderRadius: 2 }} />
                         </div>
 
-                        <div className="bg-slate-50/50 rounded-[2.5rem] border border-slate-100">
-                            <p className="text-slate-600 text-lg font-medium leading-relaxed whitespace-pre-wrap">
-                                {selectedAnnouncement.content}
-                            </p>
+                        <div style={{ padding: 28, borderRadius: 24, background: T.bg, border: `1px solid ${T.border}` }}>
+                            <p style={{ fontSize: 15, fontWeight: 600, color: T.text, lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>{selectedAnnouncement.content}</p>
                         </div>
 
-                        <div className="p-6 bg-primary-light/50 rounded-3xl border border-violet-100 flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm shrink-0">
-                                <Sparkles size={20} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-violet-900 uppercase tracking-widest mb-1">Stay Notified</p>
-                                <p className="text-xs text-primary-hover/70 font-bold leading-normal">
-                                    Turn on push notifications in your profile settings to get instant updates on gym events and schedule changes.
-                                </p>
-                            </div>
+                        <div style={{ padding: 24, borderRadius: 20, background: T.accentLight, border: `1px solid ${T.accentMid}`, display: 'flex', alignItems: 'center', gap: 16, marginTop: 12 }}>
+                             <Sparkles size={24} color={T.accent} />
+                             <p style={{ fontSize: 11, fontWeight: 800, color: T.text, margin: 0, lineHeight: 1.5 }}>Stay informed by checking this hub regularly for upcoming events and gym updates.</p>
                         </div>
 
-                        <button
+                        <button 
                             onClick={() => setSelectedAnnouncement(null)}
-                            className="w-full h-14 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all flex items-center justify-center gap-2 mt-4"
-                        >
-                            Close Detail
-                        </button>
+                            style={{ height: 56, borderRadius: 16, background: T.accent, color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.1)', marginTop: 8 }}
+                        >Understood</button>
                     </div>
                 )}
             </RightDrawer>
-
-            {/* Footer Tip */}
-            <div className="flex items-center justify-center pt-10">
-                <div className="px-8 py-3 bg-primary-light rounded-full flex items-center gap-3 text-primary">
-                    <Sparkles size={16} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Personalized updates for your fitness journey</span>
-                </div>
-            </div>
         </div>
     );
 };

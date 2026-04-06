@@ -15,12 +15,41 @@ import {
     X,
     ExternalLink,
     Share2,
-    MapPin
+    MapPin,
+    ChevronRight,
+    Search as SearchIcon
 } from 'lucide-react';
-import StatsCard from '../../../modules/dashboard/components/StatsCard';
 import { feedbackApi } from '../../../api/feedbackApi';
 import RightDrawer from '../../../components/common/RightDrawer';
 import toast from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const FeedbackSystem = ({ role }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -112,307 +141,279 @@ const FeedbackSystem = ({ role }) => {
         return matchesSearch && matchesStatus;
     });
 
-    const getStatusColor = (status) => {
+    const getStatusStyle = (status) => {
         switch (status) {
-            case 'Resolved': return 'bg-emerald-50 text-emerald-600';
-            case 'Pending': return 'bg-amber-50 text-amber-600';
-            case 'Reviewed': return 'bg-primary-light text-primary';
-            default: return 'bg-slate-50 text-slate-600';
+            case 'Resolved': return { bg: T.greenLight, color: T.green };
+            case 'Pending': return { bg: T.amberLight, color: T.amber };
+            case 'Reviewed': return { bg: T.accentLight, color: T.accent };
+            default: return { bg: '#F1F5F9', color: '#64748B' };
         }
     };
 
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
+    const StatCard = ({ label, value, icon: Icon, color, subValue }) => (
+        <div style={{ background: '#fff', padding: 24, borderRadius: 28, boxShadow: T.cardShadow, border: `1.5px solid #fff`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 8 }}>
+                    <h3 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: T.text }}>{value}</h3>
+                    {subValue && <span style={{ fontSize: 14, fontWeight: 700, color: T.muted, paddingBottom: 6 }}>{subValue}</span>}
+                </div>
+            </div>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', color: color }}>
+                <Icon size={24} strokeWidth={2.5} />
+            </div>
+        </div>
+    );
+
     return (
-        <div className="min-h-screen space-y-8 animate-fadeIn text-sans">
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .feedback-row:hover { background: ${T.bg} !important; }
+                .feedback-row:hover td { color: ${T.text} !important; }
+            `}</style>
 
             {/* Header Section */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300 shrink-0">
-                            <MessageSquare size={24} className="sm:w-7 sm:h-7" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                {role === 'MEMBER' ? 'My Feedback' : 'Member Feedback'}
-                            </h1>
-                            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
-                                {role === 'MEMBER' ? 'Share your thoughts and track responses' : 'Review and manage feedback submitted by members'}
-                            </p>
-                        </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
+                        <MessageSquare size={28} strokeWidth={2.5} />
                     </div>
-
-                    {role === 'MEMBER' && (
-                        <button
-                            onClick={() => setIsSubmitModalOpen(true)}
-                            className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                            <MessageSquare size={18} />
-                            Submit Feedback
-                        </button>
-                    )}
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
+                            {role === 'MEMBER' ? 'My Feedback' : 'Member Feedback'}
+                        </h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>
+                            {role === 'MEMBER' ? 'Your direct channel to gym management & suggestions' : 'Manage member satisfaction and bridge communication gaps'}
+                        </p>
+                    </div>
                 </div>
+                {role === 'MEMBER' && (
+                    <ActionButton onClick={() => setIsSubmitModalOpen(true)} icon={MessageSquare}>Submit Feedback</ActionButton>
+                )}
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { label: 'Total Feedback', value: stats.total, icon: MessageSquare, color: 'from-primary to-primary' },
-                    { label: 'Average Rating', value: stats.avgRating, icon: Star, color: 'from-amber-400 to-orange-500' },
-                    { label: 'Pending Review', value: stats.pending, icon: Clock, color: 'from-blue-500 to-indigo-600' },
-                    { label: 'Resolved', value: stats.resolved, icon: CheckCircle2, color: 'from-emerald-500 to-teal-600' }
-                ].map((kpi, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                        <div className="flex items-start justify-between w-full">
-                            <div>
-                                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{kpi.label}</p>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
-                                    {kpi.label === 'Average Rating' && (
-                                        <div className="flex items-center gap-0.5 mb-1">
-                                            {[1, 2, 3, 4, 5].map((s) => (
-                                                <Star 
-                                                    key={s} 
-                                                    size={12} 
-                                                    className={Math.round(kpi.value) >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-200'} 
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
-                                <kpi.icon size={20} />
-                            </div>
-                        </div>
-                    </div>
-                ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <StatCard label="Total Submissions" value={stats.total} icon={MessageSquare} color={T.accent} />
+                <StatCard label="Average Customer Satisfaction" value={stats.avgRating} icon={Star} color={T.amber} subValue="/ 5.0" />
+                <StatCard label="Pending Moderation" value={stats.pending} icon={Clock} color={T.blue} />
+                <StatCard label="Resolved Tickets" value={stats.resolved} icon={CheckCircle2} color={T.green} />
             </div>
 
-            {/* All Feedback Content Area */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm min-h-[400px]">
-                <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
-                            <BarChart3 size={20} />
+            {/* Filter & Table Area */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                            <BarChart3 size={20} strokeWidth={2.5} />
                         </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-900 leading-none">All Feedback</h2>
-                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Comprehensive list of member reviews</p>
-                        </div>
+                        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Feedback Records</h3>
                     </div>
 
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-64">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <div style={{ display: 'flex', gap: 16 }}>
+                        <div style={{ position: 'relative', width: 280 }}>
+                            <SearchIcon size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                             <input
                                 type="text"
-                                placeholder="Search feedback..."
+                                placeholder="Search comments or members..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white font-sans"
+                                style={{ width: '100%', height: 48, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid ${T.border}`, fontSize: 13, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
                             />
                         </div>
-
-                        <div className="relative min-w-[140px]">
+                        <div style={{ position: 'relative', width: 180 }}>
+                            <Filter size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full h-12 px-4 appearance-none rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-10 font-sans"
+                                style={{ width: '100%', height: 48, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid ${T.border}`, fontSize: 13, fontWeight: 800, color: T.text, outline: 'none', transition: '0.3s', cursor: 'pointer', appearance: 'none' }}
                             >
                                 <option>All Status</option>
                                 <option>Pending</option>
                                 <option>Reviewed</option>
                                 <option>Resolved</option>
                             </select>
-                            <Filter className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                         </div>
                     </div>
                 </div>
 
-                <div className="saas-table-wrapper border-0 rounded-none overflow-x-auto">
-                    <table className="saas-table saas-table-responsive w-full text-left">
-                        <thead className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold">
-                            <tr>
-                                {role !== 'MEMBER' && <th className="px-6 py-4">Member</th>}
-                                <th className="px-6 py-4">Rating</th>
-                                <th className="px-6 py-4">Feedback</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4">Date</th>
-                                {role !== 'MEMBER' && <th className="px-6 py-4 text-right">Actions</th>}
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg + '50' }}>
+                                {role !== 'MEMBER' && <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Member</th>}
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Rating</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Experience / Feedback</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Status</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Date</th>
+                                {role !== 'MEMBER' && <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Resolve Hub</th>}
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" className="px-8 py-32 text-center">
-                                        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+                                    <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                        <Loader2 size={40} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
                                     </td>
                                 </tr>
-                            ) : filteredFeedback.length > 0 ? (
-                                filteredFeedback.map((item) => (
-                                    <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                        {role !== 'MEMBER' && <td className="px-6 py-4 font-bold text-slate-900">{item.member}</td>}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="flex items-center gap-0.5">
-                                                    {[1, 2, 3, 4, 5].map((s) => (
-                                                        <Star 
-                                                            key={s} 
-                                                            size={14} 
-                                                            className={`${item.rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-200'} transition-colors`} 
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <span className="text-xs font-black text-slate-400 ml-1">({item.rating})</span>
-                                                {item.isPublishedToGoogle && (
-                                                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary-light text-primary rounded-md ml-2 border border-violet-100 shadow-sm animate-in fade-in zoom-in duration-300">
-                                                        <ExternalLink size={10} className="animate-pulse" />
-                                                        <span className="text-[8px] font-black uppercase tracking-tighter">Google</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm text-slate-500 font-medium max-w-md line-clamp-2">{item.comment}</p>
-                                        </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
-                                                    {item.status}
-                                                </span>
-                                            </td>
-                                        <td className="px-6 py-4 font-bold text-slate-400 text-[10px] uppercase">{item.date}</td>
-
-                                        {role !== 'MEMBER' && (
-                                            <td className="px-6 py-4 text-right relative">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    {(item.status || 'Pending') === 'Pending' ? (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleStatusUpdate(item.id, 'Reviewed')}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-light text-primary-hover hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-colors"
-                                                            >
-                                                                <Check size={14} />
-                                                                Review
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleStatusUpdate(item.id, 'Resolved')}
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                                                            >
-                                                                <CheckCircle2 size={14} />
-                                                                Resolve
-                                                            </button>
-                                                        </>
-                                                    ) : (item.status === 'Reviewed') ? (
-                                                        <button
-                                                            onClick={() => handleStatusUpdate(item.id, 'Resolved')}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                                                        >
-                                                            <CheckCircle2 size={14} />
-                                                            Resolve
-                                                        </button>
-                                                    ) : (
-                                                        <div className="flex items-center gap-2">
-                                                            {item.rating >= 4 && !item.isPublishedToGoogle && googleConfig.enabled && (
-                                                                <button
-                                                                    onClick={() => handlePublishToGoogle(item.id)}
-                                                                    className="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-white hover:bg-primary-hover rounded-lg text-xs font-bold transition-all shadow-md shadow-violet-100 active:scale-95"
-                                                                    title="Mark as published to Google"
-                                                                >
-                                                                    <Share2 size={14} className="animate-pulse" />
-                                                                    Publish to Google
-                                                                </button>
-                                                            )}
-                                                            <span className="text-xs font-bold text-slate-400 italic bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">Resolved</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        )}
-                                    </tr>
-                                ))
-                            ) : (
+                            ) : filteredFeedback.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-8 py-32 text-center pointer-events-none">
-                                        <div className="flex flex-col items-center gap-5">
-                                            <div className="w-24 h-24 rounded-[2.5rem] bg-slate-50 flex items-center justify-center text-slate-200">
-                                                <MessageSquare size={48} />
+                                    <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                                            <div style={{ width: 80, height: 80, borderRadius: 30, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
+                                                <MessageSquare size={32} />
                                             </div>
-                                            <div>
-                                                <h3 className="text-xl font-black text-slate-900 tracking-tight">No feedback recorded yet</h3>
-                                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">Member reviews and feedback will appear here</p>
-                                            </div>
+                                            <p style={{ fontSize: 15, fontWeight: 700, color: T.muted }}>No feedback found meeting criteria</p>
                                         </div>
                                     </td>
                                 </tr>
+                            ) : (
+                                filteredFeedback.map((item) => {
+                                    const st = getStatusStyle(item.status);
+                                    return (
+                                        <tr key={item.id} className="feedback-row" style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s' }}>
+                                            {role !== 'MEMBER' && (
+                                                <td style={{ padding: '20px 32px' }}>
+                                                    <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{item.member}</div>
+                                                    <div style={{ fontSize: 11, fontWeight: 600, color: T.muted }}>Verified Client</div>
+                                                </td>
+                                            )}
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <div style={{ display: 'flex', gap: 2 }}>
+                                                        {[1, 2, 3, 4, 5].map((s) => (
+                                                            <Star 
+                                                                key={s} 
+                                                                size={14} 
+                                                                fill={item.rating >= s ? T.amber : 'none'} 
+                                                                color={item.rating >= s ? T.amber : T.border} 
+                                                                strokeWidth={2.5}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <span style={{ fontSize: 12, fontWeight: 900, color: T.text, marginLeft: 4 }}>{item.rating}.0</span>
+                                                </div>
+                                                {item.isPublishedToGoogle && (
+                                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', background: T.accentLight, borderRadius: 6, marginTop: 8 }}>
+                                                        <ExternalLink size={10} color={T.accent} />
+                                                        <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', color: T.accent }}>Google Published</span>
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <p style={{ margin: 0, fontSize: 14, color: T.muted, fontWeight: 500, lineHeight: 1.5, maxWidth: 400 }}>
+                                                    {item.comment}
+                                                </p>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: 10, background: st.bg, color: st.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: `1.2px solid ${st.color}20` }}>
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '20px 32px', fontSize: 13, fontWeight: 600, color: T.muted }}>{item.date}</td>
+                                            {role !== 'MEMBER' && (
+                                                <td style={{ padding: '20px 32px', textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                                                        {item.status === 'Pending' && (
+                                                            <button 
+                                                                onClick={() => handleStatusUpdate(item.id, 'Reviewed')}
+                                                                style={{ padding: '8px 16px', borderRadius: 10, background: T.bg, border: 'none', color: T.text, fontSize: 11, fontWeight: 800, cursor: 'pointer', transition: '0.2s' }}
+                                                            >
+                                                                Mark Reviewed
+                                                            </button>
+                                                        )}
+                                                        {item.status !== 'Resolved' ? (
+                                                            <button 
+                                                                onClick={() => handleStatusUpdate(item.id, 'Resolved')}
+                                                                style={{ padding: '8px 16px', borderRadius: 10, background: T.greenLight, border: 'none', color: T.green, fontSize: 11, fontWeight: 800, cursor: 'pointer', transition: '0.2s' }}
+                                                            >
+                                                                Resolve
+                                                            </button>
+                                                        ) : (
+                                                            item.rating >= 4 && !item.isPublishedToGoogle && googleConfig.enabled && (
+                                                                <button 
+                                                                    onClick={() => handlePublishToGoogle(item.id)}
+                                                                    style={{ padding: '8px 16px', borderRadius: 10, background: T.accent, border: 'none', color: '#fff', fontSize: 11, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                                                >
+                                                                    <Share2 size={12} strokeWidth={3} />
+                                                                    Promote
+                                                                </button>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {/* Submit Feedback Modal */}
+            {/* Submit Drawer */}
             <RightDrawer
                 isOpen={isSubmitModalOpen}
                 onClose={() => setIsSubmitModalOpen(false)}
-                title="Submit Feedback"
-                subtitle="Share your experience with us"
-                maxWidth="max-w-lg"
-                footer={
-                    <button
-                        form="feedback-form"
-                        type="submit"
-                        className="w-full h-12 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-200 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
-                    >
-                        <Check size={16} />
-                        Submit Request
-                    </button>
-                }
+                title="Send Feedback"
+                footer={<ActionButton style={{ width: '100%' }} icon={Check} onClick={handleFeedbackSubmit}>Confirm Submission</ActionButton>}
             >
-                <form id="feedback-form" onSubmit={handleFeedbackSubmit} className="space-y-6">
-                    <div className="space-y-3">
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Rating</label>
-                        <div className="flex gap-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 4 }}>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: T.muted, textTransform: 'uppercase', marginBottom: 12 }}>Rate your Experience</label>
+                        <div style={{ display: 'flex', gap: 10 }}>
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button
                                     key={star}
                                     type="button"
                                     onClick={() => setNewFeedback({ ...newFeedback, rating: star })}
-                                    className={`p-3 rounded-xl transition-all ${newFeedback.rating >= star ? 'bg-amber-50 text-amber-400' : 'bg-slate-50 text-slate-300 hover:bg-slate-100 hover:scale-105 active:scale-95'}`}
+                                    style={{
+                                        width: 54, height: 54, borderRadius: 16, border: 'none', transition: '0.2s', cursor: 'pointer',
+                                        background: newFeedback.rating >= star ? T.amberLight : T.bg,
+                                        color: newFeedback.rating >= star ? T.amber : T.subtle,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}
                                 >
-                                    <Star size={24} className={newFeedback.rating >= star ? "fill-amber-400" : ""} />
+                                    <Star size={24} fill={newFeedback.rating >= star ? T.amber : 'none'} strokeWidth={2.5} />
                                 </button>
                             ))}
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
-                            {newFeedback.rating === 5 && "⭐ Excellent - I love it!"}
-                            {newFeedback.rating === 4 && "⭐ Good - Pretty satisfied"}
-                            {newFeedback.rating === 3 && "⭐ Average - It's okay"}
-                            {newFeedback.rating === 2 && "⭐ Poor - Needs improvement"}
-                            {newFeedback.rating === 1 && "⭐ Terrible - Very disappointed"}
-                        </p>
                     </div>
 
-                    <div className="space-y-3">
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Your Feedback</label>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: T.muted, textTransform: 'uppercase', marginBottom: 12 }}>Detailed Thoughts</label>
                         <textarea
                             required
-                            rows={6}
-                            placeholder="Tell us what you loved or what we could improve..."
+                            placeholder="How can we improve? What did you love?"
                             value={newFeedback.comment}
                             onChange={(e) => setNewFeedback({ ...newFeedback, comment: e.target.value })}
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-medium transition-all outline-none resize-none"
+                            style={{ width: '100%', minHeight: 180, padding: 16, borderRadius: 16, border: `2px solid ${T.border}`, fontSize: 14, color: T.text, outline: 'none', resize: 'none', transition: '0.3s' }}
                         />
                     </div>
-                </form>
+                </div>
             </RightDrawer>
 
-            {/* Google Success Modal */}
-            <GoogleSuccessModal
-                isOpen={showGoogleSuccess}
-                onClose={() => setShowGoogleSuccess(false)}
-                link={googleConfig.link}
-            />
+            <GoogleSuccessModal isOpen={showGoogleSuccess} onClose={() => setShowGoogleSuccess(false)} link={googleConfig.link} />
         </div>
     );
 };
@@ -420,75 +421,45 @@ const FeedbackSystem = ({ role }) => {
 /* Google Success Modal */
 const GoogleSuccessModal = ({ isOpen, onClose, link }) => {
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            maxWidth="max-w-md"
-            showCloseButton={false}
-        >
-            <div className="p-10 relative overflow-hidden">
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full -mr-16 -mt-16 blur-2xl opacity-50"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary-light rounded-full -ml-16 -mb-16 blur-2xl opacity-50"></div>
-
-                <button
+        <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-md" showCloseButton={false}>
+            <div style={{ padding: 40, textAlign: 'center', position: 'relative', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <button 
                     onClick={onClose}
-                    className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all border border-slate-100 shadow-sm z-10"
+                    style={{ position: 'absolute', top: 20, right: 20, width: 36, height: 36, borderRadius: 12, background: T.bg, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: T.muted }}
                 >
-                    <X size={20} />
+                    <X size={20} strokeWidth={2.5} />
                 </button>
 
-                <div className="text-center space-y-8 relative">
-                    <div className="flex justify-center">
-                        <div className="relative">
-                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-xl shadow-violet-200 animate-bounce-subtle">
-                                <Star size={44} fill="white" />
-                            </div>
-                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center text-white shadow-lg">
-                                <Check size={16} strokeWidth={4} />
-                            </div>
-                        </div>
-                    </div>
+                <div style={{ width: 80, height: 80, borderRadius: 32, background: T.amberLight, color: T.amber, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 12px 30px -10px rgba(245, 158, 11, 0.4)' }}>
+                    <Star size={40} fill={T.amber} strokeWidth={1} />
+                </div>
 
-                    <div className="space-y-3">
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">Thank You!</h2>
-                        <p className="text-slate-500 font-bold text-sm tracking-wide leading-relaxed">
-                            We're thrilled you had a great experience! Would you mind sharing your review on Google to help others find us?
-                        </p>
-                    </div>
+                <h2 style={{ fontSize: 26, fontWeight: 900, color: T.text, margin: 0 }}>Amazing Experience!</h2>
+                <p style={{ margin: '12px 0 32px', fontSize: 15, color: T.muted, fontWeight: 500, lineHeight: 1.6 }}>
+                    We're so glad you're happy! Would you mind sharing your review on Google? It helps others find our community.
+                </p>
 
-                    <div className="pt-4 space-y-4">
-                        <a
-                            href={link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={onClose}
-                            className="w-full h-16 rounded-[1.25rem] bg-slate-900 text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-slate-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-95 group"
-                        >
-                            <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center shadow-sm group-hover:rotate-12 transition-transform">
-                                <MapPin size={14} className="text-primary" />
-                            </div>
-                            Review us on Google Maps
-                        </a>
-
-                        <button
-                            onClick={onClose}
-                            className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600 transition-colors"
-                        >
-                            Maybe Later
-                        </button>
-                    </div>
-
-                    <div className="flex justify-center gap-1">
-                        {[1, 2, 3, 4, 5].map(i => (
-                            <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                        ))}
-                    </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={onClose}
+                        style={{ height: 60, borderRadius: 18, background: T.text, color: '#fff', fontSize: 14, fontWeight: 800, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, transition: '0.3s' }}
+                    >
+                        <MapPin size={20} />
+                        Review us on Google Maps
+                    </a>
+                    <button 
+                        onClick={onClose}
+                        style={{ background: 'none', border: 'none', padding: 12, fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', cursor: 'pointer' }}
+                    >
+                        Maybe Later
+                    </button>
                 </div>
             </div>
         </Modal>
     );
 };
-
 
 export default FeedbackSystem;

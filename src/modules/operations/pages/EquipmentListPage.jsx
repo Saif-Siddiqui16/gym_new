@@ -17,13 +17,42 @@ import {
     TrendingUp,
     Settings,
     Banknote,
-    Clock
+    Clock,
+    ChevronDown,
+    RefreshCw
 } from 'lucide-react';
 import { equipmentApi } from '../../../api/equipmentApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
-import RightDrawer from '../../../components/common/RightDrawer';
 import AddEquipmentDrawer from './AddEquipmentDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const EquipmentListPage = () => {
     const { selectedBranch } = useBranchContext();
@@ -43,9 +72,9 @@ const EquipmentListPage = () => {
                 equipmentApi.getStats({ branchId: selectedBranch }),
                 equipmentApi.getMaintenanceRequests({ branchId: selectedBranch })
             ]);
-            setEquipment(equipmentData);
-            setStats(statsData);
-            setMaintenanceLogs(logsData);
+            setEquipment(equipmentData || []);
+            setStats(statsData || { total: 0, operational: 0, inMaintenance: 0, outOfOrder: 0, ytdCost: 0 });
+            setMaintenanceLogs(logsData || []);
         } catch (error) {
             console.error(error);
             toast.error('Failed to load equipment data');
@@ -68,302 +97,265 @@ const EquipmentListPage = () => {
         }
     };
 
-    const getStatusStyle = (status) => {
-        switch (status) {
-            case 'Operational':
-                return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-            case 'In Maintenance':
-                return 'bg-amber-50 text-amber-600 border-amber-100';
-            case 'Out of Order':
-                return 'bg-rose-50 text-rose-600 border-rose-100';
-            case 'Completed':
-                return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-            case 'Pending':
-                return 'bg-amber-50 text-amber-600 border-amber-100';
-            default:
-                return 'bg-slate-50 text-slate-600 border-slate-100';
-        }
-    };
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
 
     return (
-        <div className="saas-page pb-page animate-fadeIn">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Equipment & Maintenance</h1>
-                    <p className="text-slate-500 text-sm font-medium">Track assets, maintenance history, and service logs</p>
-                </div>
-                <button
-                    onClick={() => setIsDrawerOpen(true)}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0a1b2e] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200 hover:bg-[#1a2b3e] transition-all"
-                >
-                    <Plus size={16} strokeWidth={3} /> Add Equipment
-                </button>
-            </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .tab-btn:hover { color: ${T.accent} !important; }
+                .asset-row:hover { background: ${T.accentLight}30 !important; cursor: pointer; }
+            `}</style>
 
-            {/* KPI Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                {/* Total Equipment */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-[#0a1b2e]/10 transition-all">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Total Equipment</p>
-                    <div className="flex justify-between items-end">
-                        <h2 className="text-3xl font-black text-slate-900 leading-none">{stats.total}</h2>
-                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform">
-                            <Monitor size={20} />
-                        </div>
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
+                        <Monitor size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Assets & Maintenance</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Track equipment health, maintenance history and service costs</p>
                     </div>
                 </div>
-
-                {/* Operational */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-emerald-100 transition-all border-l-4 border-l-emerald-500">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Operational</p>
-                    <div className="flex justify-between items-end">
-                        <h2 className="text-3xl font-black text-emerald-600 leading-none">{stats.operational}</h2>
-                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
-                            <CheckCircle2 size={20} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* In Maintenance */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-amber-100 transition-all border-l-4 border-l-amber-500">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">In Maintenance</p>
-                    <div className="flex justify-between items-end">
-                        <h2 className="text-3xl font-black text-amber-600 leading-none">{stats.inMaintenance}</h2>
-                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
-                            <Clock size={20} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Out of Order */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-rose-100 transition-all border-l-4 border-l-rose-500">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Out of Order</p>
-                    <div className="flex justify-between items-end">
-                        <h2 className="text-3xl font-black text-rose-600 leading-none">{stats.outOfOrder}</h2>
-                        <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
-                            <AlertCircle size={20} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* YTD Maintenance Cost */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:border-violet-100 transition-all">
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">YTD Maintenance Cost</p>
-                    <div className="flex justify-between items-end">
-                        <h2 className="text-2xl font-black text-slate-900 leading-none tracking-tight">₹{stats.ytdCost.toLocaleString()}</h2>
-                        <div className="w-10 h-10 bg-[#ff6b00]/5 rounded-xl flex items-center justify-center text-[#ff6b00] group-hover:scale-110 transition-transform">
-                            <Banknote size={20} />
-                        </div>
-                    </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <ActionButton onClick={() => setIsDrawerOpen(true)} icon={Plus}>Add Equipment</ActionButton>
                 </div>
             </div>
 
-            {/* Main Content Card */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden min-h-[500px]">
-                {/* Tabs & Search */}
-                <div className="p-8 border-b border-slate-50 flex flex-col lg:flex-row justify-between items-center gap-6">
-                    <div className="flex p-1 bg-slate-50 rounded-2xl w-full lg:w-auto">
-                        <button
-                            onClick={() => setActiveTab('Equipment')}
-                            className={`flex-1 lg:flex-none px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'Equipment' ? 'bg-white shadow-sm text-slate-900 border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            Equipment
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('MaintenanceLog')}
-                            className={`flex-1 lg:flex-none px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'MaintenanceLog' ? 'bg-white shadow-sm text-slate-900 border border-slate-100' : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            Maintenance Log
-                        </button>
-                    </div>
-
-                    <div className="relative group w-full lg:w-96">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search equipment, serial number..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-slate-200 transition-all"
-                        />
-                    </div>
-                </div>
-
-                {/* Table Section */}
-                <div className="p-8">
-                    {activeTab === 'Equipment' ? (
-                        <>
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-slate-900 italic tracking-tight underline decoration-[#ff6b00]/20 decoration-4 underline-offset-8">All Equipment</h3>
+            {/* KPI Stats Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 20, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                {[
+                    { label: 'Total Assets', value: stats.total, icon: Monitor, color: T.text, bg: '#fff' },
+                    { label: 'Operational', value: stats.operational, icon: CheckCircle2, color: T.green, bg: T.greenLight },
+                    { label: 'Servicing', value: stats.inMaintenance, icon: Clock, color: T.amber, bg: T.amberLight },
+                    { label: 'Out of Order', value: stats.outOfOrder, icon: AlertCircle, color: T.rose, bg: T.roseLight },
+                    { label: 'YTD Spending', value: `₹${(stats.ytdCost || 0).toLocaleString()}`, icon: Banknote, color: T.accent, bg: T.accentLight },
+                ].map((stat, i) => (
+                    <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 28, boxShadow: T.cardShadow, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                                <stat.icon size={20} strokeWidth={2.5} />
                             </div>
+                        </div>
+                        <div>
+                            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</p>
+                            <h4 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.02em' }}>{loading ? '...' : stat.value}</h4>
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-                            <div className="saas-table-wrapper border-0 rounded-none">
-                                <table className="saas-table saas-table-responsive w-full">
+            {/* Main Content Area */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                {/* Search & Tabs */}
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 8, background: T.bg, padding: 6, borderRadius: 18 }}>
+                        {['Equipment', 'Maintenance Log'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className="tab-btn"
+                                style={{
+                                    padding: '10px 24px', borderRadius: 14, border: 'none',
+                                    background: activeTab === tab ? '#fff' : 'transparent',
+                                    color: activeTab === tab ? T.accent : T.muted,
+                                    fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: '0.2s', boxShadow: activeTab === tab ? '0 2px 10px rgba(0,0,0,0.05)' : 'none'
+                                }}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                        <div style={{ position: 'relative' }}>
+                            <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} size={18} />
+                            <input 
+                                type="text"
+                                placeholder="Search by name, serial..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: 300, height: 48, background: T.bg, border: 'none', borderRadius: 16, padding: '0 20px 0 52px', color: T.text, fontSize: 13, fontWeight: 600, outline: 'none' }}
+                            />
+                        </div>
+                        <button 
+                            onClick={loadData}
+                            style={{ width: 44, height: 44, borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, cursor: 'pointer' }}
+                        >
+                            <RefreshCw size={18} style={{ animation: loading ? 'spin 1.5s linear infinite' : 'none' }} />
+                        </button>
+                    </div>
+                </div>
+
+                <div style={{ padding: 32 }}>
+                    {loading ? (
+                        <div style={{ height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+                            <RefreshCw size={48} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
+                            <p style={{ fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Calibrating Assets...</p>
+                        </div>
+                    ) : (
+                        <div style={{ borderRadius: 24, border: `1.5px solid ${T.bg}`, overflow: 'hidden' }}>
+                            {activeTab === 'Equipment' ? (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>
-                                        <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50/50">
-                                            <th className="px-6 py-4">Equipment Info</th>
-                                            <th className="px-6 py-4">Serial Number</th>
-                                            <th className="px-6 py-4">Brand/Model</th>
-                                            <th className="px-6 py-4">Category</th>
-                                            <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4">Last Service</th>
-                                            <th className="px-6 py-4 text-right">Actions</th>
+                                        <tr style={{ background: T.bg }}>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Equipment Identity</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Technical Details</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Category</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Operational Status</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Last Service</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {!loading && equipment.map((item) => (
-                                            <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
-                                                <td className="px-6 py-6" data-label="Equipment Info">
-                                                    <div className="flex items-center gap-4 justify-end sm:justify-start">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:shadow-sm transition-all flex-shrink-0">
-                                                            <Wrench size={18} />
+                                    <tbody>
+                                        {equipment.length > 0 ? equipment.map((item) => (
+                                            <tr key={item.id} className="asset-row" style={{ borderBottom: `1.5px solid ${T.bg}`, transition: '0.2s', background: '#fff' }}>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted }}>
+                                                            <Wrench size={22} strokeWidth={2.5} />
                                                         </div>
-                                                        <div className="flex flex-col text-right sm:text-left">
-                                                            <span className="text-sm font-black text-slate-900">{item.name}</span>
-                                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.location}</span>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontSize: 14, fontWeight: 900, color: T.text }}>{item.name}</span>
+                                                            <span style={{ fontSize: 11, fontWeight: 700, color: T.subtle, textTransform: 'uppercase' }}>{item.location}</span>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Serial Number">
-                                                    <div className="text-right sm:text-left">
-                                                        <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-lg uppercase tracking-widest">{item.serialNumber || 'N/A'}</span>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{item.brand} {item.model}</span>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase' }}>SN: {item.serialNumber || 'N/A'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6 text-right sm:text-left font-bold text-xs text-slate-600" data-label="Brand/Model">
-                                                    {item.brand} {item.model}
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <span style={{ padding: '4px 10px', borderRadius: 8, background: T.bg, color: T.muted, fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>{item.category}</span>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Category">
-                                                    <div className="text-right sm:text-left">
-                                                        <span className="inline-flex px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                                            {item.category}
-                                                        </span>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ 
+                                                        display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
+                                                        borderRadius: 20, background: item.status === 'Operational' ? T.greenLight : item.status === 'In Maintenance' ? T.amberLight : T.roseLight,
+                                                        color: item.status === 'Operational' ? T.green : item.status === 'In Maintenance' ? T.amber : T.rose
+                                                    }}>
+                                                        <div style={{ width: 6, height: 6, borderRadius: 3, background: 'currentColor' }} />
+                                                        <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }}>{item.status}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Status">
-                                                    <div className="flex justify-end sm:justify-start">
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(item.status)}`}>
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'Operational' ? 'bg-emerald-500' :
-                                                                item.status === 'In Maintenance' ? 'bg-amber-500' : 'bg-rose-500'
-                                                                }`} />
-                                                            {item.status}
-                                                        </span>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{item.lastService ? new Date(item.lastService).toLocaleDateString() : 'No History'}</span>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: T.subtle }}>Next: {item.nextService ? new Date(item.nextService).toLocaleDateString() : 'N/A'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Last Service">
-                                                    <div className="flex flex-col text-right sm:text-left">
-                                                        <span className="text-xs font-bold text-slate-700">
-                                                            {item.lastService ? new Date(item.lastService).toLocaleDateString() : 'No History'}
-                                                        </span>
-                                                        <span className="text-[10px] text-slate-400 font-bold uppercase">Next: {item.nextService ? new Date(item.nextService).toLocaleDateString() : 'N/A'}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-6 text-right" data-label="Actions">
-                                                    <div className="flex items-center justify-end gap-2 opacity-100 transition-opacity">
-                                                        <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl shadow-sm transition-all border border-transparent hover:border-slate-100">
+                                                <td style={{ padding: '20px 24px', textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                                                        <button style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: T.bg, color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                                             <Edit2 size={16} />
                                                         </button>
-                                                        <button className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl shadow-sm transition-all border border-transparent hover:border-rose-100">
+                                                        <button style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                                             <Trash2 size={16} />
                                                         </button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )) : (
+                                            <tr>
+                                                <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                                    <Archive size={64} style={{ color: T.bg, marginBottom: 20 }} />
+                                                    <h4 style={{ fontSize: 18, fontWeight: 900, color: T.subtle }}>No Equipment Found</h4>
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-black text-slate-900 italic tracking-tight underline decoration-[#ff6b00]/20 decoration-4 underline-offset-8">Maintenance History</h3>
-                            </div>
-
-                            <div className="saas-table-wrapper border-0 rounded-none">
-                                <table className="saas-table saas-table-responsive w-full">
+                            ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>
-                                        <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50/50">
-                                            <th className="px-6 py-4">Equipment</th>
-                                            <th className="px-6 py-4">Issue Reported</th>
-                                            <th className="px-6 py-4">Date</th>
-                                            <th className="px-6 py-4">Priority</th>
-                                            <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4">Cost</th>
-                                            <th className="px-6 py-4 text-right">Action</th>
+                                        <tr style={{ background: T.bg }}>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Target Equipment</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Issue Description</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Priority</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Status</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Incurred Cost</th>
+                                            <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>Log</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {!loading && maintenanceLogs.map((log) => (
-                                            <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
-                                                <td className="px-6 py-6" data-label="Equipment">
-                                                    <div className="flex flex-col text-right sm:text-left">
-                                                        <span className="text-sm font-black text-slate-900">{log.equipment?.name}</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{log.equipment?.serialNumber}</span>
+                                    <tbody>
+                                        {maintenanceLogs.length > 0 ? maintenanceLogs.map((log) => (
+                                            <tr key={log.id} className="asset-row" style={{ borderBottom: `1.5px solid ${T.bg}`, transition: '0.2s', background: '#fff' }}>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: 14, fontWeight: 900, color: T.text }}>{log.equipment?.name}</span>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase' }}>{log.equipment?.serialNumber}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Issue Reported">
-                                                    <div className="flex flex-col text-right sm:text-left">
-                                                        <span className="text-xs font-bold text-slate-700">{log.issue}</span>
-                                                        <span className="text-[10px] text-slate-400 font-medium line-clamp-1">{log.description}</span>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{log.issue}</span>
+                                                        <span style={{ fontSize: 11, fontWeight: 500, color: T.muted, lineHeight: 1.4 }}>{log.description}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Date">
-                                                    <div className="text-right sm:text-left">
-                                                        <span className="text-xs font-bold text-slate-600">{new Date(log.createdAt).toLocaleDateString()}</span>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <span style={{ 
+                                                        padding: '4px 10px', borderRadius: 8, 
+                                                        background: log.priority === 'High' || log.priority === 'Critical' ? T.roseLight : T.bg, 
+                                                        color: log.priority === 'High' || log.priority === 'Critical' ? T.rose : T.muted, 
+                                                        fontSize: 10, fontWeight: 900, textTransform: 'uppercase' 
+                                                    }}>
+                                                        {log.priority}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '20px 24px' }}>
+                                                    <div style={{ 
+                                                        display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
+                                                        borderRadius: 20, background: log.status === 'Completed' ? T.greenLight : T.amberLight,
+                                                        color: log.status === 'Completed' ? T.green : T.amber
+                                                    }}>
+                                                        <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }}>{log.status}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4" data-label="Priority">
-                                                    <div className="flex justify-end sm:justify-start">
-                                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${log.priority === 'High' || log.priority === 'Critical' ? 'bg-rose-50 text-rose-600' :
-                                                            log.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-primary-light text-primary'
-                                                            }`}>
-                                                            {log.priority}
-                                                        </span>
-                                                    </div>
+                                                <td style={{ padding: '20px 24px', fontSize: 14, fontWeight: 900, color: T.text }}>
+                                                    ₹{Number(log.cost || 0).toLocaleString()}
                                                 </td>
-                                                <td className="px-6 py-6" data-label="Status">
-                                                    <div className="flex justify-end sm:justify-start">
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(log.status)}`}>
-                                                            {log.status}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-6 text-right sm:text-left font-bold text-xs text-slate-900" data-label="Cost">
-                                                    ₹{Number(log.cost).toLocaleString()}
-                                                </td>
-                                                <td className="px-6 py-6 text-right" data-label="Action">
-                                                    <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl shadow-sm transition-all border border-transparent hover:border-slate-100">
+                                                <td style={{ padding: '20px 24px', textAlign: 'right' }}>
+                                                    <button style={{ width: 36, height: 36, borderRadius: 10, border: 'none', background: T.bg, color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                                         <FileText size={16} />
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )) : (
+                                            <tr>
+                                                <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                                    <History size={64} style={{ color: T.bg, marginBottom: 20 }} />
+                                                    <h4 style={{ fontSize: 18, fontWeight: 900, color: T.subtle }}>No Maintenance History</h4>
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
-                            </div>
-                        </>
-                    )}
-
-                    {loading && (
-                        <div className="h-[300px] flex items-center justify-center">
-                            <div className="w-10 h-10 border-4 border-slate-200 border-t-[#0a1b2e] rounded-full animate-spin"></div>
-                        </div>
-                    )}
-
-                    {!loading && (activeTab === 'Equipment' ? equipment.length === 0 : maintenanceLogs.length === 0) && (
-                        <div className="h-[300px] flex flex-col items-center justify-center text-center px-8">
-                            <Archive size={64} className="text-slate-100 mb-6" />
-                            <h4 className="text-xl font-black text-slate-900 italic">No Data Found</h4>
-                            <p className="text-slate-400 text-sm font-medium mt-2">No records found for the selected branch.</p>
+                            )}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Right Drawer */}
             <AddEquipmentDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}

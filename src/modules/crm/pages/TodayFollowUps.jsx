@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Clock, User, CheckCircle, Search, ExternalLink, Check } from 'lucide-react';
+import { Phone, Clock, User, CheckCircle, Search, ExternalLink, Check, Calendar, ArrowRight } from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import { useAuth } from '../../../context/AuthContext';
 import { crmApi } from '../../../api/crm/crmApi';
+
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    btn: { height: '40px', padding: '0 16px', borderRadius: '10px', border: 'none', fontSize: '11px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
 
 const TodayFollowUps = ({ isWidget = false }) => {
     const [leads, setLeads] = useState([]);
@@ -9,133 +24,60 @@ const TodayFollowUps = ({ isWidget = false }) => {
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
 
-    const loggedInUser = user || { role: '', id: '' };
+    useEffect(() => { fetchFollowUps(); }, []);
 
     const fetchFollowUps = async () => {
-        try {
-            setLoading(true);
-            const data = await crmApi.getTodayFollowUps();
-            setLeads(data);
-        } catch (error) {
-            console.error('Error fetching follow-ups:', error);
-        } finally {
-            setLoading(false);
-        }
+        try { setLoading(true); const data = await crmApi.getTodayFollowUps(); setLeads(data || []); }
+        catch { } finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        fetchFollowUps();
-    }, []);
-
-    const today = new Date().toISOString().split('T')[0];
-    const todayLeads = leads; // Backend already filters for today
-
     const handleAction = async (leadId) => {
-        // Logic to mark as done (maybe update lead status or follow-up status?)
-        // For now, let's just visually remove it and optionally call an API update if needed
-        // Assuming "Mark Contacted" updates lead status to 'Contacted'
-
         try {
             await crmApi.updateLeadStatus(leadId, 'Contacted');
             setActionDone(leadId);
-            setTimeout(() => {
-                setLeads(leads.filter(l => l.id !== leadId));
-                setActionDone(null);
-            }, 1000);
-        } catch (error) {
-            console.error('Failed to update status:', error);
-        }
+            setTimeout(() => { setLeads(leads.filter(l => l.id !== leadId)); setActionDone(null); }, 1000);
+        } catch { }
     };
 
+    const today = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
     return (
-        <div className={`saas-card !p-0 overflow-hidden ${isWidget ? '' : 'max-w-full mx-auto'}`}>
-            <div className=" border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50/50 to-white">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
-                        <Clock size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-black text-slate-800 tracking-tight uppercase tracking-widest text-xs">Today's Follow-ups</h3>
-                        <p className="text-[10px] font-bold text-slate-400">Scheduled for {today}</p>
-                    </div>
+        <div style={{ ...S.card, overflow: 'hidden', fontFamily: S.ff }}>
+             <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+             <div style={{ padding: '24px', borderBottom: `1px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(to right, ${T.bg}, #FFF)` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={20} /></div>
+                    <div><h3 style={{ fontSize: '14px', fontWeight: '900', color: T.text, margin: 0, textTransform: 'uppercase' }}>Daily Outreach</h3><p style={{ fontSize: '11px', fontWeight: '600', color: T.muted, margin: 0 }}>Roster for {today}</p></div>
                 </div>
-                <span className="px-3 py-1 rounded-lg bg-primary text-white text-[10px] font-black">
-                    {todayLeads.length} PENDING
-                </span>
-            </div>
+                <span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{leads.length} Pending</span>
+             </div>
 
-            <div className="divide-y divide-slate-50">
-                {todayLeads.length > 0 ? (
-                    todayLeads.map((lead) => (
-                        <div key={lead.id} className="p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors group">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full border-2 border-violet-100 bg-white flex items-center justify-center text-primary font-black relative overflow-hidden group-hover:scale-110 transition-transform duration-500">
-                                    {lead.name.charAt(0)}
-                                    <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-800 tracking-tight group-hover:text-primary-hover transition-colors uppercase text-sm">{lead.name}</h4>
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium">
-                                            <Phone size={10} className="text-violet-400" />
-                                            {lead.phone}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium">
-                                            <Clock size={10} className="text-violet-400" />
-                                            {lead.followUpTime || 'Not set'}
-                                        </div>
-                                    </div>
-                                </div>
+             <div style={{ maxHeight: isWidget ? '400px' : 'none', overflowY: 'auto' }}>
+                {loading ? (
+                    <div style={{ padding: '60px 0' }}><Loader message="Rostering Followups..." /></div>
+                ) : leads.length === 0 ? (
+                    <div style={{ padding: '60px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}><Calendar size={48} color={T.subtle} /><p style={{ fontSize: '12px', fontWeight: '800', color: T.subtle, marginTop: '12px', textTransform: 'uppercase', margin: 0 }}>All clear for today</p></div>
+                ) : (
+                    leads.map((lead, i) => (
+                        <div key={i} style={{ padding: '20px 24px', borderBottom: `1px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'all 0.2s' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: T.bg, border: `2px solid #FFF`, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '900', color: T.accent }}>{lead.name?.[0]}</div>
+                                <div><h4 style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{lead.name}</h4><div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}><span style={{ fontSize: '11px', color: T.muted, display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={10} /> {lead.phone}</span><span style={{ fontSize: '11px', color: T.muted, display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={10} /> {lead.followUpTime || '10:00 AM'}</span></div></div>
                             </div>
-
-                            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                <a
-                                    href={`tel:${lead.phone}`}
-                                    className="flex-1 sm:flex-none p-3 rounded-xl bg-slate-50 text-slate-400 hover:bg-primary-light hover:text-primary transition-all flex items-center justify-center"
-                                    title="Call Now"
-                                >
-                                    <Phone size={18} />
-                                </a>
-                                <button
-                                    onClick={() => handleAction(lead.id)}
-                                    className={`flex-[2] sm:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 ${actionDone === lead.id
-                                        ? 'bg-emerald-500 text-white shadow-emerald-200'
-                                        : 'bg-white border border-slate-200 text-slate-600 hover:border-violet-300 hover:text-primary-hover'
-                                        }`}
-                                >
-                                    {actionDone === lead.id ? (
-                                        <>
-                                            <Check size={14} strokeWidth={3} />
-                                            Done
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle size={14} />
-                                            Mark Contacted
-                                        </>
-                                    )}
-                                </button>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <a href={`tel:${lead.phone}`} style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.bg, color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}><Phone size={16} /></a>
+                                <button onClick={() => handleAction(lead.id)} style={{ ...S.btn, background: actionDone === lead.id ? T.success : '#FFF', color: actionDone === lead.id ? '#FFF' : T.text, border: actionDone === lead.id ? 'none' : `1px solid ${T.border}`, width: '140px' }}>{actionDone === lead.id ? <><Check size={14} /> Done</> : <><CheckCircle size={14} /> Contacted</>}</button>
                             </div>
                         </div>
                     ))
-                ) : (
-                    <div className="p-12 text-center">
-                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
-                            <Clock size={32} />
-                        </div>
-                        <p className="text-slate-400 font-bold text-sm tracking-tight uppercase">No follow-ups scheduled for today</p>
-                    </div>
                 )}
-            </div>
+             </div>
 
-            {!isWidget && todayLeads.length > 0 && (
-                <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-center">
-                    <button className="text-primary font-black uppercase tracking-widest text-[10px] hover:underline flex items-center gap-2">
-                        View All History
-                        <ExternalLink size={14} />
-                    </button>
+             {!isWidget && (
+                <div style={{ padding: '16px', textAlign: 'center', background: T.bg }}>
+                    <button style={{ background: 'transparent', border: 'none', color: T.accent, fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}>Analysis & History <ArrowRight size={14} /></button>
                 </div>
-            )}
+             )}
         </div>
     );
 };

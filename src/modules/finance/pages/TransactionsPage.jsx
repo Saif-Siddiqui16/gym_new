@@ -1,30 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-    Search,
-    Filter,
-    Download,
-    Calendar,
-    TrendingUp,
-    Clock,
-    CheckCircle2,
-    AlertCircle,
-    ChevronDown,
-    CreditCard,
-    Smartphone,
-    Building,
-    Banknote,
-    Receipt,
-    MoreHorizontal,
-    FileText,
-    History
+    Search, Filter, Download, Calendar, TrendingUp, Clock, CheckCircle2, AlertCircle,
+    ChevronDown, CreditCard, Smartphone, Building, Banknote, Receipt, MoreHorizontal,
+    FileText, History, X
 } from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import { fetchTransactions, fetchInvoiceById } from '../../../api/finance/financeApi';
 import { fetchOrderById } from '../../../api/storeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
 import { exportPdf } from '../../../utils/exportPdf';
 import RightDrawer from '../../../components/common/RightDrawer';
-import StatsCard from '../../dashboard/components/StatsCard';
+
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    input: { height: '48px', padding: '0 16px', borderRadius: '14px', border: `2px solid ${T.border}`, fontSize: '14px', fontWeight: '600', color: T.text, outline: 'none', transition: 'all 0.2s ease', background: '#FFF' },
+    btn: { height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
+
+const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    useEffect(() => {
+        const handleClickOutside = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false); };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} style={{ position: 'relative', minWidth: '160px' }}>
+            <button
+                type="button" onClick={() => setIsOpen(!isOpen)}
+                style={{
+                    width: '100%', height: '48px', padding: '0 16px', borderRadius: '14px',
+                    border: `2px solid ${isOpen ? T.accent : T.border}`, background: '#FFF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: isOpen ? '0 0 0 4px ' + T.accentLight : 'none'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {Icon && <Icon size={18} color={T.muted} />}
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: T.text }}>{value}</span>
+                </div>
+                <ChevronDown size={18} color={T.muted} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }} />
+            </button>
+            {isOpen && (
+                <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                    background: '#FFF', borderRadius: '16px', border: `1px solid ${T.border}`,
+                    boxShadow: '0 15px 30px -5px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden'
+                }}>
+                    {options.map((opt) => (
+                        <button
+                            key={opt} type="button" onClick={() => { onChange(opt); setIsOpen(false); }}
+                            style={{
+                                width: '100%', padding: '12px 16px', border: 'none', background: value === opt ? T.accentLight : 'transparent',
+                                color: value === opt ? T.accent : T.text, fontSize: '14px', fontWeight: '600', textAlign: 'left',
+                                cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                            }}
+                        >
+                            {opt}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const Payments = () => {
     const { selectedBranch } = useBranchContext();
@@ -33,8 +84,6 @@ const Payments = () => {
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isReceiptOpen, setIsReceiptOpen] = useState(false);
     const [fetchingReceipt, setFetchingReceipt] = useState(false);
-
-    // Filters
     const [searchTerm, setSearchTerm] = useState('');
     const [methodFilter, setMethodFilter] = useState('All Methods');
     const [statusFilter, setStatusFilter] = useState('All Status');
@@ -45,94 +94,36 @@ const Payments = () => {
         try {
             setLoading(true);
             const branchId = selectedBranch === 'all' ? '' : selectedBranch;
-            const res = await fetchTransactions({
-                branchId,
-                search: searchTerm,
-                method: methodFilter === 'All Methods' ? undefined : methodFilter,
-                status: statusFilter === 'All Status' ? undefined : statusFilter,
-                startDate,
-                endDate
-            });
+            const res = await fetchTransactions({ branchId, search: searchTerm, method: methodFilter === 'All Methods' ? undefined : methodFilter, status: statusFilter === 'All Status' ? undefined : statusFilter, startDate, endDate });
             setData(res);
-        } catch (error) {
-            console.error("Failed to load payments", error);
-            toast.error("Failed to sync payments");
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { toast.error("Failed to sync payments"); }
+        finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        loadPayments();
-    }, [selectedBranch, methodFilter, statusFilter, startDate, endDate]);
+    useEffect(() => { loadPayments(); }, [selectedBranch, methodFilter, statusFilter, startDate, endDate]);
 
-    const handleSearch = (e) => {
-        if (e.key === 'Enter') {
-            loadPayments();
-        }
-    };
+    const handleSearch = (e) => { if (e.key === 'Enter') loadPayments(); };
 
     const handleExport = () => {
-        if (data.transactions.length === 0) {
-            toast.error("No transactions to export");
-            return;
-        }
-
-        const headers = ["Member", "Branch", "Transaction Code", "Date", "Time", "Method", "Amount", "Status"];
-        const rows = data.transactions.map(txn => [
-            txn.member || 'Guest',
-            txn.branch || 'Main',
-            txn.id,
-            new Date(txn.date).toLocaleDateString(),
-            new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            txn.method,
-            `₹${txn.amount.toLocaleString()}`,
-            txn.status
-        ]);
-
-        exportPdf({
-            title: 'Payments Report',
-            filename: `Payments_Report_${new Date().toISOString().split('T')[0]}`,
-            headers,
-            rows,
-            gymName: "Gym Academy" // This should ideally be dynamic
-        });
+        if (data.transactions.length === 0) return toast.error("No transactions to export");
+        const headers = ["Member", "Branch", "Ref Code", "Date", "Method", "Amount", "Status"];
+        const rows = data.transactions.map(txn => [txn.member || 'Guest', txn.branch || 'Main', txn.id, new Date(txn.date).toLocaleDateString(), txn.method, `₹${txn.amount.toLocaleString()}`, txn.status]);
+        exportPdf({ title: 'Payments Report', filename: `Payments_${new Date().toISOString().split('T')[0]}`, headers, rows, gymName: "Roar Fitness" });
     };
 
     const handleViewReceipt = async (id) => {
         try {
-            setFetchingReceipt(true);
-            setIsReceiptOpen(true);
-
+            setFetchingReceipt(true); setIsReceiptOpen(true);
             const txn = data.transactions.find(t => t.id === id || t.internalId === id);
-            if (!txn || !txn.internalId) {
-                toast.error("Internal ID missing for this transaction");
-                return;
-            }
-
+            if (!txn?.internalId) return toast.error("Transaction ID missing");
             let res;
             if (txn.type === 'POS Sale') {
                 const orderData = await fetchOrderById(txn.internalId);
-                // Format order for common receipt view
-                res = {
-                    ...orderData,
-                    invoiceNumber: `POS-#${orderData.id}`,
-                    paidDate: orderData.paidDate || orderData.dueDate || orderData.date,
-                    amount: Number(orderData.total || orderData.amount || 0),
-                    paymentMode: orderData.paymentMode || 'Cash',
-                    items: orderData.items || []
-                };
-            } else {
-                res = await fetchInvoiceById(txn.internalId);
-            }
+                res = { ...orderData, invoiceNumber: `POS-#${orderData.id}`, paidDate: orderData.paidDate || orderData.dueDate || orderData.date, amount: Number(orderData.total || orderData.amount || 0), paymentMode: orderData.paymentMode || 'Cash', items: orderData.items || [] };
+            } else { res = await fetchInvoiceById(txn.internalId); }
             setSelectedReceipt(res);
-        } catch (err) {
-            console.error("Receipt load failed", err);
-            toast.error("Failed to load receipt details");
-            setIsReceiptOpen(false);
-        } finally {
-            setFetchingReceipt(false);
-        }
+        } catch (err) { toast.error("Failed to load receipt"); setIsReceiptOpen(false); }
+        finally { setFetchingReceipt(false); }
     };
 
     const getMethodIcon = (method) => {
@@ -145,353 +136,140 @@ const Payments = () => {
     };
 
     return (
-        <div className="min-h-screen pb-20 w-full">
-            <div className="w-full px-4 sm:px-6 lg:px-8 space-y-10">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Payments</h1>
-                        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mt-1">Manage and monitor all payment transactions</p>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            `}</style>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Payments Trace</h1>
+                    <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Global financial ledger & transaction audit</p>
+                </div>
+                <button onClick={handleExport} style={{ ...S.btn, background: '#FFF', color: T.text, border: `1px solid ${T.border}` }}><Download size={18} /> Export Records</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '48px' }}>
+                {[
+                    { label: "Today's Collection", value: `₹${data.stats.todayCollection.toLocaleString()}`, icon: TrendingUp, color: '#D97706', bg: '#FFFBEB' },
+                    { label: "Filtered Total", value: `₹${data.stats.filteredTotal.toLocaleString()}`, icon: History, color: T.success, bg: '#ECFDF5' },
+                    { label: "Completed", value: `₹${data.stats.completed.toLocaleString()}`, icon: CheckCircle2, color: '#4F46E5', bg: '#EEF2FF' },
+                    { label: "Pending", value: `₹${data.stats.pending.toLocaleString()}`, icon: Clock, color: T.accent, bg: T.accentLight },
+                ].map((stat, i) => (
+                    <div key={i} style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px', animation: `slideUp 0.4s ease forwards ${i * 0.1}s` }}>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '18px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><stat.icon size={24} color={stat.color} /></div>
+                        <div>
+                            <p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{stat.label}</p>
+                            <p style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stat.value}</p>
+                        </div>
                     </div>
-                    <button
-                        onClick={handleExport}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary border border-violet-100 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-primary-light transition-all active:scale-95"
-                    >
-                        <Download size={18} /> Export as PDF
-                    </button>
+                ))}
+            </div>
+
+            <div style={{ ...S.card, overflow: 'visible' }}>
+                <div style={{ padding: '24px', borderBottom: `1px solid ${T.bg}`, display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ position: 'relative' }}>
+                        <Search size={18} color={T.subtle} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input placeholder="Search member, ID or receipt..." style={{ ...S.input, width: '100%', paddingLeft: '48px' }} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleSearch} />
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                        <Calendar size={18} color={T.subtle} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input type="date" style={{ ...S.input, width: '100%', paddingLeft: '48px', fontSize: '12px' }} value={startDate} onChange={e => setStartDate(e.target.value)} />
+                    </div>
+                    <CustomDropdown options={['All Methods', 'Cash', 'UPI', 'Card', 'Bank Transfer']} value={methodFilter} onChange={setMethodFilter} icon={Filter} />
+                    <CustomDropdown options={['All Status', 'Paid', 'Unpaid', 'Partial']} value={statusFilter} onChange={setStatusFilter} icon={Filter} />
                 </div>
 
-                {/* Filters Bar */}
-                <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-6 md:p-8 space-y-6 relative overflow-hidden transition-all duration-300 hover:shadow-md">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none"></div>
-
-                    <div className="flex items-center gap-3 text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1">
-                        <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-primary shadow-sm border border-slate-100">
-                            <Filter size={14} strokeWidth={3} />
-                        </div>
-                        <span>Active Filters</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 relative z-10">
-                        {/* Search */}
-                        <div className="md:col-span-4 relative group">
-                            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={handleSearch}
-                                placeholder="Search member, code, or invoice..."
-                                className="w-full h-14 pl-14 pr-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-300"
-                            />
-                        </div>
-
-                        {/* Date Picker */}
-                        <div className="md:col-span-3 relative group">
-                            <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full h-14 pl-14 pr-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-[10px] uppercase font-black tracking-widest focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer"
-                            />
-                        </div>
-
-                        {/* Method Filter */}
-                        <div className="md:col-span-2.5 relative group md:col-span-2">
-                            <select
-                                value={methodFilter}
-                                onChange={(e) => setMethodFilter(e.target.value)}
-                                className="w-full h-14 pl-5 pr-12 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
-                            >
-                                <option>All Methods</option>
-                                <option>Cash</option>
-                                <option>UPI</option>
-                                <option>Card</option>
-                                <option>Bank Transfer</option>
-                            </select>
-                            <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
-                        </div>
-
-                        {/* Status Filter */}
-                        <div className="md:col-span-2 relative group md:col-span-3">
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full h-14 pl-5 pr-12 bg-slate-50/50 border-2 border-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
-                            >
-                                <option>All Status</option>
-                                <option>Paid</option>
-                                <option>Unpaid</option>
-                                <option>Partial</option>
-                            </select>
-                            <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* KPI Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <StatsCard
-                        title="Today's Collection"
-                        value={`₹${data.stats.todayCollection.toLocaleString()}`}
-                        icon={TrendingUp}
-                        color="warning"
-                    />
-                    <StatsCard
-                        title="Filtered Total"
-                        value={`₹${data.stats.filteredTotal.toLocaleString()}`}
-                        icon={History}
-                        color="success"
-                    />
-                    <StatsCard
-                        title="Completed"
-                        value={`₹${data.stats.completed.toLocaleString()}`}
-                        icon={CheckCircle2}
-                        color="info"
-                    />
-                    <StatsCard
-                        title="Pending"
-                        value={`₹${data.stats.pending.toLocaleString()}`}
-                        icon={Clock}
-                        color="primary"
-                    />
-                </div>
-
-                {/* Transactions Table Panel */}
-                <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
-                    <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-                        <h3 className="text-xl font-black text-slate-900">Recent Payments ({data.transactions.length})</h3>
-                        <button className="text-slate-400 hover:text-slate-600">
-                            <MoreHorizontal size={24} />
-                        </button>
-                    </div>
-
-                    <div className="overflow-x-auto scrollbar-hide">
-                        {loading ? (
-                            <div className="h-[300px] flex items-center justify-center opacity-30">
-                                <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin"></div>
-                            </div>
-                        ) : data.transactions.length === 0 ? (
-                            <div className="h-[300px] flex flex-col items-center justify-center text-center px-8 opacity-30">
-                                <History size={64} className="text-slate-300 mb-6" />
-                                <h4 className="text-xl font-black text-slate-900 italic">No payments found</h4>
-                            </div>
-                        ) : (
-                            <>
-                                {/* Desktop Table View */}
-                                <table className="w-full hidden md:table">
-                                    <thead className="bg-slate-50/50">
-                                        <tr className="text-left text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                                            <th className="px-8 py-5">Member</th>
-                                            <th className="px-8 py-5">Branch</th>
-                                            <th className="px-8 py-5 text-center">Reference</th>
-                                            <th className="px-8 py-5">Date & Time</th>
-                                            <th className="px-8 py-5">Method</th>
-                                            <th className="px-8 py-5">Amount</th>
-                                            <th className="px-8 py-5">Status</th>
-                                            <th className="px-8 py-5 text-right">Receipt</th>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ background: T.bg }}>
+                                {['Member/Payer', 'Branch', 'Ref Code', 'Date & Time', 'Method', 'Amount', 'Status', 'Actions'].map(h => <th key={h} style={{ padding: '20px 24px', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="8" style={{ padding: '80px 0' }}><Loader message="Syncing Payments..." /></td></tr>
+                            ) : data.transactions.length === 0 ? (
+                                <tr><td colSpan="8" style={{ padding: '100px', textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', opacity: 0.5 }}><History size={48} color={T.subtle} /><p style={{ fontSize: '14px', fontWeight: '800', color: T.subtle }}>No matches in recent history</p></div></td></tr>
+                            ) : (
+                                data.transactions.map((txn, idx) => {
+                                    const MethodIcon = getMethodIcon(txn.method);
+                                    return (
+                                        <tr key={idx} style={{ borderBottom: `1px solid ${T.bg}`, transition: 'all 0.2s' }}>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '900' }}>{txn.member ? txn.member[0] : 'G'}</div>
+                                                    <p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{txn.member || 'Guest'}</p>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{txn.branch}</span></td>
+                                            <td style={{ padding: '20px 24px' }}><span style={{ fontSize: '10px', fontWeight: '800', background: T.bg, padding: '4px 8px', borderRadius: '6px', color: T.muted }}>{txn.id}</span></td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <p style={{ fontSize: '13px', fontWeight: '700', color: T.text, margin: 0 }}>{new Date(txn.date).toLocaleDateString()}</p>
+                                                <p style={{ fontSize: '10px', fontWeight: '600', color: T.subtle, margin: 0 }}>{new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '700', color: T.muted }}><MethodIcon size={14} /> {txn.method}</div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px', fontSize: '14px', fontWeight: '900', color: T.text }}>₹{txn.amount.toLocaleString()}</td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <span style={{ ...S.badge, background: txn.status === 'Paid' ? '#ECFDF5' : '#FFFBEB', color: txn.status === 'Paid' ? T.success : '#D97706', border: `1px solid ${txn.status === 'Paid' ? '#D1FAE5' : '#FEF3C7'}` }}>{txn.status === 'Paid' ? 'Paid' : 'Pending'}</span>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <button onClick={() => handleViewReceipt(txn.internalId || txn.id)} style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.bg, border: 'none', color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Receipt size={16} /></button>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {data.transactions.map((txn, idx) => {
-                                            const MethodIcon = getMethodIcon(txn.method);
-                                            return (
-                                                <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
-                                                    <td className="px-8 py-6">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-black text-xs">
-                                                                {txn.member ? txn.member[0] : 'G'}
-                                                            </div>
-                                                            <span className="text-sm font-black text-slate-900">{txn.member}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <span className="text-[10px] font-black text-[#7c3aed] bg-primary-light px-2 py-1 rounded-lg uppercase tracking-widest whitespace-nowrap">
-                                                            {txn.branch}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-8 py-6 text-center">
-                                                        <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-lg uppercase tracking-widest">{txn.id}</span>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-xs font-bold text-slate-900">{new Date(txn.date).toLocaleDateString()}</span>
-                                                            <span className="text-[10px] text-slate-400 font-bold">{new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <div className="flex items-center gap-2 text-slate-500">
-                                                            <MethodIcon size={16} className="text-slate-400" />
-                                                            <span className="text-xs font-bold">{txn.method}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <span className="text-sm font-black text-slate-900">₹{txn.amount.toLocaleString()}</span>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${txn.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                            'bg-amber-50 text-amber-600 border-amber-100'
-                                                            }`}>
-                                                            {txn.status === 'Paid' ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                                                            {txn.status === 'Paid' ? 'Completed' : 'Pending'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-8 py-6 text-right">
-                                                        <button
-                                                            onClick={() => handleViewReceipt(txn.internalId || txn.id)}
-                                                            className="p-2 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all shadow-sm"
-                                                        >
-                                                            <Receipt size={18} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-
-                                {/* Mobile Stacked View */}
-                                <div className="md:hidden divide-y divide-slate-100">
-                                    {data.transactions.map((txn, idx) => {
-                                        const MethodIcon = getMethodIcon(txn.method);
-                                        return (
-                                            <div key={idx} className="p-6 space-y-4">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-black text-xs">
-                                                            {txn.member ? txn.member[0] : 'G'}
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-black text-slate-900">{txn.member}</h4>
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{txn.id}</p>
-                                                        </div>
-                                                    </div>
-                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${txn.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                        'bg-amber-50 text-amber-600 border-amber-100'
-                                                        }`}>
-                                                        {txn.status === 'Paid' ? 'Paid' : 'Pending'}
-                                                    </span>
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Method & Amount</p>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] font-black text-slate-900">₹{txn.amount.toLocaleString()}</span>
-                                                            <div className="flex items-center gap-1 text-slate-400">
-                                                                <MethodIcon size={12} />
-                                                                <span className="text-[9px] font-bold">{txn.method}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex justify-end pt-2">
-                                                        <button
-                                                            onClick={() => handleViewReceipt(txn.internalId || txn.id)}
-                                                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
-                                                        >
-                                                            <Receipt size={14} /> Receipt
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </>
-                        )}
-                    </div>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            {/* Receipt Modal */}
-            <RightDrawer
-                isOpen={isReceiptOpen}
-                onClose={() => {
-                    setIsReceiptOpen(false);
-                    setSelectedReceipt(null);
-                }}
-                title="Transaction Receipt"
-            >
-                {fetchingReceipt ? (
-                    <div className="p-24 flex flex-col items-center justify-center opacity-40 h-full">
-                        <div className="w-12 h-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin mb-4"></div>
-                        <p className="text-slate-500 font-black italic uppercase tracking-widest text-[10px]">Generating Receipt...</p>
-                    </div>
-                ) : selectedReceipt && (
-                    <div id="printable-receipt" className="p-8 space-y-8 animate-in fade-in slide-in-from-right-8 duration-300">
-                        {/* Header Info */}
-                        <div className="flex justify-between items-start">
-                            <div className="flex flex-col gap-2">
-                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedReceipt.status === 'Paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                                    {selectedReceipt.status}
-                                </span>
-                                <h3 className="text-2xl font-black text-slate-900 mt-2">{selectedReceipt.invoiceNumber}</h3>
-                                <p className="text-sm font-bold text-slate-400">Payment Date: {new Date(selectedReceipt.paidDate || selectedReceipt.dueDate).toLocaleDateString()}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Amount Paid</p>
-                                <p className="text-3xl font-black text-slate-900 font-roboto">₹{Number(selectedReceipt.amount).toLocaleString()}</p>
+            <RightDrawer isOpen={isReceiptOpen} onClose={() => { setIsReceiptOpen(false); setSelectedReceipt(null); }} title="Receipt Details" subtitle="Transaction forensic view" width="450px">
+                {fetchingReceipt ? <div style={{ padding: '80px 0' }}><Loader message="Fetching Receipt..." /></div> : selectedReceipt && (
+                    <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px', paddingBottom: '100px' }}>
+                        <div style={{ textAlign: 'center', padding: '32px', background: T.bg, borderRadius: '24px', border: `1px solid ${T.border}` }}>
+                            <div style={{ display: 'inline-block', padding: '6px 12px', borderRadius: '10px', background: selectedReceipt.status === 'Paid' ? '#ECFDF5' : '#FEF2F2', color: selectedReceipt.status === 'Paid' ? T.success : T.error, fontSize: '10px', fontWeight: '900', marginBottom: '16px', letterSpacing: '1px' }}>{selectedReceipt.status}</div>
+                            <h2 style={{ fontSize: '36px', fontWeight: '900', color: T.text, margin: '0 0 4px' }}>₹{Number(selectedReceipt.amount).toLocaleString()}</h2>
+                            <p style={{ fontSize: '13px', fontWeight: '700', color: T.muted }}>{selectedReceipt.invoiceNumber}</p>
+                        </div>
+
+                        <div style={{ ...S.card, padding: '0', overflow: 'hidden' }}>
+                            {[
+                                { label: 'Member', value: selectedReceipt.member?.name || 'Walk-in' },
+                                { label: 'Branch', value: selectedReceipt.tenant?.name || 'Main' },
+                                { label: 'Date', value: new Date(selectedReceipt.paidDate || selectedReceipt.dueDate).toLocaleDateString() },
+                                { label: 'Method', value: selectedReceipt.paymentMode || 'Cash' }
+                            ].map((item, i) => (
+                                <div key={i} style={{ padding: '16px 20px', borderBottom: i === 3 ? 'none' : `1px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '700', color: T.subtle }}>{item.label}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: '900', color: T.text }}>{item.value}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div>
+                            <p style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1px' }}>Itemized Breakdown</p>
+                            <div style={{ ...S.card, padding: '0', overflow: 'hidden' }}>
+                                {selectedReceipt.items?.length > 0 ? selectedReceipt.items.map((item, i) => (
+                                    <div key={i} style={{ padding: '16px 20px', borderBottom: i === selectedReceipt.items.length - 1 ? 'none' : `1px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between' }}>
+                                        <div><p style={{ fontSize: '13px', fontWeight: '800', color: T.text, margin: 0 }}>{item.description}</p><p style={{ fontSize: '10px', fontWeight: '600', color: T.muted, margin: 0 }}>Qty: {item.quantity}</p></div>
+                                        <span style={{ fontSize: '14px', fontWeight: '900', color: T.text }}>₹{Number(item.amount || 0).toLocaleString()}</span>
+                                    </div>
+                                )) : (
+                                    <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '13px', fontWeight: '800', color: T.text }}>Service/Membership Fee</span>
+                                        <span style={{ fontSize: '14px', fontWeight: '900', color: T.text }}>₹{Number(selectedReceipt.amount).toLocaleString()}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-8 py-8 border-y border-slate-50">
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payer Details</p>
-                                <p className="text-md font-black text-slate-900">{selectedReceipt.member?.name || 'Walk-in Guest'}</p>
-                                <p className="text-xs font-bold text-slate-500">{selectedReceipt.member?.memberId || 'GUEST'}</p>
-                            </div>
-                            <div className="space-y-1 text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Branch</p>
-                                <p className="text-md font-black text-slate-900">{selectedReceipt.tenant?.name || 'Main Branch'}</p>
-                                <p className="text-xs font-bold text-slate-500">Mode: {selectedReceipt.paymentMode || 'Cash'}</p>
-                            </div>
-                        </div>
-
-                        {/* Items */}
-                        <div className="space-y-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Breakdown</p>
-                            <div className="bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden">
-                                <table className="w-full text-left font-sans">
-                                    <thead>
-                                        <tr className="border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100/30">
-                                            <th className="px-6 py-4">Description</th>
-                                            <th className="px-6 py-4 text-center">Qty</th>
-                                            <th className="px-6 py-4 text-right">Rate</th>
-                                            <th className="px-6 py-4 text-right">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {selectedReceipt.items?.length > 0 ? selectedReceipt.items.map((item, idx) => (
-                                            <tr key={idx} className="text-xs font-bold text-slate-700">
-                                                <td className="px-6 py-4">{item.description}</td>
-                                                <td className="px-6 py-4 text-center">{item.quantity}</td>
-                                                <td className="px-6 py-4 text-right">₹{Number(item.rate || 0).toLocaleString()}</td>
-                                                <td className="px-6 py-4 text-right">₹{Number(item.amount || 0).toLocaleString()}</td>
-                                            </tr>
-                                        )) : (
-                                            <tr className="text-xs font-bold text-slate-700">
-                                                <td className="px-6 py-4">Membership/Subscription Payment</td>
-                                                <td className="px-6 py-4 text-center">1</td>
-                                                <td className="px-6 py-4 text-right">₹{Number(selectedReceipt.amount).toLocaleString()}</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="pt-8 flex flex-col items-center gap-6">
-                            <div className="w-24 h-24 bg-slate-50 rounded-2xl flex items-center justify-center">
-                                <FileText size={48} className="text-slate-200" />
-                            </div>
-                            <button
-                                onClick={() => window.print()}
-                                className="no-print w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98]"
-                            >
-                                <Download size={20} /> Download PDF Receipt
-                            </button>
-                        </div>
+                        <button onClick={() => window.print()} style={{ ...S.btn, width: '100%', height: '56px', background: T.text, color: '#FFF' }}><Download size={18} /> Download Receipt</button>
                     </div>
                 )}
             </RightDrawer>

@@ -1,611 +1,197 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Plus,
-    Award,
-    Users,
-    CheckCircle,
-    Clock,
-    Link as LinkIcon,
-    Gift,
-    Copy,
-    MessageCircle,
-    UserPlus,
-    Share2,
-    IndianRupee,
-    UserCheck,
-    History,
-    Shield,
-    User
-} from 'lucide-react';
+import { Plus, Award, Users, CheckCircle, Clock, Link as LinkIcon, Gift, Copy, MessageCircle, UserPlus, Share2, IndianRupee, UserCheck, History, Shield, User, ArrowLeft, Loader2, X, ChevronRight } from 'lucide-react';
 import { referralApi } from '../../../api/referralApi';
-import RightDrawer from '../../../components/common/RightDrawer';
 import { useBranchContext } from '../../../context/BranchContext';
 import { getMembers } from '../../../api/manager/managerApi';
 import { ROLES } from '../../../config/roles';
-import Card from '../../../components/ui/Card';
 import toast from 'react-hot-toast';
 import apiClient from '../../../api/apiClient';
 import { getTenantSettings } from '../../../api/admin/settingsApi';
+import { useNavigate } from 'react-router-dom';
+
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    input: { height: '48px', padding: '0 16px', borderRadius: '14px', border: `2px solid ${T.border}`, fontSize: '14px', fontWeight: '600', color: T.text, outline: 'none', transition: 'all 0.2s ease', background: '#FFF' },
+    btn: { height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
 
 const Referrals = ({ role }) => {
+    const navigate = useNavigate();
+    const { selectedBranch } = useBranchContext();
     const [referrals, setReferrals] = useState([]);
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(role !== ROLES.MEMBER);
-    const { selectedBranch } = useBranchContext();
     const [activeTab, setActiveTab] = useState('Referrals');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [rewardAmount, setRewardAmount] = useState(500);
+    const [formData, setFormData] = useState({ referrerId: '', referredName: '', phone: '', email: '' });
 
-    // Form State for Admin
-    const [formData, setFormData] = useState({
-        referrerId: '',
-        referredName: '',
-        phone: '',
-        email: ''
-    });
+    // Member Specific
+    const [memberCode, setMemberCode] = useState('MEM000');
+    const [memberStats, setMemberStats] = useState({ referralsSent: 0, successfulSignups: 0, rewardsEarned: 0 });
+    const [memberReferrals, setMemberReferrals] = useState([]);
 
     useEffect(() => {
-        if (role !== ROLES.MEMBER) {
-            loadReferrals();
-            loadMembersList();
-            loadRewardSettings();
-        }
+        if (role === ROLES.MEMBER) fetchMemberData();
+        else { loadReferrals(); loadMembers(); loadSettings(); }
     }, [selectedBranch, role]);
 
-    const loadRewardSettings = async () => {
-        try {
-            const data = await getTenantSettings();
-            if (data.referralReward) {
-                setRewardAmount(data.referralReward);
-            }
-        } catch (error) {
-            console.error('Failed to load reward settings:', error);
-        }
-    };
+    const loadSettings = async () => { try { const d = await getTenantSettings(); if (d.referralReward) setRewardAmount(d.referralReward); } catch { } };
+    const loadMembers = async () => { try { const r = await getMembers({ branchId: selectedBranch, limit: 1000, filters: { status: 'Active' } }); setMembers(r?.data || []); } catch { } };
+    const loadReferrals = async () => { try { setLoading(true); const d = await referralApi.getAllReferrals(selectedBranch !== 'all' ? { branchId: selectedBranch } : {}); setReferrals(Array.isArray(d) ? d : []); } finally { setLoading(false); } };
+    const fetchMemberData = async () => { try { setLoading(true); const r = await apiClient.get('/member/referrals'); setMemberCode(r.data.referralCode || 'MEM000'); setMemberReferrals(r.data.referrals || []); setMemberStats(r.data.stats || {}); } finally { setLoading(false); } };
 
-    const loadMembersList = async () => {
-        try {
-            // Fetch more members when 'all' is selected to ensure we can find referrers across branches
-            const result = await getMembers({
-                branchId: selectedBranch,
-                limit: 2000,
-                filters: { status: 'Active' }
-            });
-            setMembers(result?.data || []);
-        } catch (error) {
-            console.error("Failed to load members for dropdown:", error);
-        }
-    };
-
-    const loadReferrals = async () => {
-        try {
-            setLoading(true);
-            const params = {};
-            if (selectedBranch && selectedBranch !== 'all') {
-                params.branchId = selectedBranch;
-            }
-            const data = await referralApi.getAllReferrals(params);
-            setReferrals(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Failed to load referrals:', error);
-            toast.error('Failed to load referrals');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleCreateReferral = async (e) => {
+    const handleCreate = async (e) => {
         e.preventDefault();
-        try {
-            const payload = { ...formData };
-            if (selectedBranch && selectedBranch !== 'all') {
-                payload.branchId = selectedBranch;
-            }
-            await referralApi.createReferral(payload);
-            toast.success('Referral created successfully');
-            setIsDrawerOpen(false);
-            setFormData({ referrerId: '', referredName: '', phone: '', email: '' });
-            loadReferrals();
-        } catch (error) {
-            console.error('Failed to create referral:', error);
-            toast.error(error?.response?.data?.message || 'Failed to create referral');
-        }
+        try { await referralApi.createReferral({ ...formData, branchId: selectedBranch }); toast.success('Referral logged'); setIsDrawerOpen(false); loadReferrals(); }
+        catch (e) { toast.error(e.response?.data?.message || 'Failed'); }
     };
 
-    const handleClaimReward = async (id) => {
-        try {
-            await referralApi.claimReward(id);
-            toast.success('Reward marked as claimed');
-            loadReferrals();
-        } catch (error) {
-            console.error('Failed to claim reward:', error);
-            toast.error('Failed to claim reward');
-        }
-    };
+    if (role === ROLES.MEMBER) return (
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+             <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(124, 92, 252, 0.2)' }}><Gift size={32} /></div>
+                <div><h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Refer & Earn</h1><p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Invite your tribe and unlock premium gym rewards</p></div>
+             </div>
 
-    // MEMBER ONLY STATE
-    const [memberReferrals, setMemberReferrals] = useState([]);
-    const [memberStats, setMemberStats] = useState({ referralsSent: 0, successfulSignups: 0, rewardsEarned: 0 });
-    const [memberCode, setMemberCode] = useState('MEM000');
-
-    useEffect(() => {
-        if (role === ROLES.MEMBER) {
-            fetchMemberReferrals();
-        }
-    }, [role]);
-
-    const fetchMemberReferrals = async () => {
-        try {
-            setLoading(true);
-            const response = await apiClient.get('/member/referrals');
-            const { referralCode, referrals: dataReferrals, stats } = response.data;
-            setMemberCode(referralCode || 'MEM000');
-            setMemberReferrals(dataReferrals || []);
-            setMemberStats(stats || { referralsSent: 0, successfulSignups: 0, rewardsEarned: 0 });
-        } catch (error) {
-            console.error('Failed to load member referrals:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleCopyCode = () => {
-        navigator.clipboard.writeText(memberCode);
-        toast.success('Referral code copied!');
-    };
-
-    const handleWhatsAppShare = () => {
-        const text = encodeURIComponent(`Join me at the gym! Use my referral code ${memberCode} to get special rewards.`);
-        window.open(`https://wa.me/?text=${text}`, '_blank');
-    };
-
-    // Member-specific UI rendering
-    if (role === ROLES.MEMBER) {
-        return (
-            <div className="saas-container   space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 pb-8 sm:pb-10 border-b-2 border-slate-100">
-                    <div className="flex items-center gap-4 sm:gap-6">
-                        <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-3xl bg-primary flex items-center justify-center text-white shadow-2xl shadow-violet-100 animate-in zoom-in duration-500 shrink-0">
-                            <Gift size={28} className="sm:w-10 sm:h-10" strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1 uppercase">
-                                Refer & <span className="text-primary">Earn</span>
-                            </h1>
-                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">
-                                Invite friends and earn rewards
-                            </p>
-                        </div>
-                    </div>
+             <div style={{ ...S.card, padding: '48px', textAlign: 'center', background: `linear-gradient(135deg, #FFF 0%, ${T.bg} 100%)`, position: 'relative', overflow: 'hidden', marginBottom: '40px' }}>
+                <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', opacity: 0.05 }}><Gift size={240} /></div>
+                <p style={{ fontSize: '11px', fontWeight: '900', color: T.accent, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>Your Exclusive Invite Code</p>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '16px', background: '#FFF', padding: '16px 32px', borderRadius: '20px', border: `2px dashed ${T.accentMid}`, marginBottom: '32px' }}>
+                    <span style={{ fontSize: '32px', fontWeight: '900', color: T.text, letterSpacing: '4px' }}>{memberCode}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(memberCode); toast.success('Copied!'); }} style={{ background: T.bg, border: 'none', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: T.accent }}><Copy size={20} /></button>
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-1 gap-10 max-w-full">
-                    {/* Referral Code Section */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                                <Share2 size={16} />
-                            </div>
-                            <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Referral Link</h2>
-                        </div>
-                        <Card className="p-10 border-2 border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden relative">
-                            <div className="flex flex-col items-center justify-center text-center space-y-8 relative z-10">
-                                <div className="space-y-2">
-                                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Referral Code</h2>
-                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
-                                        Share this code with friends to earn rewards
-                                    </p>
-                                </div>
-
-                                <div className="bg-slate-50 border-2 border-dashed border-slate-200 px-8 py-4 rounded-2xl">
-                                    <h3 className="text-3xl font-black text-slate-900 tracking-[0.2em]">{memberCode}</h3>
-                                </div>
-
-                                <div className="flex flex-wrap items-center justify-center gap-4 w-full">
-                                    <button
-                                        onClick={handleCopyCode}
-                                        className="flex-1 min-w-[160px] h-12 bg-white border-2 border-slate-100 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-slate-100/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group"
-                                    >
-                                        <Copy size={14} strokeWidth={3} className="text-primary group-hover:scale-110 transition-transform" /> Copy Link
-                                    </button>
-                                    <button
-                                        onClick={handleWhatsAppShare}
-                                        className="flex-1 min-w-[160px] h-12 bg-[#25D366] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-emerald-100/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group border-none"
-                                    >
-                                        <MessageCircle size={14} strokeWidth={3} className="text-white group-hover:rotate-12 transition-transform" /> Share on WhatsApp
-                                    </button>
-                                </div>
-                            </div>
-                            {/* Decorative element */}
-                            <div className="absolute -top-10 -right-10 p-20 text-primary/[0.02] rotate-12">
-                                <UserPlus size={400} strokeWidth={0.5} />
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Stats Section */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                                <Award size={16} />
-                            </div>
-                            <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Stats Overview</h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-primary-light text-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                                    <Users size={20} />
-                                </div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Referrals Sent</h4>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">{memberStats.referralsSent}</p>
-                            </Card>
-                            <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                    <UserCheck size={20} />
-                                </div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Successful</h4>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">{memberStats.successfulSignups}</p>
-                            </Card>
-                            <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                    <IndianRupee size={20} />
-                                </div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rewards Earned</h4>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">₹{memberStats.rewardsEarned}</p>
-                            </Card>
-                            <Card className="p-8 border-2 border-slate-100 shadow-sm rounded-3xl bg-white text-center space-y-2">
-                                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                                    <Clock size={20} />
-                                </div>
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Rewards</h4>
-                                <p className="text-3xl font-black text-slate-900 tracking-tight">₹{memberStats.pendingRewards || 0}</p>
-                            </Card>
-                        </div>
-                    </div>
-
-                    {/* Referral History Section */}
-                    <div className="space-y-6 pb-10">
-                        <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                                <History size={16} />
-                            </div>
-                            <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Referral History</h2>
-                        </div>
-                        <Card className="p-12 border-2 border-slate-100 shadow-sm rounded-3xl bg-white">
-                            {memberReferrals.length > 0 ? (
-                                <div className="space-y-4">
-                                    {memberReferrals.map((ref) => (
-                                        <div key={ref.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-primary shrink-0">
-                                                    <User size={20} />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-bold text-slate-900">{ref.referredName}</h4>
-                                                    <p className="text-[10px] text-slate-500 font-semibold mt-0.5 uppercase tracking-wider">{new Date(ref.createdAt).toLocaleDateString()}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10">
-                                                <div className="text-right">
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Reward</p>
-                                                    <p className="text-sm font-black text-primary">₹{ref.rewardAmount || rewardAmount}</p>
-                                                </div>
-                                                <div className="flex flex-col items-end gap-1.5">
-                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${ref.status === 'Converted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                                        ref.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                                                            'bg-slate-100 text-slate-600 border-slate-200'
-                                                        }`}>
-                                                        {ref.status}
-                                                    </span>
-                                                    {ref.status === 'Converted' && (
-                                                        <div className="flex items-center gap-1.5">
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                                                            <span className={`text-[9px] font-black uppercase tracking-tighter ${ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                                                {ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? 'Status: Paid' : `Status: ${ref.rewardStatus}`}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center text-center space-y-6">
-                                    <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 border-2 border-dashed border-slate-100">
-                                        <Users size={48} strokeWidth={1.5} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                                            No Referrals Yet
-                                        </h3>
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
-                                            No referrals yet. Share your code to get started!
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </Card>
-                    </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                    <button onClick={() => window.open(`https://wa.me/?text=Join me at the gym! Code: ${memberCode}`, '_blank')} style={{ ...S.btn, background: '#25D366', color: '#FFF', padding: '0 32px', height: '52px', borderRadius: '16px' }}><MessageCircle size={20} /> Share on WhatsApp</button>
+                    <button onClick={() => { navigator.clipboard.writeText(`Join Roar Fitness! Code: ${memberCode}`); toast.success('Link ready to share!'); }} style={{ ...S.btn, background: T.accent, color: '#FFF', padding: '0 32px', height: '52px', borderRadius: '16px' }}><Share2 size={20} /> Copy Invite Link</button>
                 </div>
-            </div>
-        );
-    }
+             </div>
 
-    // Existing Admin/Staff UI
-    const kpiCards = [
-        { label: 'Total Referrals', value: referrals.length, icon: Users, color: 'from-primary to-primary', iconColor: 'text-primary' },
-        { label: 'Converted', value: referrals.filter(r => r.status === 'Converted').length, icon: CheckCircle, color: 'from-emerald-500 to-teal-600', iconColor: 'text-emerald-600' },
-        { label: 'Pending', value: referrals.filter(r => r.status === 'Pending').length, icon: Clock, color: 'from-amber-500 to-orange-600', iconColor: 'text-amber-600' },
-        { label: 'Total Rewards', value: `₹${referrals.filter(r => r.status === 'Converted').length * rewardAmount}`, subtext: 'Potential', icon: Gift, color: 'from-primary to-primary', iconColor: 'text-primary' }
-    ];
-
-    return (
-        <div className="min-h-screen ">
-            <div className="max-w-full mx-auto space-y-6">
-
-                {/* Header */}
-                <div className="mb-8 relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
-                    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-transform duration-300 shrink-0">
-                                <Shield size={24} className="sm:w-7 sm:h-7" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                    Referrals & Rewards
-                                </h1>
-                                <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">Manage and track your member referral program</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setIsDrawerOpen(true)}
-                            className="w-full sm:w-auto px-6 h-11 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-primary/30/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                            <Plus size={18} /> Create Referral
-                        </button>
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
+                {[
+                    { label: 'Invites Sent', val: memberStats.referralsSent || 0, icon: Users, color: T.accent },
+                    { label: 'Conversions', val: memberStats.successfulSignups || 0, icon: UserCheck, color: T.success },
+                    { label: 'Rewards Earned', val: `₹${memberStats.rewardsEarned || 0}`, icon: IndianRupee, color: '#2563EB' },
+                    { label: 'Pending Payout', val: `₹${memberStats.pendingRewards || 0}`, icon: Clock, color: '#D97706' }
+                ].map((s, i) => (
+                    <div key={i} style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: s.color + '15', color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><s.icon size={22} /></div>
+                        <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>{s.label}</p><h2 style={{ fontSize: '22px', fontWeight: '900', color: T.text, margin: 0 }}>{s.val}</h2></div>
                     </div>
-                </div>
+                ))}
+             </div>
 
-                {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {kpiCards.map((kpi, idx) => (
-                        <div key={idx} className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between h-full group transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                            <div className="flex items-start justify-between w-full">
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{kpi.label}</p>
-                                    <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
-                                    {kpi.subtext && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{kpi.subtext}</p>}
-                                </div>
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white shadow-md transition-transform duration-300 group-hover:scale-110`}>
-                                    <kpi.icon size={20} />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Tabs */}
-                <div className="flex bg-slate-100/50 p-1 rounded-lg w-fit">
-                    {['Referrals', 'Rewards'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-2 rounded-md text-sm font-semibold transition-all ${activeTab === tab
-                                ? 'bg-white text-slate-900 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Content Area */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm min-h-[400px]">
-                    <div className="p-5 border-b border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-900">
-                            {activeTab === 'Referrals' ? 'All Referrals' : 'Reward History'}
-                        </h2>
-                    </div>
-
-                    {loading ? (
-                        <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
-                        </div>
-                    ) : activeTab === 'Referrals' ? (
-                        referrals.length > 0 ? (
-                            <div className="saas-table-wrapper border-0 rounded-none">
-                                <table className="saas-table saas-table-responsive w-full text-left">
-                                    <thead className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold">
-                                        <tr>
-                                            <th className="px-6 py-4">Referred Person</th>
-                                            <th className="px-6 py-4">Referrer</th>
-                                            <th className="px-6 py-4">Branch</th>
-                                            <th className="px-6 py-4">Date</th>
-                                            <th className="px-6 py-4">Status</th>
-                                            <th className="px-6 py-4">Reward Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {referrals.map((ref, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="px-6 py-4" data-label="Referred Person">
-                                                    <div className="text-sm font-bold text-slate-900">{ref.referredName}</div>
-                                                    <div className="text-xs text-slate-500">{ref.phone}</div>
-                                                </td>
-                                                <td className="px-6 py-4" data-label="Referrer">
-                                                    <div className="text-sm font-medium text-slate-900">{ref.referrerName || 'N/A'}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{ref.branchName || '-'}</div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-slate-500" data-label="Date">
-                                                    {new Date(ref.createdAt).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-6 py-4" data-label="Status">
-                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${ref.status === 'Converted' ? 'bg-emerald-100 text-emerald-700' :
-                                                        ref.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                                                            'bg-slate-100 text-slate-700'
-                                                        }`}>
-                                                        {ref.status || 'Pending'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-slate-500" data-label="Reward">
-                                                    {ref.rewardStatus || 'Pending'}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                                <Users size={40} className="text-slate-300 mb-4" />
-                                <p className="text-sm">No referrals found.</p>
-                            </div>
-                        )
+             <div style={S.card}>
+                <div style={{ padding: '24px', borderBottom: `1px solid ${T.bg}` }}><h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Referral Timeline</h3></div>
+                <div style={{ padding: '24px' }}>
+                    {memberReferrals.length === 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', opacity: 0.5 }}><Users size={48} color={T.subtle} /><p style={{ fontSize: '14px', fontWeight: '800', color: T.subtle, marginTop: '12px', margin: 0 }}>Your circle is waiting to join!</p></div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50/50 text-slate-500 text-xs uppercase font-semibold">
-                                    <tr>
-                                        <th className="px-6 py-4">Earner</th>
-                                        <th className="px-6 py-4">Source Referral</th>
-                                        <th className="px-6 py-4">Benefit</th>
-                                        <th className="px-6 py-4">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {referrals.filter(r => r.status === 'Converted').length > 0 ? (
-                                        referrals.filter(r => r.status === 'Converted').map((ref, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="text-sm font-bold text-slate-900">{ref.referrerName}</div>
-                                                    <div className="text-[10px] text-slate-500 font-bold uppercase">Code: {ref.referrerId}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-xs font-medium text-slate-600">Referred: {ref.referredName}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-sm font-black text-primary">₹{rewardAmount} Reward</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {ref.rewardStatus === 'Claimed' || ref.rewardStatus === 'Paid' ? (
-                                                        <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-tighter">
-                                                            Paid
-                                                        </span>
-                                                    ) : ref.rewardStatus === 'Eligible' ? (
-                                                        <button
-                                                            onClick={() => handleClaimReward(ref.id)}
-                                                            className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg hover:bg-primary-hover transition-colors shadow-sm active:scale-95"
-                                                        >
-                                                            Claim Reward
-                                                        </button>
-                                                    ) : (
-                                                        <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-tighter">
-                                                            {ref.rewardStatus || 'Pending'}
-                                                        </span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="4" className="px-6 py-20 text-center">
-                                                <div className="flex flex-col items-center justify-center text-slate-400">
-                                                    <Gift size={40} className="text-slate-200 mb-2" />
-                                                    <p className="text-xs font-bold uppercase tracking-widest">No converted referrals to reward yet</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {memberReferrals.map((r, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', background: T.bg, borderRadius: '16px', border: `1px solid ${T.border}` }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}><User size={20} /></div>
+                                        <div><p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{r.referredName}</p><p style={{ fontSize: '11px', fontWeight: '600', color: T.muted, margin: 0 }}>{new Date(r.createdAt).toLocaleDateString()}</p></div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                        <div style={{ textAlign: 'right' }}><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Reward</p><p style={{ fontSize: '14px', fontWeight: '900', color: T.accent, margin: 0 }}>₹{r.rewardAmount || rewardAmount}</p></div>
+                                        <span style={{ ...S.badge, background: r.status === 'Converted' ? '#ECFDF5' : '#FFFBEB', color: r.status === 'Converted' ? T.success : '#D97706' }}>{r.status}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
-            </div>
+             </div>
+        </div>
+    );
 
-            {/* Create Referral Drawer */}
-            <RightDrawer
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                title="Create Referral"
-                subtitle="Manually log a referral from a walk-in or phone inquiry"
-            >
-                <form onSubmit={handleCreateReferral} className="p-6 space-y-6">
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Referrer Member *</label>
-                        <select
-                            required
-                            value={formData.referrerId}
-                            onChange={(e) => setFormData({ ...formData, referrerId: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm bg-white"
-                        >
-                            <option value="">Select member who referred</option>
-                            {members.map(member => (
-                                <option key={member.id} value={member.memberId}>
-                                    {member.name} ({member.memberId})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+    return (
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+             <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div><h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Growth Loop</h1><p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Manage reward fulfillment and member invitations</p></div>
+                <button onClick={() => setIsDrawerOpen(true)} style={{ ...S.btn, background: T.accent, color: '#FFF', height: '48px', padding: '0 24px', borderRadius: '14px' }}><Plus size={18} /> New Entry</button>
+             </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Referred Person Name *</label>
-                        <input
-                            required
-                            type="text"
-                            placeholder="Name of the referred person"
-                            value={formData.referredName}
-                            onChange={(e) => setFormData({ ...formData, referredName: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm"
-                        />
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
+                {[
+                    { label: 'Total Logs', val: referrals.length, icon: Users, color: T.accent },
+                    { label: 'Conversions', val: referrals.filter(r => r.status === 'Converted').length, icon: CheckCircle, color: T.success },
+                    { label: 'Pending', val: referrals.filter(r => r.status === 'Pending').length, icon: Clock, color: '#D97706' },
+                    { label: 'Total Payables', val: `₹${referrals.filter(r => r.status === 'Converted').length * rewardAmount}`, icon: IndianRupee, color: '#2563EB' }
+                ].map((s, i) => (
+                    <div key={i} style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                         <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: s.color + '15', color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><s.icon size={22} /></div>
+                         <div><p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>{s.label}</p><h2 style={{ fontSize: '22px', fontWeight: '900', color: T.text, margin: 0 }}>{s.val}</h2></div>
                     </div>
+                ))}
+             </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Phone *</label>
-                        <input
-                            required
-                            type="tel"
-                            placeholder="Phone number"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm"
-                        />
-                    </div>
+             <div style={S.card}>
+                <div style={{ display: 'flex', borderBottom: `1px solid ${T.bg}` }}>
+                    {['Referrals', 'Rewards Log'].map(tab => <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: '20px 32px', fontSize: '13px', fontWeight: '800', background: 'transparent', border: 'none', borderBottom: activeTab === (tab === 'Rewards Log' ? 'Rewards' : tab) ? `3px solid ${T.accent}` : 'none', color: activeTab === (tab === 'Rewards Log' ? 'Rewards' : tab) ? T.accent : T.muted, cursor: 'pointer' }}>{tab}</button>)}
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ background: T.bg }}>
+                                {['Target Prospect', 'Advocate (Member)', 'Timeline', 'Status', 'Fulfillment'].map(h => <th key={h} style={{ padding: '16px 24px', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="5" style={{ padding: '80px', textAlign: 'center' }}><Loader2 size={32} className="animate-spin" color={T.accent} /></td></tr>
+                            ) : referrals.length === 0 ? (
+                                <tr><td colSpan="5" style={{ padding: '100px' }}><div style={{ opacity: 0.5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}><Users size={48} color={T.subtle} /><p style={{ fontSize: '14px', fontWeight: '800', color: T.subtle, marginTop: '12px', margin: 0 }}>No records found</p></div></td></tr>
+                            ) : (
+                                referrals.map((r, i) => (
+                                    <tr key={i} style={{ borderBottom: `1px solid ${T.bg}` }}>
+                                        <td style={{ padding: '16px 24px' }}><div><p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{r.referredName}</p><p style={{ fontSize: '11px', fontWeight: '600', color: T.muted, margin: 0 }}>{r.phone}</p></div></td>
+                                        <td style={{ padding: '16px 24px' }}><p style={{ fontSize: '13px', fontWeight: '700', color: T.text, margin: 0 }}>{r.referrerName || 'Legacy Member'}</p><p style={{ fontSize: '10px', fontWeight: '900', color: T.accent, margin: 0 }}>{r.referrerCode || 'MEM-0'}</p></td>
+                                        <td style={{ padding: '16px 24px' }}><span style={{ fontSize: '12px', fontWeight: '700', color: T.muted }}>{new Date(r.createdAt).toLocaleDateString()}</span></td>
+                                        <td style={{ padding: '16px 24px' }}><span style={{ ...S.badge, background: r.status === 'Converted' ? '#ECFDF5' : '#FFFBEB', color: r.status === 'Converted' ? T.success : '#D97706' }}>{r.status || 'Pending'}</span></td>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            {r.status === 'Converted' ? (
+                                                r.rewardStatus === 'Claimed' || r.rewardStatus === 'Paid' ? <span style={{ ...S.badge, background: T.bg, color: T.success }}>Fullfilled</span> : <button onClick={() => referralApi.claimReward(r.id).then(loadReferrals)} style={{ ...S.btn, height: '32px', background: T.accent, color: '#FFF', fontSize: '10px' }}>Release Reward</button>
+                                            ) : <span style={{ fontSize: '11px', color: T.subtle, fontStyle: 'italic' }}>Pending Join</span>}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+             </div>
 
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
-                        <input
-                            type="email"
-                            placeholder="Email address"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full h-11 px-4 rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm"
-                        />
+             {isDrawerOpen && (
+                <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, background: 'rgba(26, 21, 51, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }}>
+                    <div style={{ width: '450px', background: '#FFF', height: '100%', padding: '40px', boxShadow: '-10px 0 30px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>Manual Referral</h2><p style={{ fontSize: '13px', color: T.muted, margin: '4px 0 0' }}>Log an invitation legacy or walk-in lead</p></div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div><label style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Advocate (Member) *</label><select style={{ ...S.input, width: '100%' }} value={formData.referrerId} onChange={e => setFormData({ ...formData, referrerId: e.target.value })}><option value="">Select Referrer</option>{members.map(m => <option key={m.id} value={m.memberId}>{m.name} ({m.memberId})</option>)}</select></div>
+                            <div><label style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Prospect Name *</label><input style={{ ...S.input, width: '100%' }} value={formData.referredName} onChange={e => setFormData({ ...formData, referredName: e.target.value })} /></div>
+                            <div><label style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Contact Phone *</label><input style={{ ...S.input, width: '100%' }} value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} /></div>
+                            <div><label style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Email</label><input style={{ ...S.input, width: '100%' }} value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} /></div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+                             <button onClick={() => setIsDrawerOpen(false)} style={{ ...S.btn, flex: 1, background: T.bg, color: T.text }}>Cancel</button>
+                             <button onClick={handleCreate} style={{ ...S.btn, flex: 1, background: T.accent, color: '#FFF' }}>Save Record</button>
+                        </div>
                     </div>
-
-                    <div className="flex gap-3 pt-4 border-t border-slate-100">
-                        <button
-                            type="button"
-                            onClick={() => setIsDrawerOpen(false)}
-                            className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-all"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-primary/30/30 transition-all"
-                        >
-                            Create Referral
-                        </button>
-                    </div>
-                </form>
-            </RightDrawer>
+                </div>
+             )}
         </div>
     );
 };

@@ -18,11 +18,40 @@ import {
     Moon,
     X,
     MoreHorizontal,
-    Loader2
+    Loader2,
+    Monitor,
+    Zap,
+    Hash
 } from 'lucide-react';
 import { fetchChatContacts, fetchCommLogs, sendBroadcastMessage } from '../../../api/communication/communicationApi';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const WhatsAppChat = () => {
     const { user } = useAuth();
@@ -96,7 +125,6 @@ const WhatsAppChat = () => {
         }
     }, [selectedMember]);
 
-    // Handle search input with debouncing simulated by typing
     useEffect(() => {
         const timer = setTimeout(() => {
             loadContacts(searchTerm);
@@ -104,7 +132,6 @@ const WhatsAppChat = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // Close menus on click outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (optionsRef.current && !optionsRef.current.contains(event.target)) {
@@ -157,25 +184,6 @@ const WhatsAppChat = () => {
         }
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            toast.success(`File "${file.name}" selected`);
-        }
-    };
-
-    const handleExportChat = () => {
-        if (messages.length === 0) return toast.error("No messages to export");
-        const chatContent = messages.map(m => `[${m.time}] ${m.type === 'sent' ? 'Me' : selectedMember.name}: ${m.text}`).join('\n');
-        const element = document.createElement("a");
-        const file = new Blob([chatContent], { type: 'text/plain' });
-        element.href = URL.createObjectURL(file);
-        element.download = `chat_with_${selectedMember.name.replace(/\s+/g, '_')}.txt`;
-        document.body.appendChild(element);
-        element.click();
-        setShowOptions(false);
-    };
-
     const handleClearChat = () => {
         setMessages([]);
         setShowOptions(false);
@@ -183,231 +191,187 @@ const WhatsAppChat = () => {
     };
 
     return (
-        <div className="min-h-screen space-y-8 animate-fadeIn text-slate-900 font-sans">
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: ${T.border}; border-radius: 10px; }
+            `}</style>
 
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-2">
-                <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-100 text-white">
-                    <MessageSquare size={24} />
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${T.accent}, ${T.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 30px -10px rgba(124, 92, 252, 0.3)' }}>
+                        <MessageSquare size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Communication Hub</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Secure endpoint for direct member engagement</p>
+                    </div>
                 </div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                    {user?.role === 'MEMBER' ? 'My Messages' : 'Member Messages'}
-                </h1>
             </div>
 
-            {/* Main Chat Container */}
-            <div className="flex gap-6 h-[calc(100vh-180px)]">
-
-                {/* Contact Sidebar */}
-                <div className={`
-                    ${showSidebar ? 'w-full lg:w-96 flex' : 'hidden lg:flex lg:w-96'} 
-                    bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex-col
-                `}>
-                    {/* Sidebar Search Area */}
-                    <div className="p-6 border-b border-slate-50">
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
+            {/* Main Application Interface */}
+            <div style={{ display: 'flex', gap: 24, height: 'calc(100vh - 180px)', animation: 'fadeIn 0.7s ease-out' }}>
+                
+                {/* Contact Interface Sidebar */}
+                <div style={{ width: 400, background: '#fff', borderRadius: 32, border: `1.5px solid #fff`, boxShadow: T.cardShadow, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ padding: 24, borderBottom: `1.5px solid ${T.bg}` }}>
+                        <div style={{ position: 'relative' }}>
+                            <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                             <input
                                 type="text"
-                                placeholder="Search by name, phone or role..."
+                                placeholder="Search identity or channel..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full h-12 pl-12 pr-5 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-bold text-slate-700 focus:outline-none focus:border-primary transition-all shadow-inner"
+                                style={{ width: '100%', height: 50, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid ${T.bg}`, background: T.bg + '50', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s' }}
                             />
-                            {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2"><Loader2 size={16} className="animate-spin text-primary" /></div>}
                         </div>
                     </div>
 
-                    {/* Contact List */}
-                    <div className="flex-1  p-4 space-y-2 custom-scrollbar">
-                        {contacts.length > 0 ? (
-                            contacts.map(contact => (
-                                <button
-                                    key={`${contact.type}-${contact.id}`}
-                                    onClick={() => setSelectedMember(contact)}
-                                    className={`w-full p-4 rounded-[1.5rem] flex items-start gap-4 transition-all duration-300 group ${selectedMember?.id === contact.id && selectedMember?.type === contact.type ? 'bg-primary-light shadow-sm border border-violet-100' : 'hover:bg-slate-50'}`}
-                                >
-                                    <div className="relative">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md group-hover:scale-110 transition-transform ${contact.type === 'MEMBER' ? 'bg-gradient-to-br from-primary to-primary' : 'bg-gradient-to-br from-emerald-400 to-teal-500'}`}>
-                                            {contact.name.charAt(0)}
-                                        </div>
-                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                    <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+                        {loading && contacts.length === 0 ? (
+                            Array(5).fill(0).map((_, i) => (
+                                <div key={i} style={{ padding: 16, borderRadius: 20, marginBottom: 8, display: 'flex', gap: 12, opacity: 0.5 }}>
+                                    <div style={{ width: 48, height: 48, borderRadius: 16, background: T.bg }} />
+                                    <div style={{ flex: 1, paddingTop: 4 }}>
+                                        <div style={{ width: '60%', height: 12, borderRadius: 4, background: T.bg, marginBottom: 8 }} />
+                                        <div style={{ width: '40%', height: 10, borderRadius: 4, background: T.bg }} />
                                     </div>
-                                    <div className="flex-1 text-left min-w-0">
-                                        <div className="flex justify-between items-center mb-0.5">
-                                            <span className={`text-[13px] font-black tracking-tight ${selectedMember?.id === contact.id ? 'text-violet-900' : 'text-slate-800'}`}>
-                                                {contact.name}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${contact.type === 'MEMBER' ? 'bg-violet-100 text-primary' : 'bg-emerald-100 text-emerald-600'}`}>
-                                                {contact.type}
-                                            </span>
-                                            <span className="text-[10px] font-bold text-slate-400 truncate">{contact.phone || 'No phone'}</span>
-                                        </div>
-                                    </div>
-                                </button>
+                                </div>
                             ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-full space-y-4 py-10 opacity-60">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-200 shadow-inner">
-                                    <Search size={28} strokeWidth={1.5} />
+                        ) : contacts.map(contact => (
+                            <button
+                                key={`${contact.type}-${contact.id}`}
+                                onClick={() => setSelectedMember(contact)}
+                                style={{ width: '100%', padding: 16, borderRadius: 24, border: 'none', background: selectedMember?.id === contact.id ? T.accentLight : 'transparent', display: 'flex', alignItems: 'center', gap: 16, transition: '0.2s', cursor: 'pointer', marginBottom: 4 }}
+                            >
+                                <div style={{ width: 52, height: 52, borderRadius: 18, background: contact.type === 'MEMBER' ? `linear-gradient(135deg, ${T.accent}, ${T.indigo})` : `linear-gradient(135deg, ${T.green}, #0CB88D)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 900, flexShrink: 0, boxShadow: T.cardShadow }}>
+                                    {contact.name.charAt(0)}
                                 </div>
-                                <div>
-                                    <h4 className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">No contacts found</h4>
-                                    <p className="text-[10px] font-bold text-slate-300 uppercase mt-1">Try another search term</p>
+                                <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                        <span style={{ fontSize: 15, fontWeight: 800, color: selectedMember?.id === contact.id ? T.accent : T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{contact.name}</span>
+                                        <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle }}>10:42 AM</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', color: contact.type === 'MEMBER' ? T.accent : T.green, background: contact.type === 'MEMBER' ? T.accentLight : T.greenLight, padding: '2px 8px', borderRadius: 6 }}>{contact.type}</span>
+                                        <span style={{ fontSize: 12, fontWeight: 600, color: T.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{contact.phone || 'No identifier'}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* Main View Area */}
-                <div className="flex-1 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col relative">
+                {/* Secure Messaging Interface */}
+                <div style={{ flex: 1, background: '#fff', borderRadius: 40, border: `1.5px solid #fff`, boxShadow: T.cardShadow, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
                     {selectedMember ? (
                         <>
-                            {/* Chat Header */}
-                            <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary font-black shadow-inner">
+                            {/* Entity Header */}
+                            <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', zIndex: 10 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ width: 52, height: 52, borderRadius: 18, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, fontSize: 20, fontWeight: 900 }}>
                                         {selectedMember.name.charAt(0)}
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-black text-slate-800 tracking-tight">{selectedMember.name}</h3>
-                                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Active Now</p>
+                                        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{selectedMember.name}</h3>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.green }} />
+                                            <span style={{ fontSize: 11, fontWeight: 800, color: T.green, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Node Active</span>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center gap-4 relative">
-                                    <div ref={optionsRef}>
-                                        <button
-                                            onClick={() => setShowOptions(!showOptions)}
-                                            className={`p-3 rounded-2xl transition-all ${showOptions ? 'bg-primary text-white shadow-lg shadow-violet-100' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
-                                        >
-                                            <MoreHorizontal size={20} />
-                                        </button>
-
-                                        {showOptions && (
-                                            <div className="absolute right-0 top-16 w-56 bg-white rounded-3xl border border-slate-100 shadow-2xl shadow-slate-200/50 p-2 z-50 animate-in fade-in zoom-in duration-200">
-                                                <button onClick={handleClearChat} className="w-full text-left px-5 py-3.5 hover:bg-rose-50 rounded-2xl text-[11px] font-black uppercase tracking-widest text-rose-500 transition-colors flex items-center gap-3">
-                                                    <Clock size={14} className="text-rose-400" /> Clear Chat
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                <div style={{ display: 'flex', gap: 12 }}>
+                                    <button onClick={handleClearChat} style={{ width: 44, height: 44, borderRadius: 14, border: 'none', background: T.bg, color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s' }}>
+                                        <Hash size={20} />
+                                    </button>
+                                    <button style={{ width: 44, height: 44, borderRadius: 14, border: 'none', background: T.bg, color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s' }}>
+                                        <MoreHorizontal size={20} />
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Messages View */}
-                            <div className="flex-1  space-y-6 bg-slate-50/30 custom-scrollbar relative">
+                            {/* Message Ledger Area */}
+                            <div className="custom-scrollbar" style={{ flex: 1, padding: 32, overflowY: 'auto', background: `${T.bg}20`, display: 'flex', flexDirection: 'column', gap: 20 }}>
                                 {fetchingMessages ? (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
-                                        <Loader2 className="animate-spin text-primary" size={32} />
+                                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Loader2 size={32} className="animate-spin" style={{ color: T.accent }} />
                                     </div>
-                                ) : messages.length > 0 ? (
-                                    messages.map(msg => (
-                                        <div key={msg.id} className={`flex ${msg.type === 'sent' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4 duration-500`}>
-                                            <div className={`max-w-[70%] p-5 rounded-[2rem] shadow-sm border ${msg.type === 'sent' ? 'bg-primary text-white border-primary rounded-tr-none' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
-                                                <p className="text-[13px] font-bold leading-relaxed">{msg.text}</p>
-                                                <div className={`mt-2 flex items-center gap-2 ${msg.type === 'sent' ? 'text-violet-200' : 'text-slate-400'}`}>
-                                                    <span className="text-[9px] font-black uppercase tracking-widest">{msg.time}</span>
+                                ) : messages.length === 0 ? (
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.3 }}>
+                                        <Zap size={48} />
+                                        <p style={{ marginTop: 16, fontSize: 12, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Secure Channel Initialized</p>
+                                    </div>
+                                ) : (
+                                    messages.map((msg, i) => (
+                                        <div key={msg.id} style={{ display: 'flex', justifyContent: msg.type === 'sent' ? 'flex-end' : 'flex-start', animation: 'slideIn 0.3s ease-out' }}>
+                                            <div style={{ maxWidth: '75%', position: 'relative' }}>
+                                                <div style={{ padding: '16px 24px', borderRadius: 24, border: msg.type === 'sent' ? 'none' : `1.2px solid ${T.border}`, background: msg.type === 'sent' ? `linear-gradient(135deg, ${T.accent}, ${T.indigo})` : '#fff', color: msg.type === 'sent' ? '#fff' : T.text, boxShadow: T.cardShadow, fontSize: 14, fontWeight: 600, lineHeight: 1.6 }}>
+                                                    {msg.text}
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, justifyContent: msg.type === 'sent' ? 'flex-end' : 'flex-start' }}>
+                                                    <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>{msg.time}</span>
                                                     {msg.type === 'sent' && (
-                                                        msg.status === 'Pending' ? <Clock size={12} className="animate-pulse" /> : <CheckCheck size={14} />
+                                                        <CheckCheck size={14} style={{ color: msg.status === 'Pending' ? T.subtle : T.accent }} />
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
                                     ))
-                                ) : (
-                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
-                                        <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-slate-200">
-                                            <MessageSquare size={32} />
-                                        </div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No messages yet. Say hi!</p>
-                                    </div>
                                 )}
                                 <div ref={chatEndRef} />
                             </div>
 
-                            {/* Input Area */}
-                            <div className="p-8 border-t border-slate-50 bg-white">
-                                <form onSubmit={handleSendMessage} className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-[2rem] px-6 py-3 shadow-inner group focus-within:border-violet-400 transition-all relative">
-                                    <div ref={emojiRef} className="relative">
-                                        <button
-                                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                            className={`p-2 transition-colors ${showEmojiPicker ? 'text-primary' : 'text-slate-300 hover:text-primary'}`}
-                                        >
-                                            <Smile size={22} />
-                                        </button>
-
-                                        {showEmojiPicker && (
-                                            <div className="absolute bottom-16 left-0 bg-white border border-slate-100 rounded-3xl shadow-2xl p-4 grid grid-cols-6 gap-2 w-72 z-50 animate-in slide-in-from-bottom-2">
-                                                {['😊', '😂', '🔥', '👍', '❤️', '🙏', '🙌', '🎉', '👋', '💪', '✨', '✅', '❌', '📢', ' gym', '⌚', '💧', '🍎'].map(emoji => (
-                                                    <button
-                                                        key={emoji}
-                                                        onClick={() => { handleEmojiSelect(emoji); setShowEmojiPicker(false); }}
-                                                        className="text-2xl hover:bg-slate-50 p-2 rounded-xl transition-all hover:scale-125"
-                                                    >
-                                                        {emoji}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <button
-                                        onClick={triggerFileSelect}
-                                        className="p-2 text-slate-300 hover:text-primary transition-colors"
-                                    >
+                            {/* Transmission Matrix Input */}
+                            <div style={{ padding: 32, background: '#fff', borderTop: `1.5px solid ${T.bg}` }}>
+                                <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: 16, alignItems: 'center', background: T.bg + '80', padding: 8, borderRadius: 24, border: `1.5px solid ${T.border}` }}>
+                                    <button type="button" style={{ width: 44, height: 44, borderRadius: 18, border: 'none', background: 'transparent', color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                        <Smile size={22} />
+                                    </button>
+                                    <button type="button" onClick={triggerFileSelect} style={{ width: 44, height: 44, borderRadius: 18, border: 'none', background: 'transparent', color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                         <Paperclip size={22} />
                                     </button>
                                     <input
                                         type="file"
                                         ref={fileInputRef}
                                         className="hidden"
-                                        onChange={handleFileChange}
+                                        onChange={() => {}}
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Type your message here..."
-                                        className="flex-1 bg-transparent border-none outline-none text-[13px] font-bold text-slate-700 placeholder:text-slate-300"
+                                        placeholder="Formulate command..."
                                         value={messageInput}
                                         onChange={(e) => setMessageInput(e.target.value)}
+                                        style={{ flex: 1, height: 50, background: 'transparent', border: 'none', outline: 'none', fontSize: 14, fontWeight: 700, color: T.text, padding: '0 8px' }}
                                     />
-                                    <button
-                                        type="submit"
-                                        disabled={!messageInput.trim()}
-                                        className={`p-3 rounded-2xl transition-all ${messageInput.trim() ? 'bg-primary text-white shadow-lg shadow-violet-100 scale-110 active:scale-95' : 'bg-slate-200 text-slate-400'}`}
-                                    >
-                                        <Send size={18} />
+                                    <button type="submit" disabled={!messageInput.trim()} style={{ width: 50, height: 50, borderRadius: 18, border: 'none', background: messageInput.trim() ? T.accent : T.subtle, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.3s', boxShadow: messageInput.trim() ? T.shadow : 'none' }}>
+                                        <Send size={20} />
                                     </button>
                                 </form>
                             </div>
                         </>
                     ) : (
-                        /* Empty State (Matching Screenshot) */
-                        <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white relative">
-                            <div className="space-y-6 animate-in fade-in zoom-in duration-1000">
-                                <div className="w-24 h-24 bg-slate-50 rounded-[3rem] border border-slate-100 flex items-center justify-center text-slate-200 mx-auto shadow-inner relative group cursor-default">
-                                    <MessageSquare size={44} strokeWidth={1.5} className="group-hover:scale-110 transition-transform duration-500" />
-                                    <div className="absolute -inset-4 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+                        /* System Idle State */
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, padding: 60, textAlign: 'center' }}>
+                            <div style={{ width: 100, height: 100, borderRadius: 40, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, position: 'relative' }}>
+                                <Monitor size={48} />
+                                <div style={{ position: 'absolute', bottom: -5, right: -5, width: 30, height: 30, borderRadius: 12, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                                    <Zap size={16} />
                                 </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-slate-400 text-sm font-black uppercase tracking-[0.2em]">Select a conversation to start chatting</h4>
-                                </div>
+                            </div>
+                            <div>
+                                <h4 style={{ fontSize: 22, fontWeight: 900, color: T.text, margin: 0 }}>Terminal Standby</h4>
+                                <p style={{ fontSize: 14, fontWeight: 600, color: T.muted, marginTop: 12, lineHeight: 1.6, maxWidth: 300 }}>Select a network identity from the directory to establish a secure link.</p>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
-
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f5f9; border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #e2e8f0; }
-            `}</style>
-        </div >
+        </div>
     );
 };
 

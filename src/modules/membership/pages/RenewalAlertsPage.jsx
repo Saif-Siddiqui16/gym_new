@@ -13,6 +13,7 @@ import {
     ExternalLink,
     CheckCircle2
 } from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import { getRenewalAlerts } from '../../../api/manager/managerApi';
 import RenewalModal from '../components/RenewalModal';
 import toast from 'react-hot-toast';
@@ -158,11 +159,8 @@ const RenewalAlertsPage = () => {
                             <tbody className="divide-y divide-slate-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="4" className="py-20 text-center">
-                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                                <RefreshCw size={40} className="animate-spin" />
-                                            </div>
-                                            <h3 className="text-xl font-black text-slate-300 uppercase tracking-widest">Loading data...</h3>
+                                        <td colSpan="4" className="py-20">
+                                            <Loader message="Fetching renewal alerts..." />
                                         </td>
                                     </tr>
                                 ) : filteredMembers.length > 0 ? filteredMembers.map(member => (
@@ -241,11 +239,8 @@ const RenewalAlertsPage = () => {
                         {/* Mobile List View */}
                         <div className="lg:hidden divide-y divide-slate-100">
                             {loading ? (
-                                <div className="p-10 text-center">
-                                    <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                                        <RefreshCw size={24} className="animate-spin" />
-                                    </div>
-                                    <p className="text-sm font-black text-slate-300 uppercase tracking-widest">Loading...</p>
+                                <div className="p-10">
+                                    <Loader message="Loading..." />
                                 </div>
                             ) : filteredMembers.length > 0 ? filteredMembers.map(member => (
                                 <div key={member.id} className="p-6 space-y-5">

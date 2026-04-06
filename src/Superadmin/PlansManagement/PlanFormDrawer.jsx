@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Save,
-    Plus,
-    Trash2,
-    CheckCircle2,
-    Info,
-    Sparkles,
-    ChevronDown,
-    ChevronRight,
-    Building2,
-    Activity,
-    Gift,
-    Infinity,
-    Wrench,
-    Users
+    Save, Plus, Trash2, CheckCircle2, Info, Sparkles, ChevronDown, ChevronRight,
+    Building2, Activity, Gift, Infinity, Wrench, Users
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -21,16 +9,29 @@ import CustomDropdown from '../../components/common/CustomDropdown';
 import { addPlan, editPlan, fetchPlans } from '../../api/superadmin/superAdminApi';
 import PlanLimitField from './PlanLimitField';
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        // primary purple
+  accent2: '#9B7BFF',       // lighter purple
+  accentLight: '#F0ECFF',   // purple tint bg
+  accentMid: '#E4DCFF',     // purple border/focus
+  border: '#EAE7FF',        // default borders
+  bg: '#F6F5FF',            // page background
+  surface: '#FFFFFF',       // card/input surface
+  text: '#1A1533',          // primary text
+  muted: '#7B7A8E',         // secondary text
+  subtle: '#B0ADCC',        // subtle icons/placeholders
+  green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+};
+
 const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
     const [formData, setFormData] = useState({
-        planName: '',
-        price: '',
-        billingCycle: 'Monthly',
-        description: '',
-        status: true,
+        planName: '', price: '', billingCycle: 'Monthly', description: '', status: true,
         features: [],
-
-        // Organization Limits
         limits: {
             branches: { value: 1, isUnlimited: false },
             managers: { value: 2, isUnlimited: false },
@@ -38,8 +39,6 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             trainers: { value: 3, isUnlimited: false },
             members: { value: 100, isUnlimited: false }
         },
-
-        // Operational Limits
         opsLimits: {
             workouts: { value: 10, isUnlimited: false },
             diets: { value: 10, isUnlimited: false },
@@ -47,53 +46,27 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
             checkins: { value: 30, isUnlimited: false },
             leads: { value: 50, isUnlimited: false }
         },
-
-        // Member Benefit Limits
         benefits: []
     });
 
-    const [activeSections, setActiveSections] = useState({
-        basic: true,
-        limits: true,
-        ops: true,
-        benefits: true
-    });
-
+    const [activeSections, setActiveSections] = useState({ basic: true, limits: true, ops: true, benefits: true });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            if (editId) {
-                loadPlan(parseInt(editId));
-            } else {
-                setFormData({
-                    planName: '',
-                    price: '',
-                    billingCycle: 'Monthly',
-                    description: '',
-                    status: true,
-                    features: [],
-                    limits: {
-                        branches: { value: 1, isUnlimited: false },
-                        managers: { value: 2, isUnlimited: false },
-                        staff: { value: 5, isUnlimited: false },
-                        trainers: { value: 3, isUnlimited: false },
-                        members: { value: 100, isUnlimited: false }
-                    },
-                    opsLimits: {
-                        workouts: { value: 10, isUnlimited: false },
-                        diets: { value: 10, isUnlimited: false },
-                        classes: { value: 5, isUnlimited: false },
-                        checkins: { value: 30, isUnlimited: false },
-                        leads: { value: 50, isUnlimited: false }
-                    },
-                    benefits: []
-                });
-            }
+            if (editId) { loadPlan(parseInt(editId)); }
+            else { resetForm(); }
             setErrors({});
         }
     }, [isOpen, editId]);
+
+    const resetForm = () => setFormData({
+        planName: '', price: '', billingCycle: 'Monthly', description: '', status: true, features: [],
+        limits: { branches: { value: 1, isUnlimited: false }, managers: { value: 2, isUnlimited: false }, staff: { value: 5, isUnlimited: false }, trainers: { value: 3, isUnlimited: false }, members: { value: 100, isUnlimited: false } },
+        opsLimits: { workouts: { value: 10, isUnlimited: false }, diets: { value: 10, isUnlimited: false }, classes: { value: 5, isUnlimited: false }, checkins: { value: 30, isUnlimited: false }, leads: { value: 50, isUnlimited: false } },
+        benefits: []
+    });
 
     const loadPlan = async (id) => {
         const allPlans = await fetchPlans();
@@ -101,437 +74,215 @@ const PlanFormDrawer = ({ isOpen, onClose, editId, onSuccess }) => {
         if (plan) {
             setFormData(prev => ({
                 ...prev,
-                planName: plan.name,
-                price: plan.price,
-                billingCycle: plan.period,
-                description: plan.description || '',
-                status: plan.status === 'Active',
+                planName: plan.name, price: plan.price, billingCycle: plan.period, description: plan.description || '', status: plan.status === 'Active',
                 features: plan.features || [],
-                limits: {
-                    branches: plan.limits?.branches || prev.limits.branches,
-                    managers: plan.limits?.managers || prev.limits.managers,
-                    staff: plan.limits?.staff || prev.limits.staff,
-                    trainers: plan.limits?.trainers || prev.limits.trainers,
-                    members: plan.limits?.members || prev.limits.members
-                },
-                opsLimits: {
-                    workouts: plan.opsLimits?.workouts || prev.opsLimits.workouts,
-                    diets: plan.opsLimits?.diets || prev.opsLimits.diets,
-                    classes: plan.opsLimits?.classes || prev.opsLimits.classes,
-                    checkins: plan.opsLimits?.checkins || prev.opsLimits.checkins,
-                    leads: plan.opsLimits?.leads || prev.opsLimits.leads
-                },
+                limits: { branches: plan.limits?.branches || prev.limits.branches, managers: plan.limits?.managers || prev.limits.managers, staff: plan.limits?.staff || prev.limits.staff, trainers: plan.limits?.trainers || prev.limits.trainers, members: plan.limits?.members || prev.limits.members },
+                opsLimits: { workouts: plan.opsLimits?.workouts || prev.opsLimits.workouts, diets: plan.opsLimits?.diets || prev.opsLimits.diets, classes: plan.opsLimits?.classes || prev.opsLimits.classes, checkins: plan.opsLimits?.checkins || prev.opsLimits.checkins, leads: plan.opsLimits?.leads || prev.opsLimits.leads },
                 benefits: plan.benefits || []
             }));
         }
     };
 
-    const toggleSection = (section) => {
-        setActiveSections(prev => ({ ...prev, [section]: !prev[section] }));
-    };
-
+    const toggleSection = (section) => setActiveSections(prev => ({ ...prev, [section]: !prev[section] }));
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
     };
-
     const handleLimitChange = (group, field, key, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [group]: {
-                ...prev[group],
-                [field]: { ...prev[group][field], [key]: value }
-            }
-        }));
+        setFormData(prev => ({ ...prev, [group]: { ...prev[group], [field]: { ...prev[group][field], [key]: value } } }));
     };
 
-    const addBenefit = () => {
-        setFormData(prev => ({
-            ...prev,
-            benefits: [...prev.benefits, {
-                id: Date.now(),
-                name: '',
-                limit: '5',
-                isUnlimited: false,
-                unit: 'Lifetime',
-                gender: 'All',
-                room: ''
-            }]
-        }));
-    };
-
-    const removeBenefit = (id) => {
-        setFormData(prev => ({
-            ...prev,
-            benefits: prev.benefits.filter(b => b.id !== id)
-        }));
-    };
-
-    const updateBenefit = (id, field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            benefits: prev.benefits.map(b => b.id === id ? { ...b, [field]: value } : b)
-        }));
-    };
-
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.planName.trim()) newErrors.planName = 'Plan name is required';
-        if (!formData.price) newErrors.price = 'Price is required';
-        if (!formData.description.trim()) newErrors.description = 'Description is required';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    const addBenefit = () => setFormData(prev => ({ ...prev, benefits: [...prev.benefits, { id: Date.now(), name: '', limit: '5', isUnlimited: false, unit: 'Lifetime', gender: 'All', room: '' }] }));
+    const removeBenefit = (id) => setFormData(prev => ({ ...prev, benefits: prev.benefits.filter(b => b.id !== id) }));
+    const updateBenefit = (id, field, value) => setFormData(prev => ({ ...prev, benefits: prev.benefits.map(b => b.id === id ? { ...b, [field]: value } : b) }));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!validateForm()) {
-            setActiveSections(prev => ({ ...prev, basic: true }));
-            toast.error("Please fill in all required fields (Name, Price, Description).");
-            return;
-        }
+        const newErrors = {};
+        if (!formData.planName.trim()) newErrors.planName = 'Plan name required';
+        if (!formData.price) newErrors.price = 'Price required';
+        if (!formData.description.trim()) newErrors.description = 'Description required';
+        if (Object.keys(newErrors).length > 0) { setErrors(newErrors); toast.error("Please fill all fields"); return; }
 
         setIsSubmitting(true);
         try {
-            const planData = {
-                name: formData.planName,
-                price: formData.price,
-                period: formData.billingCycle,
-                features: formData.features,
-                limits: formData.limits,
-                opsLimits: formData.opsLimits,
-                benefits: formData.benefits,
-                status: formData.status ? 'Active' : 'Inactive',
-                description: formData.description
-            };
-
-            if (editId) {
-                await editPlan(parseInt(editId), planData);
-            } else {
-                await addPlan(planData);
-            }
-            onSuccess();
-            onClose();
-        } catch (error) {
-            console.error('Error saving plan:', error);
-            toast.error('Failed to save plan');
-        } finally {
-            setIsSubmitting(false);
-        }
+            const planData = { name: formData.planName, price: formData.price, period: formData.billingCycle, features: formData.features, limits: formData.limits, opsLimits: formData.opsLimits, benefits: formData.benefits, status: formData.status ? 'Active' : 'Inactive', description: formData.description };
+            if (editId) await editPlan(parseInt(editId), planData);
+            else await addPlan(planData);
+            onSuccess(); onClose();
+        } catch (error) { console.error(error); toast.error('Failed to save plan'); }
+        finally { setIsSubmitting(false); }
     };
 
     const CollapsibleHeader = ({ icon: Icon, title, subtitle, section, active, color }) => (
         <div
             onClick={() => toggleSection(section)}
-            className={`flex items-center justify-between p-4 cursor-pointer rounded-2xl transition-all ${active ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+            style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '16px 20px', cursor: 'pointer', borderRadius: '18px',
+                background: active ? T.bg : 'transparent', border: `1.5px solid ${active ? T.accentMid : 'transparent'}`,
+                transition: '0.2s', marginBottom: '8px'
+            }}
+            onMouseEnter={e => { if(!active) e.currentTarget.style.background = T.bg; }}
+            onMouseLeave={e => { if(!active) e.currentTarget.style.background = 'transparent'; }}
         >
-            <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-xl bg-white shadow-sm border border-slate-100 ${color}`}>
-                    <Icon size={20} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ padding: '10px', borderRadius: '12px', background: T.surface, border: `1px solid ${T.border}`, color: color, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                    <Icon size={18} strokeWidth={2.5} />
                 </div>
                 <div>
-                    <h4 className="font-black text-slate-800 text-sm tracking-tight">{title}</h4>
-                    {subtitle && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{subtitle}</p>}
+                    <h4 style={{ fontSize: '13px', fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.3px' }}>{title}</h4>
+                    {subtitle && <p style={{ fontSize: '9px', fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '4px 0 0' }}>{subtitle}</p>}
                 </div>
             </div>
-            {active ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+            <div style={{ color: T.subtle, transform: active ? 'rotate(180deg)' : 'none', transition: '0.3s' }}>
+                <ChevronDown size={18} />
+            </div>
         </div>
     );
 
-    return (
-        <form onSubmit={handleSubmit} className="space-y-6 pb-24">
-            {/* SECTION 1: BASIC INFO */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <CollapsibleHeader
-                    icon={Wrench}
-                    title="Basic Plan Information"
-                    subtitle="Plan core details and pricing"
-                    section="basic"
-                    active={activeSections.basic}
-                    color="text-primary"
-                />
+    const InputLabel = ({ children }) => (
+        <label style={{ display: 'block', fontSize: '10px', fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+            {children}
+        </label>
+    );
 
+    const inputStyle = (err) => ({
+        width: '100%', padding: '12px 16px', background: T.bg, border: `1.5px solid ${err ? T.rose : T.border}`,
+        borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: T.text, outline: 'none', transition: 'all 0.2s',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+    });
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '100px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+
+            {/* SECTION 1: BASIC INFO */}
+            <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '12px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)' }}>
+                <CollapsibleHeader icon={Wrench} title="Basic Information" subtitle="Plan details and pricing" section="basic" active={activeSections.basic} color={T.accent} />
                 {activeSections.basic && (
-                    <div className="p-6 pt-2 space-y-6 animate-in slide-in-from-top-2 duration-300">
-                        <div className="space-y-3">
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Plan Name *</label>
-                            <input
-                                type="text"
-                                name="planName"
-                                className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-primary transition-all ${errors.planName ? 'border-red-500 bg-white' : ''}`}
-                                placeholder="e.g., Enterprise Premium"
-                                value={formData.planName}
-                                onChange={handleInputChange}
-                            />
-                            {errors.planName && <p className="text-xs text-red-500 font-bold">{errors.planName}</p>}
+                    <div style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeUp 0.3s forwards' }}>
+                        <div>
+                            <InputLabel>Plan Name *</InputLabel>
+                            <input type="text" name="planName" style={inputStyle(errors.planName)} placeholder="e.g., Premium Monthly" value={formData.planName} onChange={handleInputChange} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
+                            {errors.planName && <p style={{ fontSize: '11px', color: T.rose, fontWeight: 700, margin: '6px 0 0' }}>{errors.planName}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Price (₹) *</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    className={`w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-primary transition-all ${errors.price ? 'border-red-500 bg-white' : ''}`}
-                                    placeholder="4999"
-                                    value={formData.price}
-                                    onChange={handleInputChange}
-                                />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div>
+                                <InputLabel>Price (₹) *</InputLabel>
+                                <input type="number" name="price" style={inputStyle(errors.price)} placeholder="4999" value={formData.price} onChange={handleInputChange} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
                             </div>
-                            <div className="space-y-3">
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Billing Cycle</label>
-                                <select
-                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-primary transition-all"
-                                    value={formData.billingCycle}
-                                    onChange={(e) => setFormData(p => ({ ...p, billingCycle: e.target.value }))}
-                                >
+                            <div>
+                                <InputLabel>Billing Cycle</InputLabel>
+                                <select style={inputStyle()} value={formData.billingCycle} onChange={(e) => setFormData(p => ({ ...p, billingCycle: e.target.value }))} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border}>
                                     <option value="Monthly">Monthly</option>
                                     <option value="Quarterly">Quarterly</option>
                                     <option value="Yearly">Yearly</option>
-                                    <option value="Lifetime">Lifetime / One-time</option>
+                                    <option value="Lifetime">Lifetime</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">Description *</label>
-                            <textarea
-                                name="description"
-                                className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-primary transition-all min-h-[80px]"
-                                placeholder="Describe who this plan is for..."
-                                value={formData.description}
-                                onChange={handleInputChange}
-                            />
+                        <div>
+                            <InputLabel>Description *</InputLabel>
+                            <textarea name="description" style={{ ...inputStyle(errors.description), minHeight: '100px', resize: 'none' }} placeholder="Briefly describe this plan..." value={formData.description} onChange={handleInputChange} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* SECTION 2: RESOURCE LIMITS */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <CollapsibleHeader
-                    icon={Building2}
-                    title="Organization Limits"
-                    subtitle="Control branches and accounts"
-                    section="limits"
-                    active={activeSections.limits}
-                    color="text-emerald-600"
-                />
-
+            {/* SECTION 2: RESOURCE QUOTAS */}
+            <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '12px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)' }}>
+                <CollapsibleHeader icon={Building2} title="Resource Limits" subtitle="Gym, staff and member limits" section="limits" active={activeSections.limits} color={T.green} />
                 {activeSections.limits && (
-                    <div className="p-6 pt-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-                        <PlanLimitField
-                            label="Max Branches"
-                            value={formData.limits.branches.value}
-                            isUnlimited={formData.limits.branches.isUnlimited}
-                            onChange={(v) => handleLimitChange('limits', 'branches', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('limits', 'branches', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Max Managers"
-                            value={formData.limits.managers.value}
-                            isUnlimited={formData.limits.managers.isUnlimited}
-                            onChange={(v) => handleLimitChange('limits', 'managers', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('limits', 'managers', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Max Staff Accounts"
-                            value={formData.limits.staff.value}
-                            isUnlimited={formData.limits.staff.isUnlimited}
-                            onChange={(v) => handleLimitChange('limits', 'staff', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('limits', 'staff', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Max Trainers"
-                            value={formData.limits.trainers.value}
-                            isUnlimited={formData.limits.trainers.isUnlimited}
-                            onChange={(v) => handleLimitChange('limits', 'trainers', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('limits', 'trainers', 'isUnlimited', v)}
-                        />
-                        <div className="md:col-span-2">
-                            <PlanLimitField
-                                label="Max Members per Branch"
-                                value={formData.limits.members.value}
-                                isUnlimited={formData.limits.members.isUnlimited}
-                                onChange={(v) => handleLimitChange('limits', 'members', 'value', v)}
-                                onToggleUnlimited={(v) => handleLimitChange('limits', 'members', 'isUnlimited', v)}
-                            />
+                    <div style={{ padding: '16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', animation: 'fadeUp 0.3s forwards' }}>
+                        <PlanLimitField label="Gyms" value={formData.limits.branches.value} isUnlimited={formData.limits.branches.isUnlimited} onChange={(v) => handleLimitChange('limits', 'branches', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('limits', 'branches', 'isUnlimited', v)} />
+                        <PlanLimitField label="Managers" value={formData.limits.managers.value} isUnlimited={formData.limits.managers.isUnlimited} onChange={(v) => handleLimitChange('limits', 'managers', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('limits', 'managers', 'isUnlimited', v)} />
+                        <PlanLimitField label="Staff" value={formData.limits.staff.value} isUnlimited={formData.limits.staff.isUnlimited} onChange={(v) => handleLimitChange('limits', 'staff', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('limits', 'staff', 'isUnlimited', v)} />
+                        <PlanLimitField label="Trainers" value={formData.limits.trainers.value} isUnlimited={formData.limits.trainers.isUnlimited} onChange={(v) => handleLimitChange('limits', 'trainers', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('limits', 'trainers', 'isUnlimited', v)} />
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <PlanLimitField label="Members" value={formData.limits.members.value} isUnlimited={formData.limits.members.isUnlimited} onChange={(v) => handleLimitChange('limits', 'members', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('limits', 'members', 'isUnlimited', v)} />
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* SECTION 3: OPERATIONAL LIMITS */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <CollapsibleHeader
-                    icon={Activity}
-                    title="Operational Limits"
-                    subtitle="Workout, Diet & Lead controls"
-                    section="ops"
-                    active={activeSections.ops}
-                    color="text-amber-600"
-                />
-
+            {/* SECTION 3: OPERATIONAL THROUGHPUT */}
+            <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '12px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)' }}>
+                <CollapsibleHeader icon={Activity} title="Usage Limits" subtitle="Workouts, diets and leads limits" section="ops" active={activeSections.ops} color={T.amber} />
                 {activeSections.ops && (
-                    <div className="p-6 pt-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-                        <PlanLimitField
-                            label="Active Workout Plans"
-                            value={formData.opsLimits.workouts.value}
-                            isUnlimited={formData.opsLimits.workouts.isUnlimited}
-                            onChange={(v) => handleLimitChange('opsLimits', 'workouts', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'workouts', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Diet Plans"
-                            value={formData.opsLimits.diets.value}
-                            isUnlimited={formData.opsLimits.diets.isUnlimited}
-                            onChange={(v) => handleLimitChange('opsLimits', 'diets', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'diets', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Classes / Schedule"
-                            value={formData.opsLimits.classes.value}
-                            isUnlimited={formData.opsLimits.classes.isUnlimited}
-                            onChange={(v) => handleLimitChange('opsLimits', 'classes', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'classes', 'isUnlimited', v)}
-                        />
-                        <PlanLimitField
-                            label="Leads per Month"
-                            value={formData.opsLimits.leads.value}
-                            isUnlimited={formData.opsLimits.leads.isUnlimited}
-                            onChange={(v) => handleLimitChange('opsLimits', 'leads', 'value', v)}
-                            onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'leads', 'isUnlimited', v)}
-                        />
+                    <div style={{ padding: '16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', animation: 'fadeUp 0.3s forwards' }}>
+                        <PlanLimitField label="Workouts" value={formData.opsLimits.workouts.value} isUnlimited={formData.opsLimits.workouts.isUnlimited} onChange={(v) => handleLimitChange('opsLimits', 'workouts', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'workouts', 'isUnlimited', v)} />
+                        <PlanLimitField label="Diets" value={formData.opsLimits.diets.value} isUnlimited={formData.opsLimits.diets.isUnlimited} onChange={(v) => handleLimitChange('opsLimits', 'diets', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'diets', 'isUnlimited', v)} />
+                        <PlanLimitField label="Classes" value={formData.opsLimits.classes.value} isUnlimited={formData.opsLimits.classes.isUnlimited} onChange={(v) => handleLimitChange('opsLimits', 'classes', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'classes', 'isUnlimited', v)} />
+                        <PlanLimitField label="Leads" value={formData.opsLimits.leads.value} isUnlimited={formData.opsLimits.leads.isUnlimited} onChange={(v) => handleLimitChange('opsLimits', 'leads', 'value', v)} onToggleUnlimited={(v) => handleLimitChange('opsLimits', 'leads', 'isUnlimited', v)} />
                     </div>
                 )}
             </div>
 
-            {/* SECTION 4: MEMBER BENEFITS */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <CollapsibleHeader
-                    icon={Gift}
-                    title="Member Benefit Usage Limits"
-                    subtitle="Directly syncs with Benefit Tracking"
-                    section="benefits"
-                    active={activeSections.benefits}
-                    color="text-rose-600"
-                />
-
+            {/* SECTION 4: PERK REGISTRY */}
+            <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '12px', boxShadow: '0 4px 20px rgba(124,92,252,0.04)' }}>
+                <CollapsibleHeader icon={Gift} title="Special Benefits" subtitle="Add perks and extra features" section="benefits" active={activeSections.benefits} color={T.rose} />
                 {activeSections.benefits && (
-                    <div className="p-6 pt-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
-                        <div className="flex justify-between items-center bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
+                    <div style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeUp 0.3s forwards' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: T.roseLight, padding: '14px 18px', borderRadius: '18px', border: `1px solid ${T.rose}20` }}>
                             <div>
-                                <h5 className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Benefit Sync Active</h5>
-                                <p className="text-xs font-bold text-slate-500">Configure sessions/access per member tier.</p>
+                                <h5 style={{ fontSize: '9px', fontWeight: 900, color: T.rose, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Benefits List</h5>
+                                <p style={{ fontSize: '11px', fontWeight: 700, color: T.muted, margin: '2px 0 0' }}>Add special benefits for this plan</p>
                             </div>
-                            <button
-                                type="button"
-                                onClick={addBenefit}
-                                className="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-black shadow-lg shadow-rose-200 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                            >
-                                <Plus size={16} /> Add Benefit
+                            <button type="button" onClick={addBenefit} style={{ padding: '8px 16px', border: 'none', background: T.rose, color: '#fff', borderRadius: '12px', fontSize: '11px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: `0 4px 12px ${T.rose}40` }}>
+                                <Plus size={14} strokeWidth={3} /> Add Benefit
                             </button>
                         </div>
 
-                        {formData.benefits.map((benefit, index) => (
-                            <div key={benefit.id} className="relative group animate-in zoom-in-95 duration-200">
-                                <button
-                                    type="button"
-                                    onClick={() => removeBenefit(benefit.id)}
-                                    className="absolute -right-2 -top-2 w-8 h-8 bg-white shadow-lg border border-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 transition-all z-10"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-
-                                <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Benefit Name</label>
-                                            <input
-                                                type="text"
-                                                value={benefit.name}
-                                                onChange={(e) => updateBenefit(benefit.id, 'name', e.target.value)}
-                                                placeholder="e.g., Sauna Sessions"
-                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
-                                            />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {formData.benefits.map((b) => (
+                                <div key={b.id} style={{ position: 'relative', background: T.bg, padding: '20px', borderRadius: '20px', border: `1.5px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <button type="button" onClick={() => removeBenefit(b.id)} style={{ position: 'absolute', top: '-10px', right: '-10px', width: '28px', height: '28px', borderRadius: '50%', background: T.surface, border: `1px solid ${T.border}`, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} onMouseEnter={e => e.currentTarget.style.background = T.roseLight} onMouseLeave={e => e.currentTarget.style.background = T.surface}><Trash2 size={12} /></button>
+                                    
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        <div>
+                                            <InputLabel>Benefit Name</InputLabel>
+                                            <input type="text" value={b.name} onChange={(e) => updateBenefit(b.id, 'name', e.target.value)} placeholder="e.g., Free Diet Plan" style={{ ...inputStyle(), padding: '10px 12px', fontSize: '13px' }} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Room / Facility</label>
-                                            <input
-                                                type="text"
-                                                value={benefit.room || ''}
-                                                onChange={(e) => updateBenefit(benefit.id, 'room', e.target.value)}
-                                                placeholder="e.g., Room A, Sauna 1"
-                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all"
-                                            />
+                                        <div>
+                                            <InputLabel>Facility/Room</InputLabel>
+                                            <input type="text" value={b.room} onChange={(e) => updateBenefit(b.id, 'room', e.target.value)} placeholder="e.g., Spa Area" style={{ ...inputStyle(), padding: '10px 12px', fontSize: '13px' }} onFocus={e => e.currentTarget.style.borderColor = T.accent} onBlur={e => e.currentTarget.style.borderColor = T.border} />
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender Separation</label>
-                                            <select
-                                                value={benefit.gender || 'All'}
-                                                onChange={(e) => updateBenefit(benefit.id, 'gender', e.target.value)}
-                                                className="w-full px-4 py-2 bg-white rounded-xl text-sm font-bold border-2 border-transparent focus:border-rose-500 outline-none transition-all cursor-pointer"
-                                            >
-                                                <option value="All">All Genders</option>
-                                                <option value="Male">Male Only</option>
-                                                <option value="Female">Female Only</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <PlanLimitField
-                                        label="Quota Limit"
-                                        value={benefit.limit}
-                                        isUnlimited={benefit.isUnlimited}
-                                        onChange={(v) => updateBenefit(benefit.id, 'limit', v)}
-                                        onToggleUnlimited={(v) => updateBenefit(benefit.id, 'isUnlimited', v)}
-                                        unitValue={benefit.unit}
-                                        onUnitChange={(v) => updateBenefit(benefit.id, 'unit', v)}
-                                        options={[
-                                            { value: 'Per Month', label: 'Per Month' },
-                                            { value: 'Per Year', label: 'Per Year' },
-                                            { value: 'Lifetime', label: 'Entire Duration' }
-                                        ]}
-                                    />
+                                    <PlanLimitField label="Usage Limit" value={b.limit} isUnlimited={b.isUnlimited} onChange={(v) => updateBenefit(b.id, 'limit', v)} onToggleUnlimited={(v) => updateBenefit(b.id, 'isUnlimited', v)} unitValue={b.unit} onUnitChange={(v) => updateBenefit(b.id, 'unit', v)} options={[{ value: 'Per Month', label: 'Per Month' }, { value: 'Per Year', label: 'Per Year' }, { value: 'Lifetime', label: 'Lifetime' }]} />
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
 
                         {formData.benefits.length === 0 && (
-                            <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-[32px]">
-                                <Infinity size={40} className="mx-auto text-slate-200 mb-2" />
-                                <p className="text-sm font-bold text-slate-400">No member benefits configured for this plan.</p>
+                            <div style={{ textAlign: 'center', padding: '40px 0', border: `2px dashed ${T.border}`, borderRadius: '24px' }}>
+                                <Sparkles size={32} color={T.subtle} style={{ marginBottom: '10px' }} />
+                                <p style={{ fontSize: '12px', fontWeight: 700, color: T.subtle }}>No benefits added yet</p>
                             </div>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* FOOTER ACTIONS */}
-            <div className="fixed bottom-0 right-0 left-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 z-50 flex gap-4">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+            {/* GLOBAL FOOTER ACTIONS */}
+            <div style={{ position: 'fixed', bottom: 0, right: 0, width: '100%', padding: '24px 32px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderTop: `1px solid ${T.border}`, zIndex: 100, display: 'flex', gap: '12px' }}>
+                <button type="button" onClick={onClose} style={{ flex: 1, padding: '14px', borderRadius: '14px', background: T.bg, border: `1.5px solid ${T.border}`, color: T.muted, fontSize: '13px', fontWeight: 900, cursor: 'pointer', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = T.accent} onMouseLeave={e => e.currentTarget.style.borderColor = T.border}>Cancel Sequence</button>
+                <button 
+                    onClick={handleSubmit} disabled={isSubmitting}
+                    style={{ 
+                        flex: 2, padding: '14px', borderRadius: '14px', 
+                        background: isSubmitting ? T.accentMid : `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                        color: '#fff', border: 'none', fontSize: '13px', fontWeight: 900, cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                        boxShadow: `0 8px 24px rgba(124,92,252,0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                    }}
                 >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex-[2] py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-200 flex items-center justify-center gap-2 hover:shadow-violet-300 transition-all active:scale-95"
-                >
-                    <Save size={18} />
-                    {isSubmitting ? 'Saving Configuration...' : (editId ? 'Update & Sync Plan' : 'Establish SaaS Plan')}
+                    <Save size={18} strokeWidth={2.5} /> {isSubmitting ? 'Saving...' : (editId ? 'Update Plan' : 'Create Plan')}
                 </button>
             </div>
-        </form>
+        </div>
     );
 };
 

@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Megaphone,
-    Search,
-    Filter,
-    Plus,
-    Clock,
-    Users,
-    CheckCircle,
-    AlertCircle,
-    Trash2,
-    Edit2,
-    MoreVertical,
-    Calendar,
-    Send,
-    FileText,
-    History,
-    Loader2
+    Megaphone, Search, Filter, Plus, Clock, Users, CheckCircle, AlertCircle,
+    Trash2, Edit2, MoreVertical, Calendar, Send, FileText, History, Loader2,
+    MessageSquare, ShieldCheck, Zap, Repeat, Share2, Sparkles, Layout, Radio
 } from 'lucide-react';
 import CreateAnnouncementDrawer from './CreateAnnouncementDrawer';
 import BroadcastMessageDrawer from './BroadcastMessageDrawer';
@@ -25,17 +12,65 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF'
+};
+
+// Sub-component: Header Banner
+const CommunicationHeader = ({ actions }) => (
+    <div style={{ padding: '0 8px 30px' }} className="fu fu1">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                 <div style={{ width: 4, height: 32, background: T.accent, borderRadius: 4 }} />
+                 <div>
+                    <h1 style={{ fontSize: 36, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-1px' }}>Communication Hub</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                         <span style={{ fontSize: 10, fontWeight: 900, color: T.accent, background: T.accentLight, padding: '3px 10px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '1px' }}>Broadcasting System</span>
+                         <span style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
+                         <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', margin: 0 }}>Manage member engagement and updates</p>
+                    </div>
+                 </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {actions}
+            </div>
+        </div>
+    </div>
+);
+
+// Sub-component: Quick Stat Card
+const StatCard = ({ title, value, icon: Icon, color, bg, subtitle, index }) => (
+    <div style={{
+        background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`,
+        padding: 24, flex: 1, position: 'relative', overflow: 'hidden',
+        boxShadow: '0 4px 14px rgba(124,92,252,0.02)'
+    }} className={`fu fu${index + 2}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+                 <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>{title}</p>
+                 <div style={{ fontSize: 32, fontWeight: 900, color: T.text }}>{value}</div>
+            </div>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={22} />
+            </div>
+        </div>
+        <div style={{ marginTop: 14, fontSize: 10, fontWeight: 900, color: color, background: bg, display: 'inline-block', padding: '3px 10px', borderRadius: 6, textTransform: 'uppercase' }}>{subtitle}</div>
+    </div>
+);
+
 const Announcements = () => {
     const { user } = useAuth();
-    const [subTab, setSubTab] = useState('active'); // 'active' or 'logs'
+    const [subTab, setSubTab] = useState('active');
     const [announcements, setAnnouncements] = useState([]);
     const [logs, setLogs] = useState([]);
-    const [stats, setStats] = useState({
-        totalAnnouncements: 0,
-        activeAnnouncements: 0,
-        messagesSent: 0,
-        templates: 0
-    });
+    const [stats, setStats] = useState({ totalAnnouncements: 0, activeAnnouncements: 0, messagesSent: 0, templates: 0 });
     const [loading, setLoading] = useState(true);
     const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
     const [selectedEdit, setSelectedEdit] = useState(null);
@@ -53,40 +88,20 @@ const Announcements = () => {
                 fetchCommStats(branchId),
                 fetchCommLogs(branchId)
             ]);
-            setAnnouncements(annData);
-            setStats(statsData);
-            setLogs(logsData);
-        } catch (error) {
-            console.error("Failed to fetch communication data:", error);
+            setAnnouncements(annData || []);
+            setStats(statsData || { totalAnnouncements: 0, activeAnnouncements: 0, messagesSent: 0, templates: 0 });
+            setLogs(logsData || []);
+        } catch (e) {
+            console.error(e);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchAllData();
-    }, [user?.tenantId]);
+    useEffect(() => { fetchAllData(); }, [user?.tenantId]);
 
-    const filteredList = announcements.filter(a =>
-        (a.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (a.message || a.content || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const filteredLogs = logs.filter(log =>
-        (log.message || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (log.channel || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const handleSuccess = () => {
-        setIsCreateDrawerOpen(false);
-        setSelectedEdit(null);
-        fetchAllData();
-    };
-
-    const handleDelete = (id) => {
-        setConfirmModal({ isOpen: true, id, loading: false });
-    };
-
+    const handleSuccess = () => { setIsCreateDrawerOpen(false); setSelectedEdit(null); fetchAllData(); };
+    const handleDelete = (id) => setConfirmModal({ isOpen: true, id, loading: false });
     const processDelete = async () => {
         try {
             setConfirmModal(prev => ({ ...prev, loading: true }));
@@ -94,231 +109,127 @@ const Announcements = () => {
             toast.success("Deleted successfully");
             setConfirmModal({ isOpen: false, id: null, loading: false });
             fetchAllData();
-        } catch (error) {
-            toast.error("Failed to delete");
-            setConfirmModal(prev => ({ ...prev, loading: false }));
-        }
+        } catch (e) { toast.error("Failed to delete"); }
+        finally { setConfirmModal(prev => ({ ...prev, loading: false })); }
     };
 
-    const handleEdit = (item) => {
-        setSelectedEdit(item);
-        setIsCreateDrawerOpen(true);
-    };
+    const handleEdit = (item) => { setSelectedEdit(item); setIsCreateDrawerOpen(true); };
 
-    const statItems = [
-        { label: 'Announcements', value: stats.totalAnnouncements, icon: Megaphone, color: 'text-slate-900', bg: 'bg-slate-50' },
-        { label: 'Sent Logs', value: stats.messagesSent, icon: Send, color: 'text-primary', bg: 'bg-primary-light' },
-        { label: 'Active Alerts', value: stats.activeAnnouncements, icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50' },
-        { label: 'Templates', value: stats.templates, icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-50' }
-    ];
+    const filteredList = announcements.filter(a =>
+        (a.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (a.message || a.content || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/50 rounded-[40px] overflow-hidden">
-            {/* KPI Section */}
-            <div className="p-8 pb-0 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {statItems.map((stat, idx) => (
-                    <div key={idx} className="group relative bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 cursor-default">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:rotate-12`}>
-                                <stat.icon size={22} />
-                            </div>
-                            <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.38s ease both; }
+                .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; }
+                .tab-btn { border: none; background: none; padding: 12px 24px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; color: ${T.subtle}; transition: 0.3s; position: relative; }
+                .tab-btn.active { color: ${T.accent}; }
+                .tab-btn.active:after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: ${T.accent}; border-radius: 4px 4px 0 0; }
+            `}</style>
+
+            <CommunicationHeader 
+                actions={
+                    <>
+                        <button onClick={() => setIsTemplatesOpen(true)} style={{ background: T.surface, border: `1px solid ${T.border}`, padding: '12px 24px', borderRadius: 16, fontSize: 11, fontWeight: 800, color: T.text, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Layout size={18} /> Templates
+                        </button>
+                        <button onClick={() => setIsBroadcastOpen(true)} style={{ background: T.surface, border: `1px solid ${T.border}`, padding: '12px 24px', borderRadius: 16, fontSize: 11, fontWeight: 800, color: T.text, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Radio size={18} /> Broadcast
+                        </button>
+                        <button onClick={() => { setSelectedEdit(null); setIsCreateDrawerOpen(true); }} style={{ background: T.accent, color: '#fff', border: 'none', padding: '14px 30px', borderRadius: 16, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 10px 24px rgba(124,92,252,0.22)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Plus size={20} /> New Announcement
+                        </button>
+                    </>
+                }
+            />
+
+            {/* Stats Roster */}
+            <div style={{ display: 'flex', gap: 20, marginBottom: 40 }} className="fu fu2">
+                <StatCard title="Total Announcements" value={stats.totalAnnouncements} icon={Megaphone} color={T.accent} bg={T.accentLight} subtitle="All Time" index={0} />
+                <StatCard title="Active" value={stats.activeAnnouncements} icon={ShieldCheck} color={T.green} bg={T.greenLight} subtitle="Visible" index={1} />
+                <StatCard title="Messages Sent" value={stats.messagesSent} icon={MessageSquare} color={T.amber} bg={T.amberLight} subtitle="Outreach" index={2} />
+                <StatCard title="Templates" value={stats.templates} icon={Repeat} color={T.blue} bg={T.blueLight} subtitle="Saved Drafts" index={3} />
+            </div>
+
+            {/* Tabs & Content */}
+            <div className="fu fu3">
+                <div style={{ display: 'flex', gap: 32, borderBottom: `1px solid ${T.border}`, marginBottom: 30 }}>
+                    <button onClick={() => setSubTab('active')} className={`tab-btn ${subTab === 'active' ? 'active' : ''}`}>Announcements</button>
+                    <button onClick={() => setSubTab('logs')} className={`tab-btn ${subTab === 'logs' ? 'active' : ''}`}>Communication Logs</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    {loading ? (
+                        <div style={{ padding: '100px 0', textAlign: 'center' }}>
+                            <Loader2 size={40} className="animate-spin" style={{ color: T.accent, margin: '0 auto 16px' }} />
+                            <p style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '1px' }}>Syncing with hub...</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
-                            <h2 className={`text-2xl font-black ${stat.color} tracking-tight`}>
-                                {loading ? (
-                                    <div className="h-8 w-16 bg-slate-50 animate-pulse rounded-lg" />
-                                ) : (
-                                    stat.value
-                                )}
-                            </h2>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Header / Actions */}
-            <div className="px-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                <div className="flex gap-2 p-1 bg-white rounded-2xl border border-slate-200 w-fit">
-                    <button
-                        onClick={() => setSubTab('active')}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'active' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                        Posted Alerts
-                    </button>
-                    <button
-                        onClick={() => setSubTab('logs')}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'logs' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                        Activity Logs
-                    </button>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                    <button
-                        onClick={() => setIsTemplatesOpen(true)}
-                        className="px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all"
-                    >
-                        <FileText size={16} /> Templates
-                    </button>
-                    <button
-                        onClick={() => setIsBroadcastOpen(true)}
-                        className="px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all"
-                    >
-                        <Send size={16} /> Broadcast
-                    </button>
-                    <button
-                        onClick={() => {
-                            setSelectedEdit(null);
-                            setIsCreateDrawerOpen(true);
-                        }}
-                        className="px-6 py-4 bg-orange-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-orange-600 transition-all shadow-xl shadow-orange-100"
-                    >
-                        <Plus size={18} /> New Alert
-                    </button>
-                </div>
-            </div>
-
-            {/* Search */}
-            <div className="px-8 mb-6">
-                <div className="relative group max-w-2xl">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" size={20} />
-                    <input
-                        type="text"
-                        placeholder={subTab === 'active' ? "Search alerts..." : "Search activity logs..."}
-                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary transition-all shadow-sm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-            </div>
-
-            {/* Content List */}
-            <div className="flex-1 px-8 pb-8 custom-scrollbar space-y-4 overflow-y-auto">
-                {loading ? (
-                    <div className="py-20 flex flex-col items-center justify-center opacity-40">
-                        <Loader2 size={40} className="text-primary animate-spin" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-4">Syncing with server...</p>
-                    </div>
-                ) : subTab === 'active' ? (
-                    filteredList.length > 0 ? (
-                        filteredList.map(item => (
-                            <div key={item.id} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-1.5 h-full ${item.status === 'Posted' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                                <div className="flex flex-col md:flex-row gap-6">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${item.status === 'Posted' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                {item.status}
-                                            </span>
-                                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                <Users size={12} /> {item.audience}
-                                            </span>
-                                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                <Calendar size={12} /> {new Date(item.createdAt).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-slate-800 mb-2 uppercase tracking-tight">{item.title}</h3>
-                                        <p className="text-slate-500 text-sm font-medium leading-relaxed">{item.message || item.content}</p>
+                    ) : subTab === 'active' ? (
+                        filteredList.length > 0 ? (
+                            filteredList.map((item, i) => (
+                                <div key={item.id} style={{ background: T.surface, padding: 28, borderRadius: 24, border: `1px solid ${T.border}`, display: 'flex', gap: 24, alignItems: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', transition: '0.3s' }}>
+                                    <div style={{ width: 64, height: 64, borderRadius: 18, background: i % 2 === 0 ? T.accentLight : T.amberLight, color: i % 2 === 0 ? T.accent : T.amber, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Megaphone size={28} />
                                     </div>
-                                    <div className="flex items-center gap-2 md:self-center">
-                                        <button
-                                            onClick={() => handleEdit(item)}
-                                            className="p-3 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
-                                        >
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(item.id)}
-                                            className="p-3 text-slate-400 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                            <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', color: T.subtle }}>{new Date(item.createdAt).toLocaleDateString()}</span>
+                                            <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
+                                            <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', color: T.accent }}>{item.audience}</span>
+                                        </div>
+                                        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{item.title}</h3>
+                                        <p style={{ fontSize: 14, color: T.muted, fontWeight: 600, margin: '6px 0 0', lineHeight: 1.5 }}>{item.message || item.content}</p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button onClick={() => handleEdit(item)} style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, border: 'none', color: T.muted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit2 size={16} /></button>
+                                        <button onClick={() => handleDelete(item.id)} style={{ width: 40, height: 40, borderRadius: 12, background: T.roseLight, border: 'none', color: T.rose, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={16} /></button>
                                     </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div style={{ padding: '80px 0', textAlign: 'center' }}>
+                                <div style={{ width: 100, height: 100, borderRadius: '50%', background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', opacity: 0.5 }}><Share2 size={40} color={T.accent} /></div>
+                                <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>No announcements yet</h3>
+                                <p style={{ fontSize: 13, color: T.muted, margin: '8px 0 0' }}>Create your first announcement to reach your members instantly.</p>
                             </div>
-                        ))
+                        )
                     ) : (
-                        <div className="py-20 flex flex-col items-center justify-center opacity-40">
-                            <Megaphone size={48} className="text-slate-300" />
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-4">No alerts found</p>
+                        <div style={{ background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+                            <div style={{ padding: '14px 24px', background: T.accentLight, color: T.accent, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1fr' }}>
+                                <span>Sent At</span>
+                                <span>Message Summary</span>
+                                <span>Target</span>
+                                <span>Channel</span>
+                            </div>
+                            {logs.length > 0 ? logs.map((log, i) => (
+                                <div key={log.id || i} style={{ padding: '18px 24px', borderTop: `1px solid ${T.border}`, display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1fr', fontSize: 13, alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 800, color: T.text }}>{new Date(log.createdAt).toLocaleString()}</span>
+                                    <span style={{ fontWeight: 600, color: T.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.message}</span>
+                                    <span style={{ fontWeight: 800, color: T.accent }}>{log.audience || 'Members'}</span>
+                                    <span style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>{log.channel}</span>
+                                </div>
+                            )) : (
+                                <div style={{ padding: 40, textAlign: 'center', color: T.subtle }}>No activity logs available</div>
+                            )}
                         </div>
-                    )
-                ) : (
-                    filteredLogs.length > 0 ? (
-                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50 border-b border-slate-100">
-                                    <tr>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Sent At</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">To</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Message</th>
-                                        <th className="px-6 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Channel</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {filteredLogs.map(log => (
-                                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs font-bold text-slate-700">{new Date(log.createdAt).toLocaleDateString()}</span>
-                                                    <span className="text-[10px] text-slate-400">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-600">{log.audience || 'Members'}</td>
-                                            <td className="px-6 py-4">
-                                                <p className="text-xs text-slate-500 max-w-xs truncate">{log.message}</p>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <span className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest">{log.channel}</span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="py-20 flex flex-col items-center justify-center opacity-40">
-                            <History size={48} className="text-slate-300" />
-                            <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-4">No activity history found</p>
-                        </div>
-                    )
-                )}
+                    )}
+                </div>
             </div>
 
-            <CreateAnnouncementDrawer
-                isOpen={isCreateDrawerOpen}
-                onClose={() => {
-                    setIsCreateDrawerOpen(false);
-                    setSelectedEdit(null);
-                }}
-                onSuccess={handleSuccess}
-                editData={selectedEdit}
-            />
-
-            <BroadcastMessageDrawer
-                isOpen={isBroadcastOpen}
-                onClose={() => setIsBroadcastOpen(false)}
-                onSuccess={handleSuccess}
-            />
-
-            <MessageTemplatesDrawer
-                isOpen={isTemplatesOpen}
-                onClose={() => {
-                    setIsTemplatesOpen(false);
-                    handleSuccess();
-                }}
-            />
+            <CreateAnnouncementDrawer isOpen={isCreateDrawerOpen} onClose={() => { setIsCreateDrawerOpen(false); setSelectedEdit(null); }} onSuccess={handleSuccess} editData={selectedEdit} />
+            <BroadcastMessageDrawer isOpen={isBroadcastOpen} onClose={() => setIsBroadcastOpen(false)} onSuccess={handleSuccess} />
+            <MessageTemplatesDrawer isOpen={isTemplatesOpen} onClose={() => { setIsTemplatesOpen(false); handleSuccess(); }} />
             <ConfirmationModal
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
-                onConfirm={processDelete}
-                title="Delete Alert?"
+                isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={processDelete} title="Delete Alert?"
                 message="This announcement will be permanently removed from the system."
-                confirmText="Delete"
-                type="danger"
-                loading={confirmModal.loading}
+                confirmText="Delete" type="danger" loading={confirmModal.loading}
             />
         </div>
     );

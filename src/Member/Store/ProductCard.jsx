@@ -1,82 +1,79 @@
 import React from 'react';
-import { ShoppingBag, Star, Eye } from 'lucide-react';
+import { ShoppingBag, Star, Eye, ShoppingCart } from 'lucide-react';
 
-const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const ProductCard = ({ product, onAddToCart, onViewDetails, index = 0 }) => {
     return (
-        <div className="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-violet-200/50 transition-all duration-700 hover:-translate-y-3 border border-slate-100/50">
-            {/* Image Section */}
-            <div className="relative aspect-square overflow-hidden bg-slate-100">
-                <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
-                />
+        <div 
+            style={{
+                background: T.surface, borderRadius: 32, border: `1px solid ${T.border}`,
+                overflow: 'hidden', transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                animation: `fadeUp 0.5s ease both ${0.1 + index * 0.05}s`,
+                position: 'relative'
+            }}
+            className="group"
+        >
+            <style>{`
+                .group:hover { transform: translateY(-12px); border-color: ${T.accentMid}; box-shadow: 0 24px 60px rgba(124,92,252,0.12); }
+                .image-zoom { transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); }
+                .group:hover .image-zoom { transform: scale(1.1); }
+                .action-overlay { opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+                .group:hover .action-overlay { opacity: 1; transform: translateY(0); }
+            `}</style>
 
-                {/* Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-primary uppercase tracking-widest shadow-sm">
-                        {product.category}
-                    </span>
-                    {product.price < product.originalPrice && product.originalPrice > 0 && (
-                        <span className="px-3 py-1 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/30">
-                            Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                        </span>
-                    )}
+            {/* IMAGE SECTION */}
+            <div style={{ position: 'relative', aspectRatio: '1', overflow: 'hidden', background: T.bg }}>
+                <img src={product.image} alt={product.name} className="image-zoom" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                
+                {/* BADGES */}
+                <div style={{ position: 'absolute', top: 20, left: 20, display: 'flex', flexDirection: 'column', gap: 10, zIndex: 10 }}>
+                     <span style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', fontSize: 9, fontWeight: 900, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.05em', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>{product.category || 'Gear'}</span>
+                     {product.price < product.originalPrice && (
+                        <span style={{ padding: '6px 14px', borderRadius: 10, background: T.rose, color: '#fff', fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', boxShadow: '0 4px 12px rgba(244,63,94,0.3)' }}>Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%</span>
+                     )}
                 </div>
 
-                {/* Interactive Action Buttons */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                    <button
-                        onClick={() => onViewDetails(product)}
-                        className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-800 shadow-xl hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95"
-                    >
-                        <Eye size={20} />
-                    </button>
-                    <button
-                        onClick={() => onAddToCart(product)}
-                        className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl hover:bg-slate-900 transition-all transform hover:scale-110 active:scale-95"
-                    >
-                        <ShoppingBag size={20} />
-                    </button>
+                {/* OVERLAY ACTIONS */}
+                <div className="action-overlay" style={{ position: 'absolute', bottom: 24, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 12, zIndex: 20 }}>
+                    <button onClick={() => onViewDetails(product)} style={{ width: 48, height: 48, borderRadius: 16, background: '#fff', color: T.text, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}><Eye size={20} /></button>
+                    <button onClick={() => onAddToCart(product)} style={{ width: 48, height: 48, borderRadius: 16, background: T.accent, color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 24px rgba(124,92,252,0.3)' }}><ShoppingCart size={20} /></button>
                 </div>
             </div>
 
-            {/* Content Section */}
-            <div className="p-7">
-                <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-slate-800 leading-tight group-hover:text-primary transition-colors duration-300">
-                        {product.name}
-                    </h3>
-                    <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-lg">
-                        <Star size={14} className="text-amber-500" fill="currentColor" />
-                        <span className="text-xs font-black text-amber-700">{product.rating}</span>
+            {/* CONTENT SECTION */}
+            <div style={{ padding: '24px 28px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0, lineHeight: 1.2, letterSpacing: '-0.2px' }}>{product.name}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.amberLight, padding: '4px 10px', borderRadius: 8 }}>
+                        <Star size={12} color={T.amber} fill={T.amber} />
+                        <span style={{ fontSize: 10, fontWeight: 900, color: T.amber }}>{product.rating || '4.8'}</span>
                     </div>
                 </div>
 
-                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-6 font-medium">
-                    {product.description}
-                </p>
+                <p style={{ fontSize: 11, fontWeight: 600, color: T.muted, lineHeight: 1.5, margin: '0 0 24px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.description}</p>
 
-                <div className="flex items-end justify-between">
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingTop: 20, borderTop: `1px solid ${T.bg}` }}>
                     <div>
-                        <span className="block text-[10px] text-slate-400 line-through mb-1 font-bold tracking-wider">
-                            ₹{(product.originalPrice || 0).toLocaleString()}
-                        </span>
-                        <span className="text-2xl font-black bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                            ₹{(product.price || 0).toLocaleString()}
-                        </span>
+                         {product.originalPrice > 0 && <span style={{ display: 'block', fontSize: 10, fontWeight: 800, color: T.subtle, textDecoration: 'line-through', marginBottom: 2 }}>₹{product.originalPrice.toLocaleString()}</span>}
+                         <span style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>₹{product.price.toLocaleString()}</span>
                     </div>
-
-                    <button
+                    <button 
                         onClick={() => onAddToCart(product)}
-                        className="relative overflow-hidden group/btn px-6 py-3 bg-slate-900 rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.1em] transition-all hover:bg-primary active:scale-95"
-                    >
-                        <span className="relative z-10">Add To Cart</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 scale-x-0 group-hover/btn:scale-x-100 origin-left transition-transform duration-500" />
-                    </button>
+                        style={{ height: 44, padding: '0 20px', borderRadius: 12, background: T.dark, color: '#fff', border: 'none', fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.2s' }}
+                        onMouseEnter={(e) => e.target.style.background = T.accent}
+                        onMouseLeave={(e) => e.target.style.background = T.dark}
+                    >Add to Cart</button>
                 </div>
             </div>
         </div>

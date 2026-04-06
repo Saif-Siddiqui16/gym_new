@@ -2,10 +2,35 @@ import React, { useState } from 'react';
 import { addDeviceToDB } from '../../../api/gymDeviceApi';
 import toast from 'react-hot-toast';
 import { useBranchContext } from '../../../context/BranchContext';
-import Button from '../../../components/ui/Button';
-import { Smartphone, ShieldCheck, Activity, Globe, Wifi, Settings2, ChevronDown, ChevronUp, Building2, AlertTriangle, X } from 'lucide-react';
+import { Smartphone, ShieldCheck, Activity, Globe, Wifi, Settings2, ChevronDown, ChevronUp, Building2, AlertTriangle, X, RefreshCw } from 'lucide-react';
 import { fetchAllGyms } from '../../../api/superadmin/superAdminApi';
 import { useAuth } from '../../../context/AuthContext';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF'
+};
 
 const AddDeviceDrawer = ({ onClose, onSuccess }) => {
     const { user } = useAuth();
@@ -74,235 +99,257 @@ const AddDeviceDrawer = ({ onClose, onSuccess }) => {
         }
     };
 
+    const Label = ({ children }) => (
+        <label style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, display: 'block' }}>
+            {children}
+        </label>
+    );
+
+    const Input = (props) => (
+        <input 
+            {...props}
+            style={{ 
+                width: '100%', height: 48, background: T.bg, border: `2px solid transparent`,
+                borderRadius: 14, padding: '0 16px', fontSize: 13, fontWeight: 600, color: T.text,
+                outline: 'none', transition: '0.2s', ...props.style
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.background = '#fff'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = T.bg; }}
+        />
+    );
+
+    const Select = (props) => (
+        <select 
+            {...props}
+            style={{ 
+                width: '100%', height: 48, background: T.bg, border: `2px solid transparent`,
+                borderRadius: 14, padding: '0 16px', fontSize: 13, fontWeight: 600, color: T.text,
+                outline: 'none', transition: '0.2s', cursor: 'pointer', ...props.style
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.background = '#fff'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = T.bg; }}
+        />
+    );
+
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white">
-            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%', background: T.surface, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
+
+            <div style={{ flex: 1, padding: 32, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Device Primary Info */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-violet-100 text-primary rounded-lg">
-                            <Smartphone size={18} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                            <Smartphone size={18} strokeWidth={2.5} />
                         </div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Device Identity</h3>
+                        <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Device Identity</h3>
                     </div>
 
                     <div>
-                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Device Name</label>
-                        <input
-                            type="text"
+                        <Label>Device Name</Label>
+                        <Input
                             placeholder="e.g. Main Entrance Turnstile"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Hardware Type</label>
-                        <div className="relative">
-                            <select
-                                value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
-                            >
-                                <option value="Turnstile">Turnstile</option>
-                                <option value="Face ID">Face ID</option>
-                                <option value="RFID Reader">RFID Reader</option>
-                                <option value="Biometric">Biometric</option>
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                <ShieldCheck size={16} />
-                            </div>
-                        </div>
+                        <Label>Hardware Type</Label>
+                        <Select
+                            value={formData.type}
+                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                        >
+                            <option value="Turnstile">Turnstile</option>
+                            <option value="Face ID">Face ID</option>
+                            <option value="RFID Reader">RFID Reader</option>
+                            <option value="Biometric">Biometric</option>
+                        </Select>
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-100 rounded-2xl">
-                        <Wifi size={14} className="text-emerald-500 flex-shrink-0" />
-                        <span className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Status will be set to Connected after MIPS verification</span>
+
+                    <div style={{ padding: '12px 16px', background: T.greenLight, border: `1px solid ${T.green}25`, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <Wifi size={14} color={T.green} />
+                        <span style={{ fontSize: 11, fontWeight: 800, color: T.green, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification pending via MIPS</span>
                     </div>
                 </div>
 
                 {/* Network Settings */}
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                            <Globe size={18} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: T.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.blue }}>
+                            <Globe size={18} strokeWidth={2.5} />
                         </div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Network Configuration</h3>
+                        <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Network Config</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">IP Address / Host</label>
-                            <input
-                                type="text"
-                                placeholder="e.g. 192.168.1.100"
-                                value={formData.ip}
-                                onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-mono"
-                            />
-                            <p className="text-[10px] text-slate-400 font-medium mt-1.5 italic px-1">Cloud synchronization will use this address</p>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">
-                                Device Key (MIPS Serial) <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="e.g. D1146D682A96B1C2"
-                                value={formData.deviceKey}
-                                onChange={(e) => { setFormData({ ...formData, deviceKey: e.target.value }); setSubmitError(null); }}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-mono uppercase"
-                            />
-                            <p className="text-[10px] text-slate-400 font-medium mt-1.5 italic px-1">
-                                Device must already be connected in the MIPS portal. Find the key under Device Management → Serial No.
-                            </p>
-                        </div>
+                    <div>
+                        <Label>IP Address / Host</Label>
+                        <Input
+                            placeholder="e.g. 192.168.1.100"
+                            value={formData.ip}
+                            onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
+                            style={{ fontFamily: 'monospace' }}
+                        />
+                        <p style={{ fontSize: 10, fontWeight: 700, color: T.subtle, marginTop: 6, fontStyle: 'italic' }}>Cloud sync uses this local identifier</p>
+                    </div>
+
+                    <div>
+                        <Label>Device Key (MIPS Serial) *</Label>
+                        <Input
+                            placeholder="e.g. D1146D682A96B1C2"
+                            value={formData.deviceKey}
+                            onChange={(e) => { setFormData({ ...formData, deviceKey: e.target.value }); setSubmitError(null); }}
+                            style={{ fontFamily: 'monospace', textTransform: 'uppercase' }}
+                        />
+                        <p style={{ fontSize: 10, fontWeight: 700, color: T.subtle, marginTop: 6, fontStyle: 'italic', lineHeight: 1.4 }}>
+                            Key found in MIPS portal under Device Management → Serial No.
+                        </p>
                     </div>
                 </div>
 
                 {/* Multi-Company Mapping */}
                 {isSuperAdmin && (
-                    <div className="space-y-4 pt-4 border-t border-slate-100">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
-                                <Building2 size={18} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.amberLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.amber }}>
+                                <Building2 size={18} strokeWidth={2.5} />
                             </div>
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Company & Branch Mapping</h3>
+                            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Mapping</h3>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                             <div>
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Assign to Company</label>
-                                <select
+                                <Label>Company</Label>
+                                <Select
                                     value={formData.companyName}
                                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value, branchId: '', companyId: '' })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
                                 >
                                     <option value="">Select Company</option>
                                     {[...new Set(gyms.map(g => g.gymName))].map(name => (
                                         <option key={name} value={name}>{name}</option>
                                     ))}
-                                </select>
+                                </Select>
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Assign to Branch</label>
-                                <select
+                                <Label>Branch</Label>
+                                <Select
                                     value={formData.branchId}
                                     onChange={(e) => setFormData({ ...formData, branchId: e.target.value, companyId: e.target.value })}
                                     disabled={!formData.companyName}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none disabled:opacity-50"
+                                    style={{ opacity: formData.companyName ? 1 : 0.5 }}
                                 >
                                     <option value="">Select Branch</option>
                                     {gyms.filter(g => g.gymName === formData.companyName).map(gym => (
                                         <option key={gym.id} value={gym.id}>{gym.branchName || gym.gymName}</option>
                                     ))}
-                                </select>
+                                </Select>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Advanced Configuration (Collapsible) */}
-                <div className="space-y-4 pt-4 border-t border-slate-100">
+                {/* Advanced Configuration */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
                     <button
                         type="button"
                         onClick={() => setShowAdvanced(!showAdvanced)}
-                        className="flex items-center justify-between w-full group"
+                        style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                     >
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                                <Settings2 size={18} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.indigoLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.indigo }}>
+                                <Settings2 size={18} strokeWidth={2.5} />
                             </div>
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Advanced Configuration</h3>
+                            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Advanced</h3>
                         </div>
-                        {showAdvanced ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+                        {showAdvanced ? <ChevronUp size={18} color={T.subtle} /> : <ChevronDown size={18} color={T.subtle} />}
                     </button>
 
                     {showAdvanced && (
-                        <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, animation: 'slideIn 0.3s ease-out' }}>
                             <div>
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Port</label>
-                                <input
+                                <Label>Port</Label>
+                                <Input
                                     type="number"
                                     placeholder="80 or 4370"
                                     value={formData.port}
                                     onChange={(e) => setFormData({ ...formData, port: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Protocol</label>
-                                <select
+                                <Label>Protocol</Label>
+                                <Select
                                     value={formData.protocol}
                                     onChange={(e) => setFormData({ ...formData, protocol: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
                                 >
                                     <option value="HTTP">HTTP</option>
                                     <option value="HTTPS">HTTPS</option>
                                     <option value="TCP">TCP</option>
-                                </select>
+                                </Select>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Scope Notice */}
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${selectedBranch === 'all' && !formData.branchId ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'}`}>
-                        <Activity size={16} />
+                <div style={{ padding: 16, background: T.bg, borderRadius: 20, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ 
+                        width: 40, height: 40, borderRadius: 10, 
+                        background: (selectedBranch === 'all' && !formData.branchId) ? T.accent : T.surface, 
+                        color: (selectedBranch === 'all' && !formData.branchId) ? '#fff' : T.subtle,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                    }}>
+                        <Activity size={18} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Auto-Deployment Scope</p>
-                        <p className="text-xs font-bold text-slate-700 mt-1">
-                            {formData.branchId ? `Branch ID: ${formData.branchId}` : (selectedBranch === 'all' ? 'Deploying to ALL Branches' : 'Deploying to Selected Branch Only')}
+                        <p style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Deploy Scope</p>
+                        <p style={{ fontSize: 13, fontWeight: 800, color: T.text, margin: '2px 0 0' }}>
+                            {formData.branchId ? `Target: Branch #${formData.branchId}` : (selectedBranch === 'all' ? 'All Active Branches' : 'Current Active Branch')}
                         </p>
-                        <p className="text-[9px] text-slate-400 mt-0.5 italic">Managed by top branch selector or mapping</p>
                     </div>
                 </div>
             </div>
 
             {/* Footer */}
-            <div className="border-t border-slate-100 bg-white sticky bottom-0 z-20">
-                {/* Error Panel — shown when backend returns error */}
+            <div style={{ padding: 24, paddingBottom: 32, borderTop: `1px solid ${T.bg}`, background: '#fff', position: 'sticky', bottom: 0 }}>
                 {submitError && (
-                    <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-3 flex-1 min-w-0">
-                                <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <AlertTriangle size={16} className="text-red-500" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-black text-red-700 leading-snug">{submitError.message}</p>
-                                    {submitError.hint && (
-                                        <p className="text-[10px] text-red-500 font-medium mt-1.5 leading-relaxed">{submitError.hint}</p>
-                                    )}
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setSubmitError(null)}
-                                className="flex-shrink-0 p-1 rounded-lg hover:bg-red-100 text-red-400 transition-colors"
-                            >
-                                <X size={14} />
-                            </button>
+                    <div style={{ marginBottom: 20, padding: 16, background: T.roseLight, border: `1px solid ${T.rose}20`, borderRadius: 16, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <AlertTriangle size={18} color={T.rose} style={{ marginTop: 2, flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 13, fontWeight: 800, color: T.rose, margin: 0 }}>{submitError.message}</p>
+                            {submitError.hint && <p style={{ fontSize: 11, fontWeight: 600, color: T.rose, opacity: 0.8, marginTop: 4 }}>{submitError.hint}</p>}
                         </div>
+                        <button onClick={() => setSubmitError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.rose }}>
+                            <X size={16} />
+                        </button>
                     </div>
                 )}
 
-                <div className="p-6">
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        loading={loading}
-                        className="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all duration-300 transform active:scale-95 group overflow-hidden relative"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            Initialize Hardware
-                            <ShieldCheck size={18} className="group-hover:rotate-12 transition-transform" />
-                        </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </Button>
-                </div>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    onMouseEnter={e => { if(!loading) { e.currentTarget.style.background = T.accent2; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
+                    onMouseLeave={e => { if(!loading) { e.currentTarget.style.background = T.accent; e.currentTarget.style.transform = 'none'; } }}
+                    style={{ 
+                        width: '100%', height: 56, background: T.accent, color: '#fff', border: 'none',
+                        borderRadius: 18, fontSize: 14, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em',
+                        cursor: loading ? 'not-allowed' : 'pointer', transition: '0.3s',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                        boxShadow: `0 12px 24px ${T.accent}40`
+                    }}
+                >
+                    {loading ? (
+                        <RefreshCw size={20} style={{ animation: 'spin 1s linear infinite' }} />
+                    ) : (
+                        <>
+                            Initialize Sensor
+                            <ShieldCheck size={20} strokeWidth={2.5} />
+                        </>
+                    )}
+                </button>
             </div>
         </form>
     );

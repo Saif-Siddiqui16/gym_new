@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
-import { AlertCircle, Camera, X } from 'lucide-react';
+import { AlertCircle, Camera, X, ShieldAlert, Info, MapPin, Terminal, Zap } from 'lucide-react';
 import { ISSUE_TYPES, SEVERITIES } from '../data/maintenanceData';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
@@ -15,120 +39,161 @@ const ReportIssueModal = ({ equipment, onClose, onSubmit }) => {
         onSubmit(formData);
     };
 
+    const InputLabel = ({ children, icon: Icon }) => (
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginLeft: 4 }}>
+            {Icon && <Icon size={12} strokeWidth={2.5} />}
+            {children}
+        </label>
+    );
+
+    const inputStyle = {
+        width: '100%', height: 48, padding: '0 16px', borderRadius: 14, border: `2px solid ${T.border}`,
+        background: T.bg + '50', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s'
+    };
+
+    const handleFocus = e => { e.target.style.borderColor = T.accent; e.target.style.background = '#fff'; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; };
+    const handleBlur = e => { e.target.style.borderColor = T.border; e.target.style.background = T.bg + '50'; e.target.style.boxShadow = 'none'; };
+
     return (
-        <div className="flex flex-col gap-6 p-6 pt-4">
-            <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
-                <AlertCircle className="text-red-500 mt-1" size={20} />
-                <div>
-                    <h4 className="text-sm font-bold text-red-900">Reporting Issue for</h4>
-                    <p className="text-xs text-red-700 font-medium">{equipment ? equipment.name : "Select Equipment"}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '24px 32px' }}>
+            
+            {/* Status Context Header */}
+            <div style={{ padding: '20px 24px', background: T.roseLight, borderRadius: 20, border: `1.5px solid ${T.rose}20`, display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.rose, boxShadow: '0 4px 10px rgba(244, 63, 94, 0.1)' }}>
+                    <ShieldAlert size={24} strokeWidth={2.5} />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 900, color: T.rose, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Issue Log: {equipment ? equipment.name : "Unclaimed Unit"}</h4>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: T.rose, margin: '4px 0 0', opacity: 0.8 }}>Initializing diagnostic report for maintenance queue.</p>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Equipment Dropdown (if not pre-filled) */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                
+                {/* Equipment Selection (Conditional) */}
                 {!equipment && (
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Select Equipment</label>
-                        <select
-                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700"
-                            value={formData.equipmentId}
-                            onChange={(e) => setFormData({ ...formData, equipmentId: e.target.value })}
-                            required
-                        >
-                            <option value="">Choose a machine...</option>
-                            {/* In a real app, mapping over equipment inventory */}
-                        </select>
+                    <div>
+                        <InputLabel icon={MapPin}>Asset Identification</InputLabel>
+                        <div style={{ position: 'relative' }}>
+                            <select
+                                style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                                value={formData.equipmentId}
+                                onChange={(e) => setFormData({ ...formData, equipmentId: e.target.value })}
+                                required
+                            >
+                                <option value="">Identify relevant machine...</option>
+                                {/* Mapping logic handled externally */}
+                            </select>
+                            <Terminal size={14} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: T.subtle }} />
+                        </div>
                     </div>
                 )}
 
-                <div className="space-y-1.5">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Issue Type</label>
-                    <select
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700"
-                        value={formData.issueType}
-                        onChange={(e) => setFormData({ ...formData, issueType: e.target.value })}
-                        required
-                    >
-                        <option value="">Select issue type...</option>
-                        {ISSUE_TYPES.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="space-y-1.5">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Severity Level</label>
-                    <div className="grid grid-cols-2 gap-3">
-                        {SEVERITIES.map(sev => (
-                            <label
-                                key={sev.value}
-                                className={`
-                                    relative flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all gap-2
-                                    ${formData.severity === sev.value
-                                        ? `border-${sev.color}-500 bg-${sev.color}-50 text-${sev.color}-700`
-                                        : 'border-slate-100 hover:border-slate-200 text-slate-500'}
-                                `}
-                            >
-                                <input
-                                    type="radio"
-                                    name="severity"
-                                    value={sev.value}
-                                    className="hidden"
-                                    onChange={() => setFormData({ ...formData, severity: sev.value })}
-                                />
-                                <span className={`w-2 h-2 rounded-full bg-${sev.color}-500`} />
-                                <span className="text-xs font-black uppercase tracking-tight">{sev.label}</span>
-                                {formData.severity === sev.value && (
-                                    <div className="absolute -top-1 -right-1">
-                                        <div className={`w-4 h-4 rounded-full bg-${sev.color}-500 flex items-center justify-center text-white`}>
-                                            <X size={10} strokeWidth={4} />
-                                        </div>
-                                    </div>
-                                )}
-                            </label>
-                        ))}
+                <div>
+                    <InputLabel icon={Zap}>Anomaly Classification</InputLabel>
+                    <div style={{ position: 'relative' }}>
+                        <select
+                            style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                            value={formData.issueType}
+                            onChange={(e) => setFormData({ ...formData, issueType: e.target.value })}
+                            required
+                        >
+                            <option value="">Select failure mode...</option>
+                            {ISSUE_TYPES.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                        <Info size={14} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: T.subtle }} />
                     </div>
                 </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Description</label>
+                <div>
+                    <InputLabel icon={AlertCircle}>Criticality Level</InputLabel>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        {SEVERITIES.map(sev => {
+                            const isActive = formData.severity === sev.value;
+                            const sevColor = sev.color === 'green' ? T.green : sev.color === 'amber' ? T.amber : sev.color === 'red' ? T.rose : T.accent;
+                            const sevBg = sev.color === 'green' ? T.greenLight : sev.color === 'amber' ? T.amberLight : sev.color === 'red' ? T.roseLight : T.accentLight;
+                            
+                            return (
+                                <label
+                                    key={sev.value}
+                                    style={{
+                                        position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 16,
+                                        border: `2.2px solid ${isActive ? sevColor : T.border}`,
+                                        background: isActive ? sevBg : '#fff',
+                                        cursor: 'pointer', transition: '0.3s'
+                                    }}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="severity"
+                                        value={sev.value}
+                                        style={{ display: 'none' }}
+                                        onChange={() => setFormData({ ...formData, severity: sev.value })}
+                                    />
+                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: sevColor, boxShadow: isActive ? `0 0 10px ${sevColor}80` : 'none' }} />
+                                    <span style={{ fontSize: 11, fontWeight: 900, color: isActive ? sevColor : T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{sev.label}</span>
+                                    {isActive && (
+                                        <div style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: sevColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: `2px solid ${sevBg}` }}>
+                                            <X size={10} strokeWidth={4} />
+                                        </div>
+                                    )}
+                                </label>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div>
+                    <InputLabel icon={Info}>Observation Details</InputLabel>
                     <textarea
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold text-slate-700 min-h-[100px] resize-none"
-                        placeholder="Explain what's wrong with the machine..."
+                        style={{ ...inputStyle, height: 'auto', padding: '16px', borderRadius: 20, resize: 'none' }}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        rows={4}
+                        placeholder="Describe the anomaly detection..."
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         required
                     />
                 </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-wider">Photo (Optional)</label>
-                    <div className="flex items-center justify-center w-full">
-                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                <Camera className="w-8 h-8 mb-3 text-slate-400" />
-                                <p className="mb-2 text-xs text-slate-500 font-bold uppercase tracking-wider">Click to upload photo</p>
-                                <p className="text-[10px] text-slate-400 font-medium">JPEG, PNG up to 5MB</p>
-                            </div>
-                            <input type="file" className="hidden" />
-                        </label>
-                    </div>
+                <div>
+                    <InputLabel icon={Camera}>Evidence Capture (Optional)</InputLabel>
+                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: 110, border: `2px dashed ${T.border}`, borderRadius: 20, cursor: 'pointer', background: T.bg + '40', transition: '0.3s' }}>
+                         <Camera size={28} style={{ color: T.subtle, marginBottom: 8 }} />
+                         <span style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Upload Visual Node Data</span>
+                         <span style={{ fontSize: 9, fontWeight: 600, color: T.subtle, marginTop: 4 }}>JPEG / PNG • MAX 5MB</span>
+                         <input type="file" style={{ display: 'none' }} />
+                    </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-6 py-3.5 rounded-xl border-2 border-slate-100 text-slate-600 font-black uppercase tracking-wider text-xs hover:bg-slate-50 transition-all"
+                        style={{
+                            flex: 1, height: 50, borderRadius: 16, border: `2px solid ${T.border}`,
+                            background: '#fff', color: T.text, fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
+                            letterSpacing: '0.05em', cursor: 'pointer', transition: '0.2s'
+                        }}
                     >
-                        Cancel
+                        Abort
                     </button>
                     <button
                         type="submit"
-                        className="flex-1 px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-black uppercase tracking-wider text-xs shadow-lg shadow-red-200 hover:scale-105 active:scale-95 transition-all"
+                        style={{
+                            flex: 1.5, height: 50, borderRadius: 16, border: 'none',
+                            background: T.rose, color: '#fff', fontSize: 12, fontWeight: 800, textTransform: 'uppercase',
+                            letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s', boxShadow: '0 10px 20px -5px rgba(244, 63, 94, 0.3)'
+                        }}
                     >
-                        Submit Report
+                        Transmit Report
                     </button>
                 </div>
             </form>

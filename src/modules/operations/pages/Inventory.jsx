@@ -1,8 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { inventoryApi } from '../../../api/inventoryApi';
 import toast from 'react-hot-toast';
-import { AlertTriangle, CheckCircle, Package, Search, Filter, Plus, ArrowUpRight, ArrowDownRight, Box } from 'lucide-react';
-import MobileCard from '../../../components/common/MobileCard';
+import { 
+    AlertTriangle, 
+    CheckCircle, 
+    Package, 
+    Search, 
+    Filter, 
+    Plus, 
+    ArrowUpRight, 
+    ArrowDownRight, 
+    Box, 
+    Trash2, 
+    ChevronDown,
+    RefreshCw,
+    TrendingUp
+} from 'lucide-react';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const Inventory = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +59,7 @@ const Inventory = () => {
         try {
             setLoading(true);
             const data = await inventoryApi.getAllInventory();
-            setInventory(data);
+            setInventory(data || []);
         } catch (error) {
             console.error(error);
             toast.error("Failed to load inventory");
@@ -30,40 +71,23 @@ const Inventory = () => {
     const getStockBadge = (status) => {
         const isLow = status === 'Low Stock';
         const isOut = status === 'Out of Stock';
+        
+        let color = T.green;
+        let bg = T.greenLight;
+        let Icon = CheckCircle;
 
-        let gradient, icon, shadow, border;
-
-        if (isOut) {
-            gradient = 'from-red-500 to-red-600';
-            icon = AlertTriangle;
-            shadow = 'shadow-red-500/50';
-            border = 'border-red-200';
-        } else if (isLow) {
-            gradient = 'from-amber-500 to-orange-600';
-            icon = AlertTriangle;
-            shadow = 'shadow-amber-500/50';
-            border = 'border-amber-200';
-        } else {
-            gradient = 'from-emerald-500 to-emerald-600';
-            icon = CheckCircle;
-            shadow = 'shadow-emerald-500/50';
-            border = 'border-emerald-200';
-        }
-
-        const Icon = icon;
+        if (isOut) { color = T.rose; bg = T.roseLight; Icon = AlertTriangle; }
+        else if (isLow) { color = T.amber; bg = T.amberLight; Icon = AlertTriangle; }
 
         return (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r ${gradient} text-white text-xs font-black shadow-lg ${shadow} hover:scale-110 transition-all duration-300 cursor-pointer`}>
-                <Icon size={14} strokeWidth={2.5} />
-                {status}
-            </span>
+            <div style={{ 
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', 
+                borderRadius: 20, background: bg, border: `1px solid ${color}20` 
+            }}>
+                <Icon size={12} color={color} strokeWidth={3} />
+                <span style={{ fontSize: 10, fontWeight: 900, color: color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{status}</span>
+            </div>
         );
-    };
-
-    const getStatusColor = (status) => {
-        if (status === 'Out of Stock') return 'red';
-        if (status === 'Low Stock') return 'amber';
-        return 'emerald';
     };
 
     const lowStockCount = inventory.filter(i => i.status === 'Low Stock' || i.status === 'Out of Stock').length;
@@ -75,228 +99,216 @@ const Inventory = () => {
 
     const categories = ['All', ...new Set(inventory.map(item => item.category))];
 
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
-            {/* Premium Header */}
-            <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center text-white shadow-xl shadow-slate-200 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                            <Package size={32} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
-                                Inventory
-                            </h1>
-                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
-                                <Box size={14} className="text-primary" />
-                                Manage products, health items & gym equipment
-                            </p>
-                        </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .inv-row:hover { background: ${T.accentLight}50 !important; cursor: pointer; }
+                input::placeholder, select::placeholder { color: ${T.subtle}; opacity: 1; }
+            `}</style>
+
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
+                        <Package size={28} strokeWidth={2.5} />
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <button
-                            onClick={async () => {
-                                const name = prompt('Item Name:');
-                                if (!name) return;
-                                const cat = prompt('Category:', 'Supplies');
-                                const qty = prompt('Quantity:', '10');
-                                try {
-                                    await inventoryApi.addInventoryItem({
-                                        itemName: name,
-                                        category: cat,
-                                        quantity: qty,
-                                        unit: 'pcs',
-                                        minThreshold: 5
-                                    });
-                                    toast.success('Item added');
-                                    fetchInventory();
-                                } catch (e) {
-                                    toast.error('Failed to add item');
-                                }
-                            }}
-                            className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                            <Plus size={18} strokeWidth={3} /> Add Item
-                        </button>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Inventory Control</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Monitor stock levels, supplies and gym equipment</p>
                     </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <ActionButton 
+                        onClick={async () => {
+                            const name = prompt('Item Name:');
+                            if (!name) return;
+                            const cat = prompt('Category:', 'Supplies');
+                            const qty = prompt('Quantity:', '10');
+                            try {
+                                await inventoryApi.addInventoryItem({
+                                    itemName: name,
+                                    category: cat,
+                                    quantity: qty,
+                                    unit: 'pcs',
+                                    minThreshold: 5
+                                });
+                                toast.success('Item added');
+                                fetchInventory();
+                            } catch (e) {
+                                toast.error('Failed to add item');
+                            }
+                        }}
+                        icon={Plus}
+                    >
+                        New Product
+                    </ActionButton>
                 </div>
             </div>
 
-            {/* Alert Card */}
+            {/* Alert Banner */}
             {lowStockCount > 0 && (
-                <div className="mb-6 sm:mb-8 group relative bg-white rounded-xl sm:rounded-2xl shadow-lg border border-red-100 p-1 overflow-hidden animate-fade-in">
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-orange-50 opacity-50"></div>
-                    <div className="relative p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-red-500/30 animate-pulse flex-shrink-0">
-                            <AlertTriangle size={18} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-red-800 font-black text-xs sm:text-sm uppercase tracking-wider">Attention Needed</h3>
-                            <p className="text-red-600 font-bold text-xs sm:text-sm">
-                                {lowStockCount} items are running low or out of stock. Please restock soon.
-                            </p>
-                        </div>
-                        <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-red-600 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg border border-red-100 shadow-sm hover:shadow-md hover:scale-105 transition-all w-full sm:w-auto">
-                            View Items
-                        </button>
+                <div style={{ 
+                    background: '#fff', padding: '16px 24px', borderRadius: 24, boxShadow: '0 10px 40px -10px rgba(244, 63, 94, 0.15)', 
+                    border: `2px solid ${T.roseLight}`, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 20, animation: 'fadeIn 0.6s ease-out' 
+                }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.roseLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.rose }}>
+                        <AlertTriangle size={20} strokeWidth={2.5} />
                     </div>
+                    <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.rose, textTransform: 'uppercase', letterSpacing: '0.02em' }}>Restock Alert</h4>
+                        <p style={{ margin: '2px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}><b>{lowStockCount} items</b> are currently below safety threshold or out of stock.</p>
+                    </div>
+                    <ActionButton variant="outline" style={{ height: 40, padding: '0 16px', fontSize: 11, borderColor: T.roseLight, color: T.rose }} onClick={() => setFilterCategory('Low Stock')}>Resolve Now</ActionButton>
                 </div>
             )}
 
-            {/* Filters */}
-            <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">
-                <div className="relative flex-1 group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search size={16} className="sm:w-[18px] sm:h-[18px] text-slate-400 group-focus-within:text-primary transition-colors" />
+            {/* Main Content Area */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                {/* Search & Filters */}
+                <div style={{ padding: 24, borderBottom: `1.5px solid ${T.bg}`, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 300 }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} size={18} />
+                            <input 
+                                type="text"
+                                placeholder="Search products by name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ width: '100%', height: 48, background: T.bg, border: 'none', borderRadius: 16, padding: '0 20px 0 52px', color: T.text, fontSize: 13, fontWeight: 600, outline: 'none' }}
+                            />
+                        </div>
+                        <div style={{ position: 'relative', width: 220 }}>
+                            <Filter style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} size={18} />
+                            <select
+                                value={filterCategory}
+                                onChange={(e) => setFilterCategory(e.target.value)}
+                                style={{ width: '100%', height: 48, background: T.bg, border: 'none', borderRadius: 16, padding: '0 40px 0 48px', color: T.text, fontSize: 13, fontWeight: 600, outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                            >
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                            <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                        </div>
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Search inventory..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="block w-full pl-10 pr-3 py-2.5 sm:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 font-semibold text-slate-700 text-sm"
-                    />
-                </div>
-                <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Filter size={16} className="sm:w-[18px] sm:h-[18px] text-slate-400 group-focus-within:text-primary transition-colors" />
-                    </div>
-                    <select
-                        value={filterCategory}
-                        onChange={(e) => setFilterCategory(e.target.value)}
-                        className="block w-full pl-10 pr-10 py-2.5 sm:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl leading-5 bg-white focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 font-semibold text-slate-700 appearance-none cursor-pointer text-sm"
+                    <button 
+                        onClick={fetchInventory}
+                        style={{ width: 44, height: 44, borderRadius: 14, border: `1.5px solid ${T.border}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, cursor: 'pointer' }}
                     >
-                        {categories.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <ArrowDownRight size={14} className="sm:w-4 sm:h-4 text-slate-400" />
-                    </div>
+                        <RefreshCw size={18} style={{ animation: loading ? 'spin 1.5s linear infinite' : 'none' }} />
+                    </button>
                 </div>
-            </div>
 
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3 sm:space-y-4 mb-6">
-                {filteredInventory.map((item) => (
-                    <MobileCard
-                        key={item.id}
-                        title={item.itemName}
-                        subtitle={item.category}
-                        badge={item.status}
-                        badgeColor={getStatusColor(item.status)}
-                        fields={[
-                            { label: 'Quantity', value: item.quantity },
-                            { label: 'Min Stock', value: item.minThreshold },
-                        ]}
-                        actions={[
-                            {
-                                label: 'Restock', onClick: async () => {
-                                    const qty = prompt('Amount received:');
-                                    if (!qty) return;
-                                    try {
-                                        await inventoryApi.receiveStock({ itemId: item.id, quantity: qty });
-                                        toast.success('Restocked');
-                                        fetchInventory();
-                                    } catch (e) { }
-                                }
-                            },
-                            {
-                                label: 'Use', onClick: async () => {
-                                    const qty = prompt('Amount used:');
-                                    if (!qty) return;
-                                    try {
-                                        await inventoryApi.recordUsage({ itemId: item.id, quantity: qty });
-                                        toast.success('Recorded');
-                                        fetchInventory();
-                                    } catch (e) { }
-                                }
-                            }
-                        ]}
-                    />
-                ))}
-            </div>
-
-            {/* Desktop Table View */}
-            <div className="hidden md:block group relative bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                <div className="relative z-10 saas-table-wrapper border-0 rounded-none">
-                    <table className="saas-table saas-table-responsive w-full text-left text-sm">
-                        <thead className="bg-slate-50/50 border-b border-slate-100">
-                            <tr>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Item Name</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Category</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Quantity</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Min Stock</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs text-right hover:text-primary transition-colors duration-300 cursor-pointer">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {filteredInventory.map((item) => (
-                                <tr key={item.id} className="group/row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md">
-                                    <td className="px-6 py-4" data-label="Item Name">
-                                        <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6 flex-shrink-0">
-                                                <Package size={18} strokeWidth={2.5} />
-                                            </div>
-                                            <span className="font-bold text-slate-800 group-hover/row:text-primary-hover transition-all duration-300">
-                                                {item.itemName}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Category">
-                                        <div className="text-right sm:text-left">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 group-hover/row:bg-white group-hover/row:shadow-sm transition-all duration-300">
-                                                {item.category}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Quantity">
-                                        <div className="text-right sm:text-left font-black text-slate-700">{item.quantity} {item.unit}</div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Min Stock">
-                                        <div className="text-right sm:text-left text-slate-500 font-semibold">{item.minThreshold}</div>
-                                    </td>
-                                    <td className="px-6 py-4" data-label="Status">
-                                        <div className="flex justify-end sm:justify-start">
-                                            {getStockBadge(item.status)}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right" data-label="Actions">
-                                        <button
-                                            onClick={async (e) => {
-                                                e.stopPropagation();
-                                                const qty = prompt('Add to stock:', '10');
-                                                if (qty) {
-                                                    await inventoryApi.receiveStock({ itemId: item.id, quantity: qty });
-                                                    toast.success('Added');
-                                                    fetchInventory();
-                                                }
-                                            }}
-                                            className="text-emerald-500 hover:text-emerald-700 font-bold text-xs transition-colors mr-3">
-                                            + Stock
-                                        </button>
-                                        <button
-                                            onClick={async (e) => {
-                                                e.stopPropagation();
-                                                if (confirm('Delete this item?')) {
-                                                    await inventoryApi.deleteInventoryItem(item.id);
-                                                    toast.success('Deleted');
-                                                    fetchInventory();
-                                                }
-                                            }}
-                                            className="text-red-400 hover:text-red-600 font-bold text-xs transition-colors">
-                                            Del
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div style={{ padding: 32 }}>
+                    {loading ? (
+                        <div style={{ height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+                            <RefreshCw size={48} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
+                            <p style={{ fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Syncing Warehouse...</p>
+                        </div>
+                    ) : filteredInventory.length === 0 ? (
+                        <div style={{ height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                            <div style={{ width: 100, height: 100, borderRadius: 40, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, marginBottom: 24 }}>
+                                <Package size={48} />
+                            </div>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>No Products Map</h3>
+                            <p style={{ color: T.muted, fontSize: 14, fontWeight: 500, marginTop: 10 }}>We couldn't find any items matching your filters.</p>
+                        </div>
+                    ) : (
+                        <div style={{ borderRadius: 24, border: `1.5px solid ${T.bg}`, overflow: 'hidden' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ background: T.bg }}>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Product details</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Category</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Onhand Qty</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Safety Floor</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Stock Health</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>Management</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredInventory.map((item) => (
+                                        <tr key={item.id} className="inv-row" style={{ borderBottom: `1.5px solid ${T.bg}`, transition: '0.2s', background: '#fff' }}>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Box size={22} strokeWidth={2.5} />
+                                                    </div>
+                                                    <span style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{item.itemName}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <span style={{ padding: '4px 10px', borderRadius: 8, background: T.bg, color: T.muted, fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>{item.category}</span>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <span style={{ fontSize: 14, fontWeight: 900, color: T.text }}>{item.quantity}</span>
+                                                    <span style={{ fontSize: 11, fontWeight: 700, color: T.subtle }}>{item.unit}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px', fontSize: 13, fontWeight: 700, color: T.muted }}>
+                                                {item.minThreshold}
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                {getStockBadge(item.status)}
+                                            </td>
+                                            <td style={{ padding: '20px 24px', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                                                    <button 
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            const qty = prompt('Add to stock:', '10');
+                                                            if (qty) {
+                                                                await inventoryApi.receiveStock({ itemId: item.id, quantity: qty });
+                                                                toast.success('Added');
+                                                                fetchInventory();
+                                                            }
+                                                        }}
+                                                        style={{ height: 32, padding: '0 12px', borderRadius: 8, border: 'none', background: T.greenLight, color: T.green, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer' }}
+                                                    >
+                                                        + Receive
+                                                    </button>
+                                                    <button 
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            if (confirm('Permanently remove this item?')) {
+                                                                await inventoryApi.deleteInventoryItem(item.id);
+                                                                toast.success('Deleted');
+                                                                fetchInventory();
+                                                            }
+                                                        }}
+                                                        style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={2.5} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

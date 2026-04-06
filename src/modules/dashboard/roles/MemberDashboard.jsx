@@ -1,35 +1,103 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    LayoutDashboard,
-    Calendar,
-    Clock,
-    CreditCard,
-    TrendingUp,
-    ShoppingCart,
-    UserPlus,
-    Shield,
-    User,
-    Lock,
-    ChevronRight,
-    Search,
-    IndianRupee,
-    Activity,
-    Users,
-    Loader2,
-    Layers,
-    CheckCircle2
+    LayoutDashboard, Calendar, Clock, CreditCard, TrendingUp, ShoppingCart,
+    UserPlus, Shield, User, Lock, ChevronRight, Search, IndianRupee,
+    Activity, Users, Loader2, Layers, CheckCircle2, X, Send, MessageSquare, 
+    Dumbbell, Ticket, Copy, RefreshCw, Bell, Sparkles
 } from 'lucide-react';
-import Card from '../../../components/ui/Card';
 import apiClient from '../../../api/apiClient';
 import { getChatMessages, sendChatMessage } from '../../../api/communication/communicationApi';
 import { getAvailableCoupons } from '../../../api/storeApi';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { X, Send, MessageSquare, Dumbbell, Ticket, Copy } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
-import StatsCard from '../../dashboard/components/StatsCard';
 import { fetchPTAccounts } from '../../../api/member/memberApi';
+import Loader from '../../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0, hoverable = true }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <div 
+            style={{
+                background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+                padding: 24, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: hover && hoverable ? 'translateY(-4px)' : 'translateY(0)',
+                boxShadow: hover && hoverable ? '0 12px 30px rgba(124,92,252,0.12)' : '0 4px 16px rgba(0,0,0,0.02)',
+                animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+                ...style
+            }}
+            onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+        >
+            {children}
+        </div>
+    );
+};
+
+const MetricCard = ({ title, value, icon: Icon, color, bg, subtitle, index }) => {
+    return (
+        <PremiumCard index={index} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} strokeWidth={2.5} />
+                </div>
+            </div>
+            <div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>{value}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle, textTransform: 'uppercase' }}>{subtitle}</div>
+                </div>
+            </div>
+        </PremiumCard>
+    );
+};
+
+const QuickAction = ({ icon: Icon, label, onClick, index }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <button
+            onClick={onClick}
+            onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+            style={{
+                padding: 16, borderRadius: 20, background: T.surface, border: `1px solid ${T.border}`,
+                cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexWrap: 'nowrap',
+                alignItems: 'center', gap: 12, textAlign: 'left',
+                transform: hover ? 'translateY(-2px)' : 'translateY(0)',
+                boxShadow: hover ? '0 8px 20px rgba(124,92,252,0.1)' : 'none',
+                animation: `fadeUp 0.3s ease both ${0.2 + index * 0.05}s`
+            }}
+        >
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={18} strokeWidth={2.5} />
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+        </button>
+    );
+};
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -43,10 +111,11 @@ const MemberDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
+            setLoading(true);
             const [res, ptRes, couponsRes] = await Promise.all([
                 apiClient.get('/member/dashboard'),
                 fetchPTAccounts(),
-                getAvailableCoupons().catch(() => []) // Catch error so dashboard doesn't fail if coupons fail
+                getAvailableCoupons().catch(() => []) 
             ]);
             setData({ ...res.data, ptAccounts: ptRes });
             setCoupons(couponsRes);
@@ -58,11 +127,8 @@ const MemberDashboard = () => {
         }
     };
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
+    useEffect(() => { fetchDashboardData(); }, []);
 
-    // Chat History Polling
     useEffect(() => {
         let pollInterval;
         if (isChatModalOpen && data?.trainer) {
@@ -75,633 +141,295 @@ const MemberDashboard = () => {
     const loadChatHistory = async () => {
         if (!data?.trainer) return;
         try {
-            // Note: For members, the contactId is the trainer's user ID
-            // We need the trainer's userId, not staffId. 
-            // The /member/dashboard API should provide the trainer's userId.
             const messages = await getChatMessages(data.trainer.userId, false);
             setChatHistory(messages);
-        } catch (error) {
-            console.error('Failed to load chat history:', error);
-        }
+        } catch (error) { console.error('Failed to load chat history:', error); }
     };
 
     const handleSendMessage = async (e) => {
         if (e) e.preventDefault();
         if (!chatMessage.trim() || !data?.trainer) return;
-
-        const messageText = chatMessage;
-        setChatMessage('');
-
+        const messageText = chatMessage; setChatMessage('');
         try {
-            await sendChatMessage({
-                receiverId: data.trainer.userId,
-                message: messageText,
-                receiverType: 'TRAINER' // Or STAFF if they are staff
-            });
+            await sendChatMessage({ receiverId: data.trainer.userId, message: messageText, receiverType: 'TRAINER' });
             loadChatHistory();
-        } catch (error) {
-            console.error('Failed to send message:', error);
-            toast.error('Failed to send message');
-        }
+        } catch (error) { toast.error('Failed to send message'); }
     };
 
-    const formatTime = (date) => {
-        return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
+    const formatTime = (date) => new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-
-
-    const QuickAction = ({ icon: Icon, label, onClick, color = 'bg-slate-50' }) => (
-        <button
-            onClick={onClick}
-            className={`w-full p-3 rounded-2xl border border-slate-100 hover:border-violet-200 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 group ${color} text-left`}
-        >
-            <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm mb-2 group-hover:scale-110 transition-transform">
-                <Icon size={16} />
-            </div>
-            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none block">{label}</span>
-        </button>
-    );
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center ">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            </div>
-        );
-    }
+    if (loading) return <Loader message="Assembling your fitness hub..." />;
 
     if (!data) return null;
 
-    // Safer destructuring with default values to prevent crashes if any key is missing
     const { 
         memberInfo = { name: 'Member', memberId: '...', status: '...', branchName: '...' }, 
         membership = { planName: 'None', daysRemaining: 0, benefits: '' }, 
         stats = { ptSessionsRemaining: 0, visitsThisMonth: 0, pendingDues: 0, activeInvoices: 0 }, 
-        recentAttendance = [], 
-        upcomingClass = null, 
-        trainer = { name: 'Trainer', specialization: 'Training' }, 
-        locker = null, 
-        announcements = [], 
-        ptAccounts = [] 
+        recentAttendance = [], upcomingClass = null, trainer = null, locker = null, announcements = [], ptAccounts = [] 
     } = data;
 
     return (
-        <div className="saas-page pb-page space-y-5 animate-fadeIn scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b-2 border-slate-100">
-                <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <User size={24} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 64, height: 64, borderRadius: 20,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)'
+                    }}>
+                        <User size={32} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div className="min-w-0">
-                        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1 truncate">
-                            Welcome, <span className="text-primary">{memberInfo.name || 'Member'}!</span>
+                    <div>
+                        <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-1px' }}>
+                            Welcome back, <span style={{ color: '#FFE16A' }}>{memberInfo.name || 'Member'}!</span>
                         </h1>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary-light text-primary rounded-lg sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border border-violet-100 whitespace-nowrap">Member ID: {memberInfo.memberId}</span>
-                            <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-300" />
-                            <p className="text-slate-500 font-bold text-[9px] sm:text-xs uppercase tracking-widest">
-                                {memberInfo.branchName}
-                            </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                            <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', background: 'rgba(0,0,0,0.15)', padding: '2px 10px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID: {memberInfo.memberId}</span>
+                            <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.4)' }} />
+                            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>{memberInfo.branchName} • Roar Fitness</p>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 bg-white rounded-xl sm:rounded-2xl border-2 border-slate-100 shadow-sm self-start sm:self-auto">
-                    <Calendar size={16} className="text-primary shrink-0" />
-                    <span className="text-[9px] sm:text-xs font-black text-slate-700 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                    <Calendar size={18} strokeWidth={2.5} />
+                    <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}</span>
                 </div>
             </div>
 
-            {/* Notification/Alert Area */}
-            {(membership.daysRemaining <= 10 || stats.pendingDues > 0) && (
-                <div className="space-y-3">
-                    {membership.daysRemaining <= 10 && (
-                        <div className="bg-rose-50 border border-rose-100 p-3 rounded-2xl flex items-center justify-between animate-pulse">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center text-white">
-                                    <Clock size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-black text-rose-900 uppercase tracking-tight">Plan Expiring Soon!</h4>
-                                    <p className="text-xs font-bold text-rose-600">Your {membership.planName} expires in <span className="underline">{membership.daysRemaining} days</span>. Please renew to avoid interruption.</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => navigate('/member/payments')}
-                                className="px-4 py-2 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-colors shadow-lg shadow-rose-100"
-                            >
-                                Renew Now
-                            </button>
-                        </div>
-                    )}
-                    {stats.pendingDues > 0 && (
-                        <div className="bg-amber-50 border border-amber-100 p-3 rounded-2xl flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white">
-                                    <CreditCard size={20} />
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Pending Payment Dues</h4>
-                                    <p className="text-xs font-bold text-amber-600">You have outstanding invoices totaling ₹{stats.pendingDues.toLocaleString()}.</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => navigate('/member/payments')}
-                                className="px-4 py-2 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-lg shadow-amber-100"
-                            >
-                                View Invoices
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Coupons Banner Area */}
-            {coupons.length > 0 && (
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Ticket size={18} className="text-primary" />
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">Available Offers</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {coupons.map((coupon) => (
-                            <div key={coupon.id} className="relative overflow-hidden bg-gradient-to-br from-primary to-fuchsia-600 rounded-2xl p-4 shadow-xl shadow-violet-200 text-white flex flex-col justify-between group">
-                                {/* Decorative elements */}
-                                <div className="absolute top-0 right-0 -tr-translate-y-4 translate-x-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                                <div className="absolute bottom-0 left-0 translate-y-4 -translate-x-4 w-20 h-20 bg-black/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-                                
-                                <div className="relative z-10 flex justify-between items-start mb-4">
-                                    <div className="bg-white/20 backdrop-blur-md p-2 rounded-xl text-white">
-                                        <Ticket size={24} />
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-xl font-black">
-                                            {coupon.type === 'Percentage' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
-                                        </p>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">
-                                            {coupon.applicableService === 'All' ? 'On Anything' : `On ${coupon.applicableService}`}
-                                        </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                
+                {/* NOTIFICATIONS */}
+                {(membership.daysRemaining <= 10 || stats.pendingDues > 0) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fadeIn">
+                        {membership.daysRemaining <= 10 && (
+                            <div style={{ background: T.roseLight, border: `1px solid ${T.rose}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.rose, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={20} /></div>
+                                    <div>
+                                        <h4 style={{ fontSize: 13, fontWeight: 900, color: T.rose, margin: 0, textTransform: 'uppercase' }}>Plan Expiring Soon</h4>
+                                        <p style={{ fontSize: 11, fontWeight: 600, color: T.rose, margin: 0, opacity: 0.8 }}>Reneval needed in {membership.daysRemaining} days to avoid interruption.</p>
                                     </div>
                                 </div>
-
-                                <div className="relative z-10">
-                                    <p className="text-sm font-medium text-white/90 line-clamp-2 min-h-[40px] mb-4">
-                                        {coupon.description || 'Special offer just for you!'}
-                                    </p>
-                                    
-                                    <div className="flex items-center justify-between bg-black/20 p-1.5 pl-4 rounded-xl backdrop-blur-sm border border-white/10">
-                                        <span className="font-black tracking-wider text-sm">{coupon.code}</span>
-                                        <button 
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(coupon.code);
-                                                toast.success('Coupon code copied!');
-                                            }}
-                                            className="px-4 py-2 bg-white text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center gap-2"
-                                        >
-                                            <Copy size={12} /> Copy
-                                        </button>
+                                <button onClick={() => navigate('/member/payments')} style={{ padding: '8px 20px', background: T.rose, color: '#fff', borderRadius: 12, fontSize: 11, fontWeight: 900, border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Renew Now</button>
+                            </div>
+                        )}
+                        {stats.pendingDues > 0 && (
+                            <div style={{ background: T.amberLight, border: `1px solid ${T.amber}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.amber, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CreditCard size={20} /></div>
+                                    <div>
+                                        <h4 style={{ fontSize: 13, fontWeight: 900, color: T.amber, margin: 0, textTransform: 'uppercase' }}>Outstanding Balance</h4>
+                                        <p style={{ fontSize: 11, fontWeight: 600, color: T.amber, margin: 0, opacity: 0.8 }}>You have pending dues of ₹{stats.pendingDues.toLocaleString()}.</p>
                                     </div>
-                                    {coupon.minPurchase > 0 && (
-                                        <p className="text-[9px] font-medium text-white/70 text-center mt-3 uppercase tracking-widest">
-                                            Min. spend ₹{coupon.minPurchase} applies
-                                        </p>
-                                    )}
                                 </div>
+                                <button onClick={() => navigate('/member/payments')} style={{ padding: '8px 20px', background: T.amber, color: '#fff', borderRadius: 12, fontSize: 11, fontWeight: 900, border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}>Pay Dues</button>
                             </div>
-                        ))}
+                        )}
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Core Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard
-                    title="Active Membership"
-                    value={membership.planName}
-                    subtitle={`${membership.daysRemaining} days remaining`}
-                    icon={Shield}
-                    color="primary"
-                />
-                <StatsCard
-                    title="PT Sessions"
-                    value={stats.ptSessionsRemaining.toString()}
-                    subtitle="Remaining Sessions"
-                    icon={Clock}
-                    color="success"
-                />
-                <StatsCard
-                    title="This Month Visits"
-                    value={stats.visitsThisMonth.toString()}
-                    subtitle="Visit Frequency"
-                    icon={Activity}
-                    color="warning"
-                />
-                <StatsCard
-                    title="Total Paid"
-                    value={`₹${(stats.totalPaid || 0).toLocaleString()}`}
-                    subtitle="Lifetime Payments"
-                    icon={CheckCircle2}
-                    color="success"
-                />
-            </div>
-
-            {/* Financial Overview Row - Specifically for Partial Payment Tracking */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm flex items-center justify-between group hover:border-violet-200 transition-all">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
-                            <IndianRupee size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Balance</p>
-                            <h3 className="text-2xl font-black text-slate-900">₹{(stats.pendingDues || 0).toLocaleString()}</h3>
-                        </div>
-                    </div>
-                    {stats.pendingDues > 0 && (
-                        <div className="text-right">
-                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Next Due Date</p>
-                            <p className="text-sm font-black text-slate-700">
-                                {stats.nextDueDate ? new Date(stats.nextDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Set by Admin'}
-                            </p>
-                        </div>
-                    )}
+                {/* KPI STATS */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                    <MetricCard title="Membership" value={membership.planName} subtitle="Active Plan" icon={Shield} color={T.accent} bg={T.accentLight} index={0} />
+                    <MetricCard title="PT Sessions" value={stats.ptSessionsRemaining} subtitle="Remaining" icon={TrendingUp} color={T.green} bg={T.greenLight} index={1} />
+                    <MetricCard title="Visits" value={stats.visitsThisMonth} subtitle="This Month" icon={Activity} color={T.amber} bg={T.amberLight} index={2} />
+                    <MetricCard title="Total Paid" value={`₹${stats.totalPaid || 0}`} subtitle="Lifetime" icon={CheckCircle2} color={T.blue} bg={T.blueLight} index={3} />
                 </div>
 
-                <div className="bg-slate-900 p-6 rounded-3xl shadow-xl shadow-slate-200 flex items-center justify-between group overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
-                            <CreditCard size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Invoices</p>
-                            <h3 className="text-2xl font-black text-white">{stats.activeInvoices} Pending</h3>
-                        </div>
-                    </div>
-                    <button 
-                        onClick={() => navigate('/member/payments')}
-                        className="px-5 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 relative z-10"
-                    >
-                        Pay Now
-                    </button>
-                </div>
-            </div>
-
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Left Column: Quick Actions & Details */}
-                <div className="lg:col-span-8 space-y-6">
-                    {/* Quick Actions Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} />
-                        <QuickAction icon={Layers} label="Amenity Booking" onClick={() => navigate('/member/amenity-booking')} color="bg-primary-light/50" />
-                        <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} />
-                        <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} />
-                    </div>
-
-                    {/* Membership Details & Entitlements */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Membership Details */}
-                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col justify-between">
-                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-primary">Membership Details</h3>
-                                <Shield size={16} className="text-violet-200" />
+                {/* BALANCE & INVOICES */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                    <PremiumCard style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} index={4}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IndianRupee size={20} /></div>
+                            <div>
+                                <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Pending Balance</p>
+                                <h3 style={{ fontSize: 28, fontWeight: 900, color: T.text, margin: 0 }}>₹{(stats.pendingDues || 0).toLocaleString()}</h3>
                             </div>
-                            <div className="space-y-4">
+                        </div>
+                        {stats.pendingDues > 0 && <span style={{ fontSize: 10, fontWeight: 900, color: T.rose, background: T.roseLight, padding: '4px 12px', borderRadius: 8, textTransform: 'uppercase' }}>Overdue</span>}
+                    </PremiumCard>
+                    <PremiumCard style={{ background: T.dark, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} index={5} hoverable={true}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CreditCard size={20} /></div>
+                            <div>
+                                <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Active Invoices</p>
+                                <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>{stats.activeInvoices} Pending</h3>
+                            </div>
+                        </div>
+                        <button onClick={() => navigate('/member/payments')} style={{ height: 44, padding: '0 24px', background: T.accent, color: '#fff', borderRadius: 14, fontSize: 11, fontWeight: 900, border: 'none', cursor: 'pointer', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(124,92,252,0.3)' }}>Pay Now</button>
+                    </PremiumCard>
+                </div>
+
+                {/* QUICK ACTIONS GRID */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="animate-fadeIn">
+                    <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} index={0} />
+                    <QuickAction icon={Layers} label="Amenity Booking" onClick={() => navigate('/member/amenity-booking')} index={1} />
+                    <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} index={2} />
+                    <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} index={3} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 24 }}>
+                    
+                    {/* LEFT COLUMN */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        
+                        {/* MEMBERSHIP DETAILS */}
+                        <PremiumCard index={6}>
+                            <SectionHeader icon={Shield} title="Membership Details" subtitle="Active Plan Info" />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                                 {[
                                     { label: 'Plan', value: membership.planName },
-                                    { label: 'Status', value: memberInfo.status, color: memberInfo.status === 'Active' ? 'text-emerald-600' : 'text-rose-600' },
-                                    { label: 'Start Date', value: membership.startDate ? new Date(membership.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A' },
-                                    { label: 'End Date', value: membership.expiryDate ? new Date(membership.expiryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A' },
+                                    { label: 'Status', value: memberInfo.status, color: memberInfo.status === 'Active' ? T.green : T.rose },
+                                    { label: 'Start Date', value: membership.startDate ? new Date(membership.startDate).toLocaleDateString('en-GB') : 'N/A' },
+                                    { label: 'End Date', value: membership.expiryDate ? new Date(membership.expiryDate).toLocaleDateString('en-GB') : 'N/A' },
                                 ].map((item, idx) => (
-                                    <div key={idx} className="flex justify-between items-center">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</span>
-                                        <span className={`text-[11px] font-black uppercase ${item.color || 'text-slate-900'}`}>{item.value}</span>
+                                    <div key={idx} style={{ padding: '16px 20px', borderRadius: 16, background: T.bg, border: `1px solid ${T.border}` }}>
+                                        <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0, marginBottom: 4 }}>{item.label}</p>
+                                        <p style={{ fontSize: 13, fontWeight: 900, color: item.color || T.text, margin: 0 }}>{item.value}</p>
                                     </div>
                                 ))}
-                                <div className="pt-4 border-t border-slate-50">
-                                    <div className="flex justify-between items-center bg-primary-light/50 p-4 rounded-xl border border-primary-light">
-                                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">Days Remaining</span>
-                                        <span className="text-xs font-black text-primary-hover uppercase">{membership.daysRemaining} days</span>
-                                    </div>
-                                </div>
                             </div>
-                        </Card>
-
-                        {/* Entitlements */}
-                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl flex flex-col h-full">
-                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-fuchsia-600">My Entitlements</h3>
-                                <LayoutDashboard size={16} className="text-fuchsia-200" />
+                            <div style={{ marginTop: 20, padding: '20px', borderRadius: 20, background: T.accentLight, border: `1px solid ${T.accentMid}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: 11, fontWeight: 900, color: T.accent, textTransform: 'uppercase' }}>Days Remaining</span>
+                                <span style={{ fontSize: 16, fontWeight: 900, color: T.accent }}>{membership.daysRemaining} Days</span>
                             </div>
-                            <div className="flex-1 flex flex-col py-2">
-                                {membership.benefits ? (
-                                    <div className="w-full space-y-3">
-                                        {(() => {
-                                            let benefitList = [];
-                                            try {
-                                                // Improved parsing logic to handle various formats
-                                                const parsed = JSON.parse(membership.benefits);
-                                                if (Array.isArray(parsed)) {
-                                                    benefitList = parsed.map(b => {
-                                                        if (typeof b === 'object') {
-                                                            const name = b.NAME || b.name || b.benefit || b.description || 'Benefit';
-                                                            return `${name}${b.LIMIT ? ` (${b.LIMIT})` : ''}`;
-                                                        }
-                                                        return b;
-                                                    });
-                                                } else {
-                                                    const name = parsed.NAME || parsed.name || parsed.benefit || parsed.description || membership.benefits;
-                                                    benefitList = [name];
-                                                }
-                                            } catch (e) {
-                                                // Fallback to split for comma-separated lists
-                                                benefitList = membership.benefits ? membership.benefits.split(/[,\n]/).filter(b => b.trim() && !b.includes('{') && !b.includes('}')) : [];
+                        </PremiumCard>
 
-                                                if (benefitList.length === 0 && membership.benefits) {
-                                                    benefitList = [membership.benefits];
-                                                }
-                                            }
-
-                                            return benefitList.slice(0, 4).map((benefit, idx) => (
-                                                <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-fuchsia-50/50 border border-fuchsia-50 group hover:border-fuchsia-200 transition-all duration-300">
-                                                    <div className="w-2 h-2 rounded-full bg-fuchsia-400 group-hover:scale-125 transition-transform" />
-                                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight truncate">{benefit?.trim()}</span>
-                                                </div>
-                                            ));
-                                        })()}
+                        {/* RECENT ATTENDANCE */}
+                        <PremiumCard index={7}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                                <SectionHeader icon={Calendar} title="Recent Attendance" subtitle="Your gym activity" />
+                                <button onClick={() => navigate('/member/attendance')} style={{ padding: '6px 12px', background: T.bg, color: T.accent, borderRadius: 10, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>View All <ChevronRight size={12} /></button>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                {recentAttendance.length > 0 ? recentAttendance.slice(0, 4).map((att, idx) => (
+                                    <div key={idx} style={{ padding: '12px 16px', borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={14} /></div>
+                                        <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{new Date(att.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} — {att.time}</span>
                                     </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-200 mb-3">
-                                            <Search size={24} />
-                                        </div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">No benefits configured</p>
-                                    </div>
+                                )) : (
+                                    <p style={{ gridColumn: 'span 2', textAlign: 'center', padding: 24, fontSize: 12, color: T.subtle, fontWeight: 700 }}>No recent records found.</p>
                                 )}
                             </div>
-                            <button
-                                onClick={() => navigate('/member/benefits')}
-                                className="w-full h-11 mt-4 bg-primary-light text-primary border border-violet-100 hover:bg-primary hover:text-white transition-all rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-2"
-                            >
-                                VIEW DETAILS <ChevronRight size={14} strokeWidth={3} />
-                            </button>
-                        </Card>
+                        </PremiumCard>
                     </div>
 
-                    {/* Attendance History */}
-                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                <div className="w-5 h-[2px] bg-primary"></div> Recent Attendance
-                            </h2>
-                            <button
-                                onClick={() => navigate('/member/attendance')}
-                                className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-1"
-                            >
-                                VIEW ALL <ChevronRight size={14} strokeWidth={3} />
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {recentAttendance.length > 0 ? recentAttendance.map((att, idx) => (
-                                <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-violet-100 transition-all flex items-center gap-3 group">
-                                    <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-                                        <Calendar size={16} />
-                                    </div>
-                                    <span className="text-[11px] font-black text-slate-700 uppercase">
-                                        {new Date(att.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} — {att.time}
-                                    </span>
-                                </div>
-                            )) : (
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic py-4">No recent attendance found</p>
-                            )}
-                        </div>
-                    </Card>
-                </div>
-
-                {/* Right Column: Upcoming & Context */}
-                <div className="lg:col-span-4 space-y-6">
-                    {/* Latest Announcements */}
-                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-primary">Announcements</h3>
-                            <button
-                                onClick={() => navigate('/member/announcements')}
-                                className="text-[10px] font-black text-primary"
-                            >
-                                ALL
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            {announcements && announcements.length > 0 ? announcements.slice(0, 2).map((item, idx) => (
-                                <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                    <h4 className="text-[11px] font-black text-slate-900 uppercase mb-1">{item.title}</h4>
-                                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{item.content}</p>
-                                    <span className="text-[9px] font-black text-primary uppercase mt-2 block tracking-widest">
-                                        {new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                                    </span>
-                                </div>
-                            )) : (
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-4 italic">No announcements</p>
-                            )}
-                        </div>
-                    </Card>
-
-                    {/* Upcoming Classes */}
-                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl h-full">
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-emerald-600">Upcoming Classes</h3>
-                            <button
-                                onClick={() => navigate('/member/bookings')}
-                                className="text-[10px] font-black text-emerald-600"
-                            >
-                                VIEW MORE
-                            </button>
-                        </div>
-                        {upcomingClass ? (
-                            <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-50 flex flex-col gap-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="px-2.5 py-1 bg-white text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 shadow-sm">{upcomingClass.status}</span>
-                                    <Clock size={16} className="text-emerald-200" />
-                                </div>
-                                <div>
-                                    <h4 className="text-lg font-black text-slate-900 tracking-tight uppercase mb-0.5">{upcomingClass.className}</h4>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        {new Date(upcomingClass.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} • {new Date(upcomingClass.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-center py-10">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No upcoming classes</p>
-                                <button
-                                    onClick={() => navigate('/member/bookings')}
-                                    className="mt-4 text-[10px] font-black text-primary border-b border-violet-200"
-                                >
-                                    BOOK NOW
-                                </button>
-                            </div>
-                        )}
-                    </Card>
-
-                    {/* My Trainer */}
-                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-50">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-amber-600">My Trainer</h3>
-                            <Users size={16} className="text-amber-200" />
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
-                                <User size={28} />
-                            </div>
-                            <div>
-                                <h4 className="text-md font-black text-slate-900 uppercase leading-tight mb-0.5">{trainer?.name || 'Trainer'}</h4>
-                                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">{trainer?.specialization || 'PT Package Trainer'}</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setIsChatModalOpen(true)}
-                            className="w-full h-11 mt-6 border-2 border-slate-50 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-amber-100 hover:text-amber-600 hover:bg-amber-50 transition-all"
-                        >
-                            MESSAGE
-                        </button>
-                    </Card>
-
-                    {/* My Locker */}
-                    <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
-                        <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-rose-50 rounded-full blur-2xl opacity-60"></div>
-                        <div className="relative z-10 flex flex-col gap-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">My Locker</h3>
-                                <Lock size={16} className="text-slate-100" />
-                            </div>
-                            <p className="text-sm font-black text-slate-900 uppercase">{locker ? `Locker #${locker.number}` : 'No locker assigned'}</p>
-                            {!locker && (
-                                <button
-                                    onClick={() => navigate('/member/requests')}
-                                    className="w-full py-3 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
-                                >
-                                    Request Locker
-                                </button>
-                            )}
-                        </div>
-                    </Card>
-
-                    {/* My PT Packages */}
-                    {ptAccounts && ptAccounts.length > 0 && (
-                        <Card className="p-5 border border-slate-100 rounded-2xl bg-white shadow-xl relative overflow-hidden">
-                            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-violet-50 rounded-full blur-2xl opacity-60"></div>
-                            <div className="relative z-10 flex flex-col gap-3">
-                                <div className="flex items-center justify-between border-b border-slate-50 pb-3">
-                                    <h3 className="text-xs font-black uppercase tracking-widest text-primary">My PT Packages</h3>
-                                    <Dumbbell size={16} className="text-violet-200" />
-                                </div>
-                                <div className="space-y-4">
-                                    {ptAccounts.map((account, idx) => (
-                                        <div key={idx} className="p-4 rounded-xl bg-violet-50/50 border border-violet-100/50">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="text-sm font-black text-slate-900 uppercase">{account.package?.name}</h4>
-                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${account.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                    {account.status}
-                                                </span>
+                    {/* RIGHT COLUMN */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        
+                        {/* MY ENTITLEMENTS */}
+                        <PremiumCard index={8} style={{ display: 'flex', flexDirection: 'column' }}>
+                            <SectionHeader icon={Layers} title="My Entitlements" subtitle="Perks & Benefits" color="#C084FC" />
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {membership.benefits ? (
+                                    (() => {
+                                        let benefitList = [];
+                                        try { benefitList = JSON.parse(membership.benefits); if(!Array.isArray(benefitList)) benefitList = [benefitList]; }
+                                        catch (e) { benefitList = membership.benefits.split(',').filter(b => b.trim()); }
+                                        return benefitList.slice(0, 4).map((b, i) => (
+                                            <div key={i} style={{ padding: '12px 16px', borderRadius: 14, background: '#F9F8FF', border: '1px solid #F0ECFF', display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C084FC' }} />
+                                                <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{typeof b === 'object' ? (b.name || b.benefit) : b}</span>
                                             </div>
-                                            {account.package?.totalSessions > 0 && (
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="flex-1 h-1.5 bg-violet-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-primary rounded-full transition-all duration-1000"
-                                                            style={{ width: `${(account.remainingSessions / account.totalSessions) * 100}%` }}
-                                                        />
-                                                    </div>
-                                                    <span className="text-[10px] font-black text-slate-500 whitespace-nowrap">
-                                                        {account.remainingSessions} / {account.totalSessions} left
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {account.trainer && (
-                                                <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-2">
-                                                    <User size={12} /> {account.trainer.name}
-                                                </p>
-                                            )}
-                                            {account.status === 'Pending Payment' && (
-                                                <button
-                                                    onClick={() => navigate('/member/payments')}
-                                                    className="w-full mt-3 py-2 bg-amber-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-sm"
-                                                >
-                                                    Pay Now to Activate
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
+                                        ));
+                                    })()
+                                ) : <div style={{ textAlign: 'center', padding: 20, color: T.subtle, fontSize: 11, fontWeight: 700 }}>No extras configured.</div>}
+                            </div>
+                            <button onClick={() => navigate('/member/benefits')} style={{ marginTop: 24, width: '100%', height: 48, borderRadius: 14, background: '#F9F8FF', color: '#C084FC', border: '1px solid #F0ECFF', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>View All Benefits <ChevronRight size={14} /></button>
+                        </PremiumCard>
+
+                        {/* UPCOMING CLASSES */}
+                        <PremiumCard index={9} style={{ background: T.bg, border: 'none' }}>
+                            <SectionHeader icon={Activity} title="Upcoming Classes" subtitle="Next Session" color={T.green} />
+                            {upcomingClass ? (
+                                <div style={{ background: '#fff', padding: 20, borderRadius: 20, border: `1px solid ${T.border}` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                                        <span style={{ fontSize: 10, fontWeight: 900, color: T.green, background: T.greenLight, padding: '4px 10px', borderRadius: 6 }}>{upcomingClass.status}</span>
+                                        <Clock size={16} color={T.subtle} />
+                                    </div>
+                                    <h4 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{upcomingClass.className}</h4>
+                                    <p style={{ fontSize: 11, fontWeight: 800, color: T.muted, margin: '4px 0 0' }}>{new Date(upcomingClass.date).toLocaleDateString('en-GB')} • {new Date(upcomingClass.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: 24 }}>
+                                    <p style={{ fontSize: 12, fontWeight: 800, color: T.subtle, margin: '0 0 12px' }}>No upcoming sessions.</p>
+                                    <button onClick={() => navigate('/member/bookings')} style={{ color: T.accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', background: 'none', border: 'none', borderBottom: `2px solid ${T.accentLight}`, cursor: 'pointer' }}>Book Now</button>
+                                </div>
+                            )}
+                        </PremiumCard>
+
+                        {/* MY TRAINER */}
+                        <PremiumCard index={10}>
+                            <SectionHeader icon={Users} title="My Trainer" subtitle="Assigned PT" color={T.amber} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><User size={28} /></div>
+                                <div>
+                                    <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>{trainer?.name || 'Trainer'}</h4>
+                                    <p style={{ fontSize: 11, fontWeight: 800, color: T.amber, textTransform: 'uppercase', margin: 0 }}>{trainer?.specialization || 'PT Specialist'}</p>
                                 </div>
                             </div>
-                        </Card>
-                    )}
+                            <button onClick={() => setIsChatModalOpen(true)} style={{ width: '100%', height: 48, borderRadius: 14, background: T.amber, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 20px rgba(245,158,11,0.2)' }}>Message Trainer</button>
+                        </PremiumCard>
+                    </div>
                 </div>
+                
+                {/* ANNOUNCEMENTS BAR */}
+                <div style={{ marginTop: 8 }} className="animate-fadeIn">
+                    <SectionHeader icon={Bell} title="Announcements" subtitle="Latest News" />
+                    <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 12 }}>
+                        {announcements.length > 0 ? announcements.map((item, idx) => (
+                             <div key={idx} style={{ minWidth: 320, background: T.surface, border: `1px solid ${T.border}`, padding: 20, borderRadius: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                <h4 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: '0 0 4px' }}>{item.title}</h4>
+                                <p style={{ fontSize: 12, color: T.muted, fontWeight: 600, margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.content}</p>
+                                <span style={{ fontSize: 10, fontWeight: 900, color: T.accent, textTransform: 'uppercase' }}>{new Date(item.createdAt).toLocaleDateString('en-GB')}</span>
+                             </div>
+                        )) : <div style={{ width: '100%', padding: 32, textAlign: 'center', background: T.surface, borderRadius: 20, border: `1px dashed ${T.border}`, color: T.subtle, fontSize: 13, fontWeight: 700 }}>No active announcements.</div>}
+                    </div>
+                </div>
+
             </div>
 
-            {/* Premium Chat Modal */}
-            <RightDrawer
-                isOpen={isChatModalOpen && !!data?.trainer}
-                onClose={() => setIsChatModalOpen(false)}
-                title={data?.trainer?.name || 'Trainer Chat'}
-                subtitle="Chat with your assigned trainer"
-                maxWidth="max-w-md"
-                footer={
-                    <form onSubmit={handleSendMessage} className="w-full flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Type a message..."
-                            className="flex-1 px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm focus:border-primary outline-none transition-all font-bold"
-                            value={chatMessage}
-                            onChange={(e) => setChatMessage(e.target.value)}
-                        />
-                        <button
-                            type="submit"
-                            className="w-12 h-12 bg-primary !text-white rounded-xl flex items-center justify-center hover:bg-primary-hover active:scale-90 transition-all shadow-lg shadow-violet-100"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </form>
-                }
-            >
-                <div className="flex flex-col gap-4 min-h-[400px]">
-                    <div className="flex items-center gap-2 mb-2 p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Trainer is Online</span>
-                    </div>
-
-                    <div className="flex flex-col gap-4">
-                        {chatHistory.length > 0 ? chatHistory.map((msg, idx) => {
-                            const isMe = msg.senderId === user?.id;
-                            return (
-                                <div
-                                    key={msg.id || idx}
-                                    className={`p-4 rounded-2xl border shadow-sm max-w-[90%] ${isMe
-                                        ? 'bg-primary border-primary !text-white rounded-tr-none self-end ml-auto'
-                                        : 'bg-white border-slate-100 rounded-tl-none self-start'
-                                        }`}
-                                >
-                                    <p className={`text-sm leading-relaxed ${isMe ? 'text-white' : 'text-slate-700 font-bold'}`}>{msg.message}</p>
-                                    <span className={`text-[10px] font-black mt-2 block ${isMe ? 'text-violet-100' : 'text-slate-400'} uppercase tracking-tighter`}>
-                                        {formatTime(msg.createdAt)}
-                                    </span>
-                                </div>
-                            );
-                        }) : (
-                            <div className="text-center py-20">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
-                                    <MessageSquare size={32} />
-                                </div>
-                                <p className="text-slate-400 text-sm font-bold tracking-tight">No messages yet. Say hi to your trainer!</p>
+            {/* CHAT DRAWER */}
+            <RightDrawer isOpen={isChatModalOpen} onClose={() => setIsChatModalOpen(false)} title="Trainer Chat" subtitle={trainer?.name}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '70vh' }}>
+                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: 4 }}>
+                        {chatHistory.length > 0 ? chatHistory.map((msg, i) => (
+                            <div key={i} style={{ 
+                                alignSelf: msg.senderId === user?.id ? 'flex-end' : 'flex-start',
+                                maxWidth: '85%', padding: '12px 18px', borderRadius: 16,
+                                background: msg.senderId === user?.id ? T.accent : '#fff',
+                                color: msg.senderId === user?.id ? '#fff' : T.text,
+                                border: msg.senderId === user?.id ? 'none' : `1px solid ${T.border}`,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.03)', position: 'relative'
+                            }}>
+                                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{msg.message}</p>
+                                <span style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', marginTop: 4, display: 'block', opacity: 0.6 }}>{formatTime(msg.createdAt)}</span>
                             </div>
-                        )}
-                    </div>
+                        )) : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: 100, color: T.subtle }}><MessageSquare size={48} style={{ opacity: 0.2 }} /><p style={{ fontSize: 13, fontWeight: 700, marginTop: 12, margin: '12px 0 0' }}>No messages yet.</p></div>}
+                     </div>
+                     <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: 12, padding: 4 }}>
+                        <input value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type your message..." style={{ flex: 1, height: 50, borderRadius: 14, border: `2px solid ${T.bg}`, background: '#fff', padding: '0 20px', fontSize: 13, fontWeight: 700, outline: 'none' }} />
+                        <button type="submit" style={{ width: 50, height: 50, borderRadius: 14, background: T.accent, color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Send size={20} /></button>
+                     </form>
                 </div>
             </RightDrawer>
-
-        </div >
+        </div>
     );
 };
 

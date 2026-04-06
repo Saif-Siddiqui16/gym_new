@@ -1,162 +1,103 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Camera, Shield, Bell, Save, Loader, Key, X, Lock, Activity, Calendar, CheckCircle2, Headset } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Shield, Bell, Save, Loader, Key, X, Lock, Activity, Calendar, CheckCircle2, Headset, Sparkles, ChevronRight, Hash } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import { toast } from 'react-hot-toast';
 import { fetchAdminProfile, updateAdminProfile, fetchGlobalSettings, updateGlobalSettings } from '../../api/superadmin/superAdminApi';
 import NotificationsList from '../../components/notifications/NotificationsList';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
+  text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+  green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  amber: '#F59E0B', amberLight: '#FEF3C7',
+};
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('personal');
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-    });
+    const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [globalSettings, setGlobalSettings] = useState({ supportNumber: '' });
     const [isSavingSupport, setIsSavingSupport] = useState(false);
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', avatar: '' });
 
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            toast.error("New passwords do not match!");
-            return;
-        }
-
-        try {
-            setIsChangingPassword(true);
-            await apiClient.post('/auth/change-password', {
-                currentPassword: passwordData.currentPassword,
-                newPassword: passwordData.newPassword
-            });
-            toast.success("Password changed successfully!");
-            setIsPasswordModalOpen(false);
-            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to change password");
-        } finally {
-            setIsChangingPassword(false);
-        }
-    };
-    const [message, setMessage] = useState({ type: '', text: '' });
-
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        avatar: ''
-    });
-
-    useEffect(() => {
-        loadProfile();
-    }, []);
+    useEffect(() => { loadProfile(); }, []);
 
     const loadProfile = async () => {
         try {
             setLoading(true);
-            const [profileData, settingsData] = await Promise.all([
-                fetchAdminProfile(),
-                fetchGlobalSettings()
-            ]);
-            
+            const [profileData, settingsData] = await Promise.all([ fetchAdminProfile(), fetchGlobalSettings() ]);
             setProfile(profileData);
             setGlobalSettings({ supportNumber: settingsData.supportNumber || '' });
-            setFormData({
-                name: profileData.name,
-                email: profileData.email,
-                phone: profileData.phone,
-                address: profileData.address || '',
-                avatar: profileData.avatar || ''
-            });
-        } catch (error) {
-            console.error("Error loading profile:", error);
-            setMessage({ type: 'error', text: 'Failed to load profile data.' });
-        } finally {
-            setLoading(false);
-        }
+            setFormData({ name: profileData.name, email: profileData.email, phone: profileData.phone, address: profileData.address || '', avatar: profileData.avatar || '' });
+        } catch (error) { console.error(error); toast.error("Profile Link Severed"); }
+        finally { setLoading(false); }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const handleInputChange = (e) => { setFormData(prev => ({ ...prev, [e.target.name]: e.target.value })); };
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, avatar: reader.result }));
-            };
+            reader.onloadend = () => setFormData(prev => ({ ...prev, avatar: reader.result }));
             reader.readAsDataURL(file);
         }
     };
 
     const handleSave = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setIsSaving(true);
-        setMessage({ type: '', text: '' });
-
         try {
             const updated = await updateAdminProfile(formData);
             setProfile(updated);
-            setMessage({ type: 'success', text: 'Profile updated successfully!' });
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update profile.' });
-        } finally {
-            setIsSaving(false);
-        }
+            toast.success('Core Identity Updated');
+        } catch (error) { toast.error('Update Failed'); }
+        finally { setIsSaving(true); setIsSaving(false); }
     };
 
     const handleSaveSupport = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setIsSavingSupport(true);
-        setMessage({ type: '', text: '' });
-
         try {
             await updateGlobalSettings(globalSettings);
-            setMessage({ type: 'success', text: 'Support settings updated successfully!' });
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update support settings.' });
-        } finally {
-            setIsSavingSupport(false);
-        }
+            toast.success('Support Channel Verified');
+        } catch (error) { toast.error('Sync Interrupted'); }
+        finally { setIsSavingSupport(false); }
     };
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) { toast.error("Hash Mismatch!"); return; }
+        setIsChangingPassword(true);
+        try {
+            await apiClient.post('/auth/change-password', { currentPassword: passwordData.currentPassword, newPassword: passwordData.newPassword });
+            toast.success("Security Hash Rotated");
+            setIsPasswordModalOpen(false);
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (error) { toast.error(error.response?.data?.message || "Encryption Fault"); }
+        finally { setIsChangingPassword(false); }
+    };
+
+    const inputStyle = (type) => ({
+        width: '100%', padding: '12px 16px 12px 44px', background: T.bg, border: `1.5px solid ${T.border}`,
+        borderRadius: '14px', fontSize: '14px', fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+    });
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <div className="h-16 w-16 bg-gradient-to-br from-violet-200 to-purple-200 rounded-full mb-4 animate-spin"></div>
-                    <p className="text-lg font-semibold text-slate-600">Loading profile...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!profile) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
-                        <Shield size={32} className="text-red-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-800">Could Not Load Profile</h3>
-                    <p className="text-slate-500 text-sm">
-                        {message.text || 'There was an error fetching your profile. Please try refreshing the page.'}
-                    </p>
-                    <button
-                        onClick={loadProfile}
-                        className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all"
-                    >
-                        Retry
-                    </button>
-                </div>
+            <div style={{ background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                <div style={{ width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
             </div>
         );
     }
@@ -169,364 +110,221 @@ const MyProfile = () => {
     ];
 
     return (
-        <div className="min-h-screen ">
-            <div className="max-w-full mx-auto space-y-8">
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                @keyframes spin { to { transform: rotate(360deg) } }
+            `}</style>
 
-                {/* Profile Header Card */}
-                <div className="relative bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden">
-                    {/* Gradient Background Banner */}
-                    <div className="h-40 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10"></div>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', animation: 'fadeUp 0.4s ease both' }}>
+                
+                {/* ──────── PROFILE HEADER ──────── */}
+                <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 8px 32px rgba(124,92,252,0.06)', marginBottom: 32 }}>
+                    <div style={{ height: '140px', background: 'linear-gradient(135deg, #1A1533 0%, #2D274D 55%, #3F396D 100%)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', bottom: -1, left: 0, right: 0, height: 40, background: `linear-gradient(to top, ${T.surface}, transparent)` }} />
                     </div>
-
-                    <div className="px-8 pb-8">
-                        <div className="relative flex flex-col md:flex-row md:items-end gap-6 -mt-16">
-                            {/* Avatar */}
-                            <div className="relative group">
-                                <div className="w-36 h-36 rounded-2xl bg-white p-2 shadow-2xl ring-4 ring-white overflow-hidden">
-                                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-5xl font-black shadow-lg overflow-hidden">
-                                        {formData.avatar ? (
-                                            <img src={formData.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (profile.avatar && profile.avatar.length > 10 ? (
-                                            <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                        ) : (
-                                            profile.avatar || profile.name?.charAt(0).toUpperCase()
-                                        ))}
-                                    </div>
-                                </div>
-                                <label className="absolute bottom-2 right-2 p-3 bg-white rounded-xl shadow-lg border border-slate-200 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 group-hover:shadow-xl cursor-pointer">
-                                    <Camera size={18} />
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
-                                </label>
-                            </div>
-
-                            {/* Profile Info */}
-                            <div className="flex-1 pb-2">
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-2">
-                                    {profile.name}
-                                </h1>
-                                <div className="flex flex-wrap gap-3 mt-3">
-                                    <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-primary-light to-purple-50 text-primary-hover text-xs font-bold border border-violet-200 shadow-sm">
-                                        {profile.role.replace('_', ' ')}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-sm">
-                                        <Activity size={14} className="text-emerald-500" />
-                                        {profile.status}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-sm">
-                                        <Calendar size={14} className="text-slate-500" />
-                                        Joined {profile.joinedDate}
-                                    </span>
+                    
+                    <div style={{ padding: '0 40px 32px', marginTop: '-60px', position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 28 }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ width: 140, height: 140, borderRadius: 32, background: T.surface, padding: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.15)' }}>
+                                <div style={{ width: '100%', height: '100%', borderRadius: 26, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 48, fontWeight: 900 }}>
+                                    {formData.avatar ? <img src={formData.avatar} style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : (profile?.name?.charAt(0) || 'A')}
                                 </div>
                             </div>
+                            <label style={{ position: 'absolute', bottom: -4, right: -4, width: 44, height: 44, background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: T.accent }}>
+                                <Camera size={18} strokeWidth={2.5} />
+                                <input type="file" style={{ display: 'none' }} accept="image/*" onChange={handleAvatarChange} />
+                            </label>
+                        </div>
+                        
+                        <div style={{ flex: 1, paddingBottom: 10 }}>
+                            <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-1px' }}>{profile.name}</h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+                                <span style={{ fontSize: 9, fontWeight: 900, background: T.accentLight, color: T.accent, padding: '5px 12px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{profile.role.replace('_', ' ')}</span>
+                                <span style={{ fontSize: 9, fontWeight: 900, background: T.greenLight, color: T.green, padding: '5px 12px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.green }} /> ACTIVE
+                                </span>
+                            </div>
+                        </div>
 
-                            {/* Verified Badge */}
-                            <button className="md:mb-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2">
-                                <CheckCircle2 size={18} />
-                                Verified Account
-                            </button>
+                        <div style={{ paddingBottom: 10 }}>
+                            <div style={{ background: T.bg, padding: '12px 24px', borderRadius: 16, border: `1.5px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <CheckCircle2 size={18} color={T.green} strokeWidth={3} />
+                                <span style={{ fontSize: 13, fontWeight: 800, color: T.text, letterSpacing: '0.02em' }}>IDENTITY VERIFIED</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Content Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-                    {/* Sidebar Tabs */}
-                    <div className="lg:col-span-1 space-y-2">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-5 py-4 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                                        ? 'bg-gradient-to-r from-primary to-primary text-white shadow-lg hover:shadow-xl hover:scale-105'
-                                        : 'text-slate-600 hover:bg-white border border-transparent hover:border-slate-200 hover:text-slate-900 hover:shadow-md'
-                                    }`}
-                            >
-                                <tab.icon size={20} className={activeTab === tab.id ? '' : 'text-slate-400'} />
-                                {tab.label}
-                            </button>
-                        ))}
+                <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 32 }}>
+                    
+                    {/* ──────── TABS ──────── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {tabs.map(tab => {
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                                    display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px',
+                                    borderRadius: 18, background: isActive ? `linear-gradient(135deg, ${T.accent}, ${T.accent2})` : 'transparent',
+                                    border: isActive ? 'none' : `1.5px solid transparent`,
+                                    color: isActive ? '#fff' : T.muted, textAlign: 'left', cursor: 'pointer', transition: '0.2s',
+                                    fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em'
+                                }}
+                                    onMouseEnter={e => { if(!isActive) { e.currentTarget.style.background = T.surface; e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.text; } }}
+                                    onMouseLeave={e => { if(!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.color = T.muted; } }}
+                                >
+                                    <tab.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
                     </div>
 
-                    {/* Form Area */}
-                    <div className="lg:col-span-3">
-                        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 sm:p-10">
-
-                            {/* Success/Error Message */}
-                            {message.text && (
-                                <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 text-sm font-semibold border ${message.type === 'success'
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                        : 'bg-red-50 text-red-700 border-red-200'
-                                    }`}>
-                                    <CheckCircle2 size={18} />
-                                    {message.text}
+                    {/* ──────── TAB CONTENT ──────── */}
+                    <div style={{ background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, padding: '40px', boxShadow: '0 8px 32px rgba(124,92,252,0.04)' }}>
+                        
+                        {activeTab === 'personal' && (
+                            <form onSubmit={handleSave} style={{ animation: 'fadeUp 0.3s forwards' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                                    <div style={{ width: 36, height: 36, borderRadius: 10, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={20} strokeWidth={2.5} /></div>
+                                    <h2 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Personal Information</h2>
                                 </div>
-                            )}
-
-                            {/* Personal Info Tab */}
-                            {activeTab === 'personal' && (
-                                <form onSubmit={handleSave} className="space-y-6">
-                                    <div className="mb-6">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Personal Information</h3>
-                                        <p className="text-sm text-slate-600">Update your personal details and contact information</p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {/* Full Name */}
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                                    <User size={20} />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    name="name"
-                                                    value={formData.name}
-                                                    onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
-                                                    placeholder="Enter your name"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Email Address */}
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                                    <Mail size={20} />
-                                                </div>
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
-                                                    placeholder="Enter your email"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Phone Number */}
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Phone Number</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                                    <Phone size={20} />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    name="phone"
-                                                    value={formData.phone}
-                                                    onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
-                                                    placeholder="Enter phone number"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Location */}
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Location</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
-                                                    <MapPin size={20} />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    name="address"
-                                                    value={formData.address}
-                                                    onChange={handleInputChange}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all duration-300 shadow-sm focus:shadow-lg"
-                                                    placeholder="Enter city, country"
-                                                />
-                                            </div>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Full Name</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <User size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                            <input name="name" value={formData.name} onChange={handleInputChange} style={inputStyle()} placeholder="Full Name" />
                                         </div>
                                     </div>
-
-                                    {/* Save Button */}
-                                    <div className="pt-6 border-t border-slate-100">
-                                        <button
-                                            type="submit"
-                                            disabled={isSaving}
-                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 bg-gradient-to-r from-primary to-primary hover:shadow-primary/30/50"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            {isSaving ? (
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative mr-2"></div>
-                                            ) : (
-                                                <Save size={20} className="mr-2 relative transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                                            )}
-                                            <span className="relative">{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-
-                            {/* Support Tab */}
-                            {activeTab === 'support' && (
-                                <form onSubmit={handleSaveSupport} className="space-y-6">
-                                    <div className="mb-6">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Support Settings</h3>
-                                        <p className="text-sm text-slate-600">This number will be shown to users when their account is suspended</p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Platform Support Number</label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-all duration-300">
-                                                    <Phone size={20} />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    value={globalSettings.supportNumber}
-                                                    onChange={(e) => setGlobalSettings({ ...globalSettings, supportNumber: e.target.value })}
-                                                    className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300"
-                                                    placeholder="+91 12345 67890"
-                                                />
-                                            </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Email Address</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Mail size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} style={inputStyle()} placeholder="admin@domain.com" />
                                         </div>
                                     </div>
-
-                                    <div className="pt-6 border-t border-slate-100">
-                                        <button
-                                            type="submit"
-                                            disabled={isSavingSupport}
-                                            className="group relative flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-r from-primary to-primary"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-fuchsia-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            {isSavingSupport ? (
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative mr-2"></div>
-                                            ) : (
-                                                <Save size={20} className="mr-2 relative" />
-                                            )}
-                                            <span className="relative">{isSavingSupport ? 'Saving...' : 'Save Support Settings'}</span>
-                                        </button>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Phone Number</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Phone size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                            <input name="phone" value={formData.phone} onChange={handleInputChange} style={inputStyle()} placeholder="+91 00000 00000" />
+                                        </div>
                                     </div>
-                                </form>
-                            )}
-
-                            {/* Security Tab */}
-                            {activeTab === 'security' && (
-                                <div className="space-y-8">
-                                    <div className="mb-6">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2">Security Settings</h3>
-                                        <p className="text-sm text-slate-600">Manage your password and account security</p>
-                                    </div>
-
-                                    {/* Password Management */}
-                                    <div className="p-6 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border-2 border-red-200">
-                                        <h4 className="text-red-700 font-bold flex items-center gap-2 mb-2">
-                                            <Lock size={20} />
-                                            Password Management
-                                        </h4>
-                                        <p className="text-red-600 text-sm font-medium">
-                                            It's recommended to update your password every 90 days for maximum security.
-                                        </p>
-                                        <button
-                                            onClick={() => setIsPasswordModalOpen(true)}
-                                            className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                                    <Key className="w-5 h-5" />
-                                                </div>
-                                                <div className="text-left">
-                                                    <h4 className="font-medium text-gray-900 dark:text-white">Change Password</h4>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Update your account password</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-indigo-600 dark:text-indigo-400 font-medium">Update</div>
-                                        </button>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Location</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <MapPin size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                            <input name="address" value={formData.address} onChange={handleInputChange} style={inputStyle()} placeholder="Location" />
+                                        </div>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Notifications Tab */}
-                            {activeTab === 'notifications' && (
+                                <div style={{ marginTop: 40, paddingTop: 24, borderTop: `1.5px solid ${T.bg}`, textAlign: 'right' }}>
+                                    <button type="submit" disabled={isSaving} style={{ padding: '14px 44px', borderRadius: 14, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', border: 'none', fontSize: 13, fontWeight: 900, cursor: 'pointer', transition: '0.2s', boxShadow: `0 8px 24px rgba(124,92,252,0.3)` }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        {isSaving ? 'Saving...' : 'SAVE CHANGES'}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {activeTab === 'support' && (
+                            <form onSubmit={handleSaveSupport} style={{ animation: 'fadeUp 0.3s forwards' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                                    <div style={{ width: 36, height: 36, borderRadius: 10, background: T.amberLight, color: T.amber, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Headset size={20} strokeWidth={2.5} /></div>
+                                    <h2 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Support Settings</h2>
+                                </div>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: T.muted, lineHeight: 1.6, marginBottom: 24 }}>This support number will be shown to users when their account is suspended.</p>
+                                
+                                <div style={{ maxWidth: 440 }}>
+                                    <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Support Number</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Hash size={18} color={T.amber} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }} />
+                                        <input value={globalSettings.supportNumber} onChange={e => setGlobalSettings({ ...globalSettings, supportNumber: e.target.value })} style={inputStyle()} placeholder="+91 12345 67890" />
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: 40, paddingTop: 24, borderTop: `1.5px solid ${T.bg}`, textAlign: 'right' }}>
+                                    <button type="submit" disabled={isSavingSupport} style={{ padding: '14px 44px', borderRadius: 14, background: T.amber, color: '#fff', border: 'none', fontSize: 13, fontWeight: 900, cursor: 'pointer', transition: '0.2s', boxShadow: `0 8px 24px rgba(245,158,11,0.3)` }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        {isSavingSupport ? 'Saving...' : 'SAVE SUPPORT'}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {activeTab === 'security' && (
+                            <div style={{ animation: 'fadeUp 0.3s forwards' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, paddingBottom: 16, borderBottom: `1.5px solid ${T.bg}` }}>
+                                    <div style={{ width: 36, height: 36, borderRadius: 10, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Lock size={20} strokeWidth={2.5} /></div>
+                                    <h2 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Security Settings</h2>
+                                </div>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+                                    <div style={{ background: T.roseLight + '40', border: `1.5px solid ${T.roseLight}`, borderRadius: 20, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff', border: `1px solid ${T.roseLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.rose }}><Key size={22} strokeWidth={2.5} /></div>
+                                            <div>
+                                                <h4 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>Change Password</h4>
+                                                <p style={{ fontSize: 11, fontWeight: 600, color: T.muted, margin: '2px 0 0' }}>Update your account password</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => setIsPasswordModalOpen(true)} style={{ padding: '10px 20px', borderRadius: 12, border: `1.5px solid ${T.rose}30`, background: '#fff', color: T.rose, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = T.rose; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = T.rose; }}>UPDATE PASSWORD</button>
+                                    </div>
+                                    <div style={{ background: T.bg, borderRadius: 20, padding: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}><Shield size={22} strokeWidth={2.5} /></div>
+                                        <div>
+                                            <h4 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>2FA Authentication</h4>
+                                            <p style={{ fontSize: 11, fontWeight: 600, color: T.muted, margin: '2px 0 0' }}>Two-factor authentication is active</p>
+                                        </div>
+                                        <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 900, background: T.greenLight, color: T.green, padding: '4px 10px', borderRadius: 8 }}>ENABLED</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'notifications' && (
+                            <div style={{ animation: 'fadeUp 0.3s forwards' }}>
                                 <NotificationsList />
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Change Password Modal */}
+            {/* ──────── PASSWORD MODAL ──────── */}
             {isPasswordModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
-                            <h3 className="text-xl font-bold">Change Password</h3>
-                            <button
-                                onClick={() => setIsPasswordModalOpen(false)}
-                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 1000001, background: 'rgba(13,10,31,0.6)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                    <div style={{ background: T.surface, width: '100%', maxWidth: 440, borderRadius: 28, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.3)', animation: 'fadeUp 0.3s ease both' }}>
+                        <div style={{ padding: '24px 32px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Change Password</h3>
+                            <button onClick={() => setIsPasswordModalOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: 32, height: 32, borderRadius: 10, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} strokeWidth={2.5} /></button>
                         </div>
-                        <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    <Lock className="w-4 h-4 text-gray-400" />
-                                    Current Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                    placeholder="Enter current password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
-                                />
+                        <form onSubmit={handlePasswordChange} style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Current Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Lock size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="password" required value={passwordData.currentPassword} onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})} style={inputStyle()} placeholder="Enter current password" />
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    <Key className="w-4 h-4 text-gray-400" />
-                                    New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
-                                />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>New Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Key size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="password" required value={passwordData.newPassword} onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})} style={inputStyle()} placeholder="Enter new password" />
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    <Shield className="w-4 h-4 text-gray-400" />
-                                    Confirm New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    placeholder="Confirm new password"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
-                                />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Confirm New Password</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Shield size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type="password" required value={passwordData.confirmPassword} onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})} style={inputStyle()} placeholder="Confirm new password" />
+                                </div>
                             </div>
-
-                            <button
-                                type="submit"
-                                disabled={isChangingPassword}
-                                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                {isChangingPassword ? (
-                                    <>
-                                        <Loader className="w-5 h-5 animate-spin" />
-                                        Updating Password...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="w-5 h-5" />
-                                        Update Password
-                                    </>
-                                )}
+                            <button type="submit" disabled={isChangingPassword} style={{ marginTop: 10, padding: '14px', borderRadius: '16px', background: T.accent, color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', transition: '0.2s', boxShadow: `0 8px 24px ${T.accent}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                {isChangingPassword ? <Loader size={18} className="animate-spin" /> : <><Save size={18} strokeWidth={2.5} /> SAVE PASSWORD</>}
                             </button>
                         </form>
                     </div>

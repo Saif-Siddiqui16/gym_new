@@ -2,6 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        // primary purple
+  accent2: '#9B7BFF',       // lighter purple
+  accentLight: '#F0ECFF',   // purple tint bg
+  accentMid: '#E4DCFF',     // purple border/focus
+  border: '#EAE7FF',        // default borders
+  bg: '#F6F5FF',            // page background
+  surface: '#FFFFFF',       // card/input surface
+  text: '#1A1533',          // primary text
+  muted: '#7B7A8E',         // secondary text
+  subtle: '#B0ADCC',        // subtle icons/placeholders
+};
+
 const RightDrawer = ({
     isOpen,
     onClose,
@@ -9,115 +25,172 @@ const RightDrawer = ({
     subtitle,
     children,
     footer,
-    maxWidth = 'max-w-xl',
+    maxWidth = '600px', // Switched to explicit px value
     showHeader = true
 }) => {
     const [isAnimating, setIsAnimating] = useState(false);
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        const lockScroll = () => {
-            // Add utility class for CSS-based locking
-            document.body.classList.add('drawer-no-scroll');
-
-            // Lock body & document
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-
-            // Lock all potential scrollable containers in the layout
-            const wrappers = document.querySelectorAll('.content-area, .content-wrapper, .saas-container, .main-container');
-            wrappers.forEach(el => {
-                const currentOverflow = window.getComputedStyle(el).overflowY;
-                if (currentOverflow === 'auto' || currentOverflow === 'scroll') {
-                    el.setAttribute('data-prev-overflow', el.style.overflow || 'auto');
-                    el.style.overflow = 'hidden';
-                    el.style.paddingRight = '6px'; // Prevent layout shift from scrollbar disappearing
-                }
-            });
-        };
-
-        const unlockScroll = () => {
-            // Remove utility class
-            document.body.classList.remove('drawer-no-scroll');
-
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-
-            const wrappers = document.querySelectorAll('.content-area, .content-wrapper, .saas-container, .main-container');
-            wrappers.forEach(el => {
-                const prev = el.getAttribute('data-prev-overflow');
-                if (prev) {
-                    el.style.overflow = prev === 'auto' ? '' : prev;
-                    el.style.paddingRight = '';
-                    el.removeAttribute('data-prev-overflow');
-                }
-            });
-        };
-
         if (isOpen) {
-            lockScroll();
+            setVisible(true);
             setIsAnimating(true);
+            document.body.style.overflow = 'hidden';
         } else {
             const timer = setTimeout(() => {
+                setVisible(false);
                 setIsAnimating(false);
-                unlockScroll();
+                document.body.style.overflow = '';
             }, 300);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
-    if (!isOpen && !isAnimating) return null;
+    if (!visible && !isOpen) return null;
 
-    // Use Portal to ensure the drawer is rendered at the top level of the DOM
+    // Map Tailwind max-width classes to px if strings are provided
+    const getWidth = (w) => {
+        if (w.includes('max-w-xl')) return '576px';
+        if (w.includes('max-w-2xl')) return '672px';
+        if (w.includes('max-w-3xl')) return '768px';
+        if (w.includes('max-w-4xl')) return '896px';
+        return w; // Assume it's already a px/rem string
+    };
+
+    const widthValue = getWidth(maxWidth);
+
     return createPortal(
-        <div
-            className={`fixed inset-0 overflow-hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-            style={{ zIndex: 999999 }}
-        >
+        <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            overflow: 'hidden',
+        }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                .drawer-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: rgba(13, 10, 31, 0.4);
+                    backdrop-filter: blur(4px);
+                    transition: opacity 300ms ease-out;
+                }
+                .drawer-content {
+                    position: relative;
+                    width: 100%;
+                    max-width: ${widthValue};
+                    height: 100vh;
+                    background: ${T.surface};
+                    box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+                    display: flex;
+                    flex-direction: column;
+                    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+                    font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+            `}</style>
+
             {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+            <div 
+                className="drawer-overlay"
+                style={{ opacity: isOpen ? 1 : 0 }}
                 onClick={onClose}
             />
 
-            <div className="fixed inset-y-0 right-0 flex max-w-full h-[100dvh]">
-                <div
-                    className={`relative w-screen ${maxWidth} h-full transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col bg-white border-l border-slate-100 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-                >
-                    {/* Header */}
-                    {showHeader && (
-                        <div className="px-6 sm:px-8 py-6 border-b border-slate-100 flex items-start justify-between bg-white/80 backdrop-blur-xl shrink-0">
-                            <div className="flex flex-col pr-4">
-                                <h2 className="text-xl font-black text-slate-900 tracking-tight leading-none">
-                                    {title}
-                                </h2>
-                                {subtitle && (
-                                    <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
-                                        {subtitle}
-                                    </p>
-                                )}
-                            </div>
-
-                            <button
-                                onClick={onClose}
-                                className="p-2 -mr-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200 shrink-0"
-                            >
-                                <X size={20} />
-                            </button>
+            {/* Side Panel */}
+            <div 
+                className="drawer-content"
+                style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)' }}
+            >
+                {/* Header */}
+                {showHeader && (
+                    <div style={{
+                        padding: '24px 32px',
+                        borderBottom: `1px solid ${T.border}`,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        background: 'rgba(255,255,255,0.8)',
+                        backdropFilter: 'blur(20px)',
+                        zIndex: 10
+                    }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <h2 style={{
+                                fontSize: '20px',
+                                fontWeight: 900,
+                                color: T.text,
+                                margin: 0,
+                                letterSpacing: '-0.5px'
+                            }}>
+                                {title}
+                            </h2>
+                            {subtitle && (
+                                <p style={{
+                                    fontSize: '11px',
+                                    fontWeight: 800,
+                                    color: T.muted,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    marginTop: '8px'
+                                }}>
+                                    {subtitle}
+                                </p>
+                            )}
                         </div>
-                    )}
 
-                    {/* Body */}
-                    <div className={`flex-1 overflow-y-auto overflow-x-hidden ${showHeader ? 'p-6 sm:px-8 sm:py-6' : ''} scrollbar-thin`}>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                padding: '8px',
+                                background: 'transparent',
+                                border: 'none',
+                                borderRadius: '50%',
+                                color: T.subtle,
+                                cursor: 'pointer',
+                                transition: '0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = T.bg; e.currentTarget.style.color = T.text; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.subtle; }}
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Body */}
+                <div style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    padding: showHeader ? '24px 32px' : '0',
+                    background: T.bg
+                }}>
+                    <div style={{
+                        background: T.surface,
+                        borderRadius: '24px',
+                        border: `1px solid ${T.border}`,
+                        padding: '24px',
+                        boxShadow: '0 4px 20px rgba(124,92,252,0.04)'
+                    }}>
                         {children}
                     </div>
-
-                    {/* Footer */}
-                    {footer && (
-                        <div className="px-6 sm:px-8 py-5 border-t border-slate-100 bg-slate-50/50 backdrop-blur-md shrink-0">
-                            {footer}
-                        </div>
-                    )}
                 </div>
+
+                {/* Footer */}
+                {footer && (
+                    <div style={{
+                        padding: '20px 32px',
+                        borderTop: `1px solid ${T.border}`,
+                        background: 'rgba(255,255,255,0.9)',
+                        backdropFilter: 'blur(10px)',
+                        zIndex: 10
+                    }}>
+                        {footer}
+                    </div>
+                )}
             </div>
         </div>,
         document.body

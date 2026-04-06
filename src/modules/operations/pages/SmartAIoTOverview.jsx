@@ -15,22 +15,75 @@ import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
 import { useAuth } from '../../../context/AuthContext';
 import { fetchAllGyms } from '../../../api/superadmin/superAdminApi';
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  teal: '#14B8A6',
+  tealLight: '#F0FDFA',
+  cyan: '#06B6D4',
+  cyanLight: '#ECFEFF',
+  orange: '#F59E0B',
+  orangeLight: '#FFFBEB'
+};
+
 const StatCard = ({ label, value, color, icon: Icon }) => {
-    const colorMap = {
-        emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-        red: 'bg-red-50 text-red-600 border-red-100',
-        violet: 'bg-violet-50 text-violet-600 border-violet-100',
-        blue: 'bg-blue-50 text-blue-600 border-blue-100',
-        amber: 'bg-amber-50 text-amber-600 border-amber-100',
-        orange: 'bg-orange-50 text-orange-600 border-orange-100',
-        cyan: 'bg-cyan-50 text-cyan-600 border-cyan-100',
-        teal: 'bg-teal-50 text-teal-600 border-teal-100',
+    const [hover, setHover] = useState(false);
+    
+    // Map of colors to T tokens
+    const cMap = {
+        emerald: { bg: T.greenLight, text: T.green, border: T.green + '20' },
+        red: { bg: T.roseLight, text: T.rose, border: T.rose + '20' },
+        violet: { bg: T.accentLight, text: T.accent, border: T.accent + '20' },
+        blue: { bg: T.blueLight, text: T.blue, border: T.blue + '20' },
+        amber: { bg: T.amberLight, text: T.amber, border: T.amber + '20' },
+        orange: { bg: T.orangeLight, text: T.orange, border: T.orange + '20' },
+        cyan: { bg: T.cyanLight, text: T.cyan, border: T.cyan + '20' },
+        teal: { bg: T.tealLight, text: T.teal, border: T.teal + '20' },
     };
+    
+    const s = cMap[color] || cMap.violet;
+
     return (
-        <div className={`flex flex-col items-center justify-center p-4 rounded-2xl border ${colorMap[color]} hover:scale-105 transition-transform cursor-default`}>
-            <Icon size={18} className="mb-2 opacity-60" />
-            <div className="text-2xl font-black leading-tight">{value}</div>
-            <div className="text-[9px] font-black uppercase tracking-tighter opacity-70 text-center mt-1">{label}</div>
+        <div 
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                padding: '18px 12px', borderRadius: '18px', background: T.surface,
+                border: `1px solid ${hover ? s.text : T.border}`, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'default', transform: hover ? 'translateY(-4px)' : 'none',
+                boxShadow: hover ? `0 12px 24px ${s.text}15` : '0 2px 8px rgba(124,92,252,0.04)',
+                flex: 1, minWidth: 120
+            }}
+        >
+            <div style={{ 
+                width: 36, height: 36, borderRadius: 10, background: s.bg, 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+                color: s.text
+            }}>
+                <Icon size={18} strokeWidth={2.5} />
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: T.text, lineHeight: 1.2 }}>{value}</div>
+            <div style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', marginTop: 4 }}>{label}</div>
         </div>
     );
 };
@@ -45,7 +98,6 @@ const SmartAIoTOverview = () => {
     const [selectedBranchId, setSelectedBranchId] = useState('');
     const [branches, setBranches] = useState([]);
 
-    // Load branch list for SuperAdmin filter
     useEffect(() => {
         if (isSuperAdmin) {
             fetchAllGyms()
@@ -74,30 +126,59 @@ const SmartAIoTOverview = () => {
     }, [selectedBranchId]);
 
     return (
-        <div className="space-y-8">
+        <div style={{ 
+            display: 'flex', flexDirection: 'column', gap: 28, 
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            animation: 'fadeUp 0.5s ease-out' 
+        }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(2); opacity: 0; } }
+                .grid-table { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 0.8fr; align-items: center; }
+                @media (max-width: 1024px) {
+                    .table-wrapper { overflow-x: auto !important; }
+                    .table-content { min-width: 900px; }
+                }
+                @media (max-width: 768px) {
+                    .header-top { flex-direction: column !important; align-items: flex-start !important; }
+                    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+                }
+            `}</style>
+
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-200">
-                        <ShieldCheck size={26} />
+            <div className="header-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ 
+                        width: 52, height: 52, borderRadius: 16, 
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                        color: '#fff', boxShadow: `0 8px 16px ${T.accent}30`
+                    }}>
+                        <ShieldCheck size={28} strokeWidth={2.2} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h1 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: 10 }}>
                             Smart AIoT Overview
-                            {loading && <div className="w-2 h-2 rounded-full bg-primary animate-ping"></div>}
+                            {loading && <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.accent, animation: 'ping 1s infinite' }}></div>}
                         </h1>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Real-time Face Recognition Hardware Sync</p>
+                        <p style={{ fontSize: 11, color: T.muted, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '4px 0 0' }}>Real-time Face Recognition Hardware Sync</p>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 items-center">
-                    {/* Branch filter — SuperAdmin only */}
+                
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                     {isSuperAdmin && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl">
-                            <Building size={14} className="text-slate-400" />
+                        <div style={{ 
+                            display: 'flex', alignItems: 'center', gap: 8, px: 14, py: 8, 
+                            background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12,
+                            padding: '8px 14px'
+                        }}>
+                            <Building size={14} color={T.subtle} />
                             <select
                                 value={selectedBranchId}
                                 onChange={(e) => setSelectedBranchId(e.target.value)}
-                                className="text-xs font-bold text-slate-700 bg-transparent outline-none"
+                                style={{ fontSize: 13, fontWeight: 700, color: T.text, background: 'transparent', border: 'none', outline: 'none', cursor: 'pointer' }}
                             >
                                 <option value="">All Branches</option>
                                 {branches.map(b => (
@@ -109,22 +190,36 @@ const SmartAIoTOverview = () => {
                     <button
                         onClick={fetchData}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black text-slate-600 hover:border-primary hover:text-primary transition-all"
+                        style={{ 
+                            display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', 
+                            background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12,
+                            fontSize: 13, fontWeight: 800, color: T.muted, cursor: loading ? 'not-allowed' : 'pointer',
+                            transition: '0.2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
                     >
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={15} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                         Refresh
                     </button>
                     <button
                         onClick={() => navigate('/operations/devices')}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-xs font-black hover:bg-primary-hover transition-all"
+                        style={{ 
+                            display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', 
+                            background: T.accent, border: 'none', borderRadius: 12,
+                            fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer',
+                            transition: '0.2s', boxShadow: `0 4px 12px ${T.accent}30`
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = T.accent2; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.transform = 'none'; }}
                     >
-                        Hardware Settings <ArrowRight size={12} />
+                        Hardware Settings <ArrowRight size={14} />
                     </button>
                 </div>
             </div>
 
             {/* KPI Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16 }}>
                 <StatCard label="Online" value={summary?.onlineCount ?? 0} color="emerald" icon={ShieldCheck} />
                 <StatCard label="Offline" value={summary?.offlineCount ?? 0} color="red" icon={XCircle} />
                 <StatCard label="Members Today" value={summary?.totalCountToday ?? 0} color="violet" icon={Users} />
@@ -136,83 +231,97 @@ const SmartAIoTOverview = () => {
             </div>
 
             {/* Recent Face Access Logs */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                        <Clock size={14} className="text-primary" />
+            <div style={{ background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(124,92,252,0.06)', overflow: 'hidden' }}>
+                <div style={{ padding: '20px 28px', borderBottom: `1px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h4 style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Clock size={16} color={T.accent} strokeWidth={2.5} />
                         Recent Face Access Logs
                     </h4>
                     <button
                         onClick={() => navigate('/operations/face-records')}
-                        className="text-[10px] font-black text-primary hover:underline uppercase tracking-tighter"
+                        style={{ fontSize: 11, fontWeight: 900, color: T.accent, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px' }}
                     >
                         View Detailed Logs
                     </button>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Person</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">ID / SN</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Device</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {summary?.records?.slice(0, 10).map((record) => (
-                                <tr key={record.id} className="hover:bg-violet-50/20 transition-colors group/row">
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden bg-slate-100 flex-shrink-0 group-hover/row:scale-110 transition-transform">
-                                                {record.imageUrl ? (
-                                                    <img src={record.imageUrl} alt={record.personName} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                        <Users size={16} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="font-black text-slate-900 text-xs">{record.personName}</div>
+                <div className="table-wrapper">
+                    <div className="table-content">
+                        {/* Header */}
+                        <div style={{ padding: '14px 28px', background: T.bg }} className="grid-table">
+                            {['Person', 'ID / SN', 'Type', 'Device', 'Time', 'Status'].map(h => (
+                                <span key={h} style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</span>
+                            ))}
+                        </div>
+                        {/* Body */}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {summary?.records?.slice(0, 10).map((record, idx) => (
+                                <div 
+                                    key={record.id} 
+                                    style={{ 
+                                        padding: '16px 28px', 
+                                        borderBottom: idx === 9 ? 'none' : `1px solid ${T.bg}`,
+                                        transition: 'background 0.2s',
+                                        cursor: 'default'
+                                    }}
+                                    className="grid-table row-hover"
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ 
+                                            width: 40, height: 40, borderRadius: '50%', background: T.bg, 
+                                            overflow: 'hidden', border: `2px solid #fff`, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' 
+                                        }}>
+                                            {record.imageUrl ? (
+                                                <img src={record.imageUrl} alt={record.personName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
+                                                    <Users size={18} />
+                                                </div>
+                                            )}
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg group-hover/row:bg-violet-50 group-hover/row:text-primary transition-colors">
-                                            {record.personSn}
+                                        <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{record.personName}</div>
+                                    </div>
+                                    
+                                    <div>
+                                        <span style={{ 
+                                            padding: '4px 8px', borderRadius: 8, background: T.bg, 
+                                            color: T.muted, fontSize: 11, fontWeight: 700 
+                                        }}>
+                                            #{record.personSn}
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">{record.passType?.replace('_', ' ')}</span>
+                                    </div>
+                                    
+                                    <div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }}></div>
+                                            <span style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{record.passType?.replace('_', ' ')}</span>
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase">{record.deviceName}</td>
-                                    <td className="px-6 py-3">
-                                        <div className="text-[10px] font-bold text-slate-600">
+                                    </div>
+                                    
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>{record.deviceName}</div>
+                                    
+                                    <div>
+                                        <div style={{ fontSize: 12, fontWeight: 800, color: T.text }}>
                                             {new Date(record.createTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
-                                        <div className="text-[8px] text-slate-400 font-medium">
-                                            {new Date(record.createTime).toLocaleDateString()}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-3">
-                                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-md uppercase tracking-widest">
+                                        <div style={{ fontSize: 10, color: T.subtle, fontWeight: 600 }}>{new Date(record.createTime).toLocaleDateString()}</div>
+                                    </div>
+                                    
+                                    <div>
+                                        <span style={{ 
+                                            padding: '4px 10px', borderRadius: 8, background: T.greenLight, 
+                                            color: T.green, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' 
+                                        }}>
                                             Verified
                                         </span>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             )) || (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-10 text-center text-slate-400 text-xs font-bold">
-                                        No recent face access records found.
-                                    </td>
-                                </tr>
+                                <div style={{ padding: '60px 20px', textAlign: 'center', color: T.subtle, fontSize: 13, fontWeight: 700 }}>
+                                    No recent face access records found.
+                                </div>
                             )}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

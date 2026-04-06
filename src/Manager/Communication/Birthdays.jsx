@@ -122,22 +122,22 @@ const Birthdays = () => {
                 )}
 
                 {/* Automation Info Card */}
-                <div className="mt-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[40px] p-10 text-white relative overflow-hidden">
-                    <div className="absolute top-[-20px] right-[-20px] w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center">
-                            <Star size={40} className="text-yellow-300 fill-yellow-300" />
+                <div className="mt-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[24px] p-6 text-white relative overflow-hidden">
+                    <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-white/10 rounded-full blur-2xl" />
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                        <div className="w-14 h-14 bg-white/20 rounded-[16px] flex items-center justify-center shrink-0">
+                            <Star size={28} className="text-yellow-300 fill-yellow-300" />
                         </div>
                         <div className="flex-1 text-center md:text-left">
-                            <h3 className="text-2xl font-black mb-2">Automation is Active</h3>
-                            <p className="text-white/80 font-medium">
+                            <h3 className="text-lg font-black mb-1">Automation is Active</h3>
+                            <p className="text-white/80 text-sm font-medium">
                                 The system is configured to automatically detect member birthdays and send greetings every 24 hours.
                             </p>
                         </div>
-                        <div className="flex flex-col items-center gap-2 px-8 py-4 bg-white/10 rounded-3xl border border-white/20">
-                            <Calendar size={20} />
+                        <div className="flex flex-col items-center gap-1.5 px-6 py-3 bg-white/10 rounded-[16px] border border-white/20 shrink-0">
+                            <Calendar size={16} />
                             <span className="text-[10px] font-black uppercase tracking-widest">Next Run</span>
-                            <span className="text-xl font-black">Daily Cycle</span>
+                            <span className="text-base font-black">Daily Cycle</span>
                         </div>
                     </div>
                 </div>

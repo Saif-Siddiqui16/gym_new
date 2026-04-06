@@ -1,248 +1,291 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-    Search,
-    Filter,
-    CheckCircle,
-    XCircle,
-    Clock,
-    CheckCircle2,
-    Loader2,
-    RefreshCw
+import { 
+    Search, Filter, CheckCircle, XCircle, Clock, CheckCircle2, 
+    Loader2, RefreshCw, UserCheck, ShieldCheck, UserX, 
+    ChevronDown, ChevronLeft, ChevronRight, User, Zap, Activity
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { fetchTrainerRequestsAPI, updateTrainerRequestAPI } from '../api/admin/adminApi';
 
-const TrainerRequests = ({ role }) => {
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF',
+};
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+   ───────────────────────────────────────────── */
+const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+    <div style={{
+        background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+        borderRadius: 20, padding: '20px 26px',
+        boxShadow: '0 8px 32px rgba(124,92,252,0.28)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 28, position: 'relative'
+    }} className="fu">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <div style={{
+                width: 52, height: 52, borderRadius: 14,
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', flexShrink: 0
+            }}>
+                <Icon size={26} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>{title}</h1>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '4px 0 0', fontWeight: 500 }}>{sub}</p>
+            </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>{actions}</div>
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, caption, isFirst = false }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <div 
+            style={{
+                background: isFirst ? `linear-gradient(135deg, ${T.accent}, ${T.accent2})` : T.surface,
+                borderRadius: 18, border: isFirst ? 'none' : `1px solid ${T.border}`,
+                boxShadow: isFirst ? '0 8px 24px rgba(124,92,252,0.28)' : '0 2px 12px rgba(124,92,252,0.06)',
+                padding: 20, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+                cursor: 'default'
+            }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: isFirst ? 'rgba(255,255,255,0.2)' : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={16} color={isFirst ? '#fff' : iconColor} strokeWidth={2.5} />
+                </div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: isFirst ? 'rgba(255,255,255,0.7)' : T.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{title}</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: isFirst ? '#fff' : T.text, marginBottom: 2 }}>{value}</div>
+            {caption && <div style={{ fontSize: 9, fontWeight: 700, color: isFirst ? 'rgba(255,255,255,0.5)' : T.subtle }}>{caption}</div>}
+        </div>
+    );
+};
+
+const StatusPill = ({ status }) => {
+    const s = (status || 'Pending').toLowerCase();
+    const config = {
+        active:  { color: T.green, bg: T.greenLight, label: 'Approved' },
+        pending: { color: T.amber, bg: T.amberLight, label: 'Pending Verification' },
+        rejected: { color: T.rose,  bg: T.roseLight,  label: 'Authorization Revoked' },
+    }[s === 'active' ? 'active' : s === 'rejected' ? 'rejected' : 'pending'] || { color: T.muted, bg: T.bg, label: status };
+
+    return (
+        <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em',
+            padding: '4px 10px', borderRadius: 20,
+            background: config.bg, color: config.color, border: `1px solid ${config.color}20`
+        }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: config.color }} />
+            {config.label}
+        </span>
+    );
+};
+
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+   ───────────────────────────────────────────── */
+const TrainerRequests = () => {
     const [trainers, setTrainers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('All Types');
-
-    // Filter Options
-    const filters = ['All Types', 'Pending', 'Active', 'Rejected']; // Note: Active means Approved
 
     const loadRequests = useCallback(async () => {
         setLoading(true);
         try {
             const data = await fetchTrainerRequestsAPI();
             setTrainers(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Failed to load trainer requests:', error);
-            toast.error('Failed to load requests');
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { toast.error('Signal lost with registry'); }
+        finally { setLoading(false); }
     }, []);
 
-    useEffect(() => {
-        loadRequests();
-    }, [loadRequests]);
+    useEffect(() => { loadRequests(); }, [loadRequests]);
 
     const handleUpdateStatus = async (id, newStatus) => {
         try {
             await updateTrainerRequestAPI(id, newStatus);
-            toast.success(`Request marked as ${newStatus}`);
-            loadRequests(); // refresh the list
-        } catch (error) {
-            console.error('Failed to update status:', error);
-            toast.error(error.response?.data?.message || 'Failed to update request');
-        }
+            toast.success(`Node marked as ${newStatus}`);
+            loadRequests();
+        } catch (error) { toast.error('Operation failed'); }
     };
 
-    // Filter logic
-    const filteredTrainers = trainers.filter((t) => {
-        const matchesSearch =
-            (t.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (t.email || '').toLowerCase().includes(searchQuery.toLowerCase());
-
+    const filtered = trainers.filter(t => {
+        const matchesSearch = (t.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || (t.email || '').toLowerCase().includes(searchQuery.toLowerCase());
         if (statusFilter === 'All Types') return matchesSearch;
         return matchesSearch && (t.status || 'Pending') === statusFilter;
     });
 
-    // Stats calculation
-    const pendingCount = trainers.filter(t => (t.status || 'Pending') === 'Pending').length;
-    // Approving sets user to Active, rejecting sets to Rejected
-    const approvedCount = trainers.filter(t => t.status === 'Active').length;
-    const rejectedCount = trainers.filter(t => t.status === 'Rejected').length;
-
-    const stats = [
-        { label: 'Pending', value: pendingCount, color: 'amber', icon: Clock },
-        { label: 'Approved', value: approvedCount, color: 'emerald', icon: CheckCircle2 },
-        { label: 'Rejected', value: rejectedCount, color: 'rose', icon: XCircle },
-    ];
-
-    const getStatusBadge = (status) => {
-        const s = status || 'Pending';
-        switch (s) {
-            case 'Pending':
-                return <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-100">Pending</span>;
-            case 'Active':
-                return <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-100">Approved</span>;
-            case 'Rejected':
-                return <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-100">Rejected</span>;
-            default:
-                return <span className="px-3 py-1 bg-slate-50 text-slate-700 rounded-full text-xs font-bold border border-slate-100">{s}</span>;
-        }
+    const stats = {
+        pending: trainers.filter(t => (t.status || 'Pending') === 'Pending').length,
+        approved: trainers.filter(t => t.status === 'Active').length,
+        rejected: trainers.filter(t => t.status === 'Rejected').length,
     };
 
+    if (loading && trainers.length === 0) return (
+        <div style={{ background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap'); @keyframes spin { to { transform: rotate(360deg) } }`}</style>
+            <div style={{ width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+            <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, uppercase: true, letterSpacing: '0.18em', textTransform: 'uppercase' }}>Authenticating Identities…</p>
+        </div>
+    );
+
     return (
-        <div className="bg-gradient-to-br from-gray-50 via-white to-primary-light/30 min-h-screen font-sans pb-24 text-slate-800">
-            {/* Header section */}
-            <div className="max-w-full mx-auto mb-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
-                            Trainer Approvals
-                        </h1>
-                        <p className="text-slate-500 font-bold mt-1">Review and process trainer signup requests</p>
-                    </div>
-                    <button
-                        onClick={loadRequests}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-colors disabled:opacity-50 shadow-sm"
+        <div style={{
+            background: T.bg, minHeight: '100vh', padding: '28px 28px 48px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif", animation: 'fadeUp 0.38s ease both'
+        }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                
+                .grid-table { display: grid; grid-template-columns: 240px 160px 180px 160px 1.5fr; align-items: center; }
+                
+                @media (max-width: 1024px) {
+                    .table-wrapper { overflow-x: auto !important; }
+                    .table-content { min-width: 900px; }
+                }
+                @media (max-width: 640px) {
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 16px 18px !important; }
+                    .filter-bar { flex-direction: column; align-items: stretch !important; gap: 12px !important; }
+                    .grid-table { grid-template-columns: 1fr !important; gap: 10px; padding: 18px !important; border-bottom: 6px solid ${T.bg} !important; position: relative; }
+                    .table-header { display: none !important; }
+                    .mobile-label { display: block !important; margin-bottom: 2px; font-size: 8px !important; color: ${T.subtle} !important; text-transform: uppercase; font-weight: 800; }
+                    .actions-cell { border-top: 1px solid ${T.border}; padding-top: 12px !important; }
+                }
+            `}</style>
+
+            <HeaderBanner 
+                title="Agent Onboarding"
+                sub="Forensic evaluation and authorization of elite fitness trainers"
+                icon={ShieldCheck}
+                actions={
+                    <button 
+                         onClick={loadRequests}
+                         style={{
+                            background: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 8, color: T.accent, fontSize: 13, fontWeight: 800,
+                            fontFamily: "'Plus Jakarta Sans', sans-serif", boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                         }}
                     >
-                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-                        Refresh
+                        <RefreshCw size={15} /> Sync Registry
                     </button>
+                }
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 28 }} className="grid-metrics">
+                <MetricCard title="Draft Profiles" value={stats.pending} icon={Clock} iconColor={T.accent} iconBg={T.accentLight} isFirst={true} />
+                <MetricCard title="Verified Agents" value={stats.approved} icon={UserCheck} iconColor={T.green} iconBg={T.greenLight} caption="Authorization granted" />
+                <MetricCard title="Denied Access" value={stats.rejected} icon={UserX} iconColor={T.rose} iconBg={T.roseLight} caption="Security flagged" />
+                <MetricCard title="Ingestion Rate" value="98.2%" icon={Zap} iconColor={T.amber} iconBg={T.amberLight} caption="Node velocity" />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }} className="filter-bar">
+                <div style={{ flex: 1, height: 44, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <Search size={18} color={T.subtle} strokeWidth={2.5} />
+                    <input 
+                        type="text" placeholder="Search by agent name, identity or encrypted email…" 
+                        value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                        style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                    />
+                </div>
+                <div style={{ width: 220, height: 44, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '0 12px', display: 'flex', alignItems: 'center' }}>
+                    <Filter size={16} color={T.subtle} style={{ marginRight: 8 }} />
+                    <select 
+                        value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+                        style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 700, color: T.text, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                    >
+                        <option value="All Types">Every Lifecycle</option>
+                        <option value="Pending">Pending Vault</option>
+                        <option value="Active">Operational</option>
+                        <option value="Rejected">Revoked</option>
+                    </select>
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="max-w-full mx-auto mb-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {stats.map((card, idx) => (
-                        <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow">
-                            <div className={`w-12 h-12 bg-${card.color}-50 text-${card.color}-600 rounded-xl flex items-center justify-center transition-transform`}>
-                                <card.icon size={24} />
+            <div style={{ background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(124,92,252,0.06)', overflow: 'hidden' }} className="table-wrapper">
+                <div className="table-content">
+                    <div style={{ padding: '12px 22px', background: T.bg, borderBottom: `1px solid ${T.border}` }} className="grid-table table-header">
+                        {['Agent Identity', 'Specialization', 'Contact Vector', 'Vault Status', 'Logic Protocol'].map((h, i) => (
+                            <span key={h} style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: i === 4 ? 'right' : 'left' }}>{h}</span>
+                        ))}
+                    </div>
+
+                    {filtered.length > 0 ? filtered.map((t, idx) => (
+                        <div key={t.id} style={{ padding: '18px 22px', borderBottom: idx < filtered.length - 1 ? `1px solid ${T.border}` : 'none', transition: 'background 0.1s' }} className="grid-table" onMouseEnter={e => { e.currentTarget.style.background = T.bg; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <span style={{ display: 'none' }} className="mobile-label">Agent</span>
+                                <div style={{ width: 38, height: 38, borderRadius: 12, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, boxShadow: '0 4px 10px rgba(124,92,252,0.2)' }}>{(t.name || '?').charAt(0)}</div>
+                                <div>
+                                    <div style={{ fontSize: 13, fontWeight: 900, color: T.text }}>{t.name}</div>
+                                    <div style={{ fontSize: 11, fontWeight: 600, color: T.subtle }}>{t.email}</div>
+                                </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{card.label}</p>
-                                <h3 className="text-2xl font-black text-slate-800">{loading ? '—' : card.value}</h3>
+                                <span style={{ display: 'none' }} className="mobile-label">Cluster</span>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.04em', background: T.accentLight, padding: '4px 10px', borderRadius: 8, display: 'inline-block' }}>{t.role || 'Fitness Node'}</div>
+                            </div>
+                            <div>
+                                <span style={{ display: 'none' }} className="mobile-label">Network</span>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{t.phone || 'Vector Null'}</div>
+                            </div>
+                            <div>
+                                <span style={{ display: 'none' }} className="mobile-label">Audit</span>
+                                <StatusPill status={t.status} />
+                            </div>
+                            <div style={{ textAlign: 'right' }} className="actions-cell">
+                                <span style={{ display: 'none' }} className="mobile-label">Execute</span>
+                                {(t.status || 'Pending') === 'Pending' ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
+                                        <button 
+                                            onClick={() => handleUpdateStatus(t.id, 'Active')}
+                                            style={{
+                                                padding: '9px 18px', borderRadius: 12, background: T.greenLight, color: T.green,
+                                                fontSize: 11, fontWeight: 900, border: `1px solid ${T.green}40`, cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: 7, transition: '0.25s'
+                                            }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = T.green; e.currentTarget.style.color = '#fff'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = T.greenLight; e.currentTarget.style.color = T.green; }}
+                                        >
+                                            <CheckCircle2 size={13} strokeWidth={2.5} /> Verify Agent
+                                        </button>
+                                        <button 
+                                            onClick={() => handleUpdateStatus(t.id, 'Rejected')}
+                                            style={{
+                                                padding: '9px 18px', borderRadius: 12, background: T.roseLight, color: T.rose,
+                                                fontSize: 11, fontWeight: 900, border: `1px solid ${T.rose}40`, cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: 7, transition: '0.25s'
+                                            }}
+                                            onMouseEnter={e => { e.currentTarget.style.background = T.rose; e.currentTarget.style.color = '#fff'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.background = T.roseLight; e.currentTarget.style.color = T.rose; }}
+                                        >
+                                            <XCircle size={13} strokeWidth={2.5} /> Revoke
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: T.subtle, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Consensus Finalized</div>
+                                )}
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Search and Filters */}
-            <div className="max-w-full mx-auto mb-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-md group">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                            <Search size={18} />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search by name or email..."
-                            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all shadow-sm"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm overflow-x-auto no-scrollbar whitespace-nowrap">
-                            <Filter size={14} className="text-slate-400" />
-                            {filters.map((filter) => (
-                                <button
-                                    key={filter}
-                                    onClick={() => setStatusFilter(filter)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${statusFilter === filter
-                                        ? 'bg-primary text-white shadow-md shadow-violet-200'
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
-                                >
-                                    {filter === 'Active' ? 'Approved' : filter}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="max-w-full mx-auto">
-                <div className="bg-white/60 backdrop-blur-md rounded-[32px] shadow-sm border border-white/50 overflow-hidden">
-                    {loading ? (
-                        <div className="py-24 text-center">
-                            <Loader2 className="animate-spin mx-auto text-primary mb-4" size={40} />
-                            <p className="text-slate-500 font-bold">Loading requests...</p>
-                        </div>
-                    ) : filteredTrainers.length === 0 ? (
-                        <div className="py-24 text-center">
-                            <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CheckCircle size={40} />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-800 mb-2">
-                                {searchQuery || statusFilter !== 'All Types' ? 'No matching requests' : 'All caught up!'}
-                            </h3>
-                            <p className="text-slate-500 font-bold">
-                                {searchQuery || statusFilter !== 'All Types' ? 'Adjust your filters to see more.' : 'No pending trainer requests right now.'}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Trainer Info</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Specialization</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Contact</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
-                                        <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100/50">
-                                    {filteredTrainers.map(trainer => (
-                                        <tr key={trainer.id} className="group hover:bg-slate-50/50 transition-colors">
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-fuchsia-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
-                                                        {(trainer.name || '?').charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-slate-800 text-sm">{trainer.name}</p>
-                                                        <p className="text-xs text-slate-400 mt-0.5">{trainer.email}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                                    {trainer.role || 'General'}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5 text-sm font-bold text-slate-600">
-                                                {trainer.phone || '—'}
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                {getStatusBadge(trainer.status)}
-                                            </td>
-                                            <td className="px-8 py-5 text-right">
-                                                {(trainer.status || 'Pending') === 'Pending' ? (
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={() => handleUpdateStatus(trainer.id, 'Active')}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                                                        >
-                                                            <CheckCircle2 size={14} />
-                                                            Approve
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleUpdateStatus(trainer.id, 'Rejected')}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
-                                                        >
-                                                            <XCircle size={14} />
-                                                            Reject
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-xs font-bold text-slate-400 italic">Processed</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                    )) : !loading && (
+                        <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+                            <div style={{ width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}><CheckCircle size={24} color={T.green} /></div>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, color: T.muted, margin: '0 0 4px' }}>Atmosphere Clear</h3>
+                            <p style={{ fontSize: 11, color: T.subtle, italic: true }}>No pending identity authorizations detected in the current nexus</p>
                         </div>
                     )}
                 </div>

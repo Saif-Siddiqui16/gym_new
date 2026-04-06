@@ -2,41 +2,63 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../components/common/Modal';
 import { useNavigate } from 'react-router-dom';
 import {
-    Calendar,
-    Clock,
-    Zap,
-    Search,
-    Filter,
-    Activity,
-    Plus,
-    Target,
-    MapPin,
-    Users,
-    Loader,
-    X
+    Calendar as CalendarIcon, Clock, Zap, Search, Filter, Activity, 
+    Plus, Target, MapPin, Users, Loader2, X, RefreshCw, Layers, 
+    CheckCircle2, Sparkles, Send, Dumbbell, History, UserCheck
 } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
-import Card from '../../components/ui/Card';
+import Loader from '../../components/common/Loader';
 import { fetchPTAccounts, bookPTSession } from '../../api/member/memberApi';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
 
 const MemberBookings = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [availableClasses, setAvailableClasses] = useState([]);
     const [loadingClasses, setLoadingClasses] = useState(false);
-    
-    // Core booking state
-    const [bookingType, setBookingType] = useState('Class'); // 'Class' or 'PT'
+    const [bookingType, setBookingType] = useState('Class');
     const [selectedClassId, setSelectedClassId] = useState('');
     const [bookingDate, setBookingDate] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-
-    // PT booking state
     const [ptAccounts, setPtAccounts] = useState([]);
     const [selectedPtAccountId, setSelectedPtAccountId] = useState('');
     const [ptTime, setPtTime] = useState('');
@@ -49,13 +71,9 @@ const MemberBookings = () => {
                 setLoading(true);
                 const response = await apiClient.get('/member/bookings');
                 setBookings(response.data || []);
-            } catch (err) {
-                console.error("Failed to fetch bookings:", err);
-            } finally {
-                setLoading(false);
-            }
+            } catch (err) { console.error("Failed to fetch bookings:", err); }
+            finally { setLoading(false); }
         };
-
         fetchBookings();
     }, []);
 
@@ -70,355 +88,196 @@ const MemberBookings = () => {
 
     const formatTime = (timeStr) => {
         if (!timeStr) return '';
-        // If it already has AM/PM, return as is (maybe trim seconds if present)
-        if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
-            return timeStr;
-        }
-        // Handles "09:00:00" mapping -> "09:00"
+        if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) return timeStr;
         return timeStr.substring(0, 5);
     };
 
     const handleOpenBookingModal = async () => {
-        setIsBookingModalOpen(true);
-        setLoadingClasses(true);
-        setSelectedClassId('');
-        setBookingDate('');
-        setPtTime('');
-        setSelectedPtAccountId('');
+        setIsBookingModalOpen(true); setLoadingClasses(true);
+        setSelectedClassId(''); setBookingDate(''); setPtTime(''); setSelectedPtAccountId('');
         try {
-            const [classRes, ptRes] = await Promise.all([
-                apiClient.get('/member/classes'),
-                fetchPTAccounts()
-            ]);
+            const [classRes, ptRes] = await Promise.all([apiClient.get('/member/classes'), fetchPTAccounts()]);
             setAvailableClasses(classRes.data || []);
-            // Only show active accounts with remaining sessions AND active membership
-            setPtAccounts(ptRes.filter(acc => 
-                acc.status === 'Active' && 
-                acc.member?.status === 'Active' &&
-                (!acc.package?.totalSessions || acc.remainingSessions > 0)
-            ));
-        } catch (err) {
-            console.error("Failed to fetch booking options:", err);
-            toast.error("Failed to load booking options.");
-        } finally {
-            setLoadingClasses(false);
-        }
+            setPtAccounts(ptRes.filter(acc => acc.status === 'Active' && acc.member?.status === 'Active' && (!acc.package?.totalSessions || acc.remainingSessions > 0)));
+        } catch (err) { toast.error("Failed to load options."); }
+        finally { setLoadingClasses(false); }
     };
 
     const handleBookClass = async () => {
-        if (bookingType === 'Class' && (!selectedClassId || !bookingDate)) {
-            toast.error("Please select a session and date.");
-            return;
-        }
-        if (bookingType === 'PT' && (!selectedPtAccountId || !bookingDate || !ptTime)) {
-             toast.error("Please select a PT Package, date, and time.");
-             return;
-        }
-
+        if (bookingType === 'Class' && (!selectedClassId || !bookingDate)) return toast.error("Select session & date.");
+        if (bookingType === 'PT' && (!selectedPtAccountId || !bookingDate || !ptTime)) return toast.error("Select package, date & time.");
         setIsSubmitting(true);
         try {
             if (bookingType === 'Class') {
-                const res = await apiClient.post('/member/bookings', {
-                    classId: selectedClassId,
-                    date: bookingDate
-                });
-
-                if (res.data.invoice) {
-                    toast.success("Booking created! Please complete payment to confirm.");
-                    navigate('/member/payments');
-                    return;
-                }
+                const res = await apiClient.post('/member/bookings', { classId: selectedClassId, date: bookingDate });
+                if (res.data.invoice) { toast.success("Invoice generated!"); navigate('/member/payments'); return; }
             } else {
-                await bookPTSession({
-                    ptAccountId: selectedPtAccountId,
-                    date: bookingDate,
-                    time: ptTime,
-                    duration: 60
-                });
+                await bookPTSession({ ptAccountId: selectedPtAccountId, date: bookingDate, time: ptTime, duration: 60 });
             }
-
-            toast.success("Successfully booked your session!");
-            setIsBookingModalOpen(false);
-
-            // Refresh bookings
-            setLoading(true);
-            const bRes = await apiClient.get('/member/bookings');
-            setBookings(bRes.data || []);
-            setLoading(false);
-        } catch (err) {
-            toast.error(err.response?.data?.message || err.message || "Failed to book session.");
-        } finally {
-            setIsSubmitting(false);
-        }
+            toast.success("Successfully booked!"); setIsBookingModalOpen(false);
+            setLoading(true); const bRes = await apiClient.get('/member/bookings'); setBookings(bRes.data || []); setLoading(false);
+        } catch (err) { toast.error(err.response?.data?.message || "Failed."); }
+        finally { setIsSubmitting(false); }
     };
 
+    if (loading) return <Loader message="Opening the scheduler..." />;
+
     return (
-        <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b-2 border-slate-100">
-                <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100 animate-in zoom-in duration-500">
-                        <Calendar size={32} strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <CalendarIcon size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1 animate-in slide-in-from-left duration-500">
-                            Book & Schedule
-                        </h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest animate-in slide-in-from-left duration-700">
-                            Upcoming sessions for the next 7 days
-                        </p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Book & Schedule</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Reserve your classes, recovery sessions and PT slots</p>
                     </div>
                 </div>
+                <button onClick={handleOpenBookingModal} style={{ padding: '0 28px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}><Plus size={18} strokeWidth={3} /> My Bookings</button>
             </div>
 
-            {/* Filter Tabs & Action Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
-                <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-100">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === tab
-                                ? 'bg-white text-primary shadow-md ring-1 ring-slate-200'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
-                                }`}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+                {/* FILTER TABS */}
+                <div style={{ display: 'flex', gap: 12 }} className="animate-fadeIn">
+                    {tabs.map(tab => (
+                        <button 
+                            key={tab} onClick={() => setActiveTab(tab)}
+                            style={{
+                                padding: '12px 24px', borderRadius: 16, border: `2px solid ${activeTab === tab ? T.accent : T.surface}`,
+                                background: activeTab === tab ? T.accent : T.surface,
+                                color: activeTab === tab ? '#fff' : T.muted,
+                                fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                cursor: 'pointer', transition: '0.2s',
+                                boxShadow: activeTab === tab ? '0 8px 24px rgba(124,92,252,0.15)' : 'none'
+                            }}
                         >
                             {tab}
                         </button>
                     ))}
-                    <div className="hidden sm:block h-6 w-px bg-slate-200 mx-2" />
                 </div>
 
-                <button
-                    onClick={handleOpenBookingModal}
-                    className="px-8 h-12 bg-primary text-white rounded-[20px] text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-primary-hover hover:-translate-y-1 transition-all flex items-center gap-2"
-                >
-                    <Plus size={16} strokeWidth={3} /> My Booking
-                </button>
-            </div>
-
-            {/* My Bookings Section */}
-            <div className="space-y-6 pt-4">
-                <div className="flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary shadow-sm border border-violet-100">
-                        <Zap size={16} />
-                    </div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Bookings</h2>
-                </div>
-
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <Loader className="w-8 h-8 animate-spin text-primary" />
-                    </div>
-                ) : filteredBookings.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredBookings.map((booking) => (
-                            <Card key={booking.id} className="p-8 sm:p-10 border-slate-100 hover:border-violet-100 transition-all duration-300 rounded-[2.5rem] group relative overflow-hidden bg-white shadow-sm">
-                                {/* Decorator */}
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light/50 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110" />
-
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary-light text-primary flex items-center justify-center">
-                                        <Activity size={24} />
+                {/* BOOKINGS GRID */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <SectionHeader icon={History} title="Active Schedules" subtitle="Upcoming sessions for the week" />
+                    
+                    {filteredBookings.length > 0 ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                            {filteredBookings.map((b, idx) => (
+                                <PremiumCard key={b.id} index={idx}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity size={20} /></div>
+                                        <span style={{ 
+                                            padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase',
+                                            background: b.status === 'Completed' ? T.greenLight : b.status === 'Cancelled' ? T.roseLight : b.status === 'Pending Payment' ? T.amberLight : T.blueLight,
+                                            color: b.status === 'Completed' ? T.green : b.status === 'Cancelled' ? T.rose : b.status === 'Pending Payment' ? T.amber : T.blue
+                                        }}>{b.status}</span>
                                     </div>
-                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${
-                                        booking.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
-                                        booking.status === 'Cancelled' ? 'bg-rose-50 text-rose-600' :
-                                        booking.status === 'Pending Payment' ? 'bg-amber-50 text-amber-600 animate-pulse' :
-                                        'bg-blue-50 text-blue-600'
-                                        }`}>
-                                        {booking.status}
-                                    </span>
-                                </div>
-
-                                {booking.status === 'Pending Payment' && (
-                                    <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full px-8 text-center bg-white/90 backdrop-blur-sm py-8 z-20 flex flex-col items-center gap-4">
-                                        <div className="p-3 bg-amber-100 rounded-full text-amber-600">
-                                            <Zap size={24} />
+                                    <h4 style={{ fontSize: 15, fontWeight: 900, color: T.text, margin: '0 0 4px', lineHeight: 1.2 }}>{b.class?.name || 'Training Session'}</h4>
+                                    <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: '0 0 16px' }}>{b.class?.type || 'Standard'}</p>
+                                    
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 16, borderTop: `1px solid ${T.bg}` }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <CalendarIcon size={14} color={T.accent} />
+                                            <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</span>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Payment Required</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete payment to confirm session</p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <Clock size={14} color={T.accent} />
+                                            <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{formatTime(b.class?.startTime)} — {formatTime(b.class?.endTime)}</span>
                                         </div>
-                                        <button 
-                                            onClick={() => navigate('/member/payments')}
-                                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100"
-                                        >
-                                            Pay Now
-                                        </button>
-                                    </div>
-                                )}
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-black text-slate-900 tracking-tight mb-1">{booking.class?.name || 'Session'}</h3>
-                                        <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">{booking.class?.type || 'General'}</p>
-                                    </div>
-
-                                    <div className="space-y-3 pt-4 border-t border-slate-50">
-                                        <div className="flex items-center gap-3 text-slate-500">
-                                            <Calendar size={16} className="text-violet-400" />
-                                            <span className="text-sm font-bold">{new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-slate-500">
-                                            <Clock size={16} className="text-violet-400" />
-                                            <span className="text-sm font-bold">{formatTime(booking.class?.startTime)} - {formatTime(booking.class?.endTime)}</span>
-                                        </div>
-                                        {booking.class?.trainer && (
-                                            <div className="flex items-center gap-3 text-slate-500">
-                                                <Users size={16} className="text-violet-400" />
-                                                <span className="text-sm font-bold">{booking.class.trainer.name}</span>
+                                        {b.class?.trainer && (
+                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                <Users size={14} color={T.accent} />
+                                                <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{b.class.trainer.name}</span>
                                             </div>
                                         )}
                                     </div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                ) : (
-                    <Card className="p-24 sm:p-32 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[4rem] bg-white flex flex-col items-center justify-center text-center group hover:border-violet-100 transition-all duration-500">
-                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-100 group-hover:scale-110 transition-transform duration-500">
-                            <Calendar size={48} strokeWidth={1} />
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4 leading-none">
-                            No upcoming bookings
-                        </h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-sm">
-                            Book a class or recovery slot to see it here.
-                        </p>
-                    </Card>
-                )}
-            </div>
 
-            {/* Booking Modal */}
-            <Modal
-                isOpen={isBookingModalOpen}
-                onClose={() => setIsBookingModalOpen(false)}
-                title="New Booking"
-                maxWidth="max-w-md"
-            >
-                <div className="p-6 space-y-6">
-                    {loadingClasses ? (
-                        <div className="flex justify-center py-10">
-                            <Loader className="w-8 h-8 animate-spin text-primary" />
+                                    {b.status === 'Pending Payment' && (
+                                        <button onClick={() => navigate('/member/payments')} style={{ marginTop: 20, width: '100%', height: 44, borderRadius: 12, background: T.accent, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.1)' }}>Pay to Confirm</button>
+                                    )}
+                                </PremiumCard>
+                            ))}
                         </div>
                     ) : (
-                        <>
-                            {/* Type Toggle */}
-                            <div className="flex p-1 bg-slate-100 rounded-xl">
-                                <button 
-                                    onClick={() => setBookingType('Class')}
-                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'Class' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                >
-                                    Classes & Recovery
-                                </button>
-                                <button 
-                                    onClick={() => setBookingType('PT')}
-                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${bookingType === 'PT' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                >
-                                    Personal Training
-                                </button>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
-                                <input
-                                    type="date"
-                                    value={bookingDate}
-                                    onChange={(e) => setBookingDate(e.target.value)}
-                                    min={new Date().toISOString().split('T')[0]}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                />
-                            </div>
+                        <div style={{ textAlign: 'center', padding: 80, border: `2px dashed ${T.border}`, borderRadius: 24, background: T.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <CalendarIcon size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+                            <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text }}>No Scheduled Bookings</h4>
+                            <p style={{ color: T.muted, fontSize: 13, fontWeight: 700 }}>Your active class and PT sessions will be listed here.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
 
-                            {bookingType === 'Class' ? (
-                                <div className="space-y-6 animate-in fade-in duration-300">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select Class/Session</label>
-                                        <select
-                                            value={selectedClassId}
-                                            onChange={(e) => setSelectedClassId(e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                        >
-                                            <option value="">-- Choose an option --</option>
-                                            {availableClasses.map(c => (
-                                                <option key={c.id} value={c.id}>
-                                                    {c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''} - {c.trainer?.name ? `Trainer: ${c.trainer.name}` : 'General'}
-                                                </option>
-                                            ))}
+            {/* BOOKING MODAL */}
+            <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Create New Booking" maxWidth="max-w-md">
+                <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ display: 'flex', padding: 6, background: T.bg, borderRadius: 16 }}>
+                        <button onClick={() => setBookingType('Class')} style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: bookingType === 'Class' ? '#fff' : 'transparent', color: bookingType === 'Class' ? T.accent : T.muted, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: bookingType === 'Class' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>Classes & Recovery</button>
+                        <button onClick={() => setBookingType('PT')} style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: bookingType === 'PT' ? '#fff' : 'transparent', color: bookingType === 'PT' ? T.accent : T.muted, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: bookingType === 'PT' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>Private Training</button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Target Date</label>
+                        <input type="date" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }} />
+                    </div>
+
+                    {bookingType === 'Class' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Select Session</label>
+                                <select value={selectedClassId} onChange={e => setSelectedClassId(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }}>
+                                    <option value="">-- Choose Option --</option>
+                                    {availableClasses.map(c => <option key={c.id} value={c.id}>{c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
+                             {ptAccounts.length === 0 ? (
+                                <div style={{ padding: 20, background: T.roseLight, color: T.rose, borderRadius: 16, fontSize: 12, fontWeight: 700, textAlign: 'center' }}>No active PT packages available. Purchase a package to book private sessions.</div>
+                             ) : (
+                                <>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>PT Package</label>
+                                        <select value={selectedPtAccountId} onChange={e => setSelectedPtAccountId(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }}>
+                                            <option value="">-- Select Package --</option>
+                                            {ptAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.package?.name} ({acc.remainingSessions} Left)</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
-                                        <input
-                                            type="date"
-                                            value={bookingDate}
-                                            onChange={(e) => setBookingDate(e.target.value)}
-                                            min={new Date().toISOString().split('T')[0]}
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                        />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Preferred Time</label>
+                                        <input type="time" value={ptTime} onChange={e => setPtTime(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }} />
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-6 animate-in fade-in duration-300">
-                                    {ptAccounts.length === 0 ? (
-                                        <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-700 text-xs font-bold text-center">
-                                            You don't have any active PT packages. Please purchase or activate a package first.
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select PT Package</label>
-                                                <select
-                                                    value={selectedPtAccountId}
-                                                    onChange={(e) => setSelectedPtAccountId(e.target.value)}
-                                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                >
-                                                    <option value="">-- Choose your PT package --</option>
-                                                    {ptAccounts.map(acc => (
-                                                        <option key={acc.id} value={acc.id}>
-                                                            {acc.package?.name} {acc.package?.totalSessions > 0 ? `(${acc.remainingSessions} sessions left)` : '(Unlimited)'} - Trainer: {acc.trainer?.name || 'Assigned'}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
-                                                    <input
-                                                        type="date"
-                                                        value={bookingDate}
-                                                        onChange={(e) => setBookingDate(e.target.value)}
-                                                        min={new Date().toISOString().split('T')[0]}
-                                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Time</label>
-                                                    <input
-                                                        type="time"
-                                                        value={ptTime}
-                                                        onChange={(e) => setPtTime(e.target.value)}
-                                                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-
-                            <button
-                                onClick={handleBookClass}
-                                disabled={isSubmitting || 
-                                    (bookingType === 'Class' && (!selectedClassId || !bookingDate)) ||
-                                    (bookingType === 'PT' && (!selectedPtAccountId || !bookingDate || !ptTime))
-                                }
-                                className="w-full py-4 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? 'Booking...' : 'Confirm Booking'}
-                            </button>
-                        </>
+                                </>
+                             )}
+                        </div>
                     )}
+
+                    <button onClick={handleBookClass} disabled={isSubmitting} style={{ height: 56, background: T.accent, color: '#fff', borderRadius: 16, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 8 }}>
+                        {isSubmitting ? <RefreshCw className="animate-spin" size={20} /> : <Zap size={20} />} Commit Booking
+                    </button>
                 </div>
             </Modal>
         </div>

@@ -12,23 +12,64 @@ import {
 import { fetchGymDeviceDashboard } from '../../../api/gymDeviceApi';
 import { useBranchContext } from '../../../context/BranchContext';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  cyan: '#06B6D4',
+  cyanLight: '#ECFEFF',
+  teal: '#14B8A6',
+  tealLight: '#F0FDFA',
+  orange: '#F97316',
+  orangeLight: '#FFF7ED'
+};
+
 const DeviceStatCard = ({ label, value, color, icon: Icon }) => {
-    const activeColors = {
-        emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-        red: 'bg-red-50 text-red-600 border-red-100',
-        violet: 'bg-violet-50 text-violet-600 border-violet-100',
-        blue: 'bg-blue-50 text-blue-600 border-blue-100',
-        amber: 'bg-amber-50 text-amber-600 border-amber-100',
-        orange: 'bg-orange-50 text-orange-600 border-orange-100',
-        cyan: 'bg-cyan-50 text-cyan-600 border-cyan-100',
-        teal: 'bg-teal-50 text-teal-600 border-teal-100'
+    const [hover, setHover] = useState(false);
+    const colorMap = {
+        emerald: { bg: T.greenLight, text: T.green, border: '#A7F3D0' },
+        red: { bg: T.roseLight, text: T.rose, border: '#FECDD3' },
+        violet: { bg: T.accentLight, text: T.accent, border: T.accentMid },
+        blue: { bg: T.blueLight, text: T.blue, border: '#BFDBFE' },
+        amber: { bg: T.amberLight, text: T.amber, border: '#FDE68A' },
+        orange: { bg: T.orangeLight, text: T.orange, border: '#FED7AA' },
+        cyan: { bg: T.cyanLight, text: T.cyan, border: '#A5F3FC' },
+        teal: { bg: T.tealLight, text: T.teal, border: '#99F6E4' }
     };
+    const c = colorMap[color] || colorMap.violet;
 
     return (
-        <div className={`flex flex-col items-center justify-center p-3 rounded-2xl border ${activeColors[color]} hover:scale-105 transition-transform cursor-default group/card`}>
-            <Icon size={16} className="mb-2 opacity-50 group-hover/card:opacity-100 transition-opacity" />
-            <div className="text-base font-black leading-tight">{value}</div>
-            <div className="text-[8px] font-black uppercase tracking-tighter opacity-70">{label}</div>
+        <div 
+            style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                padding: '16px 12px', borderRadius: 20, border: `1px solid ${c.border}`,
+                background: c.bg, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                cursor: 'default', transform: hover ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: hover ? '0 8px 24px rgba(0,0,0,0.06)' : 'none'
+            }}
+            onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+        >
+            <Icon size={16} style={{ marginBottom: 8, opacity: hover ? 1 : 0.5, color: c.text, transition: '0.2s' }} />
+            <div style={{ fontSize: 16, fontWeight: 900, color: c.text, lineHeight: 1 }}>{value}</div>
+            <div style={{ fontSize: 8, fontWeight: 900, color: c.text, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8, marginTop: 4 }}>{label}</div>
         </div>
     );
 };
@@ -61,34 +102,56 @@ const SmartAIoTSummary = () => {
     if (!summary && !loading) return null;
 
     return (
-        <div className="mb-8 p-6 bg-violet-50/30 rounded-3xl border-2 border-dashed border-violet-100 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Smartphone size={120} className="rotate-12" />
+        <div style={{
+            marginBottom: 32, padding: 24, background: 'rgba(124, 92, 252, 0.03)',
+            borderRadius: 30, border: `2px dashed ${T.accentMid}`,
+            position: 'relative', overflow: 'hidden'
+        }}>
+            <style>{`
+                @keyframes pulseAccent { 0%, 100% { opacity: 0.4; transform: scale(1) } 50% { opacity: 1; transform: scale(1.5) } }
+                .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: ${T.accent}; animation: pulseAccent 2s ease-in-out infinite; }
+            `}</style>
+            
+            <div style={{ position: 'absolute', top: 0, right: 0, padding: 16, opacity: 0.05, pointerEvents: 'none' }}>
+                <Smartphone size={120} style={{ transform: 'rotate(12deg)' }} />
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-violet-200 shrink-0">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 30, position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{
+                        width: 48, height: 48, borderRadius: 16,
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', boxShadow: `0 8px 24px rgba(124,92,252,0.25)`
+                    }}>
                         <ShieldCheck size={28} />
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 style={{ fontSize: 20, fontWeight: 900, color: '#1A1533', margin: 0, display: 'flex', alignItems: 'center', gap: 8, letterSpacing: '-0.3px' }}>
                             Smart AIoT Access Control
-                            {loading && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></div>}
+                            {loading && <div className="pulse-dot"></div>}
                         </h3>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Real-time Face Recognition Hardware Sync</p>
+                        <p style={{ fontSize: 10, color: T.muted, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '4px 0 0' }}>Real-time Face Recognition Hardware Sync</p>
                     </div>
                 </div>
                 <button 
                     onClick={() => navigate('/operations/devices')}
-                    className="text-[10px] font-black text-primary hover:text-primary-hover flex items-center gap-1.5 uppercase tracking-widest bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 hover:border-primary/30 transition-all w-fit"
+                    style={{
+                        fontSize: 10, fontWeight: 900, color: T.accent, background: '#fff',
+                        padding: '10px 20px', borderRadius: 12, border: `1px solid ${T.border}`,
+                        display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                        textTransform: 'uppercase', letterSpacing: '0.08em', transition: '0.2s',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.02)', width: 'fit-content'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.border = `1px solid ${T.accentMid}`; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                    onMouseOut={e => { e.currentTarget.style.border = `1px solid ${T.border}`; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                     Hardware Settings <ArrowRight size={12} />
                 </button>
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 14, marginBottom: 30 }}>
                 <DeviceStatCard label="Online" value={summary?.onlineCount || 0} color="emerald" icon={ShieldCheck} />
                 <DeviceStatCard label="Offline" value={summary?.offlineCount || 0} color="red" icon={XCircle} />
                 <DeviceStatCard label="Face Today" value={summary?.totalCountToday || 0} color="violet" icon={UsersIcon} />
@@ -100,79 +163,66 @@ const SmartAIoTSummary = () => {
             </div>
 
             {/* Recent Face Records */}
-            <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                        <ClockIcon size={14} className="text-primary" />
+            <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.8)', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h4 style={{ fontSize: 11, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <ClockIcon size={14} color={T.accent} />
                         Recent Face Access Logs
                     </h4>
                     <button 
                         onClick={() => navigate('/operations/face-records')}
-                        className="text-[10px] font-black text-primary hover:underline uppercase tracking-tighter"
+                        style={{ fontSize: 10, fontWeight: 900, color: T.accent, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}
                     >
                         View Detailed Logs
                     </button>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Person</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">ID / SN</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Device</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</th>
-                                <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                            <tr style={{ background: 'rgba(0,0,0,0.02)' }}>
+                                {['Person', 'ID / SN', 'Type', 'Device', 'Time', 'Status'].map(h => (
+                                    <th key={h} style={{ padding: '12px 24px', textAlign: 'left', fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</th>
+                                ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {summary?.records?.slice(0, 5).map((record) => (
-                                <tr key={record.id} className="hover:bg-primary-light/10 transition-colors group/row">
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden bg-slate-100 flex-shrink-0 group-hover/row:scale-110 transition-transform">
+                        <tbody style={{ divide: `1px solid ${T.border}` }}>
+                            {summary?.records?.slice(0, 5).map((record, i) => (
+                                <tr key={record.id} style={{ borderTop: `1px solid ${T.bg}`, transition: '0.2s' }}>
+                                    <td style={{ padding: '10px 24px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden', background: T.bg, flexShrink: 0 }}>
                                                 {record.imageUrl ? (
-                                                    <img src={record.imageUrl} alt={record.personName} className="w-full h-full object-cover" />
+                                                    <img src={record.imageUrl} alt={record.personName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                        <UsersIcon size={16} />
+                                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
+                                                        <UsersIcon size={14} />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="font-black text-slate-900 text-xs">{record.personName}</div>
+                                            <div style={{ fontSize: 12, fontWeight: 900, color: T.text }}>{record.personName}</div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-3">
-                                        <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-lg group-hover/row:bg-primary-light group-hover/row:text-primary transition-colors">
-                                            {record.personSn}
-                                        </span>
+                                    <td style={{ padding: '10px 24px' }}>
+                                        <span style={{ padding: '4px 8px', background: T.bg, color: T.muted, fontSize: 10, fontWeight: 800, borderRadius: 8 }}>{record.personSn}</span>
                                     </td>
-                                    <td className="px-6 py-3">
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">{record.passType.replace('_', ' ')}</span>
+                                    <td style={{ padding: '10px 24px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{record.passType.replace('_', ' ')}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-3 text-[10px] font-black text-slate-500 uppercase">{record.deviceName}</td>
-                                    <td className="px-6 py-3">
-                                        <div className="text-[10px] font-bold text-slate-600">
-                                            {new Date(record.createTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
-                                        <div className="text-[8px] text-slate-400 font-medium tracking-tight">
-                                            {new Date(record.createTime).toLocaleDateString()}
-                                        </div>
+                                    <td style={{ padding: '10px 24px', fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{record.deviceName}</td>
+                                    <td style={{ padding: '10px 24px' }}>
+                                        <div style={{ fontSize: 10, fontWeight: 800, color: T.text }}>{new Date(record.createTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        <div style={{ fontSize: 8, fontWeight: 700, color: T.subtle }}>{new Date(record.createTime).toLocaleDateString()}</div>
                                     </td>
-                                    <td className="px-6 py-3">
-                                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-md uppercase tracking-widest">
-                                            Verified
-                                        </span>
+                                    <td style={{ padding: '10px 24px' }}>
+                                        <span style={{ padding: '4px 10px', background: T.greenLight, color: T.green, fontSize: 9, fontWeight: 900, borderRadius: 6, textTransform: 'uppercase' }}>Verified</span>
                                     </td>
                                 </tr>
                             )) || (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-8 text-center text-slate-400 text-xs font-bold font-italic">
-                                        No recent face access records found.
-                                    </td>
+                                    <td colSpan="6" style={{ padding: 40, textAlign: 'center', color: T.subtle, fontSize: 12, fontWeight: 800, fontStyle: 'italic' }}>No recent records found</td>
                                 </tr>
                             )}
                         </tbody>

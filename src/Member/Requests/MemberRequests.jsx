@@ -1,26 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import {
-    ClipboardList,
-    Snowflake,
-    UserPlus,
-    Clock,
-    ChevronRight,
-    AlertCircle,
-    CheckCircle2,
-    Search,
-    History,
-    ArrowUpRight,
-    Sparkles,
-    UserCircle,
-    Utensils,
-    Dumbbell,
-    Lock,
-    Sun
+    ClipboardList, Snowflake, UserPlus, Clock, ChevronRight, AlertCircle, 
+    CheckCircle2, Search, History, ArrowUpRight, Sparkles, UserCircle, 
+    Utensils, Dumbbell, Lock, Sun, RefreshCw, Layers
 } from 'lucide-react';
 import { getServiceRequests, addServiceRequest } from '../../api/member/memberApi';
 import RightDrawer from '../../components/common/RightDrawer';
 import ServiceRequestDrawer from '../components/ServiceRequestDrawer';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
 
 const MemberRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -30,19 +54,14 @@ const MemberRequests = () => {
 
     const loadRequests = async () => {
         try {
+            setLoading(true);
             const data = await getServiceRequests();
             setRequests(data || []);
-        } catch (error) {
-            console.error('Failed to load requests:', error);
-            // toast.error("Failed to load request history");
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error('Failed to load requests:', error); }
+        finally { setLoading(false); }
     };
 
-    useEffect(() => {
-        loadRequests();
-    }, []);
+    useEffect(() => { loadRequests(); }, []);
 
     const handleOpenDrawer = (type) => {
         setDefaultType(type);
@@ -60,172 +79,135 @@ const MemberRequests = () => {
             });
             toast.success("Request submitted successfully!", { id: 'service-request' });
             loadRequests();
+            setIsRequestDrawerOpen(false);
         } catch (error) {
             toast.error(error.message || "Failed to submit request", { id: 'service-request' });
         }
     };
 
+    const actionCards = [
+        { type: 'Freeze Membership', title: 'Freeze Membership', sub: 'Temporary pause your plan', icon: Snowflake, color: T.blue, bg: T.blueLight },
+        { type: 'Unfreeze Membership', title: 'Unfreeze Membership', sub: 'Resume your membership', icon: Sun, color: T.amber, bg: T.amberLight },
+        { type: 'Request Locker', title: 'Request Locker', sub: 'Get a locker assigned', icon: Lock, color: T.green, bg: T.greenLight },
+        { type: 'Request Trainer Change', title: 'Request Trainer', sub: 'Change or assign coach', icon: UserPlus, color: T.accent, bg: T.accentLight },
+    ];
+
+    if (loading && requests.length === 0) return <Loader message="Connecting to Roar Support..." />;
+
     return (
-        <div className="saas-container h-screen  space-y-10 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent bg-white">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-10 border-b-2 border-slate-100">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <ClipboardList size={32} strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <ClipboardList size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">My Requests</h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.3em]">Manage membership and service requests</p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Requests</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage membership states and service assistance</p>
                     </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                    <History size={18} strokeWidth={2.5} />
+                    <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Tracking System</span>
                 </div>
             </div>
 
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Freeze Membership Card */}
-                <div className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-violet-100 transition-all">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                <Snowflake size={22} />
-                            </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 tracking-tight">Freeze Membership</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Temporary pause your plan</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => handleOpenDrawer('Freeze Membership')}
-                            className="w-full h-11 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
-                        >
-                            Request Freeze <ChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
-                {/* Unfreeze Membership Card */}
-                <div className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-amber-100 transition-all">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all">
-                                <Sun size={22} />
-                            </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 tracking-tight">Unfreeze Membership</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resume your membership</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => handleOpenDrawer('Unfreeze Membership')}
-                            className="w-full h-11 border-2 border-slate-200 text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                        >
-                            Request Unfreeze <ChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Request Locker Card */}
-                <div className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-emerald-100 transition-all">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                                <Lock size={22} />
-                            </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 tracking-tight">Request Locker</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Get a locker assigned</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => handleOpenDrawer('Request Locker')}
-                            className="w-full h-11 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
-                        >
-                            Request Locker <ChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Trainer Request Card */}
-                <div className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-violet-100 transition-all">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
-                                <UserPlus size={22} />
-                            </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 tracking-tight">Request Trainer</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Change or assign coach</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => handleOpenDrawer('Request Trainer Change')}
-                            className="w-full h-11 border-2 border-slate-200 text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                        >
-                            Request Trainer <ChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Request History Section */}
-            <div className="bg-white rounded-[3rem] border-2 border-slate-100 p-10 shadow-xl shadow-slate-200/50 min-h-[400px]">
-                <div className="flex items-center gap-4 mb-10">
-                    <div className="p-3 bg-primary-light rounded-2xl text-primary">
-                        <History size={24} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Request History</h2>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Track status of your submissions</p>
-                    </div>
-                </div>
-
-                {requests.length > 0 ? (
-                    <div className="space-y-4">
-                        {requests.map((request) => (
-                            <div key={request.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border-2 border-slate-100 group hover:bg-white hover:border-violet-100 transition-all">
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                        request.type === 'Freeze Membership' ? 'bg-blue-50 text-blue-600' :
-                                        request.type === 'Unfreeze Membership' ? 'bg-amber-50 text-amber-600' :
-                                        request.type === 'Request Locker' ? 'bg-emerald-50 text-emerald-600' :
-                                        request.type === 'Diet Plan' ? 'bg-emerald-100 text-emerald-600' :
-                                        request.type === 'Workout Plan' ? 'bg-violet-100 text-primary' :
-                                        'bg-purple-100 text-primary'
-                                        }`}>
-                                        {request.type === 'Freeze Membership' ? <Snowflake size={20} /> :
-                                            request.type === 'Unfreeze Membership' ? <Sun size={20} /> :
-                                            request.type === 'Request Locker' ? <Lock size={20} /> :
-                                            request.type === 'Diet Plan' ? <Utensils size={20} /> :
-                                            request.type === 'Workout Plan' ? <Dumbbell size={20} /> :
-                                            <UserPlus size={20} />}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-900 text-sm tracking-tight">{request.type}</h4>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
-                                            {request.date ? new Date(request.date).toLocaleDateString() : (request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Pending Date')}
-                                        </p>
-                                    </div>
+                {/* QUICK ACTIONS GRID */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                    {actionCards.map((card, idx) => (
+                        <PremiumCard key={card.type} index={idx} style={{ display: 'flex', flexDirection: 'column', gap: 24, background: '#fff' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                <div style={{ width: 44, height: 44, borderRadius: 14, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <card.icon size={22} strokeWidth={2.5} />
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 ${(request.status === 'Approved' || request.status === 'Accepted') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                        request.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                            'bg-amber-50 text-amber-600 border-amber-100'
-                                        }`}>
-                                        {request.status || 'Pending'}
-                                    </div>
+                                <div>
+                                    <h3 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0, tracking: '-0.2px' }}>{card.title}</h3>
+                                    <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{card.sub}</p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-500">
-                        <div className="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 mb-8 border-2 border-dashed border-slate-100">
-                            <Clock size={40} strokeWidth={1.5} />
+                            <button 
+                                onClick={() => handleOpenDrawer(card.type)}
+                                style={{
+                                    height: 48, width: '100%', borderRadius: 12, border: `1.5px solid ${T.bg}`,
+                                    background: card.type === 'Freeze Membership' ? T.accent : (card.type === 'Request Locker' ? T.green : '#fff'),
+                                    color: (card.type === 'Freeze Membership' || card.type === 'Request Locker') ? '#fff' : T.text,
+                                    fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                    boxShadow: (card.type === 'Freeze Membership' || card.type === 'Request Locker') ? '0 8px 16px rgba(0,0,0,0.1)' : 'none'
+                                }}
+                            >
+                                Request {card.title.split(' ')[0]} <ChevronRight size={14} strokeWidth={3} />
+                            </button>
+                        </PremiumCard>
+                    ))}
+                </div>
+
+                {/* REQUEST HISTORY SECTION */}
+                <PremiumCard index={4} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <SectionHeader icon={History} title="Request Evolution History" subtitle="Track the lifecycle of your submissions" />
+                    
+                    {requests.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {requests.map((request, i) => (
+                                <div key={request.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, transition: '0.2s' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                        <div style={{ 
+                                            width: 44, height: 44, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: request.type?.includes('Freeze') ? T.blue : (request.type?.includes('Locker') ? T.green : T.accent),
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
+                                        }}>
+                                            {request.type?.includes('Freeze') ? <Snowflake size={20} /> : <Layers size={20} />}
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0 }}>{request.type}</h4>
+                                            <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', marginTop: 4 }}>Submitted: {new Date(request.date || request.createdAt).toLocaleDateString('en-GB')}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                                         <div style={{ 
+                                            padding: '6px 14px', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                            background: (request.status === 'Approved' || request.status === 'Accepted') ? T.greenLight : (request.status === 'Rejected' ? T.roseLight : T.amberLight),
+                                            color: (request.status === 'Approved' || request.status === 'Accepted') ? T.green : (request.status === 'Rejected' ? T.rose : T.amber),
+                                            border: `1px solid ${(request.status === 'Approved' || request.status === 'Accepted') ? T.green : (request.status === 'Rejected' ? T.rose : T.amber)}15`
+                                        }}>
+                                            {request.status || 'In Review'}
+                                        </div>
+                                        <ChevronRight size={16} color={T.subtle} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">No requests yet</h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">All your future service requests will appear here</p>
-                    </div>
-                )}
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '80px 40px', border: `2px dashed ${T.border}`, borderRadius: 32, background: T.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                             <Clock size={64} style={{ opacity: 0.1, marginBottom: 20 }} />
+                             <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text }}>Archives are Empty</h3>
+                             <p style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>You haven't initiated any requests yet.</p>
+                        </div>
+                    )}
+                </PremiumCard>
+
             </div>
 
             <ServiceRequestDrawer

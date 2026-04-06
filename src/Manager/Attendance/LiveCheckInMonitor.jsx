@@ -1,222 +1,252 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Clock, Users, UserCheck, Activity, Sparkles } from 'lucide-react';
-import MobileCard from '../../components/common/MobileCard';
+import { Clock, Users, Activity, Loader2, PlayCircle, RefreshCw, Smartphone, ShieldCheck, MapPin, Search } from 'lucide-react';
 import { getCheckIns, getAttendanceStats } from '../../api/manager/managerApi';
-import './TailwindFallback.css';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.2)',
+  cardShadow: '0 10px 40px -15px rgba(0, 0, 0, 0.08)'
+};
 
 const LiveCheckInMonitor = () => {
     const [checkIns, setCheckIns] = useState([]);
     const [stats, setStats] = useState({ currentlyIn: 0 });
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         loadData();
-        // Simulate "Live" by polling every 30 seconds
         const interval = setInterval(loadData, 30000);
         return () => clearInterval(interval);
     }, []);
 
-    const loadData = async () => {
-        const [checkInData, statData] = await Promise.all([
-            getCheckIns({ limit: 10 }),
-            getAttendanceStats()
-        ]);
-        setCheckIns(checkInData.data);
-        setStats(statData);
-        setLoading(false);
+    const loadData = async (manual = false) => {
+        if (manual) setRefreshing(true);
+        try {
+            const [checkInData, statData] = await Promise.all([
+                getCheckIns({ limit: 20 }),
+                getAttendanceStats()
+            ]);
+            setCheckIns(checkInData?.data || []);
+            setStats(statData || { currentlyIn: 0 });
+        } catch (error) {
+            console.error('Data retrieval failed', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
     };
 
     const getStatusBadge = (status) => {
-        return status === 'checked-in' ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-black shadow-lg shadow-emerald-500/50 hover:shadow-xl hover:scale-110 transition-all duration-300 cursor-pointer">
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                </span>
-                Checked In
-            </span>
-        ) : (
-            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-400 to-slate-500 text-white text-xs font-black shadow-lg hover:scale-110 transition-all duration-300 cursor-pointer">
-                Checked Out
-            </span>
+        const isCheckedIn = status === 'checked-in' || status === 'Present';
+        return (
+            <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 12,
+                background: isCheckedIn ? T.greenLight : T.bg, 
+                color: isCheckedIn ? T.green : T.muted,
+                border: `1.5px solid ${isCheckedIn ? T.green + '20' : T.border}`,
+                fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em'
+            }}>
+                {isCheckedIn ? (
+                    <div style={{ position: 'relative', width: 6, height: 6 }}>
+                        <div style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', background: T.green, animation: 'ping 1.5s infinite opacity-0' }} />
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
+                    </div>
+                ) : <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.subtle }} />}
+                {isCheckedIn ? 'Currently In' : 'Logged Out'}
+            </div>
         );
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6">
-            {/* Premium Header */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
-                                <Activity size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Live Monitor
-                                    </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse whitespace-nowrap">
-                                        PREMIUM ✨
-                                    </span>
-                                </div>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Real-time gym entry and exit logs</p>
-                            </div>
-                        </div>
+        <div style={{ padding: '32px 40px', background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+                .live-card:hover { transform: translateY(-4px); box-shadow: ${T.shadow}; border-color: ${T.accentLight} !important; }
+                .activity-row { transition: 0.3s; }
+                .activity-row:hover { background: ${T.bg} !important; }
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: ${T.accentMid}; borderRadius: 10px; }
+            `}</style>
 
-                        {/* Currently In Stat Card */}
-                        <div className="group relative bg-gradient-to-br from-emerald-500 to-emerald-600 px-5 sm:px-6 py-4 rounded-2xl shadow-xl shadow-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/60 hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden w-full lg:w-auto">
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 flex items-center gap-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
-                                    <Users size={20} className="sm:w-6 sm:h-6" strokeWidth={2.5} />
-                                </div>
-                                <div>
-                                    <span className="block text-[10px] sm:text-xs text-white/80 font-bold uppercase tracking-wider">Currently In</span>
-                                    <span className="block text-2xl sm:text-3xl font-black text-white">{stats.currentlyIn}</span>
-                                </div>
-                            </div>
+            {/* Premium Meta Header */}
+            <div style={{ marginBottom: 40, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                        <div style={{ width: 64, height: 64, borderRadius: 22, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.4)', position: 'relative' }}>
+                             <Activity size={32} strokeWidth={2.5} />
+                             <div style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, borderRadius: '50%', background: T.green, border: '3px solid #fff' }} />
                         </div>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <h1 style={{ fontSize: 36, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.03em' }}>Live Monitor</h1>
+                                <span style={{ padding: '4px 10px', background: 'linear-gradient(135deg, #FFD700, #F59E0B)', color: '#fff', fontSize: 10, fontWeight: 900, borderRadius: 8, textTransform: 'uppercase', boxShadow: '0 4px 10px rgba(245,158,11,0.2)' }}>Premium Node</span>
+                            </div>
+                            <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none', color: T.accent }} />
+                                Real-time diagnostic stream of facility entries
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* KPI Pulse */}
+                    <div className="live-card" style={{ background: '#fff', padding: '16px 28px', borderRadius: 24, border: `2px solid transparent`, boxShadow: T.cardShadow, display: 'flex', alignItems: 'center', gap: 24, transition: '0.4s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'default' }}>
+                         <div style={{ width: 52, height: 52, borderRadius: 16, background: T.greenLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.green }}>
+                             <Users size={24} strokeWidth={2.5} />
+                         </div>
+                         <div>
+                             <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member Occupancy</p>
+                             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                                 <h2 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0 }}>{stats.currentlyIn}</h2>
+                                 <span style={{ fontSize: 12, fontWeight: 800, color: T.green }}>Live Now</span>
+                             </div>
+                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Live Activity Table */}
-            <div className="group relative bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
-                {/* Gradient Background on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                <div className="relative z-10">
-                    {/* Table Header */}
-                    <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-primary shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                                <Clock size={20} strokeWidth={2.5} />
-                            </div>
-                            <h2 className="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider">Latest Activity</h2>
+            {/* Latest Feed Terminal */}
+            <div style={{ background: '#fff', borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FBFBFF' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                             <Clock size={20} strokeWidth={2.5} />
                         </div>
-                        <span className="flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-widest bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-lg shadow-emerald-500/50 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer w-full sm:w-auto justify-center">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                            </span>
-                            Live Feed
-                        </span>
+                        <div>
+                             <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>Transaction Feed</h3>
+                             <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recent system activity</p>
+                        </div>
                     </div>
-
-                    {/* Desktop Table View (Hidden on Mobile) */}
-                    <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-white border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Name</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Type</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Time</th>
-                                    <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-sm text-slate-400">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                                                <span className="font-semibold">Monitoring live feed...</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : checkIns.length > 0 ? (
-                                    checkIns.map((log) => (
-                                        <tr
-                                            key={log.id}
-                                            className="group/row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md"
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6 overflow-hidden">
-                                                        {log.avatar ? (
-                                                            <img 
-                                                                src={log.avatar} 
-                                                                alt={log.name} 
-                                                                className="w-full h-full object-cover"
-                                                                onError={(e) => {
-                                                                    e.target.style.display = 'none';
-                                                                    e.target.parentElement.innerText = (log.name || '?').charAt(0);
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            (log.name || '?').charAt(0)
-                                                        )}
-                                                    </div>
-                                                    <span className="font-bold text-slate-700 group-hover/row:text-primary-hover group-hover/row:translate-x-1 transition-all duration-300">
-                                                        {log.name}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border shadow-sm transition-all duration-300 inline-block group-hover/row:scale-110 group-hover/row:shadow-lg ${log.type === 'Member'
-                                                    ? 'bg-gradient-to-r from-primary to-primary text-white border-violet-300 shadow-primary/30/50'
-                                                    : log.type === 'Staff'
-                                                        ? 'bg-gradient-to-r from-purple-500 to-primary text-white border-purple-300 shadow-purple-500/50'
-                                                        : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white border-orange-300 shadow-orange-500/50'
-                                                    }`}>
-                                                    {log.type}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 text-slate-500 font-semibold font-mono text-xs group-hover/row:text-primary transition-colors duration-300">
-                                                    <Clock size={14} className="text-slate-300 group-hover/row:text-violet-400 group-hover/row:rotate-12 transition-all duration-300" />
-                                                    <span className="group-hover/row:scale-105 inline-block transition-transform duration-300">{log.time}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {getStatusBadge(log.status)}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-sm text-slate-400">
-                                            No activity recorded today.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile Card View (md:hidden) */}
-                    <div className="md:hidden p-4 space-y-4">
-                        {loading ? (
-                            <div className="py-12 text-center text-sm text-slate-400">
-                                <div className="flex flex-col items-center gap-3">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                                    <span className="font-semibold text-primary">Monitoring live feed...</span>
-                                </div>
-                            </div>
-                        ) : checkIns.length > 0 ? (
-                            checkIns.map((log) => (
-                                <MobileCard
-                                    key={log.id}
-                                    title={log.name}
-                                    subtitle={log.type}
-                                    avatar={log.avatar}
-                                    badge={log.status === 'checked-in' ? 'Checked In' : 'Checked Out'}
-                                    badgeColor={log.status === 'checked-in' ? 'emerald' : 'slate'}
-                                    fields={[
-                                        { label: 'Time', value: log.time, icon: Clock }
-                                    ]}
-                                />
-                            ))
-                        ) : (
-                            <div className="py-8 text-center text-sm text-slate-500 bg-white rounded-xl border border-slate-100">
-                                No activity recorded today.
-                            </div>
-                        )}
+                    
+                    <div style={{ display: 'flex', gap: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: T.bg, borderRadius: 14, color: T.green, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>
+                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, animation: 'ping 2s infinite' }} />
+                             Sensors Active
+                        </div>
+                        <button 
+                            onClick={() => loadData(manual=true)}
+                            style={{ height: 40, padding: '0 16px', borderRadius: 12, border: `2.2px solid ${T.border}`, background: '#fff', color: T.text, fontSize: 11, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: '0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.borderColor = T.accent}
+                            onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+                        >
+                            <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+                            Force Refresh
+                        </button>
                     </div>
                 </div>
+
+                <div className="custom-scrollbar" style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
+                        <thead style={{ background: T.bg }}>
+                            <tr>
+                                <th style={{ padding: '20px 32px', textAlign: 'left', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member Identity</th>
+                                <th style={{ padding: '20px 32px', textAlign: 'left', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Classification</th>
+                                <th style={{ padding: '20px 32px', textAlign: 'left', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Timestamp</th>
+                                <th style={{ padding: '20px 32px', textAlign: 'left', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>System Node</th>
+                                <th style={{ padding: '20px 32px', textAlign: 'right', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Action Cache</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={5} style={{ padding: 120, textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                                            <Loader2 size={48} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
+                                            <p style={{ fontSize: 12, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Initializing Live Stream</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : checkIns.length > 0 ? (
+                                checkIns.map((log, i) => (
+                                    <tr key={log.id} className="activity-row" style={{ borderBottom: `1px solid ${T.bg}`, animation: `slideIn 0.4s ease-out backwards ${i * 0.05}s` }}>
+                                        <td style={{ padding: '20px 32px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, border: `1.5px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: T.accent, overflow: 'hidden' }}>
+                                                    {log.avatar ? <img src={log.avatar} alt={log.name} style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : (log.name || 'U')[0]}
+                                                </div>
+                                                <div>
+                                                    <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: T.text }}>{log.name}</p>
+                                                    <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: T.subtle }}>ID: #{log.id.toString().slice(-6).toUpperCase()}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '20px 32px' }}>
+                                            <div style={{
+                                                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 8,
+                                                background: log.type === 'Member' ? T.accentLight : log.type === 'Staff' ? T.indigoLight : T.amberLight,
+                                                color: log.type === 'Member' ? T.accent : log.type === 'Staff' ? T.accent : T.amber,
+                                                fontSize: 10, fontWeight: 900, textTransform: 'uppercase'
+                                            }}>
+                                                {log.type === 'Member' ? <Smartphone size={10} /> : <ShieldCheck size={10} />}
+                                                {log.type}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '20px 32px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.text, fontSize: 13, fontWeight: 700, fontFamily: 'monospace' }}>
+                                                <Clock size={14} color={T.subtle} />
+                                                {log.time}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '20px 32px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.muted, fontSize: 12, fontWeight: 600 }}>
+                                                <MapPin size={14} color={T.subtle} />
+                                                Main Entry A-04
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '20px 32px', textAlign: 'right' }}>
+                                            {getStatusBadge(log.status)}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} style={{ padding: 100, textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                                             <PlayCircle size={60} color={T.subtle} strokeWidth={1} />
+                                             <h4 style={{ fontSize: 18, fontWeight: 900, color: T.muted, margin: 0 }}>Silence Detected</h4>
+                                             <p style={{ fontSize: 13, fontWeight: 500, color: T.subtle, margin: 0 }}>No facility entries recorded for the current cycle.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {/* Visual Metadata Footer */}
+                {!loading && checkIns.length > 0 && (
+                    <div style={{ padding: '16px 32px', background: T.bg + '40', borderTop: `1px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>End of Stream - Polling Live...</span>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            {[1,2,3].map(i => <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: T.accent, opacity: 1 - (i*0.2) }} />)}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

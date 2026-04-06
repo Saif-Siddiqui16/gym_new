@@ -1,15 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { equipmentApi } from '../../../api/equipmentApi';
 import toast from 'react-hot-toast';
-import { Wrench, CheckCircle, AlertTriangle, Plus, Sparkles, Calendar } from 'lucide-react';
+import { 
+    Wrench, 
+    CheckCircle, 
+    AlertTriangle, 
+    Plus, 
+    Sparkles, 
+    Calendar,
+    Settings,
+    MoreHorizontal,
+    Box,
+    ChevronRight,
+    Search
+} from 'lucide-react';
 import MobileCard from '../../../components/common/MobileCard';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddEquipmentDrawer from './AddEquipmentDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const EquipmentMaintenance = () => {
     const [equipment, setEquipment] = useState([]);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         loadEquipment();
@@ -19,16 +60,15 @@ const EquipmentMaintenance = () => {
         try {
             setLoading(true);
             const data = await equipmentApi.getAllEquipment();
-            // Transform for this component's specific layout if needed
-            // The controller returns {id, name, status, lastMaintenance, nextMaintenance, etc}
             const formatted = data.map(item => ({
                 id: item.id,
                 name: item.name,
                 status: item.status === 'Operational' ? 'Working' :
                     item.status === 'Under Maintenance' ? 'Under Maintenance' :
-                        item.status === 'Out of Order' ? 'Out of Order' : 'Working',
+                    item.status === 'Out of Order' ? 'Out of Order' : 'Working',
                 lastMaintenance: item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString() : 'N/A',
-                nextMaintenance: item.warrantyExpiry ? new Date(item.warrantyExpiry).toLocaleDateString() : 'N/A'
+                nextMaintenance: item.warrantyExpiry ? new Date(item.warrantyExpiry).toLocaleDateString() : 'N/A',
+                category: item.category || 'Standard'
             }));
             setEquipment(formatted);
         } catch (error) {
@@ -44,8 +84,10 @@ const EquipmentMaintenance = () => {
             await equipmentApi.addEquipment({
                 name: newItem.name,
                 status: newItem.status === 'Working' ? 'Operational' : newItem.status,
-                purchaseDate: newItem.lastMaintenance,
-                warrantyExpiry: newItem.nextMaintenance
+                purchaseDate: newItem.purchaseDate,
+                warrantyExpiry: newItem.warrantyExpiry,
+                brand: newItem.brand,
+                category: newItem.category
             });
             toast.success("Equipment added successfully");
             loadEquipment();
@@ -66,168 +108,163 @@ const EquipmentMaintenance = () => {
         }
     };
 
-    const getStatusBadge = (status) => {
-        const config = {
-            'Working': { gradient: 'from-emerald-500 to-emerald-600', icon: CheckCircle, shadow: 'shadow-emerald-500/50' },
-            'Under Maintenance': { gradient: 'from-amber-500 to-orange-600', icon: Wrench, shadow: 'shadow-amber-500/50' },
-            'Out of Order': { gradient: 'from-red-500 to-red-600', icon: AlertTriangle, shadow: 'shadow-red-500/50' },
-        };
-        const { gradient, icon: Icon, shadow } = config[status] || config['Working'];
-        return (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r ${gradient} text-white text-xs font-black shadow-lg ${shadow} hover:scale-110 transition-all duration-300 cursor-pointer`}>
-                <Icon size={14} strokeWidth={2.5} />
-                {status}
-            </span>
-        );
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'Working': return { bg: T.greenLight, color: T.green, icon: CheckCircle };
+            case 'Under Maintenance': return { bg: T.amberLight, color: T.amber, icon: Wrench };
+            case 'Out of Order': return { bg: T.roseLight, color: T.rose, icon: AlertTriangle };
+            default: return { bg: T.bg, color: T.muted, icon: Settings };
+        }
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
-            'Working': 'emerald',
-            'Under Maintenance': 'amber',
-            'Out of Order': 'red',
-        };
-        return colors[status] || 'emerald';
-    };
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
+    const filteredEquipment = equipment.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        item.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="min-h-screen ">
-            {/* Premium Header */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6 flex-shrink-0">
-                                <Wrench size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Equipment Maintenance
-                                    </h1>
-                                    <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse flex-shrink-0">
-                                        PREMIUM ✨
-                                    </span>
-                                </div>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Track and manage gym equipment status</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setIsDrawerOpen(true)}
-                            className="group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all w-full sm:w-auto"
-                        >
-                            <Plus size={16} strokeWidth={2.5} className="sm:w-[18px] sm:h-[18px] transition-all duration-300 group-hover:scale-110 group-hover:rotate-90" />
-                            Add Equipment
-                        </button>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .equipment-row:hover { background: ${T.bg} !important; }
+            `}</style>
+
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${T.accent}, ${T.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 30px -10px rgba(124, 92, 252, 0.3)' }}>
+                        <Wrench size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Asset Engineering</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Monitor and optimize machine reliability across zones</p>
+                    </div>
+                </div>
+                <ActionButton onClick={() => setIsDrawerOpen(true)} icon={Plus}>Catalog New Unit</ActionButton>
+            </div>
+
+            {/* Controls */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <div style={{ position: 'relative', width: 400 }}>
+                    <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <input
+                        type="text"
+                        placeholder="Search assets or categories..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', height: 52, padding: '0 16px 0 48px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
+                    />
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ display: 'flex', background: '#fff', padding: 6, borderRadius: 14, boxShadow: T.cardShadow, border: `1.5px solid #fff` }}>
+                        <div style={{ padding: '8px 16px', borderRadius: 10, background: T.bg, color: T.accent, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>All Zones</div>
                     </div>
                 </div>
             </div>
 
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3 sm:space-y-4 mb-6">
-                {equipment.map((item) => (
-                    <MobileCard
-                        key={item.id}
-                        title={item.name}
-                        badge={item.status}
-                        badgeColor={getStatusColor(item.status)}
-                        fields={[
-                            { label: 'Last Maintenance', value: item.lastMaintenance, icon: Calendar },
-                            { label: 'Next Maintenance', value: item.nextMaintenance, icon: Calendar },
-                        ]}
-                        actions={[
-                            {
-                                label: 'Mark as Working',
-                                onClick: () => handleInternalStatusUpdate(item.id, 'Working'),
-                                show: item.status !== 'Working'
-                            },
-                            {
-                                label: 'Mark as Maintenance',
-                                onClick: () => handleInternalStatusUpdate(item.id, 'Under Maintenance'),
-                                show: item.status !== 'Under Maintenance'
-                            },
-                            {
-                                label: 'Mark as Broken',
-                                onClick: () => handleInternalStatusUpdate(item.id, 'Out of Order'),
-                                show: item.status !== 'Out of Order'
-                            },
-                        ].filter(action => action.show !== false)}
-                    />
-                ))}
-            </div>
+            {/* Desktop Table */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                        <Box size={20} strokeWidth={2.5} />
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Registry Logs</h3>
+                </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden md:block group relative bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 transform hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                <div className="relative z-10 overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50/50 border-b border-slate-100">
-                            <tr>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Equipment</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Status</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Last Maintenance</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs hover:text-primary transition-colors duration-300 cursor-pointer">Next Maintenance</th>
-                                <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-wider text-xs text-right hover:text-primary transition-colors duration-300 cursor-pointer">Actions</th>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg + '50' }}>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Machine Node</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Operational State</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Last Refurb</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Predicted Service</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {equipment.map((item) => (
-                                <tr key={item.id} className="group/row hover:bg-gradient-to-r hover:from-primary-light/50 hover:to-purple-50/50 transition-all duration-300 cursor-pointer hover:shadow-md">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 text-primary flex items-center justify-center shadow-md transition-all duration-500 group-hover/row:scale-125 group-hover/row:bg-gradient-to-br group-hover/row:from-primary group-hover/row:to-primary group-hover/row:text-white group-hover/row:shadow-xl group-hover/row:rotate-6">
-                                                <Wrench size={18} strokeWidth={2.5} />
-                                            </div>
-                                            <span className="font-bold text-slate-800 group-hover/row:text-primary-hover group-hover/row:translate-x-1 transition-all duration-300">
-                                                {item.name}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">{getStatusBadge(item.status)}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 text-slate-600 font-semibold">
-                                            <Calendar size={14} className="text-slate-400" />
-                                            {item.lastMaintenance}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 text-slate-700 font-bold">
-                                            <Calendar size={14} className="text-violet-400" />
-                                            {item.nextMaintenance}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <select
-                                            value={item.status}
-                                            onChange={(e) => handleInternalStatusUpdate(item.id, e.target.value)}
-                                            className="px-3 py-2 text-xs font-bold border-2 border-slate-200 rounded-lg bg-white hover:border-violet-300 focus:border-primary focus:ring-2 focus:ring-violet-200 transition-all duration-300 cursor-pointer"
-                                        >
-                                            <option value="Working">Working</option>
-                                            <option value="Under Maintenance">Maintenance</option>
-                                            <option value="Out of Order">Broken</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="5" style={{ padding: 100, textAlign: 'center' }}><div style={{ width: 40, height: 40, border: `4px solid ${T.accentLight}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} /></td></tr>
+                            ) : filteredEquipment.length === 0 ? (
+                                <tr><td colSpan="5" style={{ padding: 100, textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}><div style={{ width: 80, height: 80, borderRadius: 30, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><Wrench size={32} /></div><p style={{ fontSize: 15, fontWeight: 700, color: T.muted }}>No equipment identified.</p></div></td></tr>
+                            ) : (
+                                filteredEquipment.map((item) => {
+                                    const st = getStatusStyle(item.status);
+                                    return (
+                                        <tr key={item.id} className="equipment-row" style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s' }}>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                                                        <Box size={22} />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>{item.name}</div>
+                                                        <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase' }}>{item.category}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: st.bg, color: st.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>
+                                                    <st.icon size={12} strokeWidth={3} />
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: T.text }}>
+                                                    <Calendar size={14} style={{ color: T.subtle }} />
+                                                    {item.lastMaintenance}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: T.accent }}>
+                                                    <Calendar size={14} style={{ color: T.accent2 }} />
+                                                    {item.nextMaintenance}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px', textAlign: 'right' }}>
+                                                <select
+                                                    value={item.status}
+                                                    onChange={(e) => handleInternalStatusUpdate(item.id, e.target.value)}
+                                                    style={{ height: 40, padding: '0 12px', borderRadius: 12, border: `1.5px solid ${T.border}`, fontSize: 11, fontWeight: 800, color: T.text, outline: 'none', cursor: 'pointer', background: '#fff' }}
+                                                >
+                                                    <option value="Working">Operational</option>
+                                                    <option value="Under Maintenance">Maintenance</option>
+                                                    <option value="Out of Order">Out of Order</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
             {/* Right Side Drawer */}
-            <RightDrawer
+            <AddEquipmentDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                title="Create Equipment"
-            >
-                <AddEquipmentDrawer
-                    isOpen={isDrawerOpen}
-                    onClose={() => setIsDrawerOpen(false)}
-                    onAdd={handleAdd}
-                />
-            </RightDrawer>
+                onAdd={handleAdd}
+            />
         </div>
     );
 };

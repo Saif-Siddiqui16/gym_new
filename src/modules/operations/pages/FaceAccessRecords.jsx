@@ -1,9 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ShieldCheck, Users, Search, Calendar, Filter, Download, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { Clock, ShieldCheck, Users, Search, Calendar, Filter, Download, ArrowLeft, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchFaceAccessRecords, fetchGymDepartments } from '../../../api/gymDeviceApi';
 import { useBranchContext } from '../../../context/BranchContext';
-import DashboardGrid from '../../dashboard/components/DashboardGrid';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const FaceAccessRecords = () => {
     const navigate = useNavigate();
@@ -27,10 +54,8 @@ const FaceAccessRecords = () => {
                 fetchFaceAccessRecords(branchId),
                 fetchGymDepartments(branchId).catch(() => [])
             ]);
-            console.log('[FaceRecords] Records received:', recordsData?.length);
-            if (recordsData?.length > 0) console.log('[FaceRecords] First record:', recordsData[0]);
-            setRecords(recordsData);
-            setDepartments(deptsData);
+            setRecords(recordsData || []);
+            setDepartments(deptsData || []);
         } catch (error) {
             console.error("Failed to load access records", error);
         } finally {
@@ -40,189 +65,189 @@ const FaceAccessRecords = () => {
 
     const filteredRecords = records.filter(r => {
         if (!r) return false;
-        
         const name = (r.personName || '').toLowerCase();
         const sn = (r.personSn || '').toLowerCase();
         const search = searchTerm.toLowerCase();
-        
         const matchesSearch = !searchTerm || name.includes(search) || sn.includes(search);
-        
-        // dateFilter is usually YYYY-MM-DD from <input type="date" />
-        // r.createTime is usually YYYY-MM-DD HH:mm:ss
         const matchesDate = !dateFilter || (r.createTime && r.createTime.startsWith(dateFilter));
-        
         return matchesSearch && matchesDate;
     });
 
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 44, padding: '0 20px', borderRadius: 12, border: variant === 'outline' ? `1.5px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={16} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
     return (
-        <div className="min-h-screen saas-page">
-            {/* Header */}
-            <div className="saas-card !p-8 mb-8 relative overflow-hidden group">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-                <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => navigate(-1)}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary hover:border-primary/30 transition-all"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-2">Face Access Records</h1>
-                            <p className="text-slate-500 text-sm font-medium uppercase tracking-widest text-[10px]">Detailed Smart AIoT Entry Logs</p>
-                        </div>
-                    </div>
-                    <button className="h-11 px-6 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2">
-                        <Download size={16} /> Export CSV
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .record-row:hover { background: ${T.accentLight}50 !important; cursor: pointer; }
+                input::placeholder, select::placeholder { color: ${T.subtle}; opacity: 1; }
+                .pulse-green { width: 6px; height: 6px; border-radius: 50%; background: ${T.green}; box-shadow: 0 0 0 0 ${T.green}40; animation: pulse 2s infinite; }
+                @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 ${T.green}70; } 70% { transform: scale(1); box-shadow: 0 0 0 10px ${T.green}00; } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 ${T.green}00; } }
+            `}</style>
+
+            {/* Header Area */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <button 
+                        onClick={() => navigate(-1)}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = T.accent}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+                        style={{ 
+                            width: 48, height: 48, borderRadius: 16, border: `1.5px solid ${T.border}`,
+                            background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: T.muted, transition: '0.2s', cursor: 'pointer'
+                        }}
+                    >
+                        <ArrowLeft size={20} strokeWidth={2.5} />
                     </button>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <h1 style={{ fontSize: 28, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Face Access Records</h1>
+                            <div style={{ padding: '4px 12px', background: T.accentLight, borderRadius: 20, color: T.accent, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                AIoT Live
+                            </div>
+                        </div>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Monitor real-time biometric entry logs for all members.</p>
+                    </div>
                 </div>
+                <ActionButton icon={Download}>Export Data</ActionButton>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
-                        <input 
-                            type="text" 
-                            placeholder="Search by name or ID..."
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-primary transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+            {/* Stats Cards Row (Optional but makes it feel premium) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                {[
+                    { label: 'Today Entries', value: filteredRecords.length, icon: Users, color: T.accent, bg: T.accentLight },
+                    { label: 'Last Registry', value: filteredRecords[0]?.createTime || 'N/A', icon: Clock, color: T.blue, bg: T.blueLight },
+                    { label: 'Network Status', value: 'Operational', icon: ShieldCheck, color: T.green, bg: T.greenLight },
+                ].map((stat, i) => (
+                    <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 24, boxShadow: T.cardShadow, display: 'flex', alignItems: 'center', gap: 18 }}>
+                        <div style={{ width: 56, height: 56, borderRadius: 16, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                            <stat.icon size={24} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</p>
+                            <h4 style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 900, color: T.text }}>{typeof stat.value === 'number' ? stat.value.toLocaleString() : (i === 1 && stat.value !== 'N/A' ? stat.value.split(' ')[1] : stat.value)}</h4>
+                        </div>
                     </div>
-                    <div className="relative group">
-                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
-                        <select 
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-primary appearance-none transition-all"
-                            value={selectedDept}
-                            onChange={(e) => setSelectedDept(e.target.value)}
-                        >
-                            <option value="all">All Categories</option>
-                            {departments.map(dept => (
-                                <option key={dept.id} value={dept.id}>{dept.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="relative group">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
-                        <input 
-                            type="date" 
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-primary transition-all"
-                            value={dateFilter}
-                            onChange={(e) => setDateFilter(e.target.value)}
-                        />
-                    </div>
-                    <button 
-                        onClick={loadData}
-                        className="h-full bg-primary-light text-primary rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all border border-primary/20"
-                    >
-                        Refresh Results
-                    </button>
+                ))}
+            </div>
+
+            {/* Filter Bar */}
+            <div style={{ background: '#1A1533', padding: 20, borderRadius: 24, marginBottom: 32, display: 'flex', gap: 16, alignItems: 'center', animation: 'fadeIn 0.7s ease-out', boxShadow: '0 20px 40px rgba(26, 21, 51, 0.2)' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} size={18} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by name, ID or SN..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', height: 52, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '0 20px 0 52px', color: '#fff', fontSize: 13, fontWeight: 500, outline: 'none', transition: '0.2s' }}
+                    />
                 </div>
+                <div style={{ width: 220, position: 'relative' }}>
+                    <Calendar style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} size={18} />
+                    <input 
+                        type="date" 
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        style={{ width: '100%', height: 52, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '0 20px 0 52px', color: '#fff', fontSize: 13, fontWeight: 500, outline: 'none' }}
+                    />
+                </div>
+                <ActionButton onClick={loadData} variant="outline" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff' }} icon={RefreshCw}>Refresh</ActionButton>
             </div>
 
             {/* Records Table */}
-            <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, overflow: 'hidden', animation: 'fadeIn 0.8s ease-out' }}>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead>
-                            <tr className="bg-slate-50/80 backdrop-blur-sm">
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Photo</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Member Name</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-primary">Member ID / SN</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Device Name</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Entry Time</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Pass Type</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                            <tr style={{ background: T.bg }}>
+                                <th style={{ padding: '20px 32px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member Details</th>
+                                <th style={{ padding: '20px 32px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Identification</th>
+                                <th style={{ padding: '20px 32px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Hardware Location</th>
+                                <th style={{ padding: '20px 32px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Registry Info</th>
+                                <th style={{ padding: '20px 32px', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Outcome</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody style={{ background: '#fff' }}>
                             {loading ? (
-                                Array(5).fill(0).map((_, i) => (
-                                    <tr key={i} className="animate-pulse">
-                                        <td colSpan="7" className="px-8 py-6">
-                                            <div className="h-12 bg-slate-100 rounded-xl w-full"></div>
-                                        </td>
-                                    </tr>
+                                Array(6).fill(0).map((_, i) => (
+                                    <tr key={i}><td colSpan="5" style={{ padding: '24px 32px' }}><div style={{ height: 60, background: T.bg, borderRadius: 16, animation: 'pulse 1.5s infinite ease-in-out' }} /></td></tr>
                                 ))
                             ) : filteredRecords.map((record) => (
-                                <tr key={record.id} className="hover:bg-primary-light/5 transition-all group/row">
-                                    <td className="px-8 py-4">
-                                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-lg group-hover/row:scale-110 transition-transform bg-slate-100 flex items-center justify-center">
-                                            {record.imageUrl ? (
-                                                <img src={record.imageUrl} alt={record.personName} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <ImageIcon className="text-slate-300" size={24} />
-                                            )}
+                                <tr key={record.id} className="record-row" style={{ borderBottom: `1px solid ${T.bg}`, transition: '0.2s' }}>
+                                    <td style={{ padding: '16px 32px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                            <div style={{ width: 48, height: 48, borderRadius: 14, background: T.bg, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${T.border}` }}>
+                                                {record.imageUrl ? (
+                                                    <img src={record.imageUrl} alt={record.personName} style={{ width: '100%', height: '100%', objectCover: 'cover' }} />
+                                                ) : (
+                                                    <ImageIcon size={20} color={T.subtle} />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{record.personName || 'Unregistered Guest'}</div>
+                                                <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, textTransform: 'uppercase' }}>{record.personName ? 'Member' : 'Visitor'}</div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <div className="font-black text-slate-900 text-sm group-hover/row:text-primary transition-colors">
-                                            {record.personName || 'Unknown / Visitor'}
-                                        </div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                                            {record.personName ? 'Gym Member' : 'Unregistered'}
+                                    <td style={{ padding: '16px 32px' }}>
+                                        <div style={{ display: 'inline-flex', padding: '6px 12px', background: record.personSn ? T.accentLight : T.bg, borderRadius: 10, border: `1px solid ${record.personSn ? T.accentMid : T.border}` }}>
+                                            <span style={{ fontSize: 12, fontWeight: 800, color: record.personSn ? T.accent : T.muted, fontFamily: 'monospace' }}>{record.personSn || 'N/A'}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <span className="px-3 py-1.5 bg-primary-light/30 text-primary rounded-xl font-black text-xs border border-primary/10">
-                                            {record.personSn || 'N/A'}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <ShieldCheck size={14} className="text-violet-500" />
-                                            <span className="font-black text-slate-600 text-[10px] uppercase">{record.deviceName}</span>
+                                    <td style={{ padding: '16px 32px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <ShieldCheck size={14} color={T.accent} />
+                                            <span style={{ fontSize: 12, fontWeight: 800, color: T.text, textTransform: 'uppercase' }}>{record.deviceName}</span>
                                         </div>
-                                        <div className="text-[9px] text-slate-400 font-medium tracking-tight mt-0.5">{record.deviceKey}</div>
+                                        <div style={{ fontSize: 10, fontWeight: 600, color: T.muted, marginTop: 2 }}>SN: {record.deviceKey}</div>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <div className="flex items-center gap-2 text-slate-900 font-black text-xs mb-1">
-                                            <Clock size={14} className="text-slate-400" />
-                                            {new Date(record.createTime.replace(' ', 'T')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                    <td style={{ padding: '16px 32px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 800, color: T.text }}>
+                                            <Clock size={14} color={T.muted} />
+                                            {new Date(record.createTime.replace(' ', 'T')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
-                                        <div className="text-[10px] text-slate-500 font-bold ml-5">
-                                            {new Date(record.createTime.replace(' ', 'T')).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginTop: 2 }}>{new Date(record.createTime.replace(' ', 'T')).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
+                                    </td>
+                                    <td style={{ padding: '16px 32px', textAlign: 'center' }}>
+                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: T.greenLight, borderRadius: 20, border: `1px solid ${T.green}20` }}>
+                                            <div className="pulse-green" />
+                                            <span style={{ fontSize: 10, fontWeight: 900, color: T.green, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Access Granted</span>
                                         </div>
-                                    </td>
-                                    <td className="px-8 py-4">
-                                        <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[9px] font-black rounded-lg uppercase tracking-widest">
-                                            {record.passType.replace('_', ' ')}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest border border-emerald-100">
-                                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
-                                            Access Granted
-                                        </span>
                                     </td>
                                 </tr>
                             ))}
-                            {!loading && filteredRecords.length === 0 && (
-                                <tr>
-                                    <td colSpan="7" className="px-8 py-32 text-center">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
-                                                <Search size={40} />
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-900 font-black text-lg">No records found</p>
-                                                <p className="text-slate-400 text-sm font-medium">Try adjusting your filters or search terms</p>
-                                            </div>
-                                            <button 
-                                                onClick={() => {setSearchTerm(''); setDateFilter('');}}
-                                                className="mt-2 text-primary text-xs font-black uppercase tracking-widest hover:underline"
-                                            >
-                                                Clear All Filters
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>
+
+                {!loading && filteredRecords.length === 0 && (
+                    <div style={{ padding: '80px 32px', textAlign: 'center' }}>
+                        <div style={{ width: 80, height: 80, borderRadius: 40, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: T.subtle }}>
+                            <Search size={32} />
+                        </div>
+                        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>No Access Logs Found</h3>
+                        <p style={{ color: T.muted, fontSize: 14, fontWeight: 500, marginTop: 8 }}>We couldn't find any biometric records matching your criteria.</p>
+                        <button onClick={() => { setSearchTerm(''); setDateFilter(''); }} style={{ marginTop: 24, background: 'none', border: 'none', color: T.accent, fontSize: 13, fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer' }}>Clear All Filters</button>
+                    </div>
+                )}
             </div>
         </div>
     );

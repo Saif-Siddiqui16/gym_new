@@ -1,30 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Activity,
-    TrendingUp,
-    Scale,
-    Percent,
-    Calendar,
-    Ruler,
-    Dumbbell,
-    Utensils,
-    Search,
-    ChevronRight,
-    Target,
-    Zap,
-    Loader2,
-    Plus,
-    X,
-    Check,
-    ArrowUp,
-    ArrowDown,
-    Minus,
-    ClipboardList
+    Activity, TrendingUp, Scale, Percent, Calendar, Ruler, Dumbbell, 
+    Utensils, Search, ChevronRight, Target, Zap, Loader2, Plus, X, Check, 
+    ArrowUp, ArrowDown, Minus, ClipboardList, RefreshCw, LayoutDashboard,
+    Flame, Sparkles, Trophy, UserCheck
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import Card from '../../../components/ui/Card';
-import StatsCard from '../../dashboard/components/StatsCard';
-import DashboardGrid from '../../dashboard/components/DashboardGrid';
 import apiClient from '../../../api/apiClient';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext';
@@ -32,6 +13,101 @@ import { useBranchContext } from '../../../context/BranchContext';
 import { ROLES } from '../../../config/roles';
 import CustomDropdown from '../../../components/common/CustomDropdown';
 import RightDrawer from '../../../components/common/RightDrawer';
+import Loader from '../../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => (
+    <div 
+        style={{
+            background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+            padding: 24, boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+            animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+            ...style
+        }}
+    >
+        {children}
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, color, bg, subtitle, trend, index }) => (
+    <div 
+        style={{
+            background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}`,
+            display: 'flex', flexDirection: 'column', gap: 16, flex: 1,
+            animation: `fadeUp 0.4s ease both ${0.3 + index * 0.05}s`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+        }}
+    >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={20} strokeWidth={2.5} />
+            </div>
+            {trend && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 8, background: trend.up ? T.roseLight : T.greenLight, color: trend.up ? T.rose : T.green, fontSize: 10, fontWeight: 900 }}>
+                    {trend.up ? <ArrowUp size={12} /> : <ArrowDown size={12} />} {Math.abs(trend.diff)}
+                </div>
+            )}
+        </div>
+        <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>{value}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle, textTransform: 'uppercase', marginTop: 4 }}>{subtitle}</div>
+        </div>
+    </div>
+);
+
+const MacroChip = ({ label, value, unit, color, icon: Icon }) => {
+    const colors = {
+        amber: { bg: T.amberLight, border: T.amber, text: T.amber },
+        blue: { bg: T.blueLight, border: T.blue, text: T.blue },
+        emerald: { bg: T.greenLight, border: T.green, text: T.green },
+        rose: { bg: T.roseLight, border: T.rose, text: T.rose },
+    };
+    const c = colors[color] || colors.blue;
+    return (
+        <div style={{ padding: 16, borderRadius: 16, background: c.bg, border: `1px solid ${c.text}20`, textAlign: 'center', flex: 1 }}>
+            <p style={{ fontSize: 9, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 4 }}>{label}</p>
+            <p style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{value}<span style={{ fontSize: 12, opacity: 0.6, marginLeft: 2 }}>{unit}</span></p>
+        </div>
+    );
+};
+
+const FormField = ({ label, type, value, onChange, placeholder, step }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>{label}</label>
+        <input 
+            type={type} step={step} value={value} placeholder={placeholder} 
+            onChange={e => onChange(e.target.value)}
+            style={{
+                width: '100%', height: 50, borderRadius: 14, background: '#fff', 
+                border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, 
+                fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s'
+            }}
+        />
+    </div>
+);
 
 const MemberProgress = () => {
     const { role, user: authUser } = useAuth();
@@ -49,9 +125,7 @@ const MemberProgress = () => {
     const [showLogModal, setShowLogModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [logForm, setLogForm] = useState({
-        weight: '',
-        bodyFat: '',
-        notes: '',
+        weight: '', bodyFat: '', notes: '',
         date: new Date().toISOString().split('T')[0],
         measurements: { chest: '', waist: '', hips: '', arms: '', thighs: '' }
     });
@@ -63,619 +137,349 @@ const MemberProgress = () => {
         try {
             setMembersLoading(true);
             const res = await apiClient.get('/admin/members', {
-                params: {
-                    limit: 1000,
-                    branchId: selectedBranch === 'all' ? '' : selectedBranch
-                }
+                params: { limit: 1000, branchId: selectedBranch === 'all' ? '' : selectedBranch }
             });
             const data = res.data.data || [];
             setMembers(data);
-
             if (data.length > 0) {
                 const memberInList = urlMemberId ? data.find(m => m.id.toString() === urlMemberId) : null;
                 const currentInList = selectedMemberId ? data.find(m => m.id.toString() === selectedMemberId) : null;
-
-                if (memberInList) {
-                    setSelectedMemberId(urlMemberId);
-                } else if (!currentInList) {
-                    setSelectedMemberId(data[0].id.toString());
-                } else {
-                    fetchAll();
-                }
+                if (memberInList) setSelectedMemberId(urlMemberId);
+                else if (!currentInList) setSelectedMemberId(data[0].id.toString());
+                else fetchAll();
             } else {
-                setSelectedMemberId('');
-                setProgressData({ logs: [], targets: {} });
-                setLoading(false);
+                setSelectedMemberId(''); setProgressData({ logs: [], targets: {} }); setLoading(false);
             }
-        } catch (err) {
-            console.error('Failed to fetch members', err);
-            setLoading(false);
-        } finally {
-            setMembersLoading(false);
-        }
+        } catch (err) { console.error('Failed to fetch members', err); setLoading(false); }
+        finally { setMembersLoading(false); }
     };
 
     useEffect(() => {
-        if (isManagement) {
-            fetchMembers();
-        } else if (role) {
-            setLoading(false);
-        }
+        if (isManagement) fetchMembers();
+        else if (role) setLoading(false);
     }, [selectedBranch, isManagement, role]);
 
     const fetchAll = async () => {
         setLoading(true);
         try {
             const queryParams = isManagement ? (selectedMemberId ? { memberId: selectedMemberId } : {}) : {};
-
-            console.log('MemberProgress Fetching All Data:', {
-                role,
-                isManagement,
-                selectedMemberId,
-                queryParams
-            });
-
             const [progressRes, workoutRes, dietRes] = await Promise.allSettled([
                 apiClient.get('/member/progress', { params: queryParams }),
                 apiClient.get('/member/workout-plans', { params: queryParams }),
                 apiClient.get('/member/diet-plans', { params: queryParams })
             ]);
-
-            if (progressRes.status === 'rejected') {
-                console.error('Progress API Failed:', progressRes.reason);
-                toast.error('Failed to load progress logs');
-            }
-            if (workoutRes.status === 'rejected') {
-                console.error('Workout API Failed:', workoutRes.reason);
-                toast.error('Failed to load workout plans');
-            }
-            if (dietRes.status === 'rejected') {
-                console.error('Diet API Failed:', dietRes.reason);
-                toast.error('Failed to load diet plans');
-            }
-
             if (progressRes.status === 'fulfilled') setProgressData(progressRes.value.data);
             else setProgressData({ logs: [], targets: {} });
-
-            if (workoutRes.status === 'fulfilled') {
-                console.log('Workout plans received:', workoutRes.value.data);
-                setWorkoutPlans(workoutRes.value.data || []);
-            } else setWorkoutPlans([]);
-
-            if (dietRes.status === 'fulfilled') {
-                console.log('Diet plans received:', dietRes.value.data);
-                setDietPlans(dietRes.value.data || []);
-            } else setDietPlans([]);
-        } catch (err) {
-            console.error('Critical failure in fetchAll:', err);
-            toast.error('Failed to load progress dashboard');
-            setProgressData({ logs: [], targets: {} });
-        } finally {
-            setLoading(false);
-        }
+            if (workoutRes.status === 'fulfilled') setWorkoutPlans(workoutRes.value.data || []);
+            else setWorkoutPlans([]);
+            if (dietRes.status === 'fulfilled') setDietPlans(dietRes.value.data || []);
+            else setDietPlans([]);
+        } catch (err) { toast.error('Failed to load dashboard'); }
+        finally { setLoading(false); }
     };
 
     useEffect(() => {
-        console.log('MemberProgress selectedMemberId changed:', selectedMemberId);
-        if (!isManagement) {
-            fetchAll();
-        } else if (selectedMemberId) {
-            fetchAll();
-        }
+        if (!isManagement) fetchAll();
+        else if (selectedMemberId) fetchAll();
     }, [selectedMemberId, isManagement]);
 
     const handleLogSubmit = async (e) => {
-        e.preventDefault();
-
+        if (e) e.preventDefault();
         const targetMemberId = isManagement ? selectedMemberId : null;
-        if (isManagement && !targetMemberId) {
-            toast.error('Please select a member first');
-            return;
-        }
-
+        if (isManagement && !targetMemberId) return toast.error('Check member selection');
         setSubmitting(true);
         try {
-            await apiClient.post('/member/progress', {
-                weight: logForm.weight || null,
-                bodyFat: logForm.bodyFat || null,
-                notes: logForm.notes,
-                date: logForm.date,
-                measurements: logForm.measurements,
-                memberId: targetMemberId
-            });
-            toast.success('Progress logged successfully!');
+            await apiClient.post('/member/progress', { ...logForm, memberId: targetMemberId });
+            toast.success('Progress logged!');
             setShowLogModal(false);
-            setLogForm({
-                weight: '', bodyFat: '', notes: '',
-                date: new Date().toISOString().split('T')[0],
-                measurements: { chest: '', waist: '', hips: '', arms: '', thighs: '' }
-            });
+            setLogForm({ weight: '', bodyFat: '', notes: '', date: new Date().toISOString().split('T')[0], measurements: { chest: '', waist: '', hips: '', arms: '', thighs: '' } });
             fetchAll();
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to log progress');
-        } finally {
-            setSubmitting(false);
-        }
+        } catch (err) { toast.error('Update failed'); }
+        finally { setSubmitting(false); }
     };
 
     const latestLog = progressData.logs?.length > 0 ? progressData.logs[progressData.logs.length - 1] : null;
     const prevLog = progressData.logs?.length > 1 ? progressData.logs[progressData.logs.length - 2] : null;
+    
+    const getTrend = (field) => {
+        if (!latestLog || !prevLog) return null;
+        const curr = parseFloat(latestLog[field]), prev = parseFloat(prevLog[field]);
+        if (isNaN(curr) || isNaN(prev)) return null;
+        return { diff: (curr - prev).toFixed(1), up: curr > prev };
+    };
 
-    const currentWeight = latestLog?.weight ? `${parseFloat(latestLog.weight).toFixed(1)} kg` : '-- kg';
-    const currentBodyFat = latestLog?.bodyFat ? `${parseFloat(latestLog.bodyFat).toFixed(1)}%` : '--%';
-    const lastUpdated = latestLog ? new Date(latestLog.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'No data';
+    const curWeight = latestLog?.weight ? `${parseFloat(latestLog.weight).toFixed(1)} kg` : '--';
+    const curBF = latestLog?.bodyFat ? `${parseFloat(latestLog.bodyFat).toFixed(1)}%` : '--';
+    const updAt = latestLog ? new Date(latestLog.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'Pending';
 
-    let measurements = {};
-    if (latestLog?.measurements) {
-        try { measurements = typeof latestLog.measurements === 'string' ? JSON.parse(latestLog.measurements) : latestLog.measurements; }
-        catch { measurements = {}; }
-    }
-    const chest = measurements?.chest ? `${measurements.chest} cm` : '-- cm';
-
-    const stats = [
-        { title: 'Weight', value: currentWeight, icon: Scale, color: 'primary' },
-        { title: 'Chest/Height', value: chest, icon: Ruler, color: 'success' },
-        { title: 'Body Fat', value: currentBodyFat, icon: Percent, color: 'warning' },
-        { title: 'Last Updated', value: lastUpdated, icon: Calendar, color: 'info' }
-    ];
+    let msrs = {};
+    try { msrs = typeof latestLog?.measurements === 'string' ? JSON.parse(latestLog.measurements) : (latestLog?.measurements || {}); }
+    catch { msrs = {}; }
 
     const tabs = ['Measurements', 'Workout Plan', 'Diet Plan'];
 
-    const getTrend = (field) => {
-        if (!latestLog || !prevLog) return null;
-        const curr = parseFloat(latestLog[field]);
-        const prev = parseFloat(prevLog[field]);
-        if (isNaN(curr) || isNaN(prev)) return null;
-        const diff = (curr - prev).toFixed(1);
-        return { diff, up: curr > prev };
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center ">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            </div>
-        );
-    }
+    if (loading) return <Loader message="Analyzing your evolution..." />;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/10 space-y-8 p-4 sm:p-8 animate-in fade-in duration-500">
-            {/* Premium Header */}
-            <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-fuchsia-500/20 to-primary/20 rounded-[32px] blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-                <div className="relative bg-white/70 backdrop-blur-xl rounded-[32px] p-8 border border-white shadow-2xl shadow-primary/5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white shadow-xl shadow-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                            <TrendingUp size={32} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight">
-                                {isManagement ? 'Member Progress' : 'My Progress'}
-                            </h1>
-                            <p className="text-slate-500 text-sm font-bold mt-1 uppercase tracking-widest flex items-center gap-2">
-                                <Activity size={14} className="text-primary" />
-                                {isManagement ? 'Analyze fitness results' : 'Track your fitness journey'}
-                            </p>
-                        </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <TrendingUp size={28} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        {progressData.targets?.goal && (
-                            <div className="flex items-center gap-3 px-5 h-12 bg-emerald-50 rounded-2xl border-2 border-emerald-100/50 shadow-sm">
-                                <Target size={16} className="text-emerald-600" />
-                                <span className="text-xs font-black text-emerald-700 uppercase tracking-widest">{progressData.targets.goal}</span>
-                            </div>
-                        )}
-                        <button
-                            onClick={() => setShowLogModal(true)}
-                            className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-2"
-                        >
-                            <Plus size={18} strokeWidth={3} /> Log Progress
-                        </button>
-                        {isManagement && (
-                            <div className="w-full sm:w-64">
-                                <CustomDropdown
-                                    options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))}
-                                    value={selectedMemberId}
-                                    onChange={setSelectedMemberId}
-                                    placeholder="Change Member View"
-                                    searchEnabled={true}
-                                    className="w-full h-12 rounded-2xl border-2 border-slate-100 bg-white/50 focus-within:border-primary transition-all"
-                                />
-                            </div>
-                        )}
+                    <div>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>{isManagement ? 'Member Evolution' : 'My Fitness Progress'}</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Analyze statistics, workout results and body changes</p>
                     </div>
                 </div>
-            </div>
-
-            {/* Stats Section */}
-            <DashboardGrid>
-                {stats.map((stat, idx) => (
-                    <StatsCard key={idx} title={stat.title} value={stat.value} icon={stat.icon} color={stat.color} isEarningsLayout={true} />
-                ))}
-            </DashboardGrid>
-
-            {/* Tabs */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 rounded-2xl w-fit border border-slate-100">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === tab
-                                ? 'bg-white text-primary shadow-md ring-1 ring-slate-200'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Tab Content */}
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    {/* ── MEASUREMENTS TAB ── */}
-                    {activeTab === 'Measurements' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between px-1">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                                        <Target size={16} />
-                                    </div>
-                                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Measurements</h2>
-                                </div>
-                                <span className="text-xs font-bold text-slate-400">{progressData.logs?.length || 0} entries logged</span>
-                            </div>
-
-                            {progressData.logs?.length === 0 ? (
-                                <Card className="p-16 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[2.5rem] bg-white flex flex-col items-center justify-center text-center">
-                                    <div className="w-24 h-24 bg-slate-50 rounded-[40px] flex items-center justify-center text-slate-200 border-2 border-dashed border-slate-100 mb-8">
-                                        <Search size={40} strokeWidth={1.5} />
-                                    </div>
-                                    <h3 className="text-xl font-black text-slate-400 tracking-tight uppercase mb-3">No Data Available</h3>
-                                    <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-8">Start tracking your progress today</p>
-                                    <button onClick={() => setShowLogModal(true)} className="h-12 px-8 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all flex items-center gap-2">
-                                        <Plus size={16} /> Log First Entry
-                                    </button>
-                                </Card>
-                            ) : (
-                                <div className="space-y-4">
-                                    {latestLog && (
-                                        <Card className="p-8 border-2 border-slate-100 shadow-xl rounded-[2rem] bg-white">
-                                            <div className="flex items-center justify-between mb-6">
-                                                <h3 className="font-black text-slate-900 text-lg">Latest Entry</h3>
-                                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{new Date(latestLog.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                {latestLog.weight && (
-                                                    <MetricCard label="Weight" value={`${parseFloat(latestLog.weight).toFixed(1)} kg`} trend={getTrend('weight')} color="indigo" />
-                                                )}
-                                                {latestLog.bodyFat && (
-                                                    <MetricCard label="Body Fat" value={`${parseFloat(latestLog.bodyFat).toFixed(1)}%`} trend={getTrend('bodyFat')} color="amber" invertTrend />
-                                                )}
-                                                {measurements?.chest && <MetricCard label="Chest" value={`${measurements.chest} cm`} color="emerald" />}
-                                                {measurements?.waist && <MetricCard label="Waist" value={`${measurements.waist} cm`} color="rose" />}
-                                                {measurements?.hips && <MetricCard label="Hips" value={`${measurements.hips} cm`} color="purple" />}
-                                                {measurements?.arms && <MetricCard label="Arms" value={`${measurements.arms} cm`} color="blue" />}
-                                                {measurements?.thighs && <MetricCard label="Thighs" value={`${measurements.thighs} cm`} color="orange" />}
-                                            </div>
-                                            {latestLog.notes && (
-                                                <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
-                                                    <p className="text-sm text-slate-600 font-medium">{latestLog.notes}</p>
-                                                </div>
-                                            )}
-                                        </Card>
-                                    )}
-
-                                    {(progressData.targets?.weight || progressData.targets?.bodyFat) && (
-                                        <Card className="p-6 border-2 border-emerald-50 rounded-2xl bg-gradient-to-br from-emerald-50/50 to-white">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600"><Target size={16} /></div>
-                                                <h3 className="font-black text-slate-900">Your Targets</h3>
-                                            </div>
-                                            <div className="flex gap-6 flex-wrap">
-                                                {progressData.targets.weight && (
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target Weight</p>
-                                                        <p className="text-2xl font-black text-emerald-600">{parseFloat(progressData.targets.weight).toFixed(1)} kg</p>
-                                                    </div>
-                                                )}
-                                                {progressData.targets.bodyFat && (
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target Body Fat</p>
-                                                        <p className="text-2xl font-black text-emerald-600">{parseFloat(progressData.targets.bodyFat).toFixed(1)}%</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </Card>
-                                    )}
-
-                                    <Card className="border-2 border-slate-100 rounded-2xl bg-white overflow-hidden">
-                                        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500"><ClipboardList size={16} /></div>
-                                            <h3 className="font-black text-slate-900">Progress History</h3>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left">
-                                                <thead className="bg-slate-50">
-                                                    <tr>
-                                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Weight</th>
-                                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Body Fat</th>
-                                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {[...progressData.logs].reverse().map((log) => (
-                                                        <tr key={log.id} className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                                            <td className="px-6 py-4 text-sm font-bold text-slate-900">{new Date(log.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{log.weight ? `${parseFloat(log.weight).toFixed(1)} kg` : '--'}</td>
-                                                            <td className="px-6 py-4 text-sm font-bold text-slate-700">{log.bodyFat ? `${parseFloat(log.bodyFat).toFixed(1)}%` : '--'}</td>
-                                                            <td className="px-6 py-4 text-xs text-slate-500 font-medium max-w-xs truncate">{log.notes || '--'}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </Card>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* ── WORKOUT PLAN TAB ── */}
-                    {activeTab === 'Workout Plan' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 px-1">
-                                <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary"><Dumbbell size={16} /></div>
-                                <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Workout Plan</h2>
-                            </div>
-
-                            {workoutPlans.length === 0 ? (
-                                <Card className="p-16 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[2.5rem] bg-white flex flex-col items-center justify-center text-center">
-                                    <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mb-6"><Dumbbell size={36} strokeWidth={1} /></div>
-                                    <h3 className="text-lg font-black text-slate-400 tracking-tight uppercase mb-2">No Workout Plan Assigned</h3>
-                                    <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Ask your trainer to create a workout plan for you</p>
-                                </Card>
-                            ) : (
-                                <div className="space-y-4">
-                                    {workoutPlans.map((plan) => (
-                                        <Card key={plan.id} className="p-8 border-2 border-slate-100 rounded-[2rem] bg-white shadow-xl">
-                                            <div className="flex items-start justify-between mb-6">
-                                                <div>
-                                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">{plan.title || plan.name || 'Workout Plan'}</h3>
-                                                    {plan.description && <p className="text-sm text-slate-500 font-medium mt-1">{plan.description}</p>}
-                                                </div>
-                                                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-100">{plan.status || 'Active'}</span>
-                                            </div>
-
-                                            {plan.days && (() => {
-                                                try {
-                                                    const daysObj = typeof plan.days === 'string' ? JSON.parse(plan.days) : plan.days;
-                                                    const daysWithExercises = Object.entries(daysObj).filter(([_, exercises]) => Array.isArray(exercises) && exercises.length > 0);
-
-                                                    return daysWithExercises.length > 0 ? (
-                                                        <div className="space-y-4">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Training Schedule</p>
-                                                            {daysWithExercises.map(([dayKey, exercises], dayIdx) => (
-                                                                <div key={dayIdx} className="space-y-2">
-                                                                    <p className="text-[10px] font-black text-primary uppercase tracking-widest">{dayKey.replace(/([a-z])(\d+)/i, '$1 $2')}</p>
-                                                                    {exercises.map((ex, i) => (
-                                                                        <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                                                                            <div className="w-7 h-7 rounded-lg bg-violet-100 text-primary flex items-center justify-center text-[10px] font-black">{i + 1}</div>
-                                                                            <div className="flex-1">
-                                                                                <p className="text-sm font-black text-slate-900">{ex.name || ex.exercise || 'Exercise'}</p>
-                                                                                {(ex.sets || ex.reps) && <p className="text-[10px] font-bold text-slate-400 uppercase">{ex.sets && `${ex.sets} sets`}{ex.reps && ` × ${ex.reps} reps`}</p>}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : null;
-                                                } catch { return null; }
-                                            })()}
-
-                                            <div className="flex items-center gap-4 mt-6 pt-4 border-t border-slate-100">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Created: {new Date(plan.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* ── DIET PLAN TAB ── */}
-                    {activeTab === 'Diet Plan' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 px-1">
-                                <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><Utensils size={16} /></div>
-                                <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Diet Plan</h2>
-                            </div>
-
-                            {dietPlans.length === 0 ? (
-                                <Card className="p-16 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[2.5rem] bg-white flex flex-col items-center justify-center text-center">
-                                    <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mb-6"><Utensils size={36} strokeWidth={1} /></div>
-                                    <h3 className="text-lg font-black text-slate-400 tracking-tight uppercase mb-2">No Diet Plan Assigned</h3>
-                                    <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Ask your trainer to create a diet plan for you</p>
-                                </Card>
-                            ) : (
-                                <div className="space-y-4">
-                                    {dietPlans.map((plan) => (
-                                        <Card key={plan.id} className="p-8 border-2 border-slate-100 rounded-[2rem] bg-white shadow-xl">
-                                            <div className="flex items-start justify-between mb-6">
-                                                <div>
-                                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">{plan.title || plan.name || 'Diet Plan'}</h3>
-                                                    {plan.description && <p className="text-sm text-slate-500 font-medium mt-1">{plan.description}</p>}
-                                                </div>
-                                                <span className="px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-100">{plan.status || 'Active'}</span>
-                                            </div>
-
-                                            {(plan.calories || plan.protein || plan.carbs || plan.fat) && (
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                                    {plan.calories && <MacroChip label="Calories" value={plan.calories} unit="kcal" color="amber" />}
-                                                    {plan.protein && <MacroChip label="Protein" value={plan.protein} unit="g" color="blue" />}
-                                                    {plan.carbs && <MacroChip label="Carbs" value={plan.carbs} unit="g" color="emerald" />}
-                                                    {plan.fat && <MacroChip label="Fat" value={plan.fat} unit="g" color="rose" />}
-                                                </div>
-                                            )}
-
-                                            {plan.meals && (() => {
-                                                try {
-                                                    const meals = typeof plan.meals === 'string' ? JSON.parse(plan.meals) : plan.meals;
-                                                    return Array.isArray(meals) && meals.length > 0 ? (
-                                                        <div className="space-y-2">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Meal Schedule</p>
-                                                            {meals.map((meal, i) => (
-                                                                <div key={i} className="flex items-center gap-3 p-3 bg-amber-50/40 rounded-xl border border-amber-50">
-                                                                    <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-[10px] font-black">{i + 1}</div>
-                                                                    <div className="flex-1">
-                                                                        <p className="text-sm font-black text-slate-900">{meal.name || meal.meal || 'Meal'}</p>
-                                                                        {meal.description && <p className="text-[10px] font-medium text-slate-400">{meal.description}</p>}
-                                                                    </div>
-                                                                    {meal.time && <p className="text-[10px] font-black text-slate-400 uppercase">{meal.time}</p>}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : null;
-                                                } catch { return null; }
-                                            })()}
-
-                                            <div className="flex items-center gap-4 mt-6 pt-4 border-t border-slate-100">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Created: {new Date(plan.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* ── LOG PROGRESS DRAWER ── */}
-            <RightDrawer
-                isOpen={showLogModal}
-                onClose={() => setShowLogModal(false)}
-                title={
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center text-primary">
-                            <TrendingUp size={24} />
-                        </div>
-                        <span className="text-xl font-black text-slate-900">Log Progress</span>
-                    </div>
-                }
-                subtitle={isManagement ? 'Select member and record data' : 'Record your measurements'}
-            >
-                <form onSubmit={handleLogSubmit} className="space-y-6 p-1">
-                    {isManagement && (
-                        <div className="p-4 bg-primary-light/50 rounded-2xl border-2 border-violet-100/50">
-                            <label className="text-[10px] font-black text-violet-400 uppercase tracking-widest ml-1 mb-2 block">Select Member</label>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                     {isManagement && (
+                        <div style={{ width: 300 }}>
                             <CustomDropdown
                                 options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))}
-                                value={selectedMemberId}
-                                onChange={setSelectedMemberId}
-                                placeholder="Choose a member..."
-                                searchEnabled={true}
-                                className="w-full"
+                                value={selectedMemberId} onChange={setSelectedMemberId} searchEnabled={true}
                             />
                         </div>
                     )}
+                    <button onClick={() => setShowLogModal(true)} style={{ padding: '0 24px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={18} /> Log Data</button>
+                </div>
+            </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Weight (kg)" type="number" step="0.1" placeholder="e.g. 72.5"
-                            value={logForm.weight} onChange={v => setLogForm({ ...logForm, weight: v })} />
-                        <FormField label="Body Fat (%)" type="number" step="0.1" placeholder="e.g. 16.0"
-                            value={logForm.bodyFat} onChange={v => setLogForm({ ...logForm, bodyFat: v })} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+                {/* KPI STATS */}
+                <div style={{ display: 'flex', gap: 24 }}>
+                    <MetricCard title="Weight" value={curWeight} icon={Scale} color={T.accent} bg={T.accentLight} subtitle="Last Record" trend={getTrend('weight')} index={0} />
+                    <MetricCard title="Body Fat" value={curBF} icon={Percent} color={T.amber} bg={T.amberLight} subtitle="Overall Composition" trend={getTrend('bodyFat')} index={1} />
+                    <MetricCard title="Chest Size" value={msrs.chest ? `${msrs.chest} cm` : '--'} icon={Ruler} color={T.green} bg={T.greenLight} subtitle="Target: Lean" index={2} />
+                    <MetricCard title="Last Log" value={updAt} icon={Calendar} color={T.blue} bg={T.blueLight} subtitle="Update Status" index={3} />
+                </div>
+
+                {/* TABS VIEW */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
+                    <div style={{ display: 'flex', gap: 12, padding: 6, background: 'rgba(124,92,252,0.04)', borderRadius: 18, alignSelf: 'flex-start', border: `1px solid ${T.bg}` }}>
+                         {tabs.map(tab => (
+                            <button 
+                                key={tab} onClick={() => setActiveTab(tab)}
+                                style={{
+                                    padding: '10px 24px', borderRadius: 12, border: 'none',
+                                    background: activeTab === tab ? '#fff' : 'transparent',
+                                    color: activeTab === tab ? T.accent : T.muted,
+                                    fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: '0.2s',
+                                    boxShadow: activeTab === tab ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+                                }}
+                            >
+                                {tab}
+                            </button>
+                        ))}
                     </div>
 
-                    <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Body Measurements (cm)</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            {['chest', 'waist', 'hips', 'arms', 'thighs'].map(key => (
-                                <FormField key={key} label={key.charAt(0).toUpperCase() + key.slice(1)} type="number" step="0.1" placeholder="cm"
-                                    value={logForm.measurements[key]}
-                                    onChange={v => setLogForm({ ...logForm, measurements: { ...logForm.measurements, [key]: v } })} />
-                            ))}
+                    <div style={{ animation: 'fadeUp 0.4s ease both' }}>
+                        {activeTab === 'Measurements' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                
+                                {progressData.logs.length === 0 ? (
+                                    <PremiumCard index={0} style={{ padding: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                        <div style={{ opacity: 0.1, marginBottom: 20 }}><Activity size={80} /></div>
+                                        <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text }}>No Evolutionary Data</h3>
+                                        <p style={{ color: T.muted, fontWeight: 700, marginTop: 4 }}>Begin your journey by logging your first body stats.</p>
+                                        <button onClick={() => setShowLogModal(true)} style={{ marginTop: 24, padding: '12px 32px', background: T.accent, color: '#fff', borderRadius: 12, border: 'none', fontWeight: 900, cursor: 'pointer' }}>START TRACKING</button>
+                                    </PremiumCard>
+                                ) : (
+                                    <>
+                                        {/* RECENT SNAPSHOT */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 24 }}>
+                                            <PremiumCard index={0}>
+                                                <SectionHeader icon={Activity} title="Current Snapshot" subtitle="Latest anatomical data" />
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                                                    {['waist', 'hips', 'arms', 'thighs', 'chest'].map((m) => msrs[m] && (
+                                                        <div key={m} style={{ padding: 20, borderRadius: 20, background: T.bg, border: `1px solid ${T.border}` }}>
+                                                            <p style={{ fontSize: 9, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 4 }}>{m}</p>
+                                                            <p style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>{msrs[m]} <span style={{ fontSize: 11, opacity: 0.5 }}>cm</span></p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </PremiumCard>
+                                            <PremiumCard index={1} style={{ background: T.dark, border: 'none' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                                                    <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.1)', color: '#FFE16A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trophy size={20} /></div>
+                                                    <div>
+                                                        <h4 style={{ fontSize: 13, fontWeight: 900, color: '#fff', textTransform: 'uppercase', margin: 0 }}>Fitness Goal</h4>
+                                                        <p style={{ fontSize: 16, fontWeight: 900, color: '#FFE16A', margin: 0 }}>{progressData.targets?.goal || 'Maintain Balance'}</p>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: 12 }}>
+                                                    {progressData.targets?.weight && <div style={{ flex: 1, padding: 16, borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: '#fff' }}>
+                                                        <p style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', margin: '0 0 4px' }}>Target Wt</p>
+                                                        <p style={{ fontSize: 16, fontWeight: 900, margin: 0 }}>{progressData.targets.weight}kg</p>
+                                                    </div>}
+                                                    {progressData.targets?.bodyFat && <div style={{ flex: 1, padding: 16, borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: '#fff' }}>
+                                                        <p style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', margin: '0 0 4px' }}>Target BF</p>
+                                                        <p style={{ fontSize: 16, fontWeight: 900, margin: 0 }}>{progressData.targets.bodyFat}%</p>
+                                                    </div>}
+                                                </div>
+                                            </PremiumCard>
+                                        </div>
+
+                                        {/* TABLE LOGS */}
+                                        <PremiumCard index={2}>
+                                            <SectionHeader icon={ClipboardList} title="Evolution History" subtitle="Full track record" />
+                                            <div style={{ overflowX: 'auto' }}>
+                                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                                    <thead>
+                                                        <tr style={{ textAlign: 'left', borderBottom: `2px solid ${T.bg}` }}>
+                                                            <th style={{ padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Timeline</th>
+                                                            <th style={{ padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Weight (KG)</th>
+                                                            <th style={{ padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Body Fat (%)</th>
+                                                            <th style={{ padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>Trainer Observations</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {[...progressData.logs].reverse().map((log, i) => (
+                                                            <tr key={log.id} style={{ borderBottom: `1px solid ${T.bg}`, transition: '0.2s' }}>
+                                                                <td style={{ padding: '16px 20px', fontSize: 13, fontWeight: 800, color: T.text }}>{new Date(log.date).toLocaleDateString('en-GB')}</td>
+                                                                <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 900, color: T.accent }}>{log.weight || '--'}</td>
+                                                                <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 900, color: T.amber }}>{log.bodyFat || '--'}%</td>
+                                                                <td style={{ padding: '16px 20px', fontSize: 12, fontWeight: 600, color: T.muted }}>{log.notes || '--'}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </PremiumCard>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'Workout Plan' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                {workoutPlans.length === 0 ? (
+                                    <PremiumCard index={0} style={{ padding: 60, textAlign: 'center', opacity: 0.7 }}>
+                                         <Dumbbell size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+                                         <h4 style={{ fontSize: 15, fontWeight: 900, color: T.text }}>No Assigned Workout Routine</h4>
+                                         <p style={{ fontSize: 12, fontWeight: 600, color: T.muted }}>Contact your PT to initialize a focused workout program.</p>
+                                    </PremiumCard>
+                                ) : workoutPlans.map((plan, idx) => (
+                                    <PremiumCard key={plan.id} index={idx}>
+                                        <SectionHeader icon={Dumbbell} title={plan.title || 'Training Program'} subtitle="Dynamic Routine" color={T.accent} />
+                                        {plan.description && <p style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>{plan.description}</p>}
+                                        
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                                            {Object.entries(typeof plan.days === 'string' ? JSON.parse(plan.days) : (plan.days || {})).map(([day, exrs]) => (
+                                                <div key={day} style={{ padding: 24, borderRadius: 20, background: T.bg, border: `1px solid ${T.border}` }}>
+                                                    <h4 style={{ fontSize: 11, fontWeight: 900, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>{day} Schedule</h4>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                                        {exrs.map((e, i) => (
+                                                            <div key={i} style={{ padding: '12px 16px', borderRadius: 12, background: '#fff', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{e.name || e.exercise}</span>
+                                                                <span style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase' }}>{e.sets} Sets × {e.reps}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </PremiumCard>
+                                ))}
+                            </div>
+                        )}
+
+                        {activeTab === 'Diet Plan' && (
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                {dietPlans.length === 0 ? (
+                                    <PremiumCard index={0} style={{ padding: 60, textAlign: 'center', opacity: 0.7 }}>
+                                         <Utensils size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+                                         <h4 style={{ fontSize: 15, fontWeight: 900, color: T.text }}>No Nutrition Plan Assigned</h4>
+                                         <p style={{ fontSize: 12, fontWeight: 600, color: T.muted }}>Fuel your results with a tailored nutrition strategy.</p>
+                                    </PremiumCard>
+                                ) : dietPlans.map((plan, idx) => (
+                                    <PremiumCard key={plan.id} index={idx}>
+                                        <SectionHeader icon={Utensils} title={plan.title || 'Nutrition Blueprint'} subtitle="Daily Macros & Meals" color={T.amber} />
+                                        
+                                        <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+                                            <MacroChip label="Calories" value={plan.calories || 0} unit="KCAL" color="amber" />
+                                            <MacroChip label="Protein" value={plan.protein || 0} unit="G" color="blue" />
+                                            <MacroChip label="Carbs" value={plan.carbs || 0} unit="G" color="emerald" />
+                                            <MacroChip label="Fats" value={plan.fat || 0} unit="G" color="rose" />
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                            { (typeof plan.meals === 'string' ? JSON.parse(plan.meals) : (plan.meals || [])).map((m, i) => (
+                                                <div key={i} style={{ padding: '16px 24px', borderRadius: 16, background: T.amberLight, color: T.amber, display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: `1px solid ${T.amber}15` }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.amber }} />
+                                                        <div>
+                                                            <p style={{ fontSize: 14, fontWeight: 900, margin: 0 }}>{m.name || m.meal}</p>
+                                                            <p style={{ fontSize: 11, fontWeight: 600, opacity: 0.8, margin: 0 }}>{m.description}</p>
+                                                        </div>
+                                                    </div>
+                                                    <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{m.time || 'Schedule'}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </PremiumCard>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+            </div>
+
+             {/* LOG DRAWER */}
+            <RightDrawer isOpen={showLogModal} onClose={() => setShowLogModal(false)} title="Log Health Evolution" subtitle="Record body metrics">
+                <form onSubmit={handleLogSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: 4 }}>
+                    {isManagement && (
+                        <div style={{ padding: 20, background: T.bg, borderRadius: 20 }}>
+                            <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 8, display: 'block' }}>Search Member</label>
+                            <CustomDropdown options={members.map(m => ({ value: m.id.toString(), label: `${m.name} (${m.memberId})` }))} value={selectedMemberId} onChange={setSelectedMemberId} searchEnabled={true} />
                         </div>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        <FormField label="Current Weight (kg)" type="number" step="0.1" value={logForm.weight} onChange={v => setLogForm({...logForm, weight: v})} placeholder="e.g. 74.5" />
+                        <FormField label="Body Fat (%)" type="number" step="0.1" value={logForm.bodyFat} onChange={v => setLogForm({...logForm, bodyFat: v})} placeholder="e.g. 14.5" />
                     </div>
-
-                    <FormField label="Date" type="date" value={logForm.date} onChange={v => setLogForm({ ...logForm, date: v })} />
-
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Notes (optional)</label>
-                        <textarea value={logForm.notes} rows={3}
-                            onChange={e => setLogForm({ ...logForm, notes: e.target.value })}
-                            placeholder="How are you feeling? Any observations..."
-                            className="w-full mt-2 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-medium focus:border-primary outline-none transition-all resize-none"
-                        />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                         <p style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Anthropometric Measures (cm)</p>
+                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            {['chest', 'waist', 'hips', 'arms', 'thighs'].map(key => (
+                                <FormField key={key} label={key} type="number" step="0.1" value={logForm.measurements[key]} onChange={v => setLogForm({...logForm, measurements: { ...logForm.measurements, [key]: v }})} placeholder="cm" />
+                            ))}
+                         </div>
                     </div>
-
-                    <button type="submit" disabled={submitting}
-                        className="w-full h-14 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                        {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                        Save Progress Entry
+                    <FormField label="Observation Timeline" type="date" value={logForm.date} onChange={v => setLogForm({...logForm, date: v})} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                         <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>Field Notes</label>
+                         <textarea value={logForm.notes} onChange={e => setLogForm({...logForm, notes: e.target.value})} rows={4} style={{ padding: 16, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, fontSize: 13, fontWeight: 600, color: T.text, outline: 'none', resize: 'none' }} placeholder="Notes about physical state, mood, or energy levels..." />
+                    </div>
+                    <button type="submit" disabled={submitting} style={{ height: 56, width: '100%', padding: '0 32px', background: T.accent, color: '#fff', borderRadius: 16, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 8px 24px rgba(124,92,252,0.2)' }}>
+                        {submitting ? <RefreshCw className="animate-spin" size={20} /> : <Check size={20} />} Commit Record
                     </button>
                 </form>
             </RightDrawer>
+
         </div>
     );
 };
-
-/* ── Sub-Components ── */
-
-const MetricCard = ({ label, value, trend, color = 'indigo', invertTrend = false }) => {
-    const colors = {
-        indigo: 'bg-primary-light text-primary-hover',
-        amber: 'bg-amber-50 text-amber-700',
-        emerald: 'bg-emerald-50 text-emerald-700',
-        rose: 'bg-rose-50 text-rose-700',
-        purple: 'bg-purple-50 text-primary-hover',
-        blue: 'bg-primary-light text-primary-hover',
-        orange: 'bg-orange-50 text-orange-700',
-    };
-    return (
-        <div className={`p-4 rounded-2xl ${colors[color]} space-y-1`}>
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-70">{label}</p>
-            <p className="text-xl font-black">{value}</p>
-            {trend && (
-                <div className="flex items-center gap-1 text-[10px] font-black">
-                    {trend.up ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
-                    <span>{Math.abs(trend.diff)} {invertTrend ? (trend.up ? '▲ worsened' : '▼ improved') : (trend.up ? '▲ gained' : '▼ lost')}</span>
-                </div>
-            )}
-        </div>
-    );
-};
-
-const MacroChip = ({ label, value, unit, color }) => {
-    const colors = {
-        amber: 'bg-amber-50 border-amber-100 text-amber-700',
-        blue: 'bg-primary-light border-violet-100 text-primary-hover',
-        emerald: 'bg-emerald-50 border-emerald-100 text-emerald-700',
-        rose: 'bg-rose-50 border-rose-100 text-rose-700',
-    };
-    return (
-        <div className={`p-4 rounded-xl border ${colors[color]} text-center`}>
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">{label}</p>
-            <p className="text-lg font-black">{value}<span className="text-xs ml-0.5">{unit}</span></p>
-        </div>
-    );
-};
-
-const FormField = ({ label, type, value, onChange, placeholder, step }) => (
-    <div>
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-        <input
-            type={type}
-            step={step}
-            value={value}
-            placeholder={placeholder}
-            onChange={e => onChange(e.target.value)}
-            className="w-full mt-2 h-12 bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 text-sm font-bold focus:border-primary outline-none transition-all"
-        />
-    </div>
-);
 
 export default MemberProgress;

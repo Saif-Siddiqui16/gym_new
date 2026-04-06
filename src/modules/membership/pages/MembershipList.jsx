@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import CustomDropdown from '../../../components/common/CustomDropdown';
 import MembershipCard from '../components/MembershipCard';
+import Loader from '../../../components/common/Loader';
 
 const MembershipList = () => {
     const navigate = useNavigate();
@@ -106,8 +107,8 @@ const MembershipList = () => {
 
             {/* Premium Memberships Grid */}
             {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <div style={{ padding: '80px 0' }}>
+                    <Loader message="Syncing Memberships..." />
                 </div>
             ) : memberships.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">

@@ -1,29 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import {
-    User,
-    Mail,
-    Phone,
-    Calendar,
-    MapPin,
-    Key,
-    Shield,
-    Activity,
-    Users,
-    LayoutDashboard,
-    Clock,
-    Search,
-    Loader2,
-    Save,
-    X,
-    Lock,
-    Camera,
-    Bell
+    User, Mail, Phone, Calendar, MapPin, Key, Shield, Activity, Users, 
+    LayoutDashboard, Clock, Search, Loader2, Save, X, Lock, Camera, Bell,
+    RefreshCw, ChevronRight, UserCheck, ShieldCheck, MailCheck, Fingerprint
 } from 'lucide-react';
-import Card from '../../components/ui/Card';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import NotificationsList from '../../components/notifications/NotificationsList';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0 }) => {
+    return (
+        <div 
+            style={{
+                background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+                padding: 32, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+                animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+                ...style
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
+const InputGroup = ({ label, icon: Icon, value, onChange, readOnly, placeholder, type = 'text', hint }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>{label}</label>
+        <div style={{ position: 'relative' }}>
+             <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }}>
+                <Icon size={18} strokeWidth={2.5} />
+            </div>
+            <input 
+                type={type} value={value} onChange={e => onChange && onChange(e.target.value)}
+                readOnly={readOnly} placeholder={placeholder}
+                style={{
+                    width: '100%', height: 56, borderRadius: 16, background: readOnly ? T.bg : '#fff',
+                    border: `2px solid ${readOnly ? 'transparent' : T.border}`, padding: '0 16px 0 48px',
+                    fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s',
+                    cursor: readOnly ? 'default' : 'text'
+                }}
+            />
+        </div>
+        {hint && <p style={{ fontSize: 9, fontWeight: 800, color: T.amber, textTransform: 'uppercase', margin: 0, marginLeft: 4 }}>{hint}</p>}
+    </div>
+);
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -32,23 +78,14 @@ const MyProfile = () => {
     const [saving, setSaving] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const { login: updateAuthUser } = useAuth();
+    const [activeTab, setActiveTab] = useState('personal');
 
-    // Form States
-    const [formData, setFormData] = useState({
-        phone: '',
-        emergencyName: '',
-        emergencyPhone: '',
-        avatar: ''
-    });
-
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-    });
+    const [formData, setFormData] = useState({ phone: '', emergencyName: '', emergencyPhone: '', avatar: '' });
+    const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
     const fetchProfile = async () => {
         try {
+            setLoading(true);
             const res = await apiClient.get('/member/profile');
             setProfile(res.data);
             setFormData({
@@ -65,17 +102,13 @@ const MyProfile = () => {
         }
     };
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
+    useEffect(() => { fetchProfile(); }, []);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, avatar: reader.result }));
-            };
+            reader.onloadend = () => { setFormData(prev => ({ ...prev, avatar: reader.result })); };
             reader.readAsDataURL(file);
         }
     };
@@ -85,8 +118,6 @@ const MyProfile = () => {
         try {
             const res = await apiClient.put('/member/profile', formData);
             toast.success("Profile updated successfully");
-
-            // Update Auth Context if name or phone or avatar changed
             const updatedProfile = res.data.member || res.data;
             updateAuthUser({
                 ...JSON.parse(localStorage.getItem('userData')),
@@ -94,7 +125,6 @@ const MyProfile = () => {
                 phone: updatedProfile.phone,
                 avatar: updatedProfile.avatar
             });
-
             await fetchProfile();
             setIsEditing(false);
         } catch (err) {
@@ -106,10 +136,7 @@ const MyProfile = () => {
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            return toast.error("Passwords do not match");
-        }
-
+        if (passwordData.newPassword !== passwordData.confirmPassword) return toast.error("Passwords do not match");
         try {
             await apiClient.post('/member/change-password', {
                 currentPassword: passwordData.currentPassword,
@@ -123,421 +150,222 @@ const MyProfile = () => {
         }
     };
 
-    const [activeTab, setActiveTab] = useState('personal');
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
-        { id: 'security', label: 'Security', icon: Lock },
+        { id: 'security', label: 'Security', icon: Shield },
         { id: 'notifications', label: 'Notifications', icon: Bell }
     ];
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center ">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            </div>
-        );
-    }
+    if (loading) return <Loader message="Accessing your security vault..." />;
 
-    if (!profile) {
-        return (
-            <div className="p-10 text-center">
-                <h2 className="text-2xl font-black text-slate-900">Profile Not Found</h2>
-                <p className="text-slate-500 mt-2">We couldn't load your profile information. Please try again later.</p>
-            </div>
-        );
-    }
+    if (!profile) return (
+        <div style={{ textAlign: 'center', padding: 100 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 900, color: T.text }}>Profile Not Found</h2>
+            <p style={{ color: T.muted, fontWeight: 600 }}>We couldn't load your profile data. Please try again.</p>
+            <button onClick={() => window.location.reload()} style={{ marginTop: 20, padding: '12px 24px', background: T.accent, color: '#fff', borderRadius: 12, border: 'none', fontWeight: 900 }}>RETRY</button>
+        </div>
+    );
 
     const initials = profile.name ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase() : '??';
 
     return (
-        <div className="saas-container   pr-2 pb-20 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 sm:py-6 px-1 sm:px-2 animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="p-2 sm:p-3 bg-violet-100/50 rounded-xl sm:rounded-2xl shadow-inner border border-violet-100 flex items-center justify-center shrink-0">
-                        <User size={28} className="sm:w-9 sm:h-9 text-primary" />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <UserCheck size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-none mb-1">
-                            My Profile
-                        </h1>
-                        <p className="text-slate-500 text-xs sm:text-sm font-medium">
-                            Manage your personal information
-                        </p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Profile</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage your personal identity and security</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <button
-                        onClick={() => setShowPasswordModal(true)}
-                        className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-white border-2 border-slate-100 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-slate-600 uppercase tracking-widest hover:border-violet-100 hover:text-primary transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-95 group whitespace-nowrap"
-                    >
-                        <Key size={13} className="group-hover:rotate-12 transition-transform shrink-0" /> Reset Password
-                    </button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <button onClick={() => setShowPasswordModal(true)} style={{ padding: '0 20px', height: 44, background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 14, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}><Key size={16} /> Reset Password</button>
                     {isEditing ? (
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="h-10 sm:h-11 px-4 bg-slate-100 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-all"
-                            >
-                                <X size={18} />
-                            </button>
-                            <button
-                                onClick={handleSaveProfile}
-                                disabled={saving}
-                                className="h-10 sm:h-11 px-6 bg-primary text-white rounded-xl sm:rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-violet-100 disabled:opacity-50"
-                            >
-                                {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save Changes
-                            </button>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button onClick={() => setIsEditing(false)} style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                            <button onClick={handleSaveProfile} disabled={saving} style={{ padding: '0 24px', height: 44, background: '#FFE16A', color: '#1A1533', borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(255,225,106,0.2)' }}>{saving ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />} Save Changes</button>
                         </div>
                     ) : (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-8 bg-primary border-2 border-primary rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black text-white uppercase tracking-widest hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-violet-100 hover:shadow-violet-200 active:scale-95 whitespace-nowrap"
-                        >
-                            Edit Profile
-                        </button>
+                        <button onClick={() => setIsEditing(true)} style={{ padding: '0 28px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Edit Profile</button>
                     )}
                 </div>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap flex items-center gap-2 border-2 ${activeTab === tab.id
-                            ? 'bg-primary border-primary text-white shadow-lg shadow-violet-100'
-                            : 'bg-white border-slate-100 text-slate-400 hover:border-violet-100 hover:text-primary'
-                            }`}
-                    >
-                        <tab.icon size={14} />
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                
+                {/* TABS */}
+                <div style={{ display: 'flex', gap: 12 }} className="animate-fadeIn">
+                    {tabs.map(tab => (
+                        <button 
+                            key={tab.id} onClick={() => setActiveTab(tab.id)}
+                            style={{
+                                padding: '12px 24px', borderRadius: 16, border: `2px solid ${activeTab === tab.id ? T.accent : T.surface}`,
+                                background: activeTab === tab.id ? T.accent : T.surface,
+                                color: activeTab === tab.id ? '#fff' : T.muted,
+                                fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', gap: 10,
+                                boxShadow: activeTab === tab.id ? '0 8px 24px rgba(124,92,252,0.2)' : 'none',
+                                animation: 'fadeUp 0.3s ease both'
+                            }}
+                        >
+                            <tab.icon size={16} strokeWidth={2.5} /> {tab.label}
+                        </button>
+                    ))}
+                </div>
 
-            {activeTab === 'personal' && (
-                <>
-
-                    {/* Profile Summary Section */}
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-                        <Card className="p-5 sm:p-8 border border-white rounded-2xl sm:rounded-[32px] bg-white shadow-2xl shadow-violet-100/30 relative overflow-hidden group hover:shadow-violet-200/40 transition-all duration-500">
-                            <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-1000">
-                                <User size={180} />
-                            </div>
-                            <div className="relative z-10 flex items-center gap-5 sm:gap-10">
-                                <div className="relative shrink-0 group/avatar">
-                                    <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary to-violet-800 flex items-center justify-center text-white text-2xl sm:text-4xl font-black border-4 sm:border-[6px] border-white shadow-2xl shadow-violet-200 ring-4 sm:ring-8 ring-violet-100/30 overflow-hidden">
-                                        {formData.avatar ? (
-                                            <img src={formData.avatar} alt="Profile" className="w-full h-full object-cover" />
-                                        ) : (profile.avatar ? (
-                                            <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover" />
-                                        ) : (
-                                            initials
-                                        ))}
+                {activeTab === 'personal' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        {/* PROFILE SUMMARY BAR */}
+                        <PremiumCard index={0} style={{ padding: '24px 40px', background: 'linear-gradient(135deg, #fff 0%, #F9F8FF 100%)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+                                <div style={{ position: 'relative' }}>
+                                    <div style={{ width: 120, height: 120, borderRadius: '50%', background: T.accent, border: '6px solid #fff', boxShadow: '0 12px 32px rgba(124,92,252,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                        {formData.avatar ? <img src={formData.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : (profile.avatar ? <img src={profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : <span style={{ fontSize: 36, fontWeight: 900, color: '#fff' }}>{initials}</span>)}
                                     </div>
                                     {isEditing && (
-                                        <label className="absolute bottom-0 right-0 p-2 sm:p-3 bg-white rounded-xl sm:rounded-2xl shadow-xl border border-violet-100 text-primary hover:scale-110 hover:bg-primary-light active:scale-95 transition-all duration-300 cursor-pointer group-hover/avatar:shadow-violet-200 flex items-center justify-center">
-                                            <Camera size={18} className="sm:w-5 sm:h-5" />
-                                            <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+                                        <label style={{ position: 'absolute', bottom: 4, right: 4, width: 36, height: 36, borderRadius: 12, background: '#fff', border: `1px solid ${T.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                                            <Camera size={18} />
+                                            <input type="file" style={{ display: 'none' }} accept="image/*" onChange={handleAvatarChange} />
                                         </label>
                                     )}
                                 </div>
-                                <div className="space-y-2 sm:space-y-3 min-w-0">
-                                    <div>
-                                        <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none truncate">{profile.name || 'Demo Member'}</h2>
-                                        <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 sm:mt-2 flex items-center gap-2">
-                                            Member ID: <span className="text-primary font-black">{profile.memberId || 'MEM001'}</span>
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1 flex-wrap">
-                                        <span className={`px-2.5 sm:px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] shadow-sm whitespace-nowrap border ${profile.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                            {profile.status || 'Active'}
-                                        </span>
-                                        <span className="px-2.5 sm:px-4 py-1.5 bg-white text-slate-600 border border-slate-100 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group/badge whitespace-nowrap">
-                                            {profile.plan?.name || 'No Active Plan'}
-                                            <div className="absolute bottom-1 left-4 right-4 h-0.5 bg-violet-200/50 rounded-full" />
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Personal Information Section */}
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                        <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 space-y-6 sm:space-y-10 group hover:shadow-violet-200/40 transition-all duration-500">
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Personal Information</h3>
-                                <p className="text-sm text-slate-400 font-medium">Your personal details and contact information</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-6 sm:gap-y-10">
-                                {/* Full Name */}
-                                <div className="space-y-3 group/field">
-                                    <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <User size={14} className="text-primary" />
-                                        <span>Full Name</span>
-                                    </div>
-                                    <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
-                                        {profile.name}
-                                    </div>
-                                    <p className="text-[10px] text-amber-600/80 font-black uppercase tracking-tighter">Contact admin to change your name</p>
-                                </div>
-
-                                {/* Email */}
-                                <div className="space-y-3 group/field">
-                                    <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Mail size={14} className="text-primary" />
-                                        <span>Email Address</span>
-                                    </div>
-                                    <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
-                                        {profile.email || 'N/A'}
-                                    </div>
-                                    <p className="text-[10px] text-violet-400/80 font-black uppercase tracking-tighter">Email cannot be changed</p>
-                                </div>
-
-                                {/* Phone */}
-                                <div className="space-y-3 group/field">
-                                    <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Phone size={14} className="text-primary" />
-                                        <span>Phone Number</span>
-                                    </div>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
-                                        />
-                                    ) : (
-                                        <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner group-hover/field:border-violet-100 transition-colors">
-                                            {profile.phone || 'N/A'}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Member Since */}
-                                <div className="space-y-3 group/field">
-                                    <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Calendar size={14} className="text-primary" />
-                                        <span>Member Since</span>
-                                    </div>
-                                    <div className="h-14 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center px-5 text-slate-900 font-bold text-sm shadow-inner transition-colors">
-                                        {profile.joinDate ? new Date(profile.joinDate).toLocaleDateString('en-GB') : 'N/A'}
-                                    </div>
-                                </div>
-
-                                {/* Status */}
-                                <div className="space-y-3 group/field">
-                                    <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest opacity-60 group-hover/field:opacity-100 transition-opacity">
-                                        <Activity size={14} className="text-primary" />
-                                        <span>Current Status</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-1">
-                                        <div className={`w-2 h-2 rounded-full ${profile.status === 'Active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                                        <span className={`text-xs font-black uppercase tracking-widest underline underline-offset-4 decoration-violet-200 ${profile.status === 'Active' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                            Profile {profile.status || 'Active'}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Emergency Contact Section */}
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
-                        <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 space-y-6 sm:space-y-10 group hover:shadow-violet-200/40 transition-all duration-500">
-                            <div className="flex items-start gap-3 sm:gap-4">
-                                <div className="p-2.5 sm:p-3 bg-rose-50 rounded-xl sm:rounded-2xl text-rose-600 shadow-inner border border-rose-100 shrink-0">
-                                    <Shield size={20} className="sm:w-6 sm:h-6" />
-                                </div>
                                 <div>
-                                    <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Emergency Contact</h3>
-                                    <p className="text-xs sm:text-sm text-slate-400 font-medium">Contact person in case of emergency</p>
+                                    <h2 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>{profile.name}</h2>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
+                                        <span style={{ fontSize: 10, fontWeight: 900, color: profile.status === 'Active' ? T.green : T.rose, background: profile.status === 'Active' ? T.greenLight : T.roseLight, padding: '4px 12px', borderRadius: 8, textTransform: 'uppercase' }}>{profile.status} Member</span>
+                                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{profile.plan?.name || 'Standard Plan'}</span>
+                                    </div>
+                                    <p style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 12 }}>ID: {profile.memberId}</p>
                                 </div>
                             </div>
+                        </PremiumCard>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-5 sm:gap-y-8">
-                                <div className="space-y-3">
-                                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-60">Contact Name</p>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={formData.emergencyName}
-                                            onChange={(e) => setFormData({ ...formData, emergencyName: e.target.value })}
-                                            placeholder="Enter name"
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
-                                        />
-                                    ) : (
-                                        <div className={`h-14 w-full bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center px-5 text-sm shadow-inner ${profile.emergencyName ? 'text-slate-900 font-bold' : 'text-slate-400 italic'}`}>
-                                            {profile.emergencyName || 'Emergency contact name'}
+                        {/* PERSONAL INFO DETAILS */}
+                        <PremiumCard index={1}>
+                            <SectionHeader icon={ShieldCheck} title="Personal Details" subtitle="Verification & Contact" />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                                <InputGroup label="Full Name" icon={User} value={profile.name} readOnly={true} hint="Contact admin to change legal name" />
+                                <InputGroup label="Email Address" icon={Mail} value={profile.email} readOnly={true} hint="Registered email cannot be modified" />
+                                <InputGroup label="Phone Number" icon={Phone} value={isEditing ? formData.phone : profile.phone} onChange={v => setFormData({...formData, phone: v})} readOnly={!isEditing} />
+                                <InputGroup label="Member Since" icon={Calendar} value={profile.joinDate ? new Date(profile.joinDate).toLocaleDateString('en-GB') : 'N/A'} readOnly={true} />
+                            </div>
+                        </PremiumCard>
+
+                        {/* EMERGENCY CONTACT */}
+                        <PremiumCard index={2} style={{ background: T.bg }}>
+                            <SectionHeader icon={Activity} title="Emergency Contact" subtitle="Trusted Reach-out" color={T.rose} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                                <InputGroup label="Contact Name" icon={User} value={isEditing ? formData.emergencyName : profile.emergencyName} onChange={v => setFormData({...formData, emergencyName: v})} readOnly={!isEditing} placeholder="Primary Contact Person" />
+                                <InputGroup label="Contact Phone" icon={Phone} value={isEditing ? formData.emergencyPhone : profile.emergencyPhone} onChange={v => setFormData({...formData, emergencyPhone: v})} readOnly={!isEditing} placeholder="Emergency Phone Number" />
+                            </div>
+                        </PremiumCard>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 24 }}>
+                            {/* BRANCH INFO */}
+                            <PremiumCard index={3}>
+                                <SectionHeader icon={MapPin} title="Branch Access" subtitle="Your Home Gym" color={T.blue} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 24, borderRadius: 20, background: T.bg }}>
+                                    <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', color: T.blue, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.03)' }}><MapPin size={28} /></div>
+                                    <div>
+                                        <h4 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{profile.branch || 'Main Branch'}</h4>
+                                        <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0, marginTop: 4 }}>Registered Home Branch</p>
+                                    </div>
+                                </div>
+                            </PremiumCard>
+
+                            {/* MEMBERSHIP SUMMARY */}
+                            <PremiumCard index={4}>
+                                <SectionHeader icon={Shield} title="Membership Overview" subtitle="Plan Details" color={T.green} />
+                                <div style={{ display: 'flex', gap: 20 }}>
+                                    {[
+                                        { label: 'Active Plan', value: profile.plan?.name || 'Standard', color: T.accent },
+                                        { label: 'Start Date', value: profile.joinDate ? new Date(profile.joinDate).toLocaleDateString('en-GB') : 'N/A', color: T.text },
+                                        { label: 'Expiry Date', value: profile.expiryDate ? new Date(profile.expiryDate).toLocaleDateString('en-GB') : 'N/A', color: T.rose },
+                                    ].map((item, i) => (
+                                        <div key={i} style={{ flex: 1, padding: 20, borderRadius: 20, background: T.bg }}>
+                                            <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0, marginBottom: 4 }}>{item.label}</p>
+                                            <p style={{ fontSize: 13, fontWeight: 900, color: item.color, margin: 0 }}>{item.value}</p>
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-                                <div className="space-y-3">
-                                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-60">Contact Phone</p>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={formData.emergencyPhone}
-                                            onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                                            placeholder="Enter phone"
-                                            className="h-14 w-full bg-white border-2 border-violet-100 rounded-2xl px-5 text-slate-900 font-bold text-sm outline-none focus:border-primary transition-colors shadow-sm"
-                                        />
-                                    ) : (
-                                        <div className={`h-14 w-full bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center px-5 text-sm shadow-inner ${profile.emergencyPhone ? 'text-slate-900 font-bold' : 'text-slate-400 italic'}`}>
-                                            {profile.emergencyPhone || 'Emergency contact phone'}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Membership Details Section */}
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-400">
-                        <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 space-y-6 sm:space-y-10 group hover:shadow-violet-200/40 transition-all duration-500">
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Membership Details</h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-5 sm:gap-y-8">
-                                <div className="space-y-2 group/val">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/val:text-primary transition-colors">Plan</p>
-                                    <p className="text-lg font-black text-slate-900 tracking-tight">{profile.plan?.name || 'No Active Plan'}</p>
-                                    <div className="w-8 h-1 bg-violet-100 rounded-full" />
-                                </div>
-                                <div className="space-y-2 group/val">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/val:text-emerald-500 transition-colors">Start Date</p>
-                                    <p className="text-lg font-black text-slate-900 tracking-tight">{profile.joinDate ? new Date(profile.joinDate).toLocaleDateString('en-GB') : 'N/A'}</p>
-                                    <div className="w-8 h-1 bg-emerald-100 rounded-full" />
-                                </div>
-                                <div className="space-y-2 group/val">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/val:text-rose-500 transition-colors">End Date</p>
-                                    <p className="text-lg font-black text-slate-900 tracking-tight">{profile.expiryDate ? new Date(profile.expiryDate).toLocaleDateString('en-GB') : 'N/A'}</p>
-                                    <div className="w-8 h-1 bg-rose-100 rounded-full" />
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Branch Section */}
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500">
-                        <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 group hover:shadow-violet-200/40 transition-all duration-500">
-                            <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
-                                <div className="p-2.5 sm:p-3 bg-primary-light/50 rounded-xl sm:rounded-2xl text-primary shadow-inner shrink-0">
-                                    <MapPin size={20} className="sm:w-6 sm:h-6" />
-                                </div>
-                                <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Branch Location</h3>
-                            </div>
-
-                            <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-slate-50/50 border border-slate-100 rounded-2xl sm:rounded-3xl group-hover:bg-white transition-colors duration-500">
-                                <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-white flex items-center justify-center text-primary shadow-xl shadow-violet-100/50 border border-primary-light sm:scale-110">
-                                    <MapPin size={24} className="sm:w-8 sm:h-8" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">{profile.branch || 'Main Branch'}</p>
-                                    <p className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Your registered home branch</p>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </>
-            )}
-
-            {activeTab === 'security' && (
-                <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <Card className="p-5 sm:p-10 border border-white rounded-2xl sm:rounded-[40px] bg-white shadow-2xl shadow-violet-100/30 space-y-8">
-                        <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-rose-50 rounded-3xl border border-rose-100">
-                            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm shrink-0">
-                                <Lock size={32} />
-                            </div>
-                            <div className="flex-1 text-center md:text-left">
-                                <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Security & Credentials</h4>
-                                <p className="text-sm text-slate-500 font-medium">Protect your account with a strong password.</p>
-                            </div>
-                            <button
-                                onClick={() => setShowPasswordModal(true)}
-                                className="px-8 py-3 bg-rose-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all active:scale-95"
-                            >
-                                Change Password
-                            </button>
+                            </PremiumCard>
                         </div>
+                    </div>
+                )}
 
-                    </Card>
-                </div>
-            )}
+                {activeTab === 'security' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <PremiumCard index={0} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 40, background: T.roseLight }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                                <div style={{ width: 64, height: 64, borderRadius: 20, background: '#fff', color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 30px rgba(244,63,94,0.1)' }}><Lock size={32} /></div>
+                                <div>
+                                    <h4 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>Password Security</h4>
+                                    <p style={{ fontSize: 13, fontWeight: 600, color: T.rose, margin: '4px 0 0' }}>Update your password regularly to keep your account safe.</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowPasswordModal(true)} style={{ height: 52, padding: '0 32px', background: T.rose, color: '#fff', borderRadius: 16, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)' }}>Rotate Password</button>
+                        </PremiumCard>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                            <PremiumCard index={1} style={{ opacity: 0.6 }}>
+                                <SectionHeader icon={Fingerprint} title="Biometric Access" subtitle="Multi-factor Security" />
+                                <p style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>Face-recognition and fingerprint access for gym entries. Configuration available at branch office.</p>
+                            </PremiumCard>
+                            <PremiumCard index={2} style={{ opacity: 0.6 }}>
+                                <SectionHeader icon={ShieldCheck} title="Account Privacy" subtitle="Data Management" />
+                                <p style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>Your personal data is encrypted and managed according to Roar Fitness privacy standards.</p>
+                            </PremiumCard>
+                        </div>
+                    </div>
+                )}
 
-            {activeTab === 'notifications' && (
-                <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <NotificationsList />
-                </div>
-            )}
+                {activeTab === 'notifications' && (
+                    <div className="animate-fadeIn">
+                        <NotificationsList />
+                    </div>
+                )}
 
-            {/* Password Modal */}
+            </div>
+
+             {/* PASSWORD MODAL */}
             {showPasswordModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <Card className="w-full max-w-md bg-white rounded-[32px] shadow-2xl relative animate-in zoom-in-95 duration-300">
-                        <button
-                            onClick={() => setShowPasswordModal(false)}
-                            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
-
-                        <div className="flex flex-col items-center text-center mb-8">
-                            <div className="w-16 h-16 bg-primary-light rounded-2xl flex items-center justify-center text-primary mb-4 shadow-inner">
-                                <Lock size={32} />
+                <div style={{ position: 'fixed', inset: 0, zIndex: 100001, background: 'rgba(13,10,31,0.6)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                    <div style={{ background: T.surface, width: '100%', maxWidth: 460, borderRadius: 32, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.4)', animation: 'fadeUp 0.3s ease both' }}>
+                        <div style={{ padding: '28px 36px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>Security Shield</h3>
+                                <p style={{ fontSize: 11, fontWeight: 700, margin: '4px 0 0', opacity: 0.8, textTransform: 'uppercase' }}>Update your access credentials</p>
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Change Password</h3>
-                            <p className="text-sm text-slate-400 font-medium mt-1">Update your security credentials</p>
+                            <button onClick={() => setShowPasswordModal(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: 36, height: 36, borderRadius: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
                         </div>
-
-                        <form onSubmit={handleChangePassword} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Password</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">New Password</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm New Password</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 text-sm font-bold focus:border-primary outline-none transition-all"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="w-full h-14 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:bg-primary-hover transition-all mt-6"
-                            >
-                                Update Password
-                            </button>
+                        <form onSubmit={handleChangePassword} style={{ padding: 36, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                            <InputGroup label="Current Password" icon={Lock} type="password" value={passwordData.currentPassword} onChange={v => setPasswordData({...passwordData, currentPassword: v})} placeholder="••••••••••••" />
+                            <InputGroup label="New Password" icon={Key} type="password" value={passwordData.newPassword} onChange={v => setPasswordData({...passwordData, newPassword: v})} placeholder="••••••••••••" />
+                            <InputGroup label="Confirm Password" icon={UserCheck} type="password" value={passwordData.confirmPassword} onChange={v => setPasswordData({...passwordData, confirmPassword: v})} placeholder="••••••••••••" />
+                            <button type="submit" style={{ height: 56, width: '100%', padding: '0 32px', borderRadius: 16, background: T.rose, color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)', marginTop: 8 }}>Rotate Password</button>
                         </form>
-                    </Card>
+                    </div>
                 </div>
             )}
         </div>

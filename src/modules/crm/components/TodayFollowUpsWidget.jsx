@@ -4,6 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/apiClient';
 import { useBranchContext } from '../../../context/BranchContext';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF'
+};
+
 const TodayFollowUpsWidget = () => {
     const navigate = useNavigate();
     const { selectedBranch } = useBranchContext();
@@ -30,88 +54,103 @@ const TodayFollowUpsWidget = () => {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 flex items-center justify-center min-h-[300px]">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <div style={{ background: T.surface, borderRadius: 30, border: `1px solid ${T.border}`, padding: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+                <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+                <Loader2 size={32} color={T.accent} style={{ animation: 'spin 1s linear infinite' }} />
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden flex flex-col h-full animate-fadeIn group">
-            <div className="p-8 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-violet-200 group-hover:scale-110 transition-transform duration-500">
+        <div style={{ background: T.surface, borderRadius: 30, border: `1px solid ${T.border}`, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', transition: '0.3s' }}>
+            <style>{`
+                @keyframes fadeUpItem { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+                .followup-item { animation: fadeUpItem 0.4s ease both; }
+            `}</style>
+
+            <div style={{ padding: '24px 30px', borderBottom: `1px solid ${T.border}`, background: 'rgba(0,0,0,0.01)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px rgba(124,92,252,0.2)` }}>
                         <Calendar size={22} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-800 tracking-tight leading-none">Today's Follow-ups</h3>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            {followUps.length} Pending for today
+                        <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.3px' }}>Today's Follow-ups</h3>
+                        <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                             <span style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
+                             {followUps.length} Pending Actions
                         </p>
                     </div>
                 </div>
                 <button
                     onClick={() => navigate('/crm/pipeline')}
-                    className="p-3 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary-hover hover:shadow-lg hover:shadow-violet-100 transition-all duration-300"
+                    style={{ width: 36, height: 36, borderRadius: 10, background: '#fff', border: `1px solid ${T.border}`, color: T.subtle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s' }}
+                    onMouseOver={e => { e.currentTarget.style.color = T.accent; e.currentTarget.style.borderColor = T.accentMid; }}
+                    onMouseOut={e => { e.currentTarget.style.color = T.subtle; e.currentTarget.style.borderColor = T.border; }}
                 >
                     <ChevronRight size={18} />
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto saas-scrollbar p-6">
+            <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
                 {followUps.length > 0 ? (
-                    <div className="space-y-4">
-                        {followUps.map((lead) => (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {followUps.map((lead, i) => (
                             <div 
                                 key={lead.id} 
                                 onClick={() => navigate('/crm/pipeline')}
-                                className="p-5 rounded-2xl border border-slate-100 bg-white hover:border-primary-hover hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 cursor-pointer group/item flex items-center justify-between"
+                                className="followup-item"
+                                style={{
+                                    padding: '16px 20px', borderRadius: 18, border: `1px solid ${T.border}`, background: '#fff',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
+                                    transition: 'all 0.2s', animationDelay: `${i * 0.05}s`
+                                }}
+                                onMouseOver={e => { e.currentTarget.style.borderColor = T.accentMid; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; }}
+                                onMouseOut={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.boxShadow = 'none'; }}
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center font-black group-hover/item:bg-primary-light group-hover/item:text-primary transition-colors">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900 }}>
                                         {lead.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                     </div>
-                                    <div className="space-y-1">
-                                        <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight truncate max-w-[140px]">{lead.name}</h4>
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
-                                                <Phone size={10} />
-                                                {lead.phone}
+                                    <div>
+                                        <h4 style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase' }}>{lead.name}</h4>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: T.muted }}>
+                                                <Phone size={10} /> {lead.phone}
                                             </div>
-                                            <div className="flex items-center gap-1 text-[10px] font-bold text-primary">
-                                                <Clock size={10} />
-                                                {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'ASAP'}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: T.accent }}>
+                                                <Clock size={10} /> {lead.nextFollowUp ? new Date(lead.nextFollowUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'ASAP'}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-2 rounded-lg bg-slate-50 text-slate-300 group-hover/item:bg-primary-light group-hover/item:text-primary transition-all">
-                                    <Phone size={16} />
+                                <div style={{ width: 32, height: 32, borderRadius: 8, background: T.bg, color: T.subtle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Phone size={14} />
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center py-12 px-6 text-center space-y-4 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
-                        <div className="w-16 h-16 rounded-[2rem] bg-white shadow-sm flex items-center justify-center text-slate-200 mx-auto">
-                            <Users size={32} />
+                    <div style={{ padding: '40px 20px', textAlign: 'center', background: T.bg, borderRadius: 24, border: `2px dashed ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 56, height: 56, borderRadius: 20, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                            <Users size={28} />
                         </div>
                         <div>
-                            <p className="text-sm font-black text-slate-800 uppercase tracking-tight">No follow-ups today</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Great job! You're all caught up.</p>
+                            <p style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase' }}>All Caught Up</p>
+                            <p style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 4 }}>No follow-ups pending for today</p>
                         </div>
                     </div>
                 )}
             </div>
 
             {followUps.length > 0 && (
-                <div className="p-6 bg-slate-50/50 border-t border-slate-100">
+                <div style={{ padding: 24, background: 'rgba(0,0,0,0.01)', borderTop: `1px solid ${T.border}` }}>
                     <button
                         onClick={() => navigate('/crm/pipeline')}
-                        className="w-full py-3 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-200 hover:shadow-xl hover:shadow-violet-300 hover:-translate-y-0.5 transition-all duration-300"
+                        style={{ width: '100%', height: 44, borderRadius: 12, background: T.accent, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', transition: '0.2s', boxShadow: `0 8px 24px rgba(124,92,252,0.2)` }}
+                        onMouseOver={e => { e.currentTarget.style.background = T.accent2; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.transform = 'translateY(0)'; }}
                     >
-                        View Pipeline
+                        View Full Pipeline
                     </button>
                 </div>
             )}

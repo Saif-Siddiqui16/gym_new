@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, ShieldAlert, Clock, ClipboardList, TrendingUp } from 'lucide-react';
+import { 
+    Search, Filter, MoreVertical, Eye, MessageSquare, ChevronLeft, ChevronRight, 
+    User, Trophy, Calendar, ArrowUpRight, X, Send, Phone, Info, Trash2, 
+    ShieldAlert, Clock, ClipboardList, TrendingUp, Shield, Activity, Star, ArrowRight, Users
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAssignedMembers, flagMember } from '../../api/trainer/trainerApi';
 import { toast } from 'react-hot-toast';
@@ -14,6 +18,60 @@ import QuickAssignPlanDrawer from './components/QuickAssignPlanDrawer';
 import { useBranchContext } from '../../context/BranchContext';
 import { useAuth } from '../../context/AuthContext';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+   ───────────────────────────────────────────────────────────────────────────── */
+const T = {
+    accent: '#7C5CFC',        // primary purple
+    accent2: '#9B7BFF',       // lighter purple
+    accentLight: '#F0ECFF',   // purple tint bg
+    accentMid: '#E4DCFF',     // purple border/focus
+    border: '#EAE7FF',        // default borders
+    bg: '#F6F5FF',            // page background
+    surface: '#FFFFFF',       // card/input surface
+    text: '#1A1533',          // primary text
+    muted: '#7B7A8E',         // secondary text
+    subtle: '#B0ADCC',        // placeholder / hints
+    green: '#22C97A',         // success
+    greenLight: '#E8FBF2',
+    amber: '#F59E0B',         // warning
+    amberLight: '#FEF3C7',
+    rose: '#F43F5E',          // danger
+    roseLight: '#FFF1F4',
+    blue: '#3B82F6',          // info
+    blueLight: '#EFF6FF',
+};
+
+// Header Banner Component
+const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+    <div style={{
+        background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+        borderRadius: 24, padding: '24px 30px',
+        boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 28, position: 'relative', overflow: 'hidden'
+    }} className="fu fu1">
+        <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, position: 'relative', zIndex: 2 }}>
+            <div style={{
+                width: 56, height: 56, borderRadius: 16,
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.1)', flexShrink: 0
+            }}>
+                <Icon size={28} color="#fff" strokeWidth={2.5} />
+            </div>
+            <div>
+                <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{title}</h1>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '6px 0 0', fontWeight: 600, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sub}</p>
+            </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, position: 'relative', zIndex: 2 }}>
+            {actions}
+        </div>
+    </div>
+);
+
 const AssignedMembers = () => {
     const navigate = useNavigate();
     const { selectedBranch } = useBranchContext();
@@ -23,34 +81,27 @@ const AssignedMembers = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(6);
+    const [itemsPerPage, setItemsPerPage] = useState(8);
     const [totalItems, setTotalItems] = useState(0);
 
-    // Functional Action States
     const [isChatModalOpen, setIsChatModalOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [chatMessage, setChatMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
-    const [chatLoading, setChatLoading] = useState(false);
-    // activeDropdown removed
-
-    // New Action States
+    
     const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
     const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isAssignOpen, setIsAssignOpen] = useState(false);
     const [flagReason, setFlagReason] = useState('');
 
-    useEffect(() => {
-        loadMembers();
-    }, [searchTerm, statusFilter, currentPage, itemsPerPage, selectedBranch]);
+    useEffect(() => { loadMembers(); }, [searchTerm, statusFilter, currentPage, itemsPerPage, selectedBranch]);
 
-    // Chat History Polling
     useEffect(() => {
         let pollInterval;
         if (isChatModalOpen && selectedMember) {
             loadChatHistory();
-            pollInterval = setInterval(loadChatHistory, 3000); // Poll every 3 seconds for new messages
+            pollInterval = setInterval(loadChatHistory, 3000);
         }
         return () => clearInterval(pollInterval);
     }, [isChatModalOpen, selectedMember]);
@@ -60,570 +111,209 @@ const AssignedMembers = () => {
         try {
             const messages = await getChatMessages(selectedMember.id, true);
             setChatHistory(messages);
-        } catch (error) {
-            console.error('Failed to load chat history:', error);
-        }
+        } catch (error) { console.error(error); }
     };
 
     const handleSendMessage = async (e) => {
         if (e) e.preventDefault();
         if (!chatMessage.trim() || !selectedMember) return;
-
-        const messageText = chatMessage;
-        setChatMessage('');
-
+        const msg = chatMessage; setChatMessage('');
         try {
-            await sendChatMessage({
-                receiverId: selectedMember.id,
-                message: messageText,
-                receiverType: 'MEMBER'
-            });
+            await sendChatMessage({ receiverId: selectedMember.id, message: msg, receiverType: 'MEMBER' });
             loadChatHistory();
-        } catch (error) {
-            console.error('Failed to send message:', error);
-            toast.error('Failed to send message');
-        }
+        } catch (error) { toast.error('Failed to send message'); }
     };
 
     const loadMembers = async () => {
         setLoading(true);
         try {
-            const filters = {
-                search: searchTerm,
-                status: statusFilter === 'All' ? '' : statusFilter
-            };
             const result = await getAssignedMembers({
-                filters,
-                page: currentPage,
-                limit: itemsPerPage,
-                branchId: selectedBranch
+                filters: { search: searchTerm, status: statusFilter === 'All' ? '' : statusFilter },
+                page: currentPage, limit: itemsPerPage, branchId: selectedBranch
             });
             setMembers(result?.data || []);
             setTotalItems(result?.total || 0);
-        } catch (error) {
-            console.error('Failed to load members:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleStatusFilter = (e) => {
-        setStatusFilter(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const getStatusStyles = (status) => {
-        if (!status) return 'bg-gray-50 text-gray-600 border-gray-100';
-        switch (status.toLowerCase()) {
-            case 'active': return 'bg-green-50 text-green-600 border-green-100';
-            case 'inactive': return 'bg-red-50 text-red-600 border-red-100';
-            default: return 'bg-gray-50 text-gray-600 border-gray-100';
-        }
+        } catch (error) { console.error(error); }
+        finally { setLoading(false); }
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 w-full max-w-none flex flex-col gap-6">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Assigned Members</h1>
-                    <p className="text-gray-500 text-sm mt-1">Manage and track progress of your {members.length} active trainees</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    {/** <div className="bg-primary-light px-4 py-2 rounded-xl flex items-center gap-2 border border-violet-100">
-                        <Trophy size={18} className="text-primary" />
-                        <span className="text-sm font-bold text-primary-hover">Top Performer: Emma</span>
-                    </div>
-                    */}
-                </div>
-            </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.38s ease both; }
+                .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; } .fu4 { animation-delay: .2s; }
+                
+                .grid-row {
+                    display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 180px; 
+                    padding: 16px 24px; border-bottom: 1px solid ${T.border}; align-items: center; transition: 0.2s;
+                }
+                .grid-row:hover { background: ${T.bg}; }
+                .grid-header {
+                    display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 180px;
+                    padding: 14px 24px; background: ${T.accentLight}; color: ${T.accent};
+                    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+                }
+            `}</style>
 
-            {/* Filter Controls */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search by name, ID or plan..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary transition-all outline-none"
-                        value={searchTerm}
-                        onChange={handleSearch}
+            <HeaderBanner 
+                title="Assigned Members" 
+                sub={`Managing ${totalItems} elite athletes in your roster`} 
+                icon={Users}
+                actions={
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '6px 14px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 6, backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>LIVE ROSTER</span>
+                    </div>
+                }
+            />
+
+            {/* Filters Area */}
+            <div className="fu fu2" style={{ display: 'flex', gap: 16, marginBottom: 24, background: T.surface, padding: 16, borderRadius: 20, border: `1px solid ${T.border}` }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                    <Search size={18} color={T.subtle} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                    <input 
+                        type="text" placeholder="Search by name, ID or plan..." 
+                        style={{ width: '100%', padding: '12px 12px 12px 42px', borderRadius: 12, border: `1px solid ${T.border}`, background: T.bg, fontSize: 13, fontWeight: 600, color: T.text, outline: 'none' }}
+                        value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                     />
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                    <CustomDropdown
-                        options={[
-                            { value: 'All', label: 'All Status' },
-                            { value: 'Active', label: 'Active' },
-                            { value: 'Inactive', label: 'Inactive' }
-                        ]}
-                        value={statusFilter}
-                        onChange={(val) => {
-                            setStatusFilter(val);
-                            setCurrentPage(1);
-                        }}
-                        className="w-full sm:w-48"
-                    />
-                </div>
+                <CustomDropdown 
+                    options={[{ value: 'All', label: 'All Status' }, { value: 'Active', label: 'Active' }, { value: 'Inactive', label: 'Inactive' }]}
+                    value={statusFilter} onChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}
+                    style={{ width: 180 }}
+                />
             </div>
 
-            {/* Member List Container */}
-            {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-gray-500 font-medium">Loading your members...</p>
+            {/* Table Area */}
+            <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                {loading ? (
+                    <div style={{ padding: '100px 20px', textAlign: 'center' }}>
+                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: T.accent, borderTopColor: 'transparent' }} />
+                        <p style={{ fontSize: 12, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '2px' }}>Analyzing Roster...</p>
                     </div>
-                </div>
-            ) : members.length > 0 ? (
-                <>
-                    {/* Desktop Table View */}
-                    <div className="hidden lg:block bg-white rounded-[32px] border border-slate-100 shadow-xl overflow-hidden">
-                        <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-50/50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Athlete</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Plan</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Attendance</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {members.map((member) => (
-                                    <tr key={member.id} className="group hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-primary !text-white flex items-center justify-center font-black text-sm uppercase">
-                                                    {(member.name || '?').charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-black text-slate-800 text-sm uppercase tracking-tight">{member.name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold">Ref: {member.id}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-primary-light text-primary rounded-lg">
-                                                    <ClipboardList size={14} />
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-slate-700 uppercase tracking-tight truncate max-w-[150px]">
-                                                        {member.assignedProtocol !== 'None' ? member.assignedProtocol : (member.plan || 'No Active Plan')}
-                                                    </span>
-                                                    {member.assignedProtocol !== 'None' && (
-                                                        <span className="text-[10px] text-primary font-bold uppercase">{member.plan} Plan</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-black text-slate-800">{member.attendance}</span>
-                                                <span className="text-[10px] text-emerald-500 font-black bg-emerald-50 px-1.5 py-0.5 rounded-md">↑ 2%</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyles(member.status)}`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full ${member.status?.toLowerCase() === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                                                {member.status}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedMember(member);
-                                                        setIsAssignOpen(true);
-                                                    }}
-                                                    className="px-4 py-2 bg-primary !text-white rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:bg-primary-hover transition-all shadow-md shadow-violet-100"
-                                                >
-                                                    Assign Plan
-                                                </button>
-                                                <ActionDropdown
-                                                    trigger={
-                                                        <button className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-white hover:text-primary transition-all border border-transparent hover:border-slate-100">
-                                                            <MoreVertical size={18} />
-                                                        </button>
-                                                    }
-                                                >
-                                                    <button onClick={() => { setSelectedMember(member); setIsProfileModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Eye size={14} /> Profile</button>
-                                                    <button onClick={() => navigate(`/progress?memberId=${member.id}`)} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><TrendingUp size={14} /> Progress</button>
-                                                    <button onClick={() => { setSelectedMember(member); setIsChatModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><MessageSquare size={14} /> Chat</button>
-                                                    <button onClick={() => { setSelectedMember(member); setIsAttendanceModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-slate-600 hover:bg-slate-50 flex items-center gap-2 uppercase tracking-widest"><Calendar size={14} /> Attendance</button>
-                                                    <div className="h-px bg-slate-100 my-1 mx-2" />
-                                                    <button onClick={() => { setSelectedMember(member); setIsFlagModalOpen(true); }} className="w-full px-4 py-2.5 text-left text-[10px] font-black text-rose-600 hover:bg-rose-50 flex items-center gap-2 uppercase tracking-widest"><ShieldAlert size={14} /> Flag</button>
-                                                </ActionDropdown>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile/Tablet Card View */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
-                        {members.map((member) => (
-                            <div key={member.id} className="group bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-violet-100 transition-all duration-300 flex flex-col relative">
-                                <div className="p-6 flex-1 hover:bg-slate-50/50 transition-colors duration-300">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative group/avatar">
-                                                <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-violet-100 group-hover/avatar:scale-110 group-hover/avatar:rotate-3 transition-all duration-500 overflow-hidden">
-                                                    {(member.name || '?').charAt(0)}
-                                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/avatar:opacity-100 transition-opacity"></div>
-                                                </div>
-                                                {member.isFlagged && (
-                                                    <div className="absolute -top-2 -right-2 p-1.5 bg-rose-500 border-2 border-white rounded-xl text-white shadow-lg animate-bounce" title={`Flagged: ${member.flagReason}`}>
-                                                        <ShieldAlert size={14} />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-black text-slate-800 text-lg group-hover:text-primary transition-colors uppercase tracking-tight truncate max-w-[140px]">{member.name}</h3>
-                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border mt-2 ${getStatusStyles(member.status)}`}>
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${member.status?.toLowerCase() === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                                                    {member.status}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <ActionDropdown
-                                            trigger={
-                                                <button className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-white hover:text-primary hover:shadow-md transition-all border border-transparent hover:border-slate-100">
-                                                    <MoreVertical size={20} />
-                                                </button>
-                                            }
-                                        >
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/progress?memberId=${member.id}`);
-                                                }}
-                                                className="w-full px-4 py-3 text-left text-xs font-black text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
-                                            >
-                                                <TrendingUp size={16} className="text-primary" /> Member Progress
-                                            </button>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedMember(member);
-                                                    setIsAttendanceModalOpen(true);
-                                                }}
-                                                className="w-full px-4 py-3 text-left text-xs font-black text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
-                                            >
-                                                <Calendar size={16} className="text-primary" /> Attendance Log
-                                            </button>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedMember(member);
-                                                    setIsAssignOpen(true);
-                                                }}
-                                                className="w-full px-4 py-3 text-left text-xs font-black text-slate-600 hover:bg-slate-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
-                                            >
-                                                <ArrowUpRight size={16} className="text-primary" /> Assign Plan
-                                            </button>
-                                            <div className="h-px bg-slate-100 my-1 mx-2" />
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedMember(member);
-                                                    setIsFlagModalOpen(true);
-                                                }}
-                                                className="w-full px-4 py-3 text-left text-xs font-black text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
-                                            >
-                                                <ShieldAlert size={16} className="text-rose-500" /> Flag Status
-                                            </button>
-                                        </ActionDropdown>
+                ) : members.length > 0 ? (
+                    <>
+                        <div className="grid-header">
+                            {['Member Details', 'Active Plan', 'Attendance', 'Status', 'Actions'].map(h => <span key={h}>{h}</span>)}
+                        </div>
+                        {members.map((member, i) => (
+                            <div key={member.id} className="grid-row">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 42, height: 42, borderRadius: 12, background: i % 2 === 0 ? T.accent : T.blue, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14 }}>
+                                        {member.name?.charAt(0)}
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Attendance</p>
-                                            <div className="flex items-baseline gap-2">
-                                                <p className="text-2xl font-black text-slate-800">{member.attendance}</p>
-                                                <p className="text-[10px] text-emerald-500 font-black bg-emerald-50 px-1.5 py-0.5 rounded-md">↑ 2%</p>
-                                            </div>
-                                        </div>
-                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Active Plan</p>
-                                            <p className="text-sm font-black text-slate-700 truncate">{member.plan}</p>
-                                        </div>
-                                        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2">Protocol</p>
-                                            <p className="text-sm font-black text-primary truncate" title={member.assignedProtocol}>{member.assignedProtocol}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 mt-6 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar size={14} className="text-slate-300" /> {member.joined}
-                                        </div>
-                                        <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock size={14} className="text-slate-300" /> {member.lastSession}
-                                        </div>
+                                    <div>
+                                        <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{member.name}</div>
+                                        <div style={{ fontSize: 10, color: T.subtle, fontWeight: 700 }}>REF: #{member.id}</div>
                                     </div>
                                 </div>
-
-                                <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col gap-3 rounded-b-3xl">
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedMember(member);
-                                                setIsChatModalOpen(true);
-                                            }}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-white hover:border-violet-100 hover:text-primary hover:shadow-xl hover:shadow-primary-light transition-all active:scale-95"
-                                        >
-                                            <MessageSquare size={16} />
-                                            Chat
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setSelectedMember(member);
-                                                setIsProfileModalOpen(true);
-                                            }}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-violet-200 transition-all active:scale-95"
-                                        >
-                                            <Eye size={16} />
-                                            Profile
-                                        </button>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ClipboardList size={14} /></div>
+                                        <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{member.assignedProtocol !== 'None' ? member.assignedProtocol : (member.plan || 'No Active Plan')}</div>
                                     </div>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedMember(member);
-                                            setIsAssignOpen(true);
-                                        }}
-                                        className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary !text-white rounded-2xl text-[10px] font-semibold uppercase tracking-widest hover:bg-primary-hover transition-all active:scale-95 shadow-xl shadow-violet-200"
-                                    >
-                                        <ArrowUpRight size={16} />
-                                        Assign Plan
-                                    </button>
+                                </div>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <span style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{member.attendance}</span>
+                                        <span style={{ fontSize: 9, fontWeight: 800, color: T.green, background: T.greenLight, padding: '2px 6px', borderRadius: 6 }}>+2%</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', padding: '5px 12px', borderRadius: 20, background: member.status?.toLowerCase() === 'active' ? T.greenLight : T.roseLight, color: member.status?.toLowerCase() === 'active' ? T.green : T.rose }}>
+                                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: member.status?.toLowerCase() === 'active' ? T.green : T.rose }} />
+                                        {member.status}
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                                    <button 
+                                        onClick={() => { setSelectedMember(member); setIsAssignOpen(true); }}
+                                        style={{ background: T.accent, border: 'none', borderRadius: 10, padding: '8px 14px', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,92,252,0.2)' }}
+                                    >Assign Plan</button>
+                                    <ActionDropdown trigger={<button style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.subtle }}><MoreVertical size={20} /></button>}>
+                                        <button onClick={() => { setSelectedMember(member); setIsProfileModalOpen(true); }} style={{ width: '100%', padding: '10px 14px', textAlign: 'left', border: 'none', background: 'none', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: T.text }}><Eye size={14} /> Profile View</button>
+                                        <button onClick={() => { setSelectedMember(member); setIsChatModalOpen(true); }} style={{ width: '100%', padding: '10px 14px', textAlign: 'left', border: 'none', background: 'none', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: T.text }}><MessageSquare size={14} /> Send Message</button>
+                                        <button onClick={() => { setSelectedMember(member); setIsAttendanceModalOpen(true); }} style={{ width: '100%', padding: '10px 14px', textAlign: 'left', border: 'none', background: 'none', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: T.text }}><Calendar size={14} /> Attendance</button>
+                                        <div style={{ height: 1, background: T.border, margin: '4px 0' }} />
+                                        <button onClick={() => { setSelectedMember(member); setIsFlagModalOpen(true); }} style={{ width: '100%', padding: '10px 14px', textAlign: 'left', border: 'none', background: 'none', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: T.rose }}><ShieldAlert size={14} /> Flag Member</button>
+                                    </ActionDropdown>
                                 </div>
                             </div>
                         ))}
+                    </>
+                ) : (
+                    <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+                        <div style={{ width: 64, height: 64, borderRadius: 20, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: T.subtle }}><User size={32} /></div>
+                        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: '0 0 8px' }}>No members found</h3>
+                        <p style={{ fontSize: 13, color: T.muted }}>Adjust your filters or try a different search</p>
                     </div>
-                </>
-            ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[40px] border border-gray-100 shadow-sm border-dashed">
-                    <User size={48} className="text-gray-200 mb-4" />
-                    <h3 className="text-xl font-bold text-gray-800">No members found</h3>
-                    <p className="text-gray-500 mt-2">Try adjusting your filters or search term.</p>
-                </div>
-            )}
+                )}
+            </div>
 
-            {/* Pagination */}
+            {/* Pagination Controls */}
             {!loading && totalItems > 0 && (
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500">
-                            Showing <span className="font-bold text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="font-bold text-gray-900">{totalItems}</span> members
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-                        <div className="flex gap-1">
-                            {Array.from({ length: Math.ceil(totalItems / itemsPerPage) }, (_, i) => i + 1).map(page => (
-                                <button
-                                    key={page}
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page ? 'bg-primary !text-white shadow-lg shadow-violet-200' : 'text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    {page}
-                                </button>
-                            ))}
-                        </div>
-                        <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
-                            disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
-                            className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
+                <div className="fu fu4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, background: T.surface, padding: '12px 24px', borderRadius: 18, border: `1px solid ${T.border}` }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>Roster <span style={{ color: T.text }}>{((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalItems)}</span> of {totalItems}</span>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', opacity: currentPage === 1 ? 0.4 : 1 }}><ChevronLeft size={18} /></button>
+                        <button onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= Math.ceil(totalItems / itemsPerPage)} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', opacity: currentPage >= Math.ceil(totalItems / itemsPerPage) ? 0.4 : 1 }}><ChevronRight size={18} /></button>
                     </div>
                 </div>
             )}
 
-            {/* Premium Chat Modal */}
-            <RightDrawer
-                isOpen={isChatModalOpen}
-                onClose={() => setIsChatModalOpen(false)}
-                title={selectedMember?.name}
-                subtitle="Member Online"
-                maxWidth="max-w-md"
-                footer={
-                    <form onSubmit={handleSendMessage} className="flex gap-2 w-full">
-                        <input
-                            type="text"
-                            placeholder="Type a message..."
-                            className="flex-1 px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
-                            value={chatMessage}
-                            onChange={(e) => setChatMessage(e.target.value)}
-                        />
-                        <button
-                            type="submit"
-                            className="w-10 h-10 bg-primary !text-white rounded-xl flex items-center justify-center hover:bg-primary-hover active:scale-90 transition-all shadow-lg shadow-violet-200"
-                        >
-                            <Send size={18} />
-                        </button>
+            {/* Modals & Drawers */}
+            <RightDrawer isOpen={isChatModalOpen} onClose={() => setIsChatModalOpen(false)} title={`DM: ${selectedMember?.name}`} maxWidth="max-w-md">
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: T.bg, padding: 20 }}>
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }} className="custom-scrollbar">
+                        {chatHistory.map((msg, i) => (
+                            <div key={i} style={{ alignSelf: msg.senderId === user?.id ? 'flex-end' : 'flex-start', maxWidth: '80%', padding: '12px 16px', borderRadius: 16, background: msg.senderId === user?.id ? T.accent : T.surface, color: msg.senderId === user?.id ? '#fff' : T.text, fontSize: 13, fontWeight: 500, border: msg.senderId === user?.id ? 'none' : `1px solid ${T.border}`, boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                {msg.message}
+                            </div>
+                        ))}
+                    </div>
+                    <form onSubmit={handleSendMessage} style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+                        <input type="text" value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} placeholder="Type message..." style={{ flex: 1, padding: 12, borderRadius: 12, border: `1px solid ${T.border}`, outline: 'none', fontSize: 13, fontWeight: 600 }} />
+                        <button type="submit" style={{ width: 44, height: 44, borderRadius: 12, background: T.accent, color: '#fff', border: 'none', cursor: 'pointer' }}><Send size={18} /></button>
                     </form>
-                }
-            >
-                {selectedMember && (
-                    <div className="flex flex-col h-full">
-                        {/* Chat Body */}
-                        <div className="flex-1  p-6 space-y-4 custom-scrollbar bg-gray-50/30">
-                            {chatHistory.length > 0 ? chatHistory.map((msg, idx) => {
-                                const isMe = msg.senderId === user?.id;
-                                return (
-                                    <div
-                                        key={msg.id || idx}
-                                        className={`p-4 rounded-2xl border shadow-sm max-w-[85%] ${isMe
-                                            ? 'bg-primary border-primary !text-white rounded-tr-none self-end ml-auto'
-                                            : 'bg-white border-gray-100 rounded-tl-none self-start'
-                                            }`}
-                                    >
-                                        <p className={`text-sm ${isMe ? 'text-white' : 'text-gray-700'}`}>{msg.message}</p>
-                                        <span className={`text-[10px] font-bold mt-2 block ${isMe ? 'text-violet-100' : 'text-gray-400'}`}>
-                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                    </div>
-                                );
-                            }) : (
-                                <div className="text-center py-10">
-                                    <p className="text-gray-400 text-sm">No messages yet. Send a message to start the conversation!</p>
-                                </div>
-                            )}
-
-                            <div className="mt-auto flex justify-center pt-4">
-                                <div className="px-3 py-1 bg-gray-200/50 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                    Latest
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                </div>
             </RightDrawer>
 
-            {/* Attendance Log Modal */}
-            <RightDrawer
-                isOpen={isAttendanceModalOpen}
-                onClose={() => setIsAttendanceModalOpen(false)}
-                title="Attendance Log"
-                subtitle={selectedMember?.name}
-                maxWidth="max-w-lg"
-                footer={
-                    <button onClick={() => setIsAttendanceModalOpen(false)} className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold shadow-lg shadow-gray-200 active:scale-95 transition-all">Close Log</button>
-                }
-            >
-                {selectedMember && (
-                    <div className="flex flex-col h-full">
-                        <div className="flex-1  p-6 custom-scrollbar">
-                            <div className="space-y-3">
-                                {(selectedMember?.recentWorkouts || []).length > 0 ? selectedMember.recentWorkouts.map((log, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-2 rounded-lg ${log.status === 'Present' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-                                                <Calendar size={18} />
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-gray-900">{log.date} • {log.time}</p>
-                                                <p className="text-xs text-gray-500 font-medium">{log.type} Session</p>
-                                            </div>
-                                        </div>
-                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${log.status === 'Present' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'}`}>
-                                            {log.status}
-                                        </span>
-                                    </div>
-                                )) : (
-                                    <p className="text-center text-gray-500 text-sm py-4">No attendance logs available for this member.</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </RightDrawer>
-
-            {/* Flag Status Modal */}
-            <RightDrawer
-                isOpen={isFlagModalOpen}
-                onClose={() => setIsFlagModalOpen(false)}
-                title="Flag Member"
-                subtitle={selectedMember?.name}
-                maxWidth="max-w-md"
-                footer={
-                    <div className="flex gap-3 w-full">
-                        <button onClick={() => setIsFlagModalOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold active:scale-95 transition-all">Cancel</button>
-                        <button
-                            onClick={async () => {
-                                await flagMember(selectedMember.id, flagReason);
-                                setFlagReason('');
-                                setIsFlagModalOpen(false);
-                                loadMembers();
-                            }}
-                            className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold shadow-xl shadow-red-200 active:scale-95 transition-all"
-                        >
-                            Flag Member
-                        </button>
-                    </div>
-                }
-            >
-                {selectedMember && (
-                    <div className="flex flex-col h-full">
-                        <div className="flex-1  p-6 custom-scrollbar">
-                            <div className="space-y-4">
-                                <p className="text-sm text-gray-500 leading-relaxed font-medium">Flagging a member will notify the administration team for further review of their membership status or conduct.</p>
+            <RightDrawer isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title="Attendance Log" maxWidth="max-w-lg">
+                <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {(selectedMember?.recentWorkouts || []).length > 0 ? selectedMember.recentWorkouts.map((log, i) => (
+                        <div key={i} style={{ padding: 16, background: T.surface, borderRadius: 16, border: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                <div style={{ width: 34, height: 34, borderRadius: 10, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={16} /></div>
                                 <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Reason for Flagging</label>
-                                    <textarea
-                                        className="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all h-32 resize-none font-medium text-gray-700"
-                                        placeholder="Enter detailed reason (e.g., poor conduct, payment delays, health concerns)..."
-                                        value={flagReason}
-                                        onChange={(e) => setFlagReason(e.target.value)}
-                                    />
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{log.date}</div>
+                                    <div style={{ fontSize: 10, color: T.subtle, fontWeight: 800 }}>{log.time} • {log.type}</div>
                                 </div>
                             </div>
+                            <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', color: T.green }}>{log.status}</span>
                         </div>
-                    </div>
-                )}
+                    )) : <p style={{ textAlign: 'center', color: T.subtle, fontSize: 12 }}>No logs recorded</p>}
+                </div>
             </RightDrawer>
 
-            {/* Member Profile Modal */}
-            {/* Member Profile Modal */}
-            {/* Member Profile Modal */}
-            <RightDrawer
-                isOpen={isProfileModalOpen}
-                onClose={() => setIsProfileModalOpen(false)}
-                title="Member Profile"
-                subtitle={selectedMember?.name}
-                maxWidth="max-w-full"
-            >
-                {selectedMember && (
-                    <MemberProfileView memberId={selectedMember.id} onClose={() => setIsProfileModalOpen(false)} />
-                )}
+            <RightDrawer isOpen={isFlagModalOpen} onClose={() => setIsFlagModalOpen(false)} title="Flag Status" maxWidth="max-w-md">
+                <div style={{ padding: 24 }}>
+                    <p style={{ fontSize: 13, color: T.muted, marginBottom: 20, fontWeight: 600 }}>Adding a flag warns the administration team about this member's conduct or pending issues.</p>
+                    <textarea value={flagReason} onChange={e => setFlagReason(e.target.value)} placeholder="Provide detailed reason..." style={{ width: '100%', height: 120, padding: 14, borderRadius: 14, border: `1px solid ${T.border}`, background: T.bg, outline: 'none', fontSize: 13, fontWeight: 600, resize: 'none' }} />
+                    <button 
+                        onClick={async () => { await flagMember(selectedMember.id, flagReason); setFlagReason(''); setIsFlagModalOpen(false); loadMembers(); }}
+                        style={{ width: '100%', marginTop: 20, padding: 14, borderRadius: 14, background: T.rose, color: '#fff', border: 'none', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(244,63,94,0.2)' }}
+                    >Flag Systemic Alert</button>
+                </div>
             </RightDrawer>
 
-            {/* Plan Assignment Drawer */}
-            <QuickAssignPlanDrawer
-                isOpen={isAssignOpen}
-                onClose={() => setIsAssignOpen(false)}
-                memberName={selectedMember?.name}
-                memberId={selectedMember?.id}
-                onSuccess={loadMembers}
-            />
+            <RightDrawer isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} title="Athlete Profile" maxWidth="max-w-full">
+                {selectedMember && <MemberProfileView memberId={selectedMember.id} onClose={() => setIsProfileModalOpen(false)} />}
+            </RightDrawer>
+
+            <QuickAssignPlanDrawer isOpen={isAssignOpen} onClose={() => setIsAssignOpen(false)} memberName={selectedMember?.name} memberId={selectedMember?.id} onSuccess={loadMembers} />
         </div>
     );
 };

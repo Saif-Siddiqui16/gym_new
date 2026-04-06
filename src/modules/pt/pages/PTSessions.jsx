@@ -43,6 +43,19 @@ import Button from '../../../components/ui/Button';
 import RightDrawer from '../../../components/common/RightDrawer';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    btn: { height: '48px', padding: '0 24px', borderRadius: '14px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
+
 const PTSessions = () => {
     const { selectedBranch } = useBranchContext();
     const [loading, setLoading] = useState(true);
@@ -308,63 +321,34 @@ const PTSessions = () => {
     }
 
     return (
-        <div className="saas-container  space-y-6">
-            {/* Header Area */}
-            <div className="saas-card !p-8 mb-8 relative overflow-hidden group">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
-                            <Dumbbell size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">PT Sessions</h1>
-                            <p className="text-slate-500 text-sm font-medium mt-2">Manage personal training packages and sessions</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="primary"
-                            onClick={() => {
-                                resetForm();
-                                setIsSidebarOpen(true);
-                            }}
-                            className="w-full md:w-auto flex items-center justify-center gap-2"
-                        >
-                            <Plus size={18} />
-                            Create Package
-                        </Button>
-                    </div>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div>
+                     <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>PT Sessions</h1>
+                     <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Manage personal training packages and sessions</p>
                 </div>
+                <button onClick={() => { resetForm(); setIsSidebarOpen(true); }} style={{ ...S.btn, background: T.accent, color: '#FFF' }}><Plus size={18} /> Create Package</button>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                <KPICard
-                    title="Total Packages"
-                    value={stats.totalPackages}
-                    icon={PackageIcon}
-                    color="blue"
-                />
-                <KPICard
-                    title="Active"
-                    value={stats.activeAccounts}
-                    icon={UserCheck}
-                    color="indigo"
-                />
-                <KPICard
-                    title="Today"
-                    value={stats.sessionsToday}
-                    icon={Clock}
-                    color="blue"
-                />
-                <KPICard
-                    title="Rate"
-                    value={`${stats.completionRate}%`}
-                    icon={TrendingUp}
-                    color="indigo"
-                />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PackageIcon size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Total Packages</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stats.totalPackages}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: '#4F46E5', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><UserCheck size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Active</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stats.activeAccounts}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Today</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stats.sessionsToday}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: '#4F46E5', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Rate</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stats.completionRate}%</h2></div>
+                </div>
             </div>
 
             {/* Charts Section */}
@@ -702,7 +686,7 @@ const PTSessions = () => {
                 onClose={() => !isSubmitting && setIsSidebarOpen(false)}
                 title={editingPackage ? 'Edit PT Package' : 'New PT Package'}
                 subtitle={editingPackage ? 'Update existing package details' : 'Define a new personal training offering'}
-                maxWidth="max-w-md"
+                maxWidth="600px"
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <Button
@@ -828,7 +812,7 @@ const PTSessions = () => {
                 onClose={() => !isSubmitting && setIsAssignDrawerOpen(false)}
                 title="Assign PT Package"
                 subtitle="Assign a personal training package to a member"
-                maxWidth="max-w-md"
+                maxWidth="600px"
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <Button
@@ -907,7 +891,7 @@ const PTSessions = () => {
                 onClose={() => !isSubmitting && setIsSessionDrawerOpen(false)}
                 title="Schedule PT Session"
                 subtitle="Assign a session to a member's package"
-                maxWidth="max-w-md"
+                maxWidth="600px"
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <Button

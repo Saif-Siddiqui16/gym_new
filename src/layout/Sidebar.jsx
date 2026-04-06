@@ -65,30 +65,40 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
 
     return (
         <>
-        <aside className={`sidebar ${collapsed ? 'collapsed' : 'show'} `}>
+        <aside className={`sidebar ${collapsed ? 'collapsed' : 'show'}`}>
             {/* Logo Area */}
             <div className="sidebar-header">
-                <div className="sidebar-logo overflow-hidden">
+                <div className="sidebar-logo-wrapper">
                     {user?.logo ? (
-                        <img src={user.logo} alt="Logo" className="w-10 h-10 object-contain rounded-xl" />
+                        <img src={user.logo} alt="Logo" className="w-8 h-8 object-contain" />
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                            {(user?.tenantName || user?.branchName || 'G').charAt(0).toUpperCase()}
+                        <div className="sidebar-logo-icon">
+                            {role === ROLES.SUPER_ADMIN ? 'G' : (user?.tenantName || user?.branchName || 'R').charAt(0).toUpperCase()}
                         </div>
                     )}
                 </div>
                 {!collapsed && (
-                    <span className="sidebar-brand tracking-wide">
-                        {user?.tenantName || user?.branchName || 'Gym CRM'}
-                    </span>
+                    <div className="sidebar-brand">
+                        {role === ROLES.SUPER_ADMIN ? (
+                            <>Gym<span>CRM</span></>
+                        ) : (
+                            <>
+                                {user?.tenantName?.split(' ')[0] || user?.branchName?.split(' ')[0] || 'Roar'} 
+                                <span> {user?.tenantName?.split(' ').slice(1).join(' ') || user?.branchName?.split(' ').slice(1).join(' ') || 'Fitness'}</span>
+                            </>
+                        )}
+                    </div>
                 )}
             </div>
 
+            {/* Navigation Label */}
+            {!collapsed && <div className="sidebar-section-label">Navigation</div>}
+
             {/* Menu Items */}
-            <nav className="flex-1 overflow-y-auto scrollbar-hide">
-                <ul className="list-none p-0 m-0">
+            <nav className="sidebar-nav">
+                <ul className="list-none overflow-x-hidden">
                     {visibleItems.map((item) => (
-                        <li key={item.label}>
+                        <li key={item.label} className="sidebar-item-wrapper">
                             {/* Menu item with children (submenu) */}
                             {item.children ? (
                                 <>
@@ -97,12 +107,15 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                                         className={`sidebar-item ${isMenuActive(item) ? 'active' : ''}`}
                                         title={collapsed ? item.label : ''}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <item.icon size={20} />
-                                            {!collapsed && <span>{item.label}</span>}
+                                        <div className="sidebar-icon-box">
+                                            <item.icon size={18} />
                                         </div>
                                         {!collapsed && (
-                                            isExpanded(item) ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                                            <>
+                                                <span className="sidebar-item-text">{item.label}</span>
+                                                {/* Arrow ONLY if there are children */}
+                                                {isExpanded(item) ? <ChevronDown size={14} className="opacity-50" /> : <ChevronRight size={14} className="opacity-50" />}
+                                            </>
                                         )}
                                     </button>
 
@@ -117,7 +130,6 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                                                         className={({ isActive }) => `sidebar-submenu-item ${isActive ? 'active' : ''}`}
                                                         onClick={child.label === 'Logout' ? handleLogout : handleItemClick}
                                                     >
-                                                        <child.icon size={16} />
                                                         <span>{child.label}</span>
                                                     </NavLink>
                                                 </li>
@@ -129,12 +141,22 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                                 /* Regular menu item without children */
                                 <NavLink
                                     to={item.path}
-                                    className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''} `}
+                                    className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
                                     title={collapsed ? item.label : ''}
                                     onClick={item.label === 'Logout' ? handleLogout : handleItemClick}
                                 >
-                                    <item.icon size={20} />
-                                    {!collapsed && <span>{item.label}</span>}
+                                    <div className="sidebar-icon-box">
+                                        <item.icon size={18} />
+                                    </div>
+                                    {!collapsed && (
+                                        <>
+                                            <span className="sidebar-item-text">{item.label}</span>
+                                            {/* Example badges consistent with image */}
+                                            {item.label === 'Smart AIoT' && <span className="sidebar-item-badge new">New</span>}
+                                            {item.label === 'Members & Leads' && <span className="sidebar-item-badge count">12</span>}
+                                            {/* NO ARROW HERE for single items */}
+                                        </>
+                                    )}
                                 </NavLink>
                             )}
                         </li>
@@ -142,23 +164,27 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
                 </ul>
             </nav>
 
-            {/* Role Display */}
+
+            {/* Role/User Section */}
             {!collapsed && (
-                <div className="p-4 border-t border-white/5 m-3 rounded-xl bg-white/5 shadow-inner">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        System Role
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                            <span className="text-xs text-indigo-400">⚡</span>
+                <div className="sidebar-footer">
+                    <div className="role-card-premium">
+                        <div className="role-avatar-gradient">
+                            {role === ROLES.SUPER_ADMIN ? 'SU' : role === ROLES.BRANCH_ADMIN ? 'BA' : role.substring(0, 2).toUpperCase()}
                         </div>
-                        <div className="text-xs font-bold text-slate-200 uppercase tracking-widest drop-shadow-sm">
-                            {role}
+                        <div className="role-info">
+                            <span className="role-name">{role === ROLES.SUPER_ADMIN ? 'Super Admin' : role === ROLES.BRANCH_ADMIN ? 'Branch Admin' : role.charAt(0) + role.slice(1).toLowerCase()}</span>
+                            <span className="role-title">Active Now</span>
+                        </div>
+                        <div className="status-indicator">
+                            <div className="status-ping"></div>
+                            <div className="status-core"></div>
                         </div>
                     </div>
                 </div>
             )}
         </aside>
+
         <ConfirmationModal
             isOpen={showLogoutModal}
             onClose={() => setShowLogoutModal(false)}

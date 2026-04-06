@@ -13,18 +13,45 @@ import {
     Filter,
     ArrowUpRight,
     AlertTriangle,
-    Search
+    Search,
+    MoreHorizontal,
+    Box
 } from 'lucide-react';
-import StatusBadge from '../../../components/common/StatusBadge';
 import RightDrawer from '../../../components/common/RightDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const MaintenanceRequestsPage = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
-
-    // UI States
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
 
@@ -44,7 +71,7 @@ const MaintenanceRequestsPage = () => {
             }
 
             const data = await equipmentApi.getMaintenanceRequests(filters);
-            setTickets(data);
+            setTickets(data || []);
         } catch (error) {
             console.error("Failed to fetch maintenance requests:", error);
             toast.error("Failed to load maintenance tickets");
@@ -63,216 +90,183 @@ const MaintenanceRequestsPage = () => {
         }
     };
 
-    const getSeverityColor = (sev) => {
-        return SEVERITIES.find(s => s.value === sev)?.color || 'slate';
+    const getSeverityStyle = (sev) => {
+        switch (sev) {
+            case 'Critical': return { bg: T.roseLight, color: T.rose };
+            case 'High': return { bg: T.amberLight, color: T.amber };
+            case 'Medium': return { bg: T.blueLight, color: T.blue };
+            default: return { bg: T.indigoLight, color: T.indigo };
+        }
     };
 
     const getStatusConfig = (status) => {
         return TICKET_STATUSES.find(s => s.label === status) || TICKET_STATUSES[0];
     };
 
-    return (
-        <div className="min-h-screen bg-[#F8FAFC] pb-20">
-            {/* Header Area */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
-                <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-200 shrink-0">
-                                    <Wrench size={24} />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-black text-slate-800 tracking-tight">Maintenance Requests</h1>
-                                    <p className="text-slate-500 text-sm font-medium">Track and resolve equipment service tickets</p>
-                                </div>
-                            </div>
-                        </div>
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
 
-                        <div className="flex bg-slate-100 p-1 rounded-xl overflow-x-auto no-scrollbar">
-                            {tabs.map(tab => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`
-                                        px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap
-                                        ${activeTab === tab
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'}
-                                    `}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
+    return (
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .ticket-row:hover { background: ${T.bg} !important; }
+                .ticket-row:hover td { color: ${T.text} !important; }
+            `}</style>
+
+            {/* Header Area */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${T.amber}, ${T.rose})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 10px 30px -10px rgba(245, 158, 11, 0.3)' }}>
+                        <Wrench size={28} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Service Tickets</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Monitor equipment health and manage maintenance lifecycles</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tabs & Search */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', background: '#fff', padding: 6, borderRadius: 20, boxShadow: T.cardShadow, border: `1.5px solid #fff` }}>
+                        {tabs.map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                style={{
+                                    padding: '10px 24px', borderRadius: 14, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.02em', cursor: 'pointer', transition: '0.3s',
+                                    background: activeTab === tab ? T.accent : 'transparent',
+                                    color: activeTab === tab ? '#fff' : T.muted,
+                                    boxShadow: activeTab === tab ? T.shadow : 'none'
+                                }}
+                            >
+                                {tab}
+                            </button>
+                        ))}
                     </div>
 
-                    <div className="mt-8 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <div style={{ position: 'relative', width: 340 }}>
+                        <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                         <input
                             type="text"
-                            placeholder="Find by machine or ticket ID..."
-                            className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 outline-none transition-all font-medium text-slate-600"
+                            placeholder="Find machine or ticket ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ width: '100%', height: 52, padding: '0 16px 0 48px', borderRadius: 16, border: `1.5px solid #fff`, background: '#fff', boxShadow: T.cardShadow, fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                {loading ? (
-                    <div className="flex items-center justify-center p-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+            {/* Tickets Table */}
+            <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
+                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: T.amberLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.amber }}>
+                        <AlertTriangle size={20} strokeWidth={2.5} />
                     </div>
-                ) : (
-                    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                        {/* Mobile Card View */}
-                        <div className="grid grid-cols-1 gap-4 md:hidden p-4">
-                            {tickets.map(ticket => (
-                                <div
-                                    key={ticket.id}
-                                    className={`bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden ${ticket.priority === 'Critical' ? 'border-l-4 border-l-red-500' : ''}`}
-                                    onClick={() => {
-                                        setSelectedTicket(ticket);
-                                        setIsDetailDrawerOpen(true);
-                                    }}
-                                >
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${ticket.priority === 'Critical' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                                                <AlertTriangle size={18} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-800 text-sm">{ticket.equipment?.name}</h4>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">#T-{ticket.id}</span>
-                                            </div>
-                                        </div>
-                                        <StatusBadge
-                                            status={ticket.status}
-                                            color={getStatusConfig(ticket.status).color}
-                                        />
-                                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Active Requests Catalog</h3>
+                </div>
 
-                                    <div className="grid grid-cols-2 gap-y-2 text-xs mb-3">
-                                        <div>
-                                            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-wider">Priority</p>
-                                            <span className={`inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md bg-${getSeverityColor(ticket.priority)}-50 text-${getSeverityColor(ticket.priority)}-700 font-bold border border-${getSeverityColor(ticket.priority)}-100`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full bg-${getSeverityColor(ticket.priority)}-500`} />
-                                                {ticket.priority}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-wider">Date</p>
-                                            <p className="font-bold text-slate-700 mt-1">{new Date(ticket.createdAt).toLocaleDateString()}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                                S
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg + '50' }}>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Ticket ID</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Equipment</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Priority</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Reported Info</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Status</th>
+                                <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                        <Clock size={40} color={T.amber} style={{ animation: 'spin 2s linear infinite' }} />
+                                    </td>
+                                </tr>
+                            ) : tickets.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: 100, textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                                            <div style={{ width: 80, height: 80, borderRadius: 30, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
+                                                <CheckCircle2 size={32} />
                                             </div>
-                                            <span className="text-xs font-medium text-slate-500">System</span>
+                                            <p style={{ fontSize: 15, fontWeight: 700, color: T.muted }}>System clear. No pending maintenance.</p>
                                         </div>
-                                        <div onClick={e => e.stopPropagation()}>
-                                            <select
-                                                className="text-[10px] font-black uppercase tracking-tight bg-slate-50 border-none rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
-                                                value={ticket.status}
-                                                onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
-                                            >
-                                                {TICKET_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="saas-table-wrapper border-0 rounded-none hidden md:block">
-                            <table className="saas-table saas-table-responsive w-full text-left">
-                                <thead>
-                                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ticket ID</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipment</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date Reported</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {tickets.map(ticket => (
-                                        <tr
-                                            key={ticket.id}
-                                            className={`hover:bg-slate-50/50 transition-colors group cursor-pointer ${ticket.priority === 'Critical' ? 'bg-red-50/30' : ''}`}
-                                            onClick={() => {
-                                                setSelectedTicket(ticket);
-                                                setIsDetailDrawerOpen(true);
-                                            }}
+                                    </td>
+                                </tr>
+                            ) : (
+                                tickets.map((ticket) => {
+                                    const sev = getSeverityStyle(ticket.priority);
+                                    const st = getStatusConfig(ticket.status);
+                                    return (
+                                        <tr 
+                                            key={ticket.id} 
+                                            className="ticket-row" 
+                                            style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s', cursor: 'pointer' }}
+                                            onClick={() => { setSelectedTicket(ticket); setIsDetailDrawerOpen(true); }}
                                         >
-                                            <td className="px-6 py-5" data-label="Ticket ID">
-                                                <div className="flex justify-end sm:justify-start">
-                                                    <span className="text-xs font-black text-slate-900 group-hover:text-amber-600 transition-colors uppercase">#T-{ticket.id}</span>
-                                                </div>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ fontSize: 13, fontWeight: 900, color: T.text, fontStyle: 'italic' }}>#T-{ticket.id}</span>
                                             </td>
-                                            <td className="px-6 py-5" data-label="Equipment">
-                                                <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${ticket.priority === 'Critical' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                                                        <AlertTriangle size={16} />
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                    <div style={{ width: 36, height: 36, borderRadius: 10, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted }}>
+                                                        <Box size={18} />
                                                     </div>
-                                                    <span className="font-bold text-slate-800 text-sm">{ticket.equipment?.name}</span>
+                                                    <span style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{ticket.equipment?.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5" data-label="Priority">
-                                                <div className="flex justify-end sm:justify-start">
-                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-${getSeverityColor(ticket.priority)}-50 text-${getSeverityColor(ticket.priority)}-700 text-[10px] font-black uppercase tracking-wider border border-${getSeverityColor(ticket.priority)}-100`}>
-                                                        <div className={`w-1.5 h-1.5 rounded-full bg-${getSeverityColor(ticket.priority)}-500`} />
-                                                        {ticket.priority}
-                                                    </span>
-                                                </div>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: sev.bg, color: sev.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase' }}>
+                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: sev.color }} />
+                                                    {ticket.priority}
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-5" data-label="Date Reported">
-                                                <div className="flex flex-col text-right sm:text-left">
-                                                    <p className="text-xs font-bold text-slate-700">Staff</p>
-                                                    <p className="text-[10px] text-slate-400 font-medium">{new Date(ticket.createdAt).toLocaleDateString()}</p>
-                                                </div>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Staff Registry</div>
+                                                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted }}>{new Date(ticket.createdAt).toLocaleDateString()}</div>
                                             </td>
-                                            <td className="px-6 py-5" data-label="Status">
-                                                <div className="flex justify-end sm:justify-start">
-                                                    <StatusBadge
-                                                        status={ticket.status}
-                                                        color={getStatusConfig(ticket.status).color}
-                                                    />
-                                                </div>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: 10, background: T.bg, color: T.text, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: `1.2px solid ${T.border}` }}>
+                                                    {ticket.status}
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-5 text-right" data-label="Actions" onClick={e => e.stopPropagation()}>
-                                                <div className="flex justify-end">
-                                                    <select
-                                                        className="text-[10px] font-black uppercase tracking-tight bg-slate-50 border-none rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
-                                                        value={ticket.status}
-                                                        onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
-                                                    >
-                                                        {TICKET_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                                                    </select>
-                                                </div>
+                                            <td style={{ padding: '20px 32px', textAlign: 'right' }} onClick={e => e.stopPropagation()}>
+                                                <select
+                                                    value={ticket.status}
+                                                    onChange={(e) => handleStatusUpdate(ticket.id, e.target.value)}
+                                                    style={{ height: 36, padding: '0 12px', borderRadius: 10, border: `1.5px solid ${T.border}`, fontSize: 11, fontWeight: 800, color: T.text, outline: 'none', cursor: 'pointer', background: '#fff' }}
+                                                >
+                                                    {TICKET_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                                </select>
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        {tickets.length === 0 && (
-                            <div className="p-20 flex flex-col items-center justify-center text-center">
-                                <div className="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
-                                    <CheckCircle2 size={32} />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-800">No requests found</h3>
-                                <p className="text-slate-400 text-sm mt-1">Great job! All machines seem to be in good shape.</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Detail Drawer */}
@@ -282,72 +276,48 @@ const MaintenanceRequestsPage = () => {
                 title={`Ticket #T-${selectedTicket?.id}`}
             >
                 {selectedTicket && (
-                    <div className="space-y-8">
-                        <section className="space-y-4">
-                            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-4">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">Issue Reported</h4>
-                                        <p className="text-lg font-black text-slate-800 mt-1">{selectedTicket.issue}</p>
-                                    </div>
-                                    <StatusBadge
-                                        status={selectedTicket.status}
-                                        color={getStatusConfig(selectedTicket.status).color}
-                                    />
-                                </div>
-                                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                                    {selectedTicket.issue}
-                                </p>
-                            </div>
-                        </section>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                        <div style={{ background: T.bg, padding: 24, borderRadius: 28, border: `1.5px solid ${T.border}` }}>
+                            <h4 style={{ margin: 0, fontSize: 12, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Issue Narrative</h4>
+                            <p style={{ margin: '12px 0 0', fontSize: 15, color: T.text, fontWeight: 600, lineHeight: 1.6 }}>{selectedTicket.issue}</p>
+                        </div>
 
-                        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Equipment</p>
-                                <p className="text-sm font-bold text-slate-800 mt-1">{selectedTicket.equipment?.name}</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <div style={{ background: '#fff', padding: 20, borderRadius: 20, border: `1.5px solid ${T.border}` }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Machine Identification</span>
+                                <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 800, color: T.text }}>{selectedTicket.equipment?.name}</p>
                             </div>
-                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</p>
-                                <p className={`text-sm font-bold text-${getSeverityColor(selectedTicket.priority)}-500 mt-1`}>
-                                    {selectedTicket.priority}
-                                </p>
+                            <div style={{ background: '#fff', padding: 20, borderRadius: 20, border: `1.5px solid ${T.border}` }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Assigned Protocol</span>
+                                <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 800, color: getSeverityStyle(selectedTicket.priority).color }}>{selectedTicket.priority}</p>
                             </div>
-                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reported By</p>
-                                <p className="text-sm font-bold text-slate-800 mt-1">Staff</p>
-                            </div>
-                            <div className="p-4 rounded-xl border-2 border-slate-50">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date Reported</p>
-                                <p className="text-sm font-bold text-slate-800 mt-1">{new Date(selectedTicket.createdAt).toLocaleDateString()}</p>
-                            </div>
-                        </section>
+                        </div>
 
-                        <section className="space-y-4">
-                            <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                <User size={14} className="text-slate-400" /> Assignment & Progress
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <h4 style={{ margin: 0, fontSize: 13, fontWeight: 900, color: T.text, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <User size={16} color={T.accent} /> Technician Lifecycle
                             </h4>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-4 rounded-xl bg-primary-light border border-violet-100">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm font-bold uppercase text-xs">
-                                            {selectedTicket.assignedTo.split('')[0]}
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-violet-400 uppercase tracking-wider">Assigned To</p>
-                                            <p className="text-sm font-bold text-violet-900">{selectedTicket.assignedTo}</p>
-                                        </div>
+                            <div style={{ background: T.accentLight, padding: 20, borderRadius: 24, border: `1.5px solid ${T.accent}20`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, border: `2px solid ${T.accent}` }}>
+                                        {selectedTicket.assignedTo?.charAt(0)}
                                     </div>
-                                    <button className="text-[10px] font-black uppercase text-primary hover:underline">Reassign</button>
+                                    <div>
+                                        <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color: T.accent, textTransform: 'uppercase' }}>Active Assignee</p>
+                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: T.text }}>{selectedTicket.assignedTo}</p>
+                                    </div>
                                 </div>
+                                <button style={{ background: 'none', border: 'none', color: T.accent, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer' }}>Reassign</button>
                             </div>
-                        </section>
+                        </div>
 
-                        <div className="flex gap-3 pt-6 border-t border-slate-100">
-                            <button className="flex-1 bg-slate-900 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-200">
-                                Update Status
-                            </button>
-                            <button className="px-6 py-4 rounded-xl border-2 border-slate-100 text-slate-400 hover:text-red-500 hover:border-red-100 transition-all">
-                                <ChevronRight size={20} />
+                        <div style={{ marginTop: 'auto', display: 'flex', gap: 12 }}>
+                            <ActionButton style={{ flex: 1 }} icon={MoreHorizontal} onClick={() => setIsDetailDrawerOpen(false)}>Update Lifecycle</ActionButton>
+                            <button 
+                                onClick={() => setIsDetailDrawerOpen(false)}
+                                style={{ width: 60, height: 60, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.muted, cursor: 'pointer' }}
+                            >
+                                <ChevronRight size={24} />
                             </button>
                         </div>
                     </div>

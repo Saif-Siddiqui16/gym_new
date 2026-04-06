@@ -8,6 +8,7 @@ import BenefitsList from '../components/BenefitsList';
 import FreezeDrawer from '../components/FreezeDrawer';
 import GiftDaysDrawer from '../components/GiftDaysDrawer';
 import MipsSyncPanel from '../../../components/mips/MipsSyncPanel';
+import Loader from '../../../components/common/Loader';
 
 const MembershipDetails = () => {
     const { id } = useParams();
@@ -59,7 +60,7 @@ const MembershipDetails = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <Loader message="Fetching Profile..." />
             </div>
         );
     }

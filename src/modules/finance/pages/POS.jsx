@@ -1,12 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Search, ShoppingCart, Package, User, Clock, ReceiptText, Filter, Plus, Minus, Trash2, X, Store, CreditCard, LayoutGrid } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import {
+    Search, ShoppingCart, Package, User, Clock, ReceiptText, Filter, Plus, Minus,
+    Trash2, X, Store, CreditCard, LayoutGrid, ChevronDown, CheckCircle, Sparkles
+} from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import { getStoreProducts, getStoreStats, checkoutStoreOrder, validateCoupon } from '../../../api/storeApi';
 import { getMembers } from '../../../api/staff/memberApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
 import ReceiptModal from '../components/ReceiptModal';
-import { Sparkles } from 'lucide-react';
+
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    input: { height: '48px', padding: '0 16px', borderRadius: '14px', border: `2px solid ${T.border}`, fontSize: '14px', fontWeight: '600', color: T.text, outline: 'none', transition: 'all 0.2s ease', background: '#FFF' },
+    btn: { height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
 
 const POS = () => {
     const { selectedBranch } = useBranchContext();
@@ -22,10 +40,7 @@ const POS = () => {
     const [search, setSearch] = useState('');
     const [customerSearch, setCustomerSearch] = useState('');
     const [showGuestForm, setShowGuestForm] = useState(false);
-
-    // Guest form state
     const [guestInfo, setGuestInfo] = useState({ name: '', phone: '', email: '' });
-    // Selected member state
     const [selectedMember, setSelectedMember] = useState(null);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('Cash');
@@ -34,52 +49,25 @@ const POS = () => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
     const [availableCoupons, setAvailableCoupons] = useState([]);
-    
-    // Receipt Modal State
     const [showReceiptModal, setShowReceiptModal] = useState(false);
     const [lastOrder, setLastOrder] = useState(null);
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                console.log("[POS] Loading for branch:", selectedBranch);
                 setLoadingProducts(true);
-                // Clear cart and checkout state on branch switch
-                setCart([]);
-                setSelectedMember(null);
-                setShowGuestForm(false);
-                setGuestInfo({ name: '', phone: '', email: '' });
-
-                try {
-                    const productsData = await getStoreProducts({ branchId: selectedBranch });
-                    console.log("[POS] Products loaded:", productsData?.length);
-                    setProducts(productsData.products || productsData);
-                } catch (e) {
-                    console.error("[POS] Error loading products:", e);
-                }
-
-                try {
-                    const statsData = await getStoreStats({ branchId: selectedBranch });
-                    console.log("[POS] Stats loaded:", statsData);
-                    setTodaySalesTotal(statsData.stats?.todayPos || 0);
-                    setRecentTransactions(statsData.recentTransactions || []);
-                } catch (e) {
-                    console.error("[POS] Error loading stats:", e);
-                }
-
-                try {
-                    const membersData = await getMembers({ branchId: selectedBranch });
-                    console.log("[POS] Members loaded:", membersData?.length);
-                    setMembers(membersData);
-                } catch (e) {
-                    console.error("[POS] Error loading members:", e);
-                }
-            } catch (error) {
-                console.error("General POS load error:", error);
-                toast.error("Failed to load some store data");
-            } finally {
-                setLoadingProducts(false);
-            }
+                setCart([]); setSelectedMember(null); setShowGuestForm(false); setGuestInfo({ name: '', phone: '', email: '' });
+                const [productsData, statsData, membersData] = await Promise.all([
+                    getStoreProducts({ branchId: selectedBranch }),
+                    getStoreStats({ branchId: selectedBranch }),
+                    getMembers({ branchId: selectedBranch })
+                ]);
+                setProducts(productsData.products || productsData);
+                setTodaySalesTotal(statsData.stats?.todayPos || 0);
+                setRecentTransactions(statsData.recentTransactions || []);
+                setMembers(membersData);
+            } catch (error) { toast.error("Failed to sync store inventory"); }
+            finally { setLoadingProducts(false); }
         };
         loadData();
     }, [selectedBranch]);
@@ -91,125 +79,67 @@ const POS = () => {
                     const { getAvailableCouponsForMember } = await import('../../../api/storeApi');
                     const couponsData = await getAvailableCouponsForMember(selectedMember.id);
                     setAvailableCoupons(couponsData.filter(c => c.applicableService === 'All' || c.applicableService === 'POS'));
-                } else {
-                    setAvailableCoupons([]);
-                }
-            } catch (error) {
-                console.error("Failed to fetch member coupons:", error);
-            }
+                } else { setAvailableCoupons([]); }
+            } catch (error) { console.error("Failed to fetch coupons", error); }
         };
         fetchMemberCoupons();
     }, [selectedMember]);
 
     const handleAddToCart = (product) => {
-        if (product.stock <= 0) {
-            toast.error("Product is out of stock");
-            return;
-        }
+        if (product.stock <= 0) return toast.error("Out of stock");
         const existing = cart.find(item => item.id === product.id);
         if (existing) {
-            if (existing.quantity >= product.stock) {
-                toast.error("Cannot add more than available stock");
-                return;
-            }
+            if (existing.quantity >= product.stock) return toast.error("Max stock reached");
             setCart(cart.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
-        } else {
-            setCart([...cart, { ...product, quantity: 1 }]);
-        }
+        } else { setCart([...cart, { ...product, quantity: 1 }]); }
     };
 
     const handleUpdateQuantity = (id, delta) => {
         setCart(cart.map(item => {
             if (item.id === id) {
-                const newQuantity = item.quantity + delta;
-                if (newQuantity <= 0) return null;
-                if (newQuantity > item.stock) {
-                    toast.error("Cannot exceed available stock");
-                    return item;
-                }
-                return { ...item, quantity: newQuantity };
+                const newQty = item.quantity + delta;
+                if (newQty <= 0) return null;
+                if (newQty > item.stock) { toast.error("Max stock reached"); return item; }
+                return { ...item, quantity: newQty };
             }
             return item;
         }).filter(Boolean));
     };
 
-    const handleApplyCoupon = async () => {
-        if (!couponCode) return;
-        await handleApplyCouponWithCode(couponCode);
-    };
-
-    const handleApplyCouponWithCode = async (codeToApply) => {
+    const handleApplyCouponWithCode = async (code) => {
         try {
             setIsValidatingCoupon(true);
-            const result = await validateCoupon(codeToApply, total);
-            setAppliedCoupon(result.coupon);
-            setCouponCode(result.coupon.code);
-            toast.success("Coupon applied!");
-        } catch (error) {
-            toast.error(error);
-            setAppliedCoupon(null);
-        } finally {
-            setIsValidatingCoupon(false);
-        }
+            const result = await validateCoupon(code, total);
+            setAppliedCoupon(result.coupon); setCouponCode(result.coupon.code); toast.success("Coupon applied!");
+        } catch (error) { toast.error(error); setAppliedCoupon(null); }
+        finally { setIsValidatingCoupon(false); }
     };
 
     const handleCheckout = async () => {
         if (cart.length === 0) return toast.error("Cart is empty");
-
         const payload = {
             tenantId: selectedBranch === 'all' ? null : selectedBranch,
             items: cart.map(item => ({ productId: item.id, quantity: item.quantity, price: item.price })),
             total: cart.reduce((acc, item) => acc + (item.price * item.quantity), 0),
         };
-
         if (showGuestForm) {
-            if (!guestInfo.name || !guestInfo.phone) return toast.error("Guest name and phone are required");
+            if (!guestInfo.name || !guestInfo.phone) return toast.error("Guest info required");
             payload.guestInfo = guestInfo;
-        } else if (selectedMember) {
-            payload.memberId = selectedMember.id;
-        } else {
-            return toast.error("Please select a member or enter guest details");
-        }
+        } else if (selectedMember) { payload.memberId = selectedMember.id; }
+        else { return toast.error("Select customer or guest"); }
 
-        if (paymentMethod !== 'Cash' && !referenceNumber && paymentMethod !== 'Online Link') {
-            return toast.error("Please enter a reference/transaction number");
-        }
-
+        if (!['Cash', 'Online Link'].includes(paymentMethod) && !referenceNumber) return toast.error("Reference number required");
+        
         payload.paymentMode = paymentMethod;
         payload.referenceNumber = referenceNumber;
-        if (appliedCoupon) {
-            payload.couponCode = appliedCoupon.code;
-        }
-
-        if (paymentMethod === 'Online Link') {
-            toast.promise(
-                new Promise(resolve => setTimeout(resolve, 2000)),
-                {
-                    loading: 'Sending payment link to customer...',
-                    success: 'SMS Payment Link sent!',
-                    error: 'Failed to send link',
-                }
-            );
-            // In a real scenario, we might wait for webhook. For simulation, we continue to save as POS order.
-        }
+        if (appliedCoupon) payload.couponCode = appliedCoupon.code;
 
         try {
             setIsCheckingOut(true);
             const orderResult = await checkoutStoreOrder(payload);
             toast.success("Checkout successful!");
-            
-            // Set data for receipt modal
-            setLastOrder(orderResult);
-            setShowReceiptModal(true);
-
-            setCart([]);
-            setSelectedMember(null);
-            setShowGuestForm(false);
-            setGuestInfo({ name: '', phone: '', email: '' });
-            setReferenceNumber('');
-            setCouponCode('');
-            setAppliedCoupon(null);
-            // Refresh stats and products to update stock
+            setLastOrder(orderResult); setShowReceiptModal(true);
+            setCart([]); setSelectedMember(null); setShowGuestForm(false); setReferenceNumber(''); setCouponCode(''); setAppliedCoupon(null);
             const [productsData, statsData] = await Promise.all([
                 getStoreProducts({ branchId: selectedBranch }),
                 getStoreStats({ branchId: selectedBranch })
@@ -217,472 +147,202 @@ const POS = () => {
             setProducts(productsData.products || productsData);
             setTodaySalesTotal(statsData.stats?.todayPos || 0);
             setRecentTransactions(statsData.recentTransactions || []);
-        } catch (error) {
-            toast.error(error);
-        } finally {
-            setIsCheckingOut(false);
-        }
+        } catch (error) { toast.error(error); }
+        finally { setIsCheckingOut(false); }
     };
 
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const discountAmount = appliedCoupon ? (appliedCoupon.type === 'Percentage' ? (total * appliedCoupon.value / 100) : appliedCoupon.value) : 0;
+    const grandTotal = Math.max(0, total - discountAmount);
+
     const filteredProducts = products.filter(p =>
         (selectedCategory === 'All' || p.category === selectedCategory) &&
         (search === '' || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase()))
     );
+
     const filteredMembers = members.filter(m =>
         customerSearch && (m.name.toLowerCase().includes(customerSearch.toLowerCase()) || m.memberId?.toLowerCase().includes(customerSearch.toLowerCase()))
-    );
+    ).slice(0, 5);
 
     return (
-        <div className="saas-page pb-page animate-fadeIn space-y-12">
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: ${T.accentMid}; borderRadius: 10px; }
+            `}</style>
 
-            {/* Premium Header Section */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-3xl blur-2xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200 ring-4 ring-white">
-                                <Store size={32} />
-                            </div>
-                            <div>
-                                <h1 className="text-4xl font-black text-slate-900 tracking-tight">Point of Sale</h1>
-                                <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-1">
-                                    Manage local sales and inventory terminal
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 bg-slate-50/50 p-2 rounded-2xl border border-slate-100">
-                            <div className="px-6 py-3 bg-white rounded-xl shadow-sm border border-slate-100">
-                                <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] mb-1">Today's Sales</p>
-                                <p className="text-2xl font-black text-slate-900 leading-none">₹{todaySalesTotal}</p>
-                            </div>
-                        </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(124, 92, 252, 0.2)' }}><Store size={32} /></div>
+                    <div>
+                        <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>POS Terminal</h1>
+                        <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Local inventory checkout system</p>
                     </div>
+                </div>
+                <div style={{ ...S.card, padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: T.accentLight, border: `1px solid ${T.accentMid}` }}>
+                    <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: '10px', fontWeight: '800', color: T.accent, textTransform: 'uppercase', margin: 0 }}>TODAY'S TOTAL</p>
+                        <p style={{ fontSize: '20px', fontWeight: '900', color: T.text, margin: 0 }}>₹{todaySalesTotal.toLocaleString()}</p>
+                    </div>
+                    <div style={{ width: '1px', height: '32px', background: T.accentMid }}></div>
+                    <ReceiptText size={24} color={T.accent} />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                {/* Left Side: Product Terminal */}
-                <div className="lg:col-span-8 flex flex-col gap-8">
-                    {/* Search and Filters with premium styling */}
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all pointer-events-none" size={22} />
-                            <input
-                                type="text"
-                                placeholder="Search products by name or SKU..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full h-16 pl-14 pr-4 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold transition-all outline-none bg-white font-sans placeholder:text-slate-300"
-                            />
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 400px', gap: '32px' }}>
+                {/* Product Section */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <Search size={18} color={T.subtle} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input placeholder="Search products..." style={{ ...S.input, width: '100%', paddingLeft: '48px', height: '56px', borderRadius: '18px' }} value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
-                        <div className="relative min-w-[200px]">
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full h-16 px-6 appearance-none rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-bold transition-all outline-none bg-white cursor-pointer pr-14 font-sans text-slate-700"
-                            >
-                                {categories.map(cat => <option key={cat}>{cat}</option>)}
-                            </select>
-                            <Filter className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
-                        </div>
+                        <select style={{ ...S.input, width: '200px', height: '56px', borderRadius: '18px' }} value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
+                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
                     </div>
 
                     {loadingProducts ? (
-                        <div className="flex flex-col items-center justify-center p-20 gap-4 opacity-50">
-                            <div className="w-12 h-12 border-4 border-violet-200 border-t-primary rounded-full animate-spin"></div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Inventory...</p>
-                        </div>
-                    ) : filteredProducts.length > 0 ? (
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                            {filteredProducts.map(product => (
-                                <div key={product.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-violet-200 transition-all flex flex-col group relative overflow-hidden">
-                                    {/* Low Stock Badge */}
-                                    {product.stock <= 5 && product.stock > 0 && (
-                                        <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                            Low Stock: {product.stock}
-                                        </div>
-                                    )}
-                                    {product.stock === 0 && (
-                                        <div className="absolute top-4 right-4 bg-red-100 text-red-600 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                            Out of Stock
-                                        </div>
-                                    )}
-
-                                    <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 flex items-center justify-center relative group-hover:bg-primary-light transition-colors">
-                                        {product.image ? (
-                                            <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-2xl" />
-                                        ) : (
-                                            <Package className="text-slate-300 group-hover:text-violet-300 transition-colors" size={48} strokeWidth={1.5} />
-                                        )}
+                        <div style={{ padding: '80px 0' }}><Loader message="Syncing Inventory..." /></div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+                            {filteredProducts.map(p => (
+                                <div key={p.id} style={{ ...S.card, padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', border: p.stock === 0 ? `1px solid ${T.border}` : `1px solid ${T.border}`, opacity: p.stock === 0 ? 0.7 : 1 }}>
+                                    <div style={{ width: '100%', aspectRatio: '1/1', background: T.bg, borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
+                                        {p.image ? <img src={p.image} style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Package size={48} color={T.subtle} strokeWidth={1} /></div>}
+                                        {p.stock <= 5 && <div style={{ position: 'absolute', top: '8px', right: '8px', background: p.stock === 0 ? T.error : '#FF9800', color: '#FFF', fontSize: '9px', fontWeight: '900', padding: '4px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>{p.stock === 0 ? 'Out of Stock' : `Only ${p.stock} left`}</div>}
                                     </div>
-                                    <div className="flex flex-col flex-1">
-                                        {product.category && <span className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">{product.category}</span>}
-                                        <h4 className="text-sm font-bold text-slate-800 leading-tight mb-2 line-clamp-2">{product.name}</h4>
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <span className="text-lg font-black text-slate-900">₹{product.price}</span>
-                                            <button
-                                                onClick={() => handleAddToCart(product)}
-                                                disabled={product.stock === 0}
-                                                className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-violet-200 transition-all disabled:opacity-50 disabled:hover:bg-slate-100 disabled:hover:text-slate-600"
-                                            >
-                                                <Plus size={18} />
-                                            </button>
+                                    <div>
+                                        <p style={{ fontSize: '10px', fontWeight: '800', color: T.accent, textTransform: 'uppercase', marginBottom: '4px' }}>{p.category}</p>
+                                        <h4 style={{ fontSize: '15px', fontWeight: '800', color: T.text, margin: '0 0 12px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minHeight: '40px' }}>{p.name}</h4>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '18px', fontWeight: '900', color: T.text }}>₹{Number(p.price).toLocaleString()}</span>
+                                            <button onClick={() => handleAddToCart(p)} disabled={p.stock === 0} style={{ width: '40px', height: '40px', borderRadius: '12px', background: T.accentLight, color: T.accent, border: 'none', cursor: p.stock === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>{p.stock === 0 ? <X size={20} /> : <Plus size={20} />}</button>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <div className="bg-white/60 backdrop-blur-sm rounded-[3rem] shadow-sm border border-slate-100 p-10 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden w-full">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-purple-500 to-purple-500 opacity-20"></div>
-                            <div className="flex flex-col items-center gap-8 animate-pulse text-center max-w-sm">
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-violet-100 rounded-[2.5rem] blur-xl opacity-50"></div>
-                                    <div className="relative w-28 h-28 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex items-center justify-center text-slate-200">
-                                        <Package size={56} strokeWidth={1.5} />
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">No products found</h3>
-                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-3 leading-relaxed">
-                                        Your store inventory is currently empty or no products match your search.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     )}
                 </div>
 
-                {/* Right Side: Checkout Console */}
-                <div className="lg:col-span-4 flex flex-col gap-8">
-
-                    {/* Customer Picker with Staff Dashboard aesthetic */}
-                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-violet-200">
-                                <User size={24} />
+                {/* Cart Pane */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ ...S.card, padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={20} /></div>
+                                <h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Customer Info</h3>
                             </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 tracking-tight uppercase tracking-tight">Customer</h3>
-                                <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-0.5">Sale Assignment</p>
-                            </div>
-                        </div>
-
-                        {showGuestForm ? (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Guest Info</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter guest name *"
-                                        value={guestInfo.name}
-                                        onChange={(e) => setGuestInfo({ ...guestInfo, name: e.target.value })}
-                                        className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
-                                    />
+                            
+                            {selectedMember ? (
+                                <div style={{ padding: '16px', background: T.accentLight, borderRadius: '16px', border: `1px solid ${T.accentMid}`, position: 'relative' }}>
+                                    <button onClick={() => setSelectedMember(null)} style={{ position: 'absolute', top: '12px', right: '12px', color: T.accent, border: 'none', background: 'transparent', cursor: 'pointer' }}><X size={16} /></button>
+                                    <p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{selectedMember.name}</p>
+                                    <p style={{ fontSize: '12px', fontWeight: '600', color: T.accent, margin: '2px 0 0' }}>{selectedMember.memberId || 'ID#N/A'}</p>
                                 </div>
-                                <input
-                                    type="tel"
-                                    placeholder="Phone number *"
-                                    value={guestInfo.phone}
-                                    onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
-                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
-                                />
-                                <input
-                                    type="email"
-                                    placeholder="Email address (optional)"
-                                    value={guestInfo.email}
-                                    onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
-                                    className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans placeholder:text-slate-300"
-                                />
-                                <button
-                                    onClick={() => setShowGuestForm(false)}
-                                    className="w-full h-11 flex items-center justify-center bg-slate-50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-slate-100 hover:bg-slate-100 hover:text-slate-900 transition-all"
-                                >
-                                    Cancel Selection
-                                </button>
-                            </div>
-                        ) : selectedMember ? (
-                            <div className="bg-primary-light/50 rounded-2xl p-5 border border-violet-100 animate-in fade-in slide-in-from-top-2 relative">
-                                <button onClick={() => setSelectedMember(null)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors">
-                                    <X size={16} />
-                                </button>
-                                <p className="text-sm font-black text-slate-900 mb-1">{selectedMember.name}</p>
-                                <p className="text-xs font-bold text-slate-500 mb-2">{selectedMember.memberId || 'Walk-in'}</p>
-                                {selectedMember.phone && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedMember.phone}</p>}
-                                <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[9px] font-black uppercase tracking-widest">
-                                    Active Member
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-5">
-                                <div className="relative group">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={18} />
-                                    <input
-                                        type="text"
-                                        placeholder="Search members by code..."
-                                        value={customerSearch}
-                                        onChange={(e) => setCustomerSearch(e.target.value)}
-                                        className="w-full h-12 pl-12 pr-4 rounded-xl border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold bg-slate-50/30 outline-none transition-all font-sans"
-                                    />
-                                    {customerSearch && filteredMembers.length > 0 && (
-                                        <div className="absolute top-14 left-0 w-full bg-white border border-slate-100 rounded-xl shadow-xl max-h-48  z-10">
-                                            {filteredMembers.map(m => (
-                                                <div
-                                                    key={m.id}
-                                                    onClick={() => { setSelectedMember(m); setCustomerSearch(''); }}
-                                                    className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0"
-                                                >
-                                                    <p className="text-sm font-bold text-slate-800">{m.name}</p>
-                                                    <p className="text-xs text-slate-500">{m.memberId}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={() => setShowGuestForm(true)}
-                                    className="w-full h-14 flex items-center justify-center gap-3 bg-white text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 hover:border-violet-200 transition-all border-2 border-dashed border-slate-100 group"
-                                >
-                                    <Plus size={16} className="text-slate-300 group-hover:text-primary" /> Walk-in Guest
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Cart Control with Premium Branding */}
-                    <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 flex flex-col min-h-[500px] p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center border border-violet-100">
-                                    <ShoppingCart size={24} />
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Cart Console</h3>
-                                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">{cart.length} Items Selected</p>
-                                </div>
-                            </div>
-                            {cart.length > 0 && (
-                                <button onClick={() => setCart([])} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
-                                    Clear All
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex-1 flex flex-col gap-4  max-h-[350px] pr-2 custom-scrollbar">
-                            {cart.length === 0 ? (
-                                <div className="flex-1 flex flex-col items-center justify-center opacity-30 py-10 scale-90">
-                                    <div className="w-20 h-20 rounded-[2rem] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200 mb-6 shadow-inner">
-                                        <ShoppingCart size={40} strokeWidth={1} />
-                                    </div>
-                                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.25em]">Cart is currently empty</p>
+                            ) : showGuestForm ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <input style={{ ...S.input, height: '44px' }} placeholder="Guest Name *" value={guestInfo.name} onChange={e => setGuestInfo({ ...guestInfo, name: e.target.value })} />
+                                    <input style={{ ...S.input, height: '44px' }} placeholder="Phone Number *" value={guestInfo.phone} onChange={e => setGuestInfo({ ...guestInfo, phone: e.target.value })} />
+                                    <button onClick={() => setShowGuestForm(false)} style={{ fontSize: '11px', fontWeight: '800', color: T.error, border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: '0 4px' }}>CANCEL GUEST MODE</button>
                                 </div>
                             ) : (
-                                cart.map(item => (
-                                    <div key={item.id} className="bg-slate-50 rounded-2xl p-4 flex gap-4 items-center border border-slate-100">
-                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 border border-slate-100">
-                                            {item.image ? <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg" /> : <Package size={20} className="text-slate-300" />}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mb-1">{item.name}</h4>
-                                            <p className="text-[10px] font-black text-primary">₹{item.price}</p>
-                                        </div>
-                                        <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl p-1 shadow-sm shrink-0">
-                                            <button onClick={() => handleUpdateQuantity(item.id, -1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
-                                                <Minus size={12} />
-                                            </button>
-                                            <span className="text-xs font-black min-w-[20px] text-center text-slate-800">{item.quantity}</span>
-                                            <button onClick={() => handleUpdateQuantity(item.id, 1)} className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
-                                                <Plus size={12} />
-                                            </button>
-                                        </div>
-                                        <button onClick={() => setCart(cart.filter(i => i.id !== item.id))} className="text-slate-300 hover:text-red-500 transition-colors p-2 shrink-0">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-slate-100 shrink-0 space-y-6">
-                            <div className="space-y-3">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Payment Method</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {['Cash', 'UPI', 'QR', 'Card', 'Online Link'].map(m => (
-                                        <button
-                                            key={m}
-                                            onClick={() => setPaymentMethod(m)}
-                                            className={`py-2.5 rounded-xl border-2 transition-all text-[9px] font-black uppercase tracking-widest ${paymentMethod === m ? 'border-primary bg-primary text-white shadow-md' : 'border-slate-50 bg-slate-50 text-slate-400 hover:border-slate-200'}`}
-                                        >
-                                            {m}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {paymentMethod !== 'Cash' && paymentMethod !== 'Online Link' && (
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ref Number</p>
-                                    <input
-                                        type="text"
-                                        placeholder="TNX-ID / Auth code"
-                                        value={referenceNumber}
-                                        onChange={(e) => setReferenceNumber(e.target.value)}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary text-xs font-bold bg-slate-50/50 outline-none transition-all"
-                                    />
-                                </div>
-                            )}
-
-                            {/* Coupon Section */}
-                            <div className="space-y-3 pt-6 border-t border-slate-100">
-                                {/* Available Coupons Chips */}
-                                {availableCoupons.length > 0 && !appliedCoupon && selectedMember && (
-                                    <div className="mb-4">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2">Available Member Offers</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {availableCoupons.map(coupon => (
-                                                <button
-                                                    key={coupon.id}
-                                                    onClick={() => {
-                                                        setCouponCode(coupon.code);
-                                                        // Slight delay to allow state to update before applying
-                                                        setTimeout(() => handleApplyCouponWithCode(coupon.code), 0);
-                                                    }}
-                                                    className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-lg text-[10px] font-black text-primary uppercase tracking-widest transition-colors flex items-center gap-1"
-                                                >
-                                                    <Sparkles size={10} />
-                                                    {coupon.code} (-{coupon.type === 'Percentage' ? `${coupon.value}%` : `₹${coupon.value}`})
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discount Coupon</p>
-                                <div className="flex gap-2">
-                                    <div className="relative flex-1">
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Code"
-                                            value={couponCode}
-                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                            disabled={appliedCoupon || isValidatingCoupon}
-                                            className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-primary text-xs font-bold bg-slate-50/50 outline-none transition-all uppercase"
-                                        />
-                                        {appliedCoupon && (
-                                            <button 
-                                                onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:bg-red-50 p-1 rounded-lg"
-                                            >
-                                                <X size={14} />
-                                            </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <Search size={16} color={T.subtle} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input style={{ ...S.input, height: '44px', paddingLeft: '36px' }} placeholder="Search member code..." value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} />
+                                        {customerSearch && filteredMembers.length > 0 && (
+                                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFF', border: `1px solid ${T.border}`, borderRadius: '12px', marginTop: '4px', zIndex: 10, boxShadow: '0 10px 20px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                                {filteredMembers.map(m => <div key={m.id} onClick={() => { setSelectedMember(m); setCustomerSearch(''); }} style={{ padding: '12px', cursor: 'pointer', borderBottom: `1px solid ${T.bg}`, fontSize: '13px', fontWeight: '700', transition: 'background 0.2s' }}>{m.name} ({m.memberId})</div>)}
+                                            </div>
                                         )}
                                     </div>
-                                    {!appliedCoupon && (
-                                        <button
-                                            onClick={handleApplyCoupon}
-                                            disabled={!couponCode || isValidatingCoupon}
-                                            className="h-11 px-4 bg-slate-100 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all disabled:opacity-50"
-                                        >
-                                            {isValidatingCoupon ? '...' : 'Apply'}
-                                        </button>
-                                    )}
+                                    <button onClick={() => setShowGuestForm(true)} style={{ ...S.btn, background: T.bg, color: T.muted, height: '44px', border: `2px dashed ${T.border}` }}><Plus size={16} /> WALK-IN GUEST</button>
                                 </div>
-                                {appliedCoupon && (
-                                    <p className="text-[10px] font-bold text-emerald-600 ml-1">
-                                        ✓ Coupon applied: {appliedCoupon.type === 'Percentage' ? `${appliedCoupon.value}% OFF` : `₹${appliedCoupon.value} OFF`}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2 pt-6 border-t border-slate-100">
-                                <div className="flex items-center justify-between text-slate-500">
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Subtotal</span>
-                                    <span className="text-sm font-bold">₹{total.toLocaleString()}</span>
-                                </div>
-                                {appliedCoupon && (
-                                    <div className="flex items-center justify-between text-emerald-600">
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Discount</span>
-                                        <span className="text-sm font-bold">- ₹{(appliedCoupon.type === 'Percentage' ? (total * appliedCoupon.value / 100) : appliedCoupon.value).toLocaleString()}</span>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-100">
-                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Grand Total</span>
-                                    <span className="text-lg font-black text-slate-900 border-b-2 border-violet-200">
-                                        ₹{Math.max(0, total - (appliedCoupon ? (appliedCoupon.type === 'Percentage' ? (total * appliedCoupon.value / 100) : appliedCoupon.value) : 0)).toLocaleString()}
-                                    </span>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleCheckout}
-                                disabled={cart.length === 0 || isCheckingOut || (!selectedMember && !showGuestForm)}
-                                className="w-full h-14 bg-gradient-to-r from-primary to-primary-hover text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-violet-200 flex items-center justify-center gap-3 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:shadow-none transition-all active:scale-95 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-500"
-                            >
-                                <CreditCard size={18} />
-                                {isCheckingOut ? 'Processing...' : 'Secure Checkout'}
-                            </button>
-                            <p className="text-center text-[9px] font-bold text-slate-400 mt-4 uppercase tracking-widest">
-                                {(!selectedMember && !showGuestForm) ? "Select customer to proceed" : "Secure Payment Gateway"}
-                            </p>
+                            )}
                         </div>
-                    </div>
 
-                    {/* Recent Transactions with Glass Style */}
-                    <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-lg border border-slate-100 p-8">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-primary-light text-primary flex items-center justify-center border border-violet-100 shadow-sm">
-                                <Clock size={24} />
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingCart size={20} /></div>
+                                    <h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Cart</h3>
+                                </div>
+                                <span style={{ fontSize: '12px', fontWeight: '800', color: T.accent, background: T.accentLight, padding: '4px 10px', borderRadius: '8px' }}>{cart.length} ITEMS</span>
                             </div>
-                            <div>
-                                <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Today's Log</h3>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5">Recent Sales activity</p>
+
+                            <div className="custom-scrollbar" style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '100px' }}>
+                                {cart.length === 0 ? (
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0', opacity: 0.5 }}>
+                                        <ShoppingCart size={32} color={T.subtle} style={{ marginBottom: '8px' }} />
+                                        <p style={{ fontSize: '12px', fontWeight: '700', color: T.subtle }}>Empty Cart</p>
+                                    </div>
+                                ) : (
+                                    cart.map(item => (
+                                        <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${T.bg}` }}>
+                                            <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: T.bg, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {item.image ? <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} /> : <Package size={20} color={T.subtle} />}
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <p style={{ fontSize: '13px', fontWeight: '800', color: T.text, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                                                <p style={{ fontSize: '11px', fontWeight: '700', color: T.accent, margin: '2px 0 0' }}>₹{item.price}</p>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: T.bg, padding: '4px', borderRadius: '10px' }}>
+                                                <button onClick={() => handleUpdateQuantity(item.id, -1)} style={{ width: '24px', height: '24px', borderRadius: '6px', border: 'none', background: '#FFF', color: T.text, cursor: 'pointer' }}><Minus size={12} /></button>
+                                                <span style={{ fontSize: '12px', fontWeight: '900', minWidth: '16px', textAlign: 'center' }}>{item.quantity}</span>
+                                                <button onClick={() => handleUpdateQuantity(item.id, 1)} style={{ width: '24px', height: '24px', borderRadius: '6px', border: 'none', background: '#FFF', color: T.text, cursor: 'pointer' }}><Plus size={12} /></button>
+                                            </div>
+                                            <button onClick={() => setCart(cart.filter(i => i.id !== item.id))} style={{ border: 'none', background: 'transparent', color: T.error, cursor: 'pointer', padding: '4px' }}><Trash2 size={16} /></button>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
-                        {recentTransactions.length > 0 ? (
-                            <div className="space-y-3 max-h-[300px]  pr-1 custom-scrollbar">
-                                {recentTransactions.map((txn, idx) => (
-                                    <div key={txn.id || idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-violet-200 transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-violet-100 text-primary flex items-center justify-center">
-                                                <ReceiptText size={16} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-800">Order #{txn.id}</p>
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                                    {txn.itemsCount || 0} items • {txn.status}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-black text-slate-900">₹{parseFloat(txn.amount || 0).toLocaleString()}</p>
-                                            <p className="text-[9px] font-bold text-slate-400">
-                                                {new Date(txn.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                                            </p>
-                                        </div>
-                                    </div>
+                        <div style={{ borderTop: `1px solid ${T.bg}`, paddingTop: '24px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '20px' }}>
+                                {['Cash', 'UPI', 'Card', 'QR', 'Link'].map(m => (
+                                    <button key={m} onClick={() => setPaymentMethod(m === 'Link' ? 'Online Link' : m)} style={{ padding: '10px 0', borderRadius: '10px', fontSize: '10px', fontWeight: '800', border: 'none', background: paymentMethod === (m === 'Link' ? 'Online Link' : m) ? T.accent : T.bg, color: paymentMethod === (m === 'Link' ? 'Online Link' : m) ? '#FFF' : T.muted, cursor: 'pointer', transition: 'all 0.2s' }}>{m}</button>
                                 ))}
                             </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-10 opacity-30">
-                                <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-100 mb-4 animate-spin-slow">
-                                    <ReceiptText size={28} />
-                                </div>
-                                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">No sales activity yet</p>
+                            
+                            {!['Cash', 'Online Link'].includes(paymentMethod) && <input style={{ ...S.input, height: '44px', marginBottom: '20px', width: '100%', fontSize: '12px' }} placeholder="Reference / TXN ID *" value={referenceNumber} onChange={e => setReferenceNumber(e.target.value)} />}
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700', color: T.muted }}><span>Subtotal</span><span>₹{total.toLocaleString()}</span></div>
+                                {appliedCoupon && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700', color: T.success }}><span>Discount</span><span>- ₹{discountAmount.toLocaleString()}</span></div>}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '24px', fontWeight: '900', color: T.text, marginTop: '8px' }}><span>Total</span><span>₹{grandTotal.toLocaleString()}</span></div>
                             </div>
-                        )}
+
+                            <button onClick={handleCheckout} disabled={cart.length === 0 || isCheckingOut || (!selectedMember && !showGuestForm)} style={{ ...S.btn, width: '100%', height: '56px', background: T.accent, color: '#FFF', fontSize: '14px', boxShadow: '0 10px 20px rgba(124, 92, 252, 0.2)' }}>{isCheckingOut ? 'PROCESSING...' : 'SECURE CHECKOUT'}</button>
+                        </div>
                     </div>
 
+                    <div style={{ ...S.card, padding: '24px' }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={20} /></div>
+                            <h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: 0 }}>Recent Activity</h3>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {recentTransactions.slice(0, 5).map((txn, i) => (
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: T.bg, borderRadius: '12px' }}>
+                                    <div>
+                                        <p style={{ fontSize: '13px', fontWeight: '800', color: T.text, margin: 0 }}>Order #{txn.id}</p>
+                                        <p style={{ fontSize: '10px', fontWeight: '600', color: T.subtle, margin: '2px 0 0', textTransform: 'uppercase' }}>{txn.status} • {new Date(txn.date).toLocaleDateString()}</p>
+                                    </div>
+                                    <span style={{ fontSize: '14px', fontWeight: '900', color: T.text }}>₹{Number(txn.amount).toLocaleString()}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {/* Receipt Modal */}
-            <ReceiptModal 
-                isOpen={showReceiptModal} 
-                onClose={() => setShowReceiptModal(false)} 
-                order={lastOrder} 
-            />
+
+            <ReceiptModal isOpen={showReceiptModal} onClose={() => setShowReceiptModal(false)} order={lastOrder} />
         </div>
     );
 };

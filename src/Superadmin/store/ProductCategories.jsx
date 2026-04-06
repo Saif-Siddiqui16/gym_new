@@ -6,6 +6,58 @@ import toast from 'react-hot-toast';
 import { useBranchContext } from '../../context/BranchContext';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 
+const T = {
+    accent: '#7C5CFC',        // primary purple
+    accent2: '#9B7BFF',       // lighter purple
+    accentLight: '#F0ECFF',   // purple tint bg
+    accentMid: '#E4DCFF',     // purple border/focus
+    border: '#EAE7FF',        // default borders
+    bg: '#F6F5FF',            // page background
+    surface: '#FFFFFF',       // card/input surface
+    text: '#1A1533',          // primary text
+    muted: '#7B7A8E',         // secondary text
+    subtle: '#B0ADCC',        // placeholder/disabled
+    rose: '#FF4D4D',          // danger
+    roseLight: '#FFF0F0',     // danger tint
+    emerald: '#00C853',       // success
+    emeraldLight: '#E8FBF2',  // success tint
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)',
+    ff: "'Plus Jakarta Sans', sans-serif"
+};
+
+const HeaderBanner = ({ title, subTitle, icon: Icon }) => (
+    <div style={{
+        background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`,
+        borderRadius: '24px',
+        padding: '32px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+        marginBottom: '32px',
+        boxShadow: '0 20px 40px -15px rgba(124, 92, 252, 0.3)',
+        position: 'relative',
+        overflow: 'hidden'
+    }}>
+        <div style={{
+            position: 'absolute', top: '-10%', right: '-5%', width: '200px', height: '200px',
+            background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)'
+        }} />
+        <div style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(8px)',
+            borderRadius: '16px',
+            padding: '16px',
+            color: '#FFFFFF'
+        }}>
+            <Icon size={28} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h1 style={{ fontSize: '28px', fontWeight: '900', color: '#FFFFFF', margin: 0, letterSpacing: '-0.5px' }}>{title}</h1>
+            <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600', margin: '4px 0 0' }}>{subTitle}</p>
+        </div>
+    </div>
+);
+
 const ProductCategories = () => {
     const { selectedBranch, branches } = useBranchContext();
     const [searchTerm, setSearchTerm] = useState('');
@@ -87,88 +139,167 @@ const ProductCategories = () => {
     };
 
     return (
-        <div className="saas-page pb-page animate-fadeIn">
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px', fontFamily: T.ff }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+            
             {/* Header */}
-            <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200 ring-4 ring-white">
-                        <Layers size={28} />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Product Categories</h1>
-                        <p className="text-slate-500 text-sm font-medium">Organize your products into categories</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div style={{ borderLeft: `4px solid ${T.accent}`, paddingLeft: '12px' }}>
+                        <h1 style={{ fontSize: '14px', fontWeight: '900', color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Categories</h1>
                     </div>
                 </div>
                 <button
                     onClick={handleAdd}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-violet-200 hover:bg-primary-hover hover:scale-[1.02] active:scale-98 transition-all"
+                    style={{
+                        padding: '12px 24px',
+                        background: T.accent,
+                        color: '#FFFFFF',
+                        borderRadius: '16px',
+                        border: 'none',
+                        fontSize: '13px',
+                        fontWeight: '800',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        boxShadow: '0 10px 20px -5px rgba(124, 92, 252, 0.2)',
+                        transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                    <Plus size={18} strokeWidth={3} /> Add Category
+                    <Plus size={18} /> ADD CATEGORY
                 </button>
             </div>
 
+            <HeaderBanner 
+                title="Product Categories" 
+                subTitle="Manage and organize your gym's products and services" 
+                icon={Layers} 
+            />
+
             {/* Filters */}
-            <div className="mb-8 bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-xl border border-slate-100 p-6">
-                <div className="relative group max-w-md">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" />
+            <div style={{ 
+                background: T.surface, 
+                borderRadius: '24px', 
+                padding: '20px', 
+                marginBottom: '32px', 
+                boxShadow: T.cardShadow,
+                border: `1px solid ${T.border}`
+            }}>
+                <div style={{ position: 'relative', maxWidth: '400px' }}>
+                    <Search size={18} color={T.subtle} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                     <input
                         type="text"
                         placeholder="Search categories..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:bg-white transition-all shadow-sm"
+                        style={{
+                            width: '100%',
+                            padding: '14px 16px 14px 48px',
+                            background: T.bg,
+                            border: `2px solid transparent`,
+                            borderRadius: '16px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: T.text,
+                            outline: 'none',
+                            transition: 'all 0.3s'
+                        }}
+                        onFocus={e => e.currentTarget.style.borderColor = T.accentMid}
+                        onBlur={e => e.currentTarget.style.borderColor = 'transparent'}
                     />
                 </div>
             </div>
 
             {/* Content */}
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20">
-                    <div className="w-12 h-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin mb-4"></div>
-                    <p className="text-slate-500 font-black uppercase tracking-widest text-[10px] animate-pulse">Scanning Categories...</p>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 0' }}>
+                    <div className="animate-spin" style={{ width: '40px', height: '40px', border: `4px solid ${T.accentLight}`, borderTopColor: T.accent, borderRadius: '50%', marginBottom: '16px' }}></div>
+                    <p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px' }}>Loading categories...</p>
                 </div>
             ) : categories.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
                     {categories.map(cat => (
-                        <div key={cat.id} className="group bg-white rounded-[2.5rem] shadow-lg border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-500">
-                            <div className="aspect-[16/10] relative overflow-hidden bg-slate-50">
+                        <div key={cat.id} style={{ 
+                            background: T.surface, 
+                            borderRadius: '32px', 
+                            overflow: 'hidden', 
+                            boxShadow: T.cardShadow, 
+                            border: `1px solid ${T.border}`,
+                            transition: 'all 0.3s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-8px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                        >
+                            <div style={{ height: '180px', position: 'relative', background: T.bg }}>
                                 {cat.image ? (
-                                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    <img src={cat.image} alt={cat.name} style={{ width: '100%', height: '100%', objectCover: 'cover' }} />
                                 ) : (
-                                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-200">
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
                                         <Layers size={48} strokeWidth={1} />
                                     </div>
                                 )}
-                                <div className="absolute top-4 right-4">
-                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg ${cat.status === 'Active' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                                <div style={{ position: 'absolute', top: '16px', right: '16px' }}>
+                                    <span style={{ 
+                                        padding: '6px 12px', 
+                                        borderRadius: '10px', 
+                                        fontSize: '10px', 
+                                        fontWeight: '900', 
+                                        textTransform: 'uppercase', 
+                                        color: '#FFFFFF',
+                                        background: cat.status === 'Active' ? T.emerald : T.rose
+                                    }}>
                                         {cat.status}
                                     </span>
                                 </div>
-                                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                                    <p className="text-white text-[10px] font-black uppercase tracking-widest opacity-80">Order: {cat.sortOrder}</p>
-                                </div>
                             </div>
-                            <div className="p-8">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest uppercase truncate">{cat.tenant?.name || 'Main Branch'}</span>
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.accent }} />
+                                    <span style={{ fontSize: '10px', fontWeight: '800', color: T.subtle, textTransform: 'uppercase' }}>{cat.tenant?.name || 'Main Branch'}</span>
                                 </div>
-                                <h3 className="text-xl font-black text-slate-900 mb-3 truncate group-hover:text-primary transition-colors">{cat.name}</h3>
-                                <p className="text-slate-500 text-sm font-medium line-clamp-2 h-10 mb-8 leading-relaxed">{cat.description || 'No description available for this category.'}</p>
+                                <h3 style={{ fontSize: '18px', fontWeight: '900', color: T.text, margin: '0 0 8px', truncate: true }}>{cat.name}</h3>
+                                <p style={{ fontSize: '13px', color: T.muted, fontWeight: '500', lineHeight: '1.6', height: '40px', overflow: 'hidden' }}>{cat.description || 'No description available for this category.'}</p>
 
-                                <div className="flex items-center gap-3 pt-6 border-t border-slate-100">
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${T.bg}` }}>
                                     <button
                                         onClick={() => handleEdit(cat)}
-                                        className="px-6 flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-wider hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
+                                        style={{
+                                            flex: 1,
+                                            padding: '10px',
+                                            background: T.accentLight,
+                                            color: T.accent,
+                                            border: 'none',
+                                            borderRadius: '14px',
+                                            fontSize: '11px',
+                                            fontWeight: '900',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '6px',
+                                            cursor: 'pointer'
+                                        }}
                                     >
-                                        <Edit2 size={14} strokeWidth={3} /> Edit
+                                        <Edit2 size={14} /> EDIT
                                     </button>
                                     <button
                                         onClick={() => handleDelete(cat.id)}
-                                        className="p-3 bg-rose-50 text-rose-600 rounded-2xl hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm"
-                                        title="Delete Category"
+                                        style={{
+                                            width: '44px',
+                                            height: '44px',
+                                            background: T.roseLight,
+                                            color: T.rose,
+                                            border: 'none',
+                                            borderRadius: '14px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer'
+                                        }}
                                     >
-                                        <Trash2 size={16} strokeWidth={2.5} />
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             </div>
@@ -176,17 +307,39 @@ const ProductCategories = () => {
                     ))}
                 </div>
             ) : (
-                <div className="bg-white rounded-3xl border-2 border-dashed border-slate-100 py-20 flex flex-col items-center justify-center">
-                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4">
+                <div style={{ 
+                    background: T.surface, 
+                    borderRadius: '40px', 
+                    padding: '80px 40px', 
+                    textAlign: 'center', 
+                    border: `2px dashed ${T.accentMid}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ width: '80px', height: '80px', background: T.accentLight, borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, marginBottom: '24px' }}>
                         <Layers size={40} />
                     </div>
-                    <h3 className="text-lg font-black text-slate-900">No categories found</h3>
-                    <p className="text-slate-400 text-sm font-medium mt-1 mb-8">Get started by creating your first product category</p>
+                    <h3 style={{ fontSize: '20px', fontWeight: '900', color: T.text, margin: '0 0 8px' }}>No categories found</h3>
+                    <p style={{ fontSize: '14px', color: T.muted, fontWeight: '600', maxWidth: '300px', margin: '0 auto 32px' }}>Start organizing your products by creating your very first category.</p>
                     <button
                         onClick={handleAdd}
-                        className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-black text-sm shadow-md shadow-violet-200 hover:bg-primary-hover hover:scale-105 active:scale-95 transition-all"
+                        style={{
+                            padding: '16px 32px',
+                            background: T.accent,
+                            color: '#FFFFFF',
+                            borderRadius: '18px',
+                            border: 'none',
+                            fontSize: '14px',
+                            fontWeight: '900',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            cursor: 'pointer',
+                            boxShadow: '0 15px 30px -10px rgba(124, 92, 252, 0.4)'
+                        }}
                     >
-                        <Plus size={20} /> Create New Category
+                        <Plus size={20} /> CREATE NEW CATEGORY
                     </button>
                 </div>
             )}

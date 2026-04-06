@@ -1,9 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Info, Send, Loader2 } from 'lucide-react';
+import { ChevronDown, Info, Send, Loader2, MessageSquare, Radio, Users, ShieldAlert } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { fetchMessageTemplates, sendBroadcastMessage } from '../../../api/communication/communicationApi';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useAuth();
@@ -78,19 +100,30 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
         }
     };
 
+    const InputLabel = ({ children }) => (
+        <label style={{ display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, marginLeft: 4 }}>
+            {children}
+        </label>
+    );
+
     return (
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
             title="Broadcast Message"
-            subtitle="Send a message to multiple members at once"
+            subtitle="Engage your members across multiple channels"
             maxWidth="max-w-2xl"
             footer={
-                <div className="flex gap-3 w-full justify-end px-2">
+                <div style={{ display: 'flex', gap: 12, width: '100%', justifyContent: 'flex-end', padding: '0 8px' }}>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 h-11 border-2 border-slate-100 bg-white text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                        style={{
+                            padding: '0 24px', height: 48, borderRadius: 14, border: `2px solid ${T.border}`,
+                            background: '#fff', color: T.text, fontSize: 13, fontWeight: 800, cursor: 'pointer', transition: '0.2s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = T.bg; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
                     >
                         Cancel
                     </button>
@@ -98,118 +131,156 @@ const BroadcastMessageDrawer = ({ isOpen, onClose, onSuccess }) => {
                         type="submit"
                         form="broadcast-form"
                         disabled={isSubmitting}
-                        className="px-8 h-11 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        style={{
+                            padding: '0 32px', height: 48, borderRadius: 14, border: 'none',
+                            background: T.accent, color: '#fff', fontSize: 13, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            transition: '0.3s', boxShadow: T.shadow, display: 'flex', alignItems: 'center', gap: 10
+                        }}
+                        onMouseEnter={e => { if(!isSubmitting) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={e => { if(!isSubmitting) e.currentTarget.style.transform = 'none'; }}
                     >
-                        {isSubmitting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <>
-                                <Send size={16} />
-                                <span>Send Broadcast</span>
-                            </>
-                        )}
+                        {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} />}
+                        {isSubmitting ? 'Sending...' : 'Dispatch Broadcast'}
                     </button>
                 </div>
             }
         >
-            <div className="px-8 py-8 h-full custom-scrollbar ">
-                <form id="broadcast-form" onSubmit={handleSubmit} className="space-y-8 pb-10">
+            <div className="custom-scrollbar" style={{ padding: '32px 40px', background: T.bg, minHeight: '100%', display: 'flex', flexDirection: 'column', gap: 32 }}>
+                <style>{`
+                    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    .form-anim { animation: slideIn 0.4s ease-out backwards; }
+                    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+                    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                    .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+                `}</style>
 
+                <form id="broadcast-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 40 }}>
+                    
                     {/* Channel Selector */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Channel</label>
-                        <div className="relative group">
-                            <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
-                                value={formData.channel}
-                                onChange={(e) => setFormData({ ...formData, channel: e.target.value, templateId: '' })}
-                            >
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="SMS">SMS</option>
-                                <option value="Email">Email</option>
-                            </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
+                    <div className="form-anim" style={{ background: '#fff', padding: 28, borderRadius: 28, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, display: 'flex', alignItems: 'center', gap: 24 }}>
+                        <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                            <Radio size={28} strokeWidth={2.5} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <InputLabel>Communication Channel</InputLabel>
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    style={{
+                                        width: '100%', height: 48, padding: '0 20px', borderRadius: 14, border: `2px solid ${T.border}`,
+                                        background: T.bg, fontSize: 13, fontWeight: 800, color: T.text, outline: 'none', transition: '0.3s',
+                                        appearance: 'none', cursor: 'pointer'
+                                    }}
+                                    onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.background = '#fff'; }}
+                                    onBlur={e => { e.target.style.borderColor = T.border; e.target.style.background = T.bg; }}
+                                    value={formData.channel}
+                                    onChange={(e) => setFormData({ ...formData, channel: e.target.value, templateId: '' })}
+                                >
+                                    <option value="WhatsApp">WhatsApp Business</option>
+                                    <option value="SMS">Standard SMS</option>
+                                    <option value="Email">Professional Email</option>
+                                </select>
+                                <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Template Selection */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                            Use Template (Optional) {loadingTemplates && <Loader2 size={12} className="inline animate-spin ml-2" />}
-                        </label>
-                        <div className="relative group">
-                            <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
-                                value={formData.templateId}
-                                onChange={handleTemplateChange}
-                            >
-                                <option value="">Select a saved template...</option>
-                                {templates.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name}</option>
-                                ))}
-                                {templates.length === 0 && !loadingTemplates && (
-                                    <option value="" disabled>No templates found for this branch</option>
-                                )}
-                            </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
+                    {/* Multi-Field Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                        <div className="form-anim" style={{ animationDelay: '0.1s' }}>
+                            <InputLabel>Audience Tier</InputLabel>
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    style={{
+                                        width: '100%', height: 54, padding: '0 44px 0 20px', borderRadius: 16, border: `2px solid ${T.border}`,
+                                        background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s',
+                                        appearance: 'none', cursor: 'pointer'
+                                    }}
+                                    onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                                    onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+                                    value={formData.audience}
+                                    onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
+                                >
+                                    <option value="All Members">All Active Sync</option>
+                                    <option value="Active Members">Premium Members</option>
+                                    <option value="Expired Members">Lapsed Leads</option>
+                                    <option value="Staff">Operations Staff</option>
+                                </select>
+                                <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                                <Users size={18} style={{ position: 'absolute', right: 48, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none', opacity: 0.5 }} />
+                            </div>
+                        </div>
+
+                        <div className="form-anim" style={{ animationDelay: '0.2s' }}>
+                            <InputLabel>Template Logic {loadingTemplates && <Loader2 size={12} className="inline animate-spin ml-2" />}</InputLabel>
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    style={{
+                                        width: '100%', height: 54, padding: '0 44px 0 20px', borderRadius: 16, border: `2px solid ${T.border}`,
+                                        background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s',
+                                        appearance: 'none', cursor: 'pointer'
+                                    }}
+                                    onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                                    onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+                                    value={formData.templateId}
+                                    onChange={handleTemplateChange}
+                                >
+                                    <option value="">Start from scratch...</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+                                <MessageSquare size={18} style={{ position: 'absolute', right: 48, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none', opacity: 0.5 }} />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Audience Selection */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Audience</label>
-                        <div className="relative group">
-                            <select
-                                className="w-full h-11 px-4 rounded-xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-black text-slate-900 transition-all outline-none bg-slate-50/50 appearance-none cursor-pointer"
-                                value={formData.audience}
-                                onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-                            >
-                                <option value="All Members">All Members</option>
-                                <option value="Active Members">Active Members</option>
-                                <option value="Expired Members">Expired Members</option>
-                                <option value="Staff">Staff</option>
-                            </select>
-                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary transition-colors" />
+                    {/* Message Box */}
+                    <div className="form-anim" style={{ animationDelay: '0.3s' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <InputLabel>Draft Message *</InputLabel>
+                            <span style={{ fontSize: 9, fontWeight: 900, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Personalization Enabled</span>
                         </div>
-                    </div>
-
-                    {/* Message Field */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Message *</label>
                         <textarea
                             required
-                            rows={6}
-                            placeholder="Enter your message..."
-                            className="w-full p-6 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm font-semibold text-slate-700 transition-all outline-none bg-slate-50/50 resize-none"
+                            rows={8}
+                            placeholder="Type your message here... Use {{member_name}} for dynamic insertion."
+                            style={{
+                                width: '100%', padding: '24px', borderRadius: 24, border: `2px solid ${T.border}`,
+                                background: '#fff', fontSize: 14, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s',
+                                resize: 'none', lineHeight: 1.6, boxShadow: T.cardShadow
+                            }}
+                            onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 6px ${T.accentLight}`; }}
+                            onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
                             value={formData.message}
                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         />
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 ml-1">Use variables like {'{{member_name}}'}, {'{{member_id}}'}</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                            {['{{member_name}}', '{{member_id}}', '{{expiry_date}}'].map(tag => (
+                                <button key={tag} type="button" onClick={() => setFormData({...formData, message: formData.message + tag})} style={{ padding: '6px 12px', background: T.accentLight, color: T.accent, border: 'none', borderRadius: 10, fontSize: 10, fontWeight: 800, cursor: 'pointer', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.background = T.accentMid} onMouseLeave={e => e.currentTarget.style.background = T.accentLight}>{tag}</button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Information Notice */}
-                    <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 relative overflow-hidden group shadow-sm transition-all hover:bg-white hover:shadow-md">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary transition-transform">
-                                <Info size={16} />
-                            </div>
-                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Configuration Note</h4>
+                    {/* Info Notice */}
+                    <div className="form-anim" style={{ animationDelay: '0.4s', p: 24, background: '#fff', borderRadius: 24, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'flex-start', gap: 16, padding: 24 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.amberLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.amber, flexShrink: 0 }}>
+                            <ShieldAlert size={20} strokeWidth={2.5} />
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tight">
-                            Note: External delivery requires API configuration in Settings. Broadcasts are logged in the history tab.
-                        </p>
+                        <div>
+                            <h4 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>Regulatory Compliance</h4>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: T.muted, margin: '4px 0 0', lineHeight: 1.5 }}>
+                                Ensure your message follows anti-spam regulations. Standard carrier rates may apply for SMS/WhatsApp services. 
+                                Broadcast performance can be monitored in the <b>Communications Ledger</b>.
+                            </p>
+                        </div>
                     </div>
 
                 </form>
             </div>
-
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-            `}</style>
         </RightDrawer>
     );
 };
 
 export default BroadcastMessageDrawer;
+

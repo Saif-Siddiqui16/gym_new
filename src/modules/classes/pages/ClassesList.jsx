@@ -19,6 +19,19 @@ import Select from '../../../components/ui/Select';
 import RightDrawer from '../../../components/common/RightDrawer';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
 
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    btn: { height: '48px', padding: '0 24px', borderRadius: '14px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
+
 const ClassesList = () => {
     const { role, user } = useAuth();
     const { selectedBranch } = useBranchContext();
@@ -263,63 +276,34 @@ const ClassesList = () => {
     const classTypes = ['General', 'Yoga', 'HIIT', 'Spin', 'Pilates', 'Zumba', 'Strength', 'Boxing', 'Sauna'];
 
     return (
-        <div className="saas-page space-y-8">
-            {/* Header Area */}
-            <div className="relative overflow-hidden saas-card !p-8 mb-8 group">
-                {/* Premium Glow Effect */}
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700" />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
 
-                <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/10">
-                            <Dumbbell size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">Classes</h1>
-                            <p className="text-slate-500 text-sm font-medium mt-2">Manage group classes and bookings</p>
-                        </div>
-                    </div>
-                    <Button
-                        onClick={() => { resetForm(); setShowPanel(true); }}
-                        variant="primary"
-                        className="btn-primary shadow-xl shadow-primary/30"
-                        icon={Plus}
-                    >
-                        Create Class
-                    </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+                <div>
+                     <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Classes</h1>
+                     <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Manage group classes and bookings</p>
                 </div>
+                <button onClick={() => { resetForm(); setShowPanel(true); }} style={{ ...S.btn, background: T.accent, color: '#FFF' }}><Plus size={18} /> Create Class</button>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <KPICard
-                    title="Upcoming Classes"
-                    value={filteredClasses.filter(c => c.status === 'Scheduled').length}
-                    icon={<Calendar size={22} />}
-                    gradient="from-primary to-primary"
-                />
-                <KPICard
-                    title="Today's Classes"
-                    value={filteredClasses.filter(c => {
-                        const todayStr = new Date().toISOString().split('T')[0];
-                        return c.schedule && c.schedule.startsWith(todayStr);
-                    }).length}
-                    icon={<Clock size={22} />}
-                    gradient="from-primary to-primary"
-                />
-                <KPICard
-                    title="Total Bookings"
-                    value={filteredClasses.reduce((sum, c) => sum + (parseInt(c.enrolled) || 0), 0)}
-                    icon={<Users size={22} />}
-                    gradient="from-emerald-500 to-teal-600"
-                />
-                <KPICard
-                    title="Active Trainers"
-                    value={trainers.length}
-                    icon={<User size={22} />}
-                    gradient="from-orange-500 to-rose-600"
-                />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Upcoming Classes</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{filteredClasses.filter(c => c.status === 'Scheduled').length}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.accent, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Today's Classes</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{filteredClasses.filter(c => { const todayStr = new Date().toISOString().split('T')[0]; return c.schedule && c.schedule.startsWith(todayStr); }).length}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: T.success, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Total Bookings</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{filteredClasses.reduce((sum, c) => sum + (parseInt(c.enrolled) || 0), 0)}</h2></div>
+                </div>
+                <div style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: '#F97316', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={24} /></div>
+                    <div><p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', margin: 0 }}>Active Trainers</p><h2 style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{trainers.length}</h2></div>
+                </div>
             </div>
 
             {/* Filters Section */}
@@ -546,7 +530,7 @@ const ClassesList = () => {
                 onClose={() => !submitting && setShowPanel(false)}
                 title={editingClassId ? 'Edit Class' : 'Class Scheduling'}
                 subtitle={editingClassId ? 'Update existing class details' : 'Schedule a new group class'}
-                maxWidth="max-w-md"
+                maxWidth="600px"
                 footer={
                     <div className="flex gap-3 w-full justify-end">
                         <Button

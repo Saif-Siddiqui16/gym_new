@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Search, Send, Image, Paperclip, MoreVertical, CheckCheck, Smile, Phone, Video, Info, User, Plus } from 'lucide-react';
+import { MessageSquare, Search, Send, Image, Paperclip, MoreVertical, CheckCheck, Smile, Phone, Video, Info, User, Plus, Sparkles, RefreshCw, ChevronLeft } from 'lucide-react';
 import { fetchChatContacts, fetchChatMessages, sendChatMessage } from '../../api/communication/communicationApi';
 import toast from 'react-hot-toast';
 
 import Announcements from './Announcements';
 import Birthdays from './Birthdays';
 
-const CommunicationPage = ({ initialModule = 'chats' }) => {
-    const [activeModule, setActiveModule] = useState(initialModule); // 'chats', 'announcements' or 'birthdays'
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+};
 
-    // Chat State
+const S = {
+  ff: "'Plus Jakarta Sans', sans-serif",
+  card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(124,92,252,0.05)', transition: 'all 0.3s ease' },
+  input: { width: '100%', height: 48, borderRadius: 14, border: `2px solid ${T.border}`, background: T.bg, padding: '0 16px', fontSize: 14, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: 'all 0.3s' }
+};
+
+const CommunicationPage = ({ initialModule = 'chats' }) => {
+    const [activeModule, setActiveModule] = useState(initialModule);
     const [chats, setChats] = useState([]);
     const [messages, setMessages] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
@@ -19,21 +30,13 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
     const [view, setView] = useState('list');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const fileInputRef = React.useRef(null);
 
     useEffect(() => {
         const fetchChats = async () => {
-            try {
-                const data = await fetchChatContacts();
-                setChats(data);
-            } catch (error) {
-                console.error("Failed to load chats:", error);
-            }
+            try { const data = await fetchChatContacts(); setChats(data); } catch (error) { console.error("Failed to load chats:", error); }
         };
         fetchChats();
-        
-        // Polling for new chats/unread counts every 5 seconds
         const interval = setInterval(fetchChats, 5000);
         return () => clearInterval(interval);
     }, []);
@@ -43,85 +46,27 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
             if (!selectedChat) return;
             try {
                 const msgs = await fetchChatMessages(selectedChat.id, !selectedChat.isStaff);
-                // Map to UI format
-                const formatted = msgs.map(m => ({
-                    id: m.id,
-                    text: m.message,
-                    time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                setMessages(msgs.map(m => ({
+                    id: m.id, text: m.message, time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     sender: m.senderId === JSON.parse(localStorage.getItem('userData'))?.id ? 'me' : 'them',
-                    status: m.isRead ? 'read' : 'sent',
-                    attachmentUrl: m.attachmentUrl,
-                    attachmentType: m.attachmentType
-                }));
-                setMessages(formatted);
-            } catch (error) {
-                console.error("Failed to load messages:", error);
-            }
+                    status: m.isRead ? 'read' : 'sent', attachmentUrl: m.attachmentUrl, attachmentType: m.attachmentType
+                })));
+            } catch (error) { console.error("Failed to load messages:", error); }
         };
         fetchMsgs();
-
-        // Polling for new messages every 3 seconds when a chat is open
         const interval = setInterval(fetchMsgs, 3000);
         return () => clearInterval(interval);
     }, [selectedChat]);
 
     const handleSend = async () => {
         if ((!msgInput.trim() && !selectedFile) || !selectedChat) return;
-
         try {
-            const payload = {
-                receiverId: selectedChat.id,
-                message: msgInput,
-                receiverType: selectedChat.isStaff ? 'STAFF' : 'MEMBER'
-            };
-
-            if (selectedFile) {
-                payload.attachmentUrl = selectedFile.data;
-                payload.attachmentType = selectedFile.type.startsWith('image/') ? 'image' : 'file';
-            }
-
+            const payload = { receiverId: selectedChat.id, message: msgInput, receiverType: selectedChat.isStaff ? 'STAFF' : 'MEMBER' };
+            if (selectedFile) { payload.attachmentUrl = selectedFile.data; payload.attachmentType = selectedFile.type.startsWith('image/') ? 'image' : 'file'; }
             await sendChatMessage(payload);
-            toast.success("Message sent");
-            
-            setMessages([...messages, {
-                id: Date.now(),
-                text: msgInput,
-                sender: 'me',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                status: 'sent',
-                attachmentUrl: selectedFile?.data,
-                attachmentType: selectedFile?.type.startsWith('image/') ? 'image' : 'file'
-            }]);
-            setMsgInput('');
-            setSelectedFile(null);
-        } catch (error) {
-            console.error("Failed to send msg:", error);
-            toast.error("Failed to send message");
-        }
+            setMsgInput(''); setSelectedFile(null);
+        } catch (error) { toast.error("Failed to send message"); }
     };
-
-    const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setSelectedFile({
-                file,
-                data: reader.result,
-                name: file.name,
-                type: file.type
-            });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const addEmoji = (emoji) => {
-        setMsgInput(prev => prev + emoji);
-        setShowEmojiPicker(false);
-    };
-
-    const emojis = ['😀', '😂', '😍', '👍', '🔥', '🙌', '🎉', '💪', '❤️', '✨', '🤔', '😊', '😎', '😜', '🙏', '💯', '🚀', '🎁', '🎈', '🍕'];
 
     const filteredChats = chats.filter(chat => {
         const matchesSearch = chat.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -130,340 +75,111 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
     });
 
     return (
-        <div className="h-[calc(100vh-120px)] bg-slate-50/50 flex flex-col overflow-hidden">
-            <div className="flex-1 bg-white rounded-t-[40px] md:rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden relative mx-0 sm:mx-4 mb-0 sm:mb-4">
+        <div style={{ background: T.bg, height: 'calc(100vh - 40px)', padding: '20px 24px', fontFamily: S.ff, display: 'flex', flexDirection: 'column' }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+                .fu { animation: fadeUp 0.3s ease both }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: ${T.accentMid}; border-radius: 10px; }
+            `}</style>
 
-                {activeModule === 'announcements' ? (
-                    <Announcements />
-                ) : activeModule === 'birthdays' ? (
-                    <Birthdays />
-                ) : (
-                    <div className="flex h-full">
-                        {/* Sidebar - Chat List */}
-                        <div className={`${view === 'chat' ? 'hidden' : 'flex'} md:flex flex-col w-full md:w-[380px] border-r border-slate-100 bg-white`}>
-                            <div className="p-6 pb-2">
-                                <div className="flex items-center justify-between mb-6">
-                                    <div>
-                                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Messages</h1>
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mt-1">Live Communication</p>
-                                    </div>
+            <div className="fu" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg, #7C5CFC, #9B7BFF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 12px rgba(124,92,252,0.2)' }}><MessageSquare size={20} /></div>
+                    <div>
+                        <h1 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>Communication Hub</h1>
+                        <p style={{ fontSize: 11, color: T.muted, margin: 0, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Real-time interaction with staff & members</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: 10, background: 'white', padding: 4, borderRadius: 12, border: `1px solid ${T.border}` }}>
+                    {['chats', 'announcements', 'birthdays'].map(mod => (
+                        <button key={mod} onClick={() => setActiveModule(mod)} style={{ padding: '8px 16px', borderRadius: 9, border: 'none', background: activeModule === mod ? T.accent : 'transparent', color: activeModule === mod ? 'white' : T.muted, fontSize: 12, fontWeight: 800, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s' }}>{mod}</button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="fu" style={{ flex: 1, display: 'flex', background: 'white', borderRadius: 24, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                {activeModule === 'announcements' ? <Announcements /> : activeModule === 'birthdays' ? <Birthdays /> : (
+                    <>
+                        {/* Sidebar */}
+                        <div style={{ width: 340, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ padding: 24, paddingBottom: 16 }}>
+                                <div style={{ position: 'relative', marginBottom: 20 }}>
+                                    <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                                    <input style={{ ...S.input, paddingLeft: 44, height: 44, borderRadius: 12 }} placeholder="Search conversations..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                                 </div>
-
-                                <div className="relative group mb-6">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-all">
-                                        <Search size={18} />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name..."
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-sans"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex gap-6 border-b border-slate-50 mb-4 px-2">
+                                <div style={{ display: 'flex', gap: 20, borderBottom: `1px solid ${T.bg}` }}>
                                     {['All', 'Unread'].map(tab => (
-                                        <button
-                                            key={tab}
-                                            onClick={() => setActiveTab(tab)}
-                                            className={`pb-3 text-[11px] font-black uppercase tracking-widest relative transition-all ${activeTab === tab ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
-                                        >
+                                        <button key={tab} onClick={() => setActiveTab(tab)} style={{ paddingBottom: 12, background: 'none', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', color: activeTab === tab ? T.accent : T.muted, position: 'relative', cursor: 'pointer' }}>
                                             {tab}
-                                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]" />}
+                                            {activeTab === tab && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: T.accent, borderRadius: 2 }}></div>}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-
-                            <div className="flex-1 overflow-y-auto px-3 space-y-1 custom-scrollbar pb-8">
-                                {filteredChats.length === 0 ? (
-                                    <div className="py-20 flex flex-col items-center justify-center opacity-40">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                            <Search size={24} className="text-slate-300" />
+                            <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '0 12px 24px' }}>
+                                {filteredChats.map(chat => (
+                                    <div key={chat.id} onClick={() => setSelectedChat(chat)} style={{ padding: 12, borderRadius: 16, cursor: 'pointer', background: selectedChat?.id === chat.id ? T.accentLight : 'transparent', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4, transition: 'all 0.2s' }}>
+                                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: T.accent, border: `2px solid ${T.surface}`, overflow: 'hidden' }}>
+                                            {chat.avatar ? <img src={chat.avatar} style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : chat.name.charAt(0)}
                                         </div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No chats found</p>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ fontWeight: 800, fontSize: 14, color: T.text, truncate: 'true' }}>{chat.name}</div>
+                                                <div style={{ fontSize: 10, color: T.subtle }}>{chat.time}</div>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                                                <div style={{ fontSize: 12, color: T.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chat.lastMsg || 'No messages yet'}</div>
+                                                {chat.unread > 0 && <div style={{ width: 18, height: 18, borderRadius: '50%', background: T.accent, color: 'white', fontSize: 10, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{chat.unread}</div>}
+                                            </div>
+                                        </div>
                                     </div>
-                                ) : (
-                                    filteredChats.map(chat => (
-                                        <div
-                                            key={chat.id}
-                                            onClick={() => {
-                                                setSelectedChat(chat);
-                                                setView('chat');
-                                                // Clear unread count locally for immediate feedback
-                                                setChats(prev => prev.map(c => 
-                                                    c.id === chat.id ? { ...c, unread: 0 } : c
-                                                ));
-                                            }}
-                                            className={`p-3 rounded-2xl cursor-pointer transition-all flex items-center gap-4 group mx-1 ${selectedChat?.id === chat.id
-                                                ? 'bg-primary-light/50 border border-primary/10 shadow-sm'
-                                                : 'hover:bg-slate-50/80'
-                                                }`}
-                                        >
-                                            <div className="relative shrink-0">
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-black shadow-md overflow-hidden border-2 border-white">
-                                                    {chat.avatar && chat.avatar.length > 2 ? (
-                                                        <img
-                                                            src={chat.avatar}
-                                                            alt={chat.name}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <span>{(chat.name || '?').charAt(0).toUpperCase()}</span>
-                                                    )}
-                                                </div>
-                                                <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${chat.status === 'online' ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-center mb-0.5">
-                                                    <h3 className={`font-bold text-sm truncate ${selectedChat?.id === chat.id ? 'text-primary' : 'text-slate-800'}`}>{chat.name}</h3>
-                                                    <span className="text-[9px] font-bold text-slate-400">{chat.time}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <p className="text-xs text-slate-400 truncate font-medium">{chat.lastMsg || 'Tap to chat'}</p>
-                                                    {chat.unread > 0 && (
-                                                        <span className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-[9px] font-black shadow-sm">
-                                                            {chat.unread}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
+                                ))}
                             </div>
                         </div>
 
-                        {/* Main Chat Window */}
-                        <div className={`${view === 'list' ? 'hidden' : 'flex'} md:flex flex-col flex-1 bg-white relative`}>
+                        {/* Chat Area */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: T.bg }}>
                             {selectedChat ? (
                                 <>
-                                    {/* Chat Header */}
-                                    <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-20">
-                                        <div className="flex items-center gap-4">
-                                            <button onClick={() => setView('list')} className="md:hidden p-2 text-slate-400 hover:text-primary transition-colors">
-                                                <ChevronLeft />
-                                            </button>
-                                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-black shadow-lg overflow-hidden border-2 border-white">
-                                                {selectedChat.avatar && selectedChat.avatar.length > 2 ? (
-                                                    <img
-                                                        src={selectedChat.avatar}
-                                                        alt={selectedChat.name}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <span>{(selectedChat.name || '?').charAt(0).toUpperCase()}</span>
-                                                )}
-                                            </div>
+                                    <div style={{ padding: '16px 24px', background: 'white', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <div style={{ width: 40, height: 40, borderRadius: 12, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, fontWeight: 800 }}>{selectedChat.name.charAt(0)}</div>
                                             <div>
-                                                <h2 className="text-base font-black text-slate-800 tracking-tight">{selectedChat.name}</h2>
-                                                <div className="flex items-center gap-1.5">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${selectedChat.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${selectedChat.status === 'online' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                                        {selectedChat.status === 'online' ? 'Online Now' : 'Away'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="hidden sm:flex items-center gap-1 relative">
-                                            <div className="relative">
-                                                <button 
-                                                    onClick={() => setShowMoreMenu(!showMoreMenu)}
-                                                    className={`p-2.5 rounded-xl transition-all ${showMoreMenu ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:bg-slate-50 hover:text-primary'}`}
-                                                >
-                                                    <MoreVertical size={18} />
-                                                </button>
-
-                                                {showMoreMenu && (
-                                                    <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 shadow-xl rounded-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
-                                                        <button 
-                                                            onClick={() => {
-                                                                setMessages([]);
-                                                                toast.success("Chat cleared");
-                                                                setShowMoreMenu(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
-                                                        >
-                                                            Clear Chat
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => {
-                                                                toast.success("Notifications muted");
-                                                                setShowMoreMenu(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-all"
-                                                        >
-                                                            Mute Notifications
-                                                        </button>
-                                                        <div className="h-px bg-slate-50 my-1 mx-2" />
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedChat(null);
-                                                                setView('list');
-                                                                setShowMoreMenu(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                                                        >
-                                                            Close Conversation
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <div style={{ fontWeight: 900, fontSize: 15, color: T.text }}>{selectedChat.name}</div>
+                                                <div style={{ fontSize: 11, color: T.green, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }}></div> Online Now</div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Chat Messages */}
-                                    <div className="flex-1 p-6 space-y-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30 overflow-y-auto custom-scrollbar">
-                                        <div className="flex justify-center my-8">
-                                            <span className="px-5 py-1.5 bg-white/80 backdrop-blur-sm text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] rounded-full border border-slate-100 shadow-sm">
-                                                Today
-                                            </span>
-                                        </div>
-
-                                        {messages.map(msg => (
-                                            <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                                                <div className={`max-w-[80%] md:max-w-[70%] px-5 py-3.5 shadow-sm relative group ${msg.sender === 'me'
-                                                    ? 'bg-gradient-to-br from-primary to-purple-600 text-white rounded-[24px] rounded-tr-none'
-                                                    : 'bg-white text-slate-800 rounded-[24px] rounded-tl-none border border-slate-100'
-                                                    }`}>
-                                                    <div className="flex flex-col gap-2">
-                                                        {msg.attachmentUrl && msg.attachmentType === 'image' && (
-                                                            <div className="rounded-xl overflow-hidden border border-slate-100/50 mb-1 max-w-[240px]">
-                                                                <img src={msg.attachmentUrl} alt="attachment" className="w-full h-auto object-cover" />
-                                                            </div>
-                                                        )}
-                                                        {msg.attachmentUrl && msg.attachmentType === 'file' && (
-                                                            <div className="flex items-center gap-2 bg-slate-50/10 p-2 rounded-lg border border-white/20 mb-1">
-                                                                <Paperclip size={14} />
-                                                                <span className="text-[10px] font-bold truncate max-w-[150px]">File Attachment</span>
-                                                            </div>
-                                                        )}
-                                                        {msg.text && (
-                                                            <p className={`text-sm font-medium leading-relaxed ${msg.sender === 'me' ? 'text-white' : 'text-slate-800'}`}>{msg.text}</p>
-                                                        )}
-                                                    </div>
-                                                    <div className={`flex items-center gap-2 mt-2 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                                                        <span className={`text-[9px] font-bold ${msg.sender === 'me' ? 'text-white/60' : 'text-slate-400'}`}>
-                                                            {msg.time}
-                                                        </span>
-                                                        {msg.sender === 'me' && (
-                                                            <CheckCheck size={12} className={msg.status === 'read' ? 'text-emerald-300' : 'text-white/40'} />
-                                                        )}
-                                                    </div>
-                                                </div>
+                                    <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                        {messages.map(m => (
+                                            <div key={m.id} style={{ alignSelf: m.sender === 'me' ? 'flex-end' : 'flex-start', maxWidth: '70%', background: m.sender === 'me' ? T.accent : 'white', color: m.sender === 'me' ? 'white' : T.text, padding: '12px 18px', borderRadius: m.sender === 'me' ? '20px 20px 4px 20px' : '20px 20px 20px 4px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                <div style={{ fontSize: 14, fontWeight: 500, lineHeight: '1.4' }}>{m.text}</div>
+                                                <div style={{ fontSize: 9, opacity: 0.7, textAlign: 'right', fontWeight: 800 }}>{m.time}</div>
                                             </div>
                                         ))}
                                     </div>
-
-                                    {/* Chat Input */}
-                                    <div className="p-6 bg-white border-t border-slate-50">
-                                        {/* File Preview */}
-                                        {selectedFile && (
-                                            <div className="mb-4 flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-primary/20 animate-in slide-in-from-bottom-2">
-                                                {selectedFile.type.startsWith('image/') ? (
-                                                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200">
-                                                        <img src={selectedFile.data} className="w-full h-full object-cover" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                                        <Paperclip size={20} />
-                                                    </div>
-                                                )}
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-black text-slate-700 truncate">{selectedFile.name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{(selectedFile.file.size / 1024).toFixed(1)} KB</p>
-                                                </div>
-                                                <button onClick={() => setSelectedFile(null)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
-                                                    <Plus className="rotate-45" size={20} />
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-primary/30 focus-within:bg-white focus-within:ring-4 focus-within:ring-primary/5 transition-all relative">
-                                            <div className="flex items-center gap-0.5">
-                                                <div className="relative">
-                                                    <button 
-                                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
-                                                        className={`p-2.5 transition-colors ${showEmojiPicker ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
-                                                    >
-                                                        <Smile size={20} />
-                                                    </button>
-                                                    
-                                                    {showEmojiPicker && (
-                                                        <div className="absolute bottom-full left-0 mb-4 bg-white border border-slate-100 shadow-2xl rounded-[24px] p-4 z-50 w-[240px] animate-in zoom-in-50 slide-in-from-bottom-4">
-                                                            <div className="flex items-center justify-between mb-3 px-1">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Quick Emojis</span>
-                                                                <button onClick={() => setShowEmojiPicker(false)} className="text-slate-300 hover:text-slate-500"><Plus size={14} className="rotate-45" /></button>
-                                                            </div>
-                                                            <div className="grid grid-cols-5 gap-2">
-                                                                {emojis.map(emoji => (
-                                                                    <button 
-                                                                        key={emoji} 
-                                                                        onClick={() => addEmoji(emoji)}
-                                                                        className="w-8 h-8 flex items-center justify-center text-lg hover:bg-slate-50 rounded-lg transition-colors active:scale-90"
-                                                                    >
-                                                                        {emoji}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <button 
-                                                    onClick={() => fileInputRef.current?.click()} 
-                                                    className="p-2.5 text-slate-400 hover:text-primary transition-colors"
-                                                >
-                                                    <Paperclip size={20} />
-                                                </button>
-                                                <input 
-                                                    type="file" 
-                                                    ref={fileInputRef} 
-                                                    className="hidden" 
-                                                    onChange={handleFileSelect}
-                                                    accept="image/*,application/pdf"
-                                                />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                placeholder="Write a message..."
-                                                className="flex-1 min-w-0 bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-700 py-2.5"
-                                                value={msgInput}
-                                                onChange={(e) => setMsgInput(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                            />
-                                            <button
-                                                onClick={handleSend}
-                                                className="shrink-0 w-11 h-11 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                                            >
-                                                <Send size={18} />
-                                            </button>
+                                    <div style={{ padding: 24, background: 'white', borderTop: `1px solid ${T.border}` }}>
+                                        <div style={{ display: 'flex', gap: 12, alignItems: 'center', background: T.bg, padding: 8, borderRadius: 18, border: `1px solid ${T.border}` }}>
+                                            <input style={{ ...S.input, background: 'transparent', border: 'none', height: 40 }} placeholder="Type your message..." value={msgInput} onChange={e => setMsgInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
+                                            <button onClick={handleSend} style={{ width: 40, height: 40, borderRadius: 14, background: T.accent, color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 10px rgba(124,92,252,0.2)' }}><Send size={18} /></button>
                                         </div>
                                     </div>
                                 </>
                             ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-slate-50/20">
-                                    <div className="w-24 h-24 bg-white rounded-[32px] shadow-2xl flex items-center justify-center text-primary/10 mb-8 border border-primary/5">
-                                        <MessageSquare size={48} className="text-primary animate-pulse" />
-                                    </div>
-                                    <h2 className="text-3xl font-black text-slate-800 tracking-tight">Open a Conversation</h2>
-                                    <p className="text-slate-500 mt-4 max-w-xs font-semibold leading-relaxed">
-                                        Choose a member from the left palette to start a secure encryption chat.
-                                    </p>
-                                    <div className="mt-8 flex gap-3">
-                                        <span className="px-4 py-2 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/10">End-to-End Encrypted</span>
-                                    </div>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: T.subtle }}>
+                                    <MessageSquare size={64} style={{ opacity: 0.2, marginBottom: 16 }} />
+                                    <div style={{ fontWeight: 800, fontSize: 16 }}>Select a chat to start messaging</div>
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
         </div>
     );
 };
-
-const ChevronLeft = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>;
 
 export default CommunicationPage;

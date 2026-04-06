@@ -1,334 +1,301 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, MapPin, User, Mail, Phone, Home, CheckCircle2, Sparkles, CreditCard } from 'lucide-react';
+import {
+    Building2, MapPin, User, Mail, Phone, Home,
+    CheckCircle2, Sparkles, CreditCard, ChevronDown, Activity, Trash2
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { addGym, updateGym, fetchPlans } from '../../api/superadmin/superAdminApi';
-import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness)
+───────────────────────────────────────────── */
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF',
+    accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
+    text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
+    green: '#22C97A', greenLight: '#E8FBF2',
+    amber: '#F59E0B', amberLight: '#FEF3C7',
+    rose: '#F43F5E', roseLight: '#FFF1F4',
+};
+
+/* ─── Field Input ─── */
+const Field = ({ label, icon: Icon, iconColor = T.accent, iconBg = T.accentLight, children }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <div style={{ width: 22, height: 22, borderRadius: 6, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon size={12} color={iconColor} strokeWidth={2.5} />
+            </div>
+            {label}
+        </label>
+        {children}
+    </div>
+);
+
+const inputStyle = (focused) => ({
+    width: '100%', padding: '12px 16px',
+    background: focused ? T.surface : T.bg,
+    border: `1.5px solid ${focused ? T.accent : T.border}`,
+    borderRadius: 14, fontSize: 13, fontWeight: 700, color: T.text,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    outline: 'none', transition: 'all 0.15s',
+    boxShadow: focused ? `0 0 0 4px ${T.accentLight}` : 'none',
+});
+
+const FocusInput = ({ type = 'text', name, value, onChange, placeholder, required }) => {
+    const [focused, setFocused] = useState(false);
+    return (
+        <input
+            type={type} name={name} value={value} onChange={onChange}
+            placeholder={placeholder} required={required}
+            onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+            style={inputStyle(focused)}
+        />
+    );
+};
+
+const FocusTextarea = ({ name, value, onChange, placeholder, required, rows = 3 }) => {
+    const [focused, setFocused] = useState(false);
+    return (
+        <textarea
+            name={name} value={value} onChange={onChange}
+            placeholder={placeholder} required={required} rows={rows}
+            onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+            style={{ ...inputStyle(focused), resize: 'none', lineHeight: 1.6 }}
+        />
+    );
+};
+
+/* ─── Inline Select ─── */
+const InlineSelect = ({ options, value, onChange, placeholder }) => {
+    const [open, setOpen] = useState(false);
+    const selected = options.find(o => (o.value ?? o) === value);
+    const label = selected ? (selected.label ?? selected) : placeholder;
+
+    return (
+        <div style={{ position: 'relative' }}>
+            <button type="button" onClick={() => setOpen(p => !p)} style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 16px', background: open ? T.surface : T.bg,
+                border: `1.5px solid ${open ? T.accent : T.border}`, borderRadius: 14,
+                fontSize: 13, fontWeight: 800, color: value ? T.text : T.subtle,
+                cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif",
+                boxShadow: open ? `0 0 0 4px ${T.accentLight}` : 'none',
+                transition: 'all 0.15s',
+            }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{label}</span>
+                <ChevronDown size={14} color={T.subtle} strokeWidth={2.5} style={{ flexShrink: 0, marginLeft: 8, transition: '0.2s', transform: open ? 'rotate(180deg)' : 'none' }} />
+            </button>
+            {open && (
+                <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                    background: T.surface, border: `1px solid ${T.border}`, borderRadius: 18,
+                    boxShadow: '0 12px 40px rgba(124,92,252,0.18)', zIndex: 100, padding: 8,
+                    maxHeight: 250, overflowY: 'auto', animation: 'scaleUp 0.2s ease-out'
+                }}>
+                    {options.map(o => {
+                        const val = o.value ?? o;
+                        const lbl = o.label ?? o;
+                        const isActive = value === val;
+                        return (
+                            <button key={val} type="button" onClick={() => { onChange(val); setOpen(false); }} style={{
+                                width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: 11,
+                                border: 'none', background: isActive ? T.accentLight : 'transparent',
+                                color: isActive ? T.accent : T.text, cursor: 'pointer',
+                                fontSize: 13, fontWeight: isActive ? 800 : 700,
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                transition: '0.1s',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            }}
+                                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = T.bg; }}
+                                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+                            >{lbl}</button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
+/* ─── Section Header ─── */
+const SectionHead = ({ icon: Icon, iconColor, iconBg, title }) => (
+    <div style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        paddingBottom: 16, borderBottom: `1.5px solid ${T.border}`, marginBottom: 20,
+    }}>
+        <div style={{ width: 36, height: 36, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 12px ${iconBg}` }}>
+            <Icon size={18} color={iconColor} strokeWidth={2.5} />
+        </div>
+        <h2 style={{ fontSize: 14, fontWeight: 900, color: iconColor, margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</h2>
+    </div>
+);
 
 const AddGymDrawer = ({ isOpen, onClose, onSuccess, editData }) => {
     const [loading, setLoading] = useState(false);
     const [plans, setPlans] = useState([]);
     const [formData, setFormData] = useState({
-        gymName: '',
-        branchName: '',
-        ownerName: '',
-        email: '',
-        phone: '',
-        address: '',
-        status: 'Active',
-        planId: '',
+        gymName: '', branchName: '', ownerName: '',
+        email: '', phone: '', address: '', status: 'Active', planId: '',
     });
-
-    const statusOptions = ['Active', 'Suspended'];
 
     useEffect(() => {
         const loadPlans = async () => {
             try {
                 const data = await fetchPlans();
-                setPlans(data.map(p => ({ value: p.id, label: `${p.name} (${p.period} - ₹${p.price})` })));
-            } catch (error) {
-                console.error('Error fetching plans:', error);
-            }
+                setPlans(data.map(p => ({ value: p.id, label: `${p.name} (₹${p.price})` })));
+            } catch (e) { console.error(e); }
         };
         if (isOpen) {
             loadPlans();
-            if (editData) {
-                setFormData({
-                    gymName: editData.gymName || '',
-                    branchName: editData.branchName || '',
-                    ownerName: editData.owner || '',
-                    email: editData.managerEmail || '',
-                    phone: editData.phone || '',
-                    address: editData.location || '',
-                    status: editData.status || 'Active',
-                    planId: editData.planId || '',
-                });
-            } else {
-                setFormData({
-                    gymName: '',
-                    branchName: '',
-                    ownerName: '',
-                    email: '',
-                    phone: '',
-                    address: '',
-                    status: 'Active',
-                    planId: '',
-                });
-            }
+            setFormData(editData ? {
+                gymName: editData.gymName || '', branchName: editData.branchName || '',
+                ownerName: editData.owner || '', email: editData.managerEmail || '',
+                phone: editData.phone || '', address: editData.location || '',
+                status: editData.status || 'Active', planId: editData.planId || '',
+            } : { gymName: '', branchName: '', ownerName: '', email: '', phone: '', address: '', status: 'Active', planId: '' });
         }
     }, [isOpen, editData]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleStatusChange = (status) => {
-        setFormData((prev) => ({ ...prev, status }));
-    };
-
-    const handlePlanChange = (planId) => {
-        setFormData((prev) => ({ ...prev, planId }));
-    };
+    const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!editData && !formData.planId) {
-            toast.error('Please select a SaaS Plan');
-            return;
-        }
-
+        if (!editData && !formData.planId) { toast.error('Please select a plan'); return; }
         setLoading(true);
         try {
-            const payload = {
-                ...formData,
-                owner: formData.ownerName,
-                location: formData.address
-            };
-
+            const payload = { ...formData, owner: formData.ownerName, location: formData.address };
             if (editData) {
-                // Remove planId if it hasn't been changed/selected during edit (optional)
                 if (!payload.planId) delete payload.planId;
                 await updateGym(editData.id, payload);
-                toast.success('Gym updated successfully!');
+                toast.success('Gym updated successfully');
             } else {
                 await addGym(payload);
-                toast.success('Gym added successfully!');
+                toast.success('Gym added successfully');
             }
-
-            onSuccess();
-            onClose();
-            // Reset form
-            setFormData({
-                gymName: '',
-                branchName: '',
-                ownerName: '',
-                email: '',
-                phone: '',
-                address: '',
-                status: 'Active',
-                planId: '',
-            });
-        } catch (error) {
-            console.error('Error saving gym:', error);
-            toast.error(typeof error === 'string' ? error : `Failed to ${editData ? 'update' : 'add'} gym`);
-        } finally {
-            setLoading(false);
-        }
+            onSuccess(); onClose();
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to save gym');
+        } finally { setLoading(false); }
     };
+
+    const Footer = (
+        <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+            <button type="button" onClick={onClose} style={{
+                flex: 1, padding: '14px', background: T.bg, color: T.muted,
+                border: `1.5px solid ${T.border}`, borderRadius: 14,
+                fontSize: 13, fontWeight: 900, cursor: 'pointer', transition: '0.2s',
+                fontFamily: "'Plus Jakarta Sans', sans-serif"
+            }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+            >
+                Cancel
+            </button>
+            <button type="submit" form="add-gym-form" disabled={loading} style={{
+                flex: 2, padding: '14px', 
+                background: loading ? T.accentMid : `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                color: '#fff', border: 'none', borderRadius: 14,
+                fontSize: 13, fontWeight: 900, cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: loading ? 'none' : `0 8px 24px rgba(124,92,252,0.3)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                transition: '0.2s', fontFamily: "'Plus Jakarta Sans', sans-serif"
+            }}
+            >
+                {loading ? (
+                    <>
+                        <div style={{ width: 18, height: 18, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                        Saving...
+                    </>
+                ) : (
+                    <>
+                        <Sparkles size={18} strokeWidth={2.5} />
+                        {editData ? 'Update Gym' : 'Add Gym'}
+                    </>
+                )}
+            </button>
+        </div>
+    );
 
     return (
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
-            title={editData ? "Edit Gym" : "Add New Gym"}
-            subtitle={editData ? `Editing ${editData.gymName}` : "Register a new gym branch in the system"}
-            maxWidth="max-w-2xl"
-            footer={
-                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 w-full">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="group px-6 sm:px-8 py-2.5 sm:py-3 bg-white border-2 border-slate-200 text-slate-700 hover:border-violet-300 hover:text-primary rounded-lg sm:rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        form="add-gym-form"
-                        disabled={loading}
-                        className="group relative px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600 via-primary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <span className="relative flex items-center justify-center gap-2">
-                            {loading ? (
-                                <>
-                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    {editData ? 'Updating...' : 'Creating...'}
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles size={16} className="group-hover:rotate-12 transition-transform duration-300" />
-                                    {editData ? 'Update Gym' : 'Create Gym'}
-                                </>
-                            )}
-                        </span>
-                    </button>
-                </div>
-            }
+            title={editData ? 'Edit Gym' : 'Add New Gym'}
+            subtitle={editData ? `Managing ${editData.gymName}` : 'Add a new gym branch to the system'}
+            maxWidth="540px"
+            footer={Footer}
         >
-            <form id="add-gym-form" onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 px-6 py-6 font-inter">
-                {/* Gym Information Section */}
-                <div className="space-y-4 sm:space-y-6">
-                    <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center flex-shrink-0">
-                            <Building2 size={16} className="sm:w-5 sm:h-5 text-primary" strokeWidth={2.5} />
-                        </div>
-                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">Gym Information</h2>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes spin { to { transform: rotate(360deg) } }
+                @keyframes scaleUp { from { opacity: 0; transform: scale(0.98) translateY(10px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+                #add-gym-form input::placeholder { color: ${T.subtle}; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
+            `}</style>
+
+            <form id="add-gym-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '8px 4px' }}>
+
+                {/* ── SECTION 1: Gym Details ── */}
+                <div style={{ animation: 'scaleUp 0.3s ease both' }}>
+                    <SectionHead icon={Building2} iconColor={T.accent} iconBg={T.accentLight} title="Gym Details" />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        <Field label="Gym Name" icon={Activity} iconColor={T.accent} iconBg={T.accentLight}>
+                            <FocusInput name="gymName" value={formData.gymName} onChange={handleChange} placeholder="e.g. Roar Fitness" required />
+                        </Field>
+                        <Field label="Branch Name" icon={MapPin} iconColor={T.accent} iconBg={T.accentLight}>
+                            <FocusInput name="branchName" value={formData.branchName} onChange={handleChange} placeholder="e.g. Mumbai South" required />
+                        </Field>
                     </div>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        {/* Gym Name */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
-                                <Building2 size={14} className="sm:w-4 sm:h-4 text-primary" />
-                                Gym Name
-                            </label>
-                            <input
-                                type="text"
-                                name="gymName"
-                                value={formData.gymName}
-                                onChange={handleChange}
-                                placeholder="e.g. FitPulse Elite"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
-                                required
-                            />
-                        </div>
-
-                        {/* Branch Name */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-cyan-600 bg-clip-text text-transparent">
-                                <MapPin size={14} className="sm:w-4 sm:h-4 text-primary" />
-                                Branch Name
-                            </label>
-                            <input
-                                type="text"
-                                name="branchName"
-                                value={formData.branchName}
-                                onChange={handleChange}
-                                placeholder="e.g. Downtown Hub"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm"
-                                required
-                            />
+                {/* ── SECTION 2: Owner Info ── */}
+                <div style={{ animation: 'scaleUp 0.35s ease both' }}>
+                    <SectionHead icon={User} iconColor={T.green} iconBg={T.greenLight} title="Owner Information" />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        <Field label="Owner Name" icon={User} iconColor={T.green} iconBg={T.greenLight}>
+                            <FocusInput name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="Name of the owner" required />
+                        </Field>
+                        <Field label="Phone Number" icon={Phone} iconColor={T.amber} iconBg={T.amberLight}>
+                            <FocusInput type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+91 00000 00000" required />
+                        </Field>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <Field label="Admin Email" icon={Mail} iconColor={T.rose} iconBg={T.roseLight}>
+                                <FocusInput type="email" name="email" value={formData.email} onChange={handleChange} placeholder="admin@example.com" required />
+                            </Field>
                         </div>
                     </div>
                 </div>
 
-                {/* Owner & Contact Section */}
-                <div className="space-y-4 sm:space-y-6">
-                    <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center flex-shrink-0">
-                            <User size={16} className="sm:w-5 sm:h-5 text-emerald-600" strokeWidth={2.5} />
-                        </div>
-                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Owner & Contact Details</h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        {/* Owner Name */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                                <User size={14} className="sm:w-4 sm:h-4 text-emerald-500" />
-                                Owner Name
-                            </label>
-                            <input
-                                type="text"
-                                name="ownerName"
-                                value={formData.ownerName}
-                                onChange={handleChange}
-                                placeholder="Full Name"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 hover:border-emerald-300 transition-all duration-300 shadow-sm"
-                                required
-                            />
-                        </div>
-
-                        {/* Contact Phone */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                                <Phone size={14} className="sm:w-4 sm:h-4 text-orange-500" />
-                                Contact Phone
-                            </label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                placeholder="+1 (555) 000-0000"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 hover:border-orange-300 transition-all duration-300 shadow-sm"
-                                required
-                            />
-                        </div>
-
-                        {/* Email Address */}
-                        <div className="md:col-span-2 space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
-                                <Mail size={14} className="sm:w-4 sm:h-4 text-pink-500" />
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="admin@gym.com"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 hover:border-pink-300 transition-all duration-300 shadow-sm"
-                                required
-                            />
+                {/* ── SECTION 3: Settings ── */}
+                <div style={{ animation: 'scaleUp 0.4s ease both' }}>
+                    <SectionHead icon={Home} iconColor={T.accent} iconBg={T.accentLight} title="Gym Settings" />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                        <Field label="Full Address" icon={MapPin} iconColor={T.accent} iconBg={T.accentLight}>
+                            <FocusTextarea name="address" value={formData.address} onChange={handleChange} placeholder="Enter full gym address..." required rows={3} />
+                        </Field>
+                        <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', gap: 20 }}>
+                            <Field label="Status" icon={CheckCircle2} iconColor={T.green} iconBg={T.greenLight}>
+                                <InlineSelect
+                                    options={['Active', 'Suspended']}
+                                    value={formData.status}
+                                    onChange={v => setFormData(p => ({ ...p, status: v }))}
+                                    placeholder="Select Status"
+                                />
+                            </Field>
+                            <Field label="Subscription Plan" icon={CreditCard} iconColor={T.accent} iconBg={T.accentLight}>
+                                <InlineSelect
+                                    options={plans}
+                                    value={formData.planId}
+                                    onChange={v => setFormData(p => ({ ...p, planId: v }))}
+                                    placeholder="Choose Plan"
+                                />
+                            </Field>
                         </div>
                     </div>
                 </div>
 
-                {/* Location & Status Section */}
-                <div className="space-y-4 sm:space-y-6">
-                    <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-100 to-violet-100 flex items-center justify-center flex-shrink-0">
-                            <Home size={16} className="sm:w-5 sm:h-5 text-primary" strokeWidth={2.5} />
-                        </div>
-                        <h2 className="text-base sm:text-lg font-black bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">Location & Status</h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        {/* Address */}
-                        <div className="md:col-span-2 space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
-                                <MapPin size={14} className="sm:w-4 sm:h-4 text-primary" />
-                                Physical Address
-                            </label>
-                            <textarea
-                                name="address"
-                                rows="3"
-                                value={formData.address}
-                                onChange={handleChange}
-                                placeholder="Full street address, City, State, ZIP"
-                                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-br from-slate-50 to-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-violet-300 transition-all duration-300 shadow-sm resize-none"
-                                required
-                            />
-                        </div>
-
-                        {/* Status Dropdown */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                <CheckCircle2 size={14} className="sm:w-4 sm:h-4 text-green-500" />
-                                Gym Status
-                            </label>
-                            <CustomDropdown
-                                options={statusOptions}
-                                value={formData.status}
-                                onChange={handleStatusChange}
-                                placeholder="Select Status"
-                                className="w-full"
-                            />
-                        </div>
-
-                        {/* SaaS Plan Dropdown */}
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs sm:text-sm font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent">
-                                <CreditCard size={14} className="sm:w-4 sm:h-4 text-primary" />
-                                SaaS Plan
-                            </label>
-                            <CustomDropdown
-                                options={plans}
-                                value={formData.planId}
-                                onChange={handlePlanChange}
-                                placeholder="Select SaaS Plan"
-                                className="w-full"
-                            />
-                        </div>
-                    </div>
-                </div>
             </form>
         </RightDrawer>
     );

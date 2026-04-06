@@ -6,7 +6,7 @@ import {
     MoreHorizontal, Mail, Phone, Calendar, MapPin, Activity, Award, DollarSign, 
     Layers, Smartphone, History, Unlock, ExternalLink, Edit3, PlusCircle, 
     XCircle, UserMinus, Gift, ArrowRightLeft, Repeat, FileSignature, Printer, 
-    ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2, Receipt
+    ArrowUpCircle, ShoppingCart, Snowflake, Shield, CheckCircle2, Receipt, Loader2
 } from 'lucide-react';
 import { getMembers, getMemberById, toggleMemberStatus, deleteMember, createMember, updateMember, renewMembership } from '../../api/manager/managerApi';
 import { syncMemberToMips } from '../../api/gymDeviceApi';
@@ -25,6 +25,21 @@ import Button from '../../components/ui/Button';
 import { exportPdf } from '../../utils/exportPdf';
 import { fetchStaffAPI } from '../../api/admin/adminApi';
 import MipsSyncPanel from '../../components/mips/MipsSyncPanel';
+
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+};
+
+const S = {
+  ff: "'Plus Jakarta Sans', sans-serif",
+  card: { background: T.surface, borderRadius: 20, border: `1px solid ${T.border}`, padding: 20, transition: 'all 0.3s ease' },
+  th: { fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: T.muted, padding: '16px 20px', textAlign: 'left', letterSpacing: '0.1em' },
+  td: { padding: '16px 20px', fontSize: 13, color: T.text, borderBottom: `1px solid ${T.border}` },
+  input: { width: '100%', height: 46, borderRadius: 12, border: `2px solid ${T.border}`, background: T.bg, padding: '0 16px', fontSize: 14, fontFamily: "'Plus Jakarta Sans', sans-serif" }
+};
 
 
 const MemberList = () => {
@@ -536,238 +551,90 @@ const MemberList = () => {
     // ──────────────────────────────────────────────────────────────────────────
 
     const kpiCards = [
-        { label: 'Total Members', value: totalItems || members.length, color: 'from-primary to-primary' },
-        { label: 'Active', value: members.filter(m => m.status === 'Active').length, color: 'from-emerald-500 to-emerald-600' },
-        { label: 'Inactive', value: members.filter(m => m.status === 'Inactive' || m.status === 'Frozen').length, color: 'from-slate-400 to-slate-500' },
-        { label: 'Expiring Soon', value: members.filter(m => m.daysLeft && m.daysLeft <= 7).length, color: 'from-amber-500 to-amber-600' },
+        { label: 'Total Members', value: totalItems || members.length, color: T.accent, icon: User },
+        { label: 'Active', value: members.filter(m => m.status === 'Active').length, color: T.green, icon: ShieldCheck },
+        { label: 'Inactive', value: members.filter(m => m.status === 'Inactive' || m.status === 'Frozen').length, color: T.subtle, icon: UserMinus },
+        { label: 'Expiring Soon', value: members.filter(m => m.daysLeft && m.daysLeft <= 7).length, color: T.amber, icon: Clock },
     ];
 
     const tableColumns = ['Member', 'Code', 'Branch', 'Status', 'Membership', 'Days Left', 'Joined', 'Actions'];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-light/30  space-y-6">
+        <>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+                .fu { animation: fadeUp 0.3s ease both }
+                .card-h:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,92,252,0.1) !important; }
+            `}</style>
 
-            {/* ── Header ── */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg shrink-0">
-                                <User size={28} />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">Members</h1>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-1">Manage your gym members and their memberships</p>
-                            </div>
-                        </div>
-                        <Button
-                            onClick={() => setIsAddDrawerOpen(true)}
-                            variant="primary"
-                            className="w-full sm:w-auto px-6 h-11"
-                        >
-                            <User size={18} /> Add Member
-                        </Button>
-                    </div>
+            {/* HEADER */}
+            <div className="fu" style={{ background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 100%)', padding: '24px 30px', borderRadius: 22, boxShadow: '0 8px 30px rgba(124,92,252,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+                <div>
+                   <h1 style={{ fontSize: 24, fontWeight: 900, color: 'white', margin: 0 }}>Member List</h1>
+                   <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: 0, marginTop: 4 }}>Manage and view all registered members</p>
                 </div>
+                <button onClick={() => setIsAddDrawerOpen(true)} style={{ background: 'white', border: 'none', borderRadius: 12, padding: '12px 24px', color: T.accent, fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <PlusCircle size={18} /> Add New Member
+                </button>
             </div>
 
-            {/* ── KPI Cards ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                {kpiCards.map((kpi, i) => (
-                    <div key={i} className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 transition-all duration-200 md:hover:shadow-xl md:hover:-translate-y-0.5">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-widest">{kpi.label}</p>
-                                <h3 className="text-3xl font-black text-slate-900">{kpi.value}</h3>
-                            </div>
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white shadow-md`}>
-                                <User size={20} />
-                            </div>
-                        </div>
-                    </div>
-                ))}
+            {/* KPI removed for original layout */}
+
+            {/* FILTERS */}
+            <div className="fu" style={{ ...S.card, padding: '14px 20px', marginBottom: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                    <input style={{ ...S.input, paddingLeft: 44, height: 44, background: T.bg, border: 'none' }} placeholder="Search by name, phone or ID..." value={searchTerm} onChange={handleSearch} />
+                </div>
+                <div style={{ width: 180 }}>
+                    <CustomDropdown options={['All', 'Active', 'Inactive', 'Frozen', 'Expired']} value={statusFilter} onChange={handleStatusFilter} />
+                </div>
+                <button onClick={handleExport} style={{ height: 44, padding: '0 18px', borderRadius: 12, border: `2px solid ${T.border}`, background: 'white', color: T.text, fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} /> Export</button>
             </div>
 
-            {/* ── Search + Filter Bar ── */}
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-4 flex flex-col sm:flex-row gap-3 items-center">
-                <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Search by name, email, phone, or member code..."
-                        className="pl-10 h-11 w-full rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 text-sm transition-all bg-white outline-none" />
-                </div>
-                <div className="w-full sm:w-48">
-                    <CustomDropdown options={['All', 'Active', 'Inactive', 'Frozen', 'Expired']} value={statusFilter} onChange={handleStatusFilter} placeholder="All Status" icon={Filter} />
-                </div>
+            {/* TABLE */}
+            <div className="fu" style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead style={{ background: T.bg }}>
+                        <tr>
+                            <th style={S.th}>Member</th>
+                            <th style={S.th}>Status</th>
+                            <th style={S.th}>Plan</th>
+                            <th style={S.th}>Days Left</th>
+                            <th style={S.th}>Joined</th>
+                            <th style={{ ...S.th, textAlign: 'right' }}>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: 80 }}><Loader2 className="animate-spin" color={T.accent} /></td></tr>
+                        ) : members.map((m, i) => (
+                            <tr key={i} className="card-h" style={{ transition: 'all 0.2s' }}>
+                                <td style={S.td}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: T.accent }}>
+                                            {m.avatar ? <img src={m.avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.name.charAt(0)}
+                                        </div>
+                                        <div><div style={{ fontWeight: 800 }}>{m.name}</div><div style={{ fontSize: 11, color: T.muted }}>{m.phone}</div></div>
+                                    </div>
+                                </td>
+                                <td style={S.td}>{getStatusBadge(m.status)}</td>
+                                <td style={S.td}>{getPlanBadge(m.plan)}</td>
+                                <td style={S.td}><div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: m.daysLeft < 7 ? T.rose : T.text }}><Clock size={14} /> {m.daysLeft || '--'}</div></td>
+                                <td style={S.td}>{m.joinDate ? new Date(m.joinDate).toLocaleDateString() : '--'}</td>
+                                <td style={{ ...S.td, textAlign: 'right' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                                        <button onClick={() => handleView(m)} style={{ width: 32, height: 32, borderRadius: 8, background: T.bg, border: 'none', color: T.accent, display: 'grid', placeItems: 'center', padding: 0, cursor: 'pointer' }}><Eye size={16} style={{ display: 'block' }} /></button>
+                                        <button onClick={() => handleEdit(m)} style={{ width: 32, height: 32, borderRadius: 8, background: T.bg, border: 'none', color: T.accent, display: 'grid', placeItems: 'center', padding: 0, cursor: 'pointer' }}><Edit size={16} style={{ display: 'block' }} /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-
-            {/* ── Members Table ── */}
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-                <div className="p-5 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2"><User className="text-primary" size={18} />All Members</h3>
-                        <p className="text-xs text-slate-500 font-semibold mt-0.5">{totalItems} members total</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-violet-300 hover:text-primary transition-all">
-                            <FileText size={14} /><span>Export as PDF</span>
-                        </button>
-                    </div>
-                </div>
-
-                {members.length > 0 ? (
-                    <div className="saas-table-wrapper border-0 rounded-none">
-                        <table className="saas-table saas-table-responsive w-full">
-                            <thead className="bg-slate-50 border-b border-slate-200 text-left">
-                                <tr>
-                                    {['Member', 'Code', 'Branch', 'Status', 'Plan', 'Days Left', 'Joined', 'Actions'].map(col => (
-                                        <th key={col} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">{col}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {members.map((member) => (
-                                    <tr key={member.id} className="group hover:bg-slate-50/50 transition-all duration-150 border-b border-slate-100">
-                                        <td className="px-6 py-4" data-label="Member">
-                                            <div className="flex items-center gap-3">
-                                                <div className="relative shrink-0">
-                                                    {member.avatar ? (
-                                                        <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
-                                                    ) : (
-                                                        <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm">{(member.name || '?').charAt(0).toUpperCase()}</div>
-                                                    )}
-                                                    <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${member.status?.toLowerCase() === 'active' ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors">{member.name}</span>
-                                                    <span className="text-xs text-slate-400">{member.phone}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Code">
-                                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                                                {member.memberId || 'N/A'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Branch">
-                                            <div className="flex items-center gap-1.5 text-sm text-slate-500 font-medium">
-                                                <Building size={14} className="text-slate-300" />
-                                                {member.branch || 'Main Branch'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Status">
-                                            <button onClick={(e) => { e.stopPropagation(); handleToggleStatus(member.id); }}>
-                                                {getStatusBadge(member.status)}
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Plan">
-                                            {getPlanBadge(member.plan)}
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Days Left">
-                                            <div className={`flex items-center gap-1.5 text-xs font-bold ${member.daysLeft > 30 ? 'text-green-500' : member.daysLeft > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
-                                                <Clock size={14} />
-                                                {member.daysLeft ? `${member.daysLeft}d` : '--'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Joined">
-                                            <span className="text-sm text-slate-500 font-medium">
-                                                {member.joinDate ? new Date(member.joinDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Actions">
-                                            <div className="flex items-center gap-2 relative">
-                                                <button onClick={() => handleView(member)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" title="View"><Eye size={18} /></button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === member.id ? null : member.id); }}
-                                                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
-                                                    title="More Options"
-                                                >
-                                                    <MoreHorizontal size={18} />
-                                                </button>
-                                                {activeMenu === member.id && (
-                                                    <div
-                                                        className="absolute right-0 top-8 z-50 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 min-w-[140px] overflow-hidden"
-                                                        onClick={e => e.stopPropagation()}
-                                                    >
-                                                        <button
-                                                            onClick={() => { setActiveMenu(null); handleEdit(member); }}
-                                                            className="w-full flex items-center gap-2.5 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all"
-                                                        >
-                                                            <Edit3 size={14} className="text-indigo-400" /> Edit
-                                                        </button>
-                                                        <div className="h-px bg-slate-100 mx-3" />
-                                                        <button
-                                                            onClick={() => { setActiveMenu(null); handleDelete(member); }}
-                                                            className="w-full flex items-center gap-2.5 px-4 py-3 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-all"
-                                                        >
-                                                            <Trash2 size={14} className="text-rose-400" /> Delete
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {/* ── Pagination ── */}
-                        <div className="bg-white border-t border-slate-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <p className="text-sm text-slate-500 font-medium order-2 sm:order-1">
-                                Showing <span className="text-slate-900 font-bold">{totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(currentPage * itemsPerPage, totalItems)}</span> of <span className="text-slate-900 font-bold">{totalItems}</span> members
-                            </p>
-                            <div className="flex items-center gap-2 order-1 sm:order-2">
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-slate-100 text-slate-400 hover:border-violet-200 hover:text-primary disabled:opacity-40 disabled:hover:border-slate-100 disabled:hover:text-slate-400 transition-all"
-                                >
-                                    <ChevronLeft size={20} />
-                                </button>
-
-                                {/* Simple Page Indicator for Mobile */}
-                                <div className="flex sm:hidden items-center px-4 h-10 rounded-xl bg-slate-50 text-xs font-bold text-slate-600">
-                                    Page {currentPage} of {Math.max(1, Math.ceil(totalItems / itemsPerPage))}
-                                </div>
-
-                                {/* Page Numbers for Desktop */}
-                                <div className="hidden sm:flex items-center gap-2">
-                                    {Array.from({ length: Math.ceil(totalItems / itemsPerPage) }, (_, i) => i + 1)
-                                        .filter(page => page === 1 || page === Math.ceil(totalItems / itemsPerPage) || Math.abs(page - currentPage) <= 1)
-                                        .map((page, i, arr) => (
-                                            <React.Fragment key={page}>
-                                                {i > 0 && arr[i - 1] !== page - 1 && <span className="text-slate-300">...</span>}
-                                                <button
-                                                    onClick={() => setCurrentPage(page)}
-                                                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page ? 'bg-primary text-white shadow-lg shadow-violet-200' : 'text-slate-500 hover:bg-slate-50'}`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            </React.Fragment>
-                                        ))
-                                    }
-                                </div>
-
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalItems / itemsPerPage)))}
-                                    disabled={currentPage === Math.ceil(totalItems / itemsPerPage) || totalItems === 0}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-slate-100 text-slate-400 hover:border-violet-200 hover:text-primary disabled:opacity-40 disabled:hover:border-slate-100 disabled:hover:text-slate-400 transition-all"
-                                >
-                                    <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-b-2xl border-t border-slate-100">
-                        <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-200 mb-4 shadow-inner">
-                            <User size={40} />
-                        </div>
-                        <h3 className="text-lg font-black text-slate-400 italic tracking-tight">No members found</h3>
-                        <p className="text-slate-400 text-xs font-bold mt-1 uppercase tracking-widest text-center">Register a new member to see them here</p>
-                    </div>
-                )}
-            </div >
 
             {/* ── Modals & Drawers (all logic untouched) ── */}
 
@@ -2191,7 +2058,8 @@ const MemberList = () => {
                 </div>
             </RightDrawer>
 
-        </div >
+        </div>
+        </>
     );
 };
 

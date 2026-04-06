@@ -1,22 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Calendar as CalendarIcon,
-    Clock,
-    Activity,
-    CheckCircle2,
-    ChevronLeft,
-    ChevronRight,
-    Search,
-    Loader2,
-    LogIn,
-    LogOut,
-    Dumbbell
+    Calendar as CalendarIcon, Clock, Activity, CheckCircle2, ChevronLeft, 
+    ChevronRight, Search, Loader2, LogIn, LogOut, Dumbbell, RefreshCw, Star, 
+    Zap, Sparkles, UserCheck, History
 } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import StatsCard from '../../modules/dashboard/components/StatsCard';
-import DashboardGrid from '../../modules/dashboard/components/DashboardGrid';
 import apiClient from '../../api/apiClient';
 import toast from 'react-hot-toast';
+import Loader from '../../components/common/Loader';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF', dark: '#0D0A1F'
+};
+
+const SectionHeader = ({ icon: Icon, title, subtitle, color = T.accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div>
+            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{title}</h3>
+            {subtitle && <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{subtitle}</p>}
+        </div>
+    </div>
+);
+
+const PremiumCard = ({ children, style = {}, index = 0, hoverable = true }) => {
+    return (
+        <div 
+            style={{
+                background: T.surface, borderRadius: 28, border: `1px solid ${T.border}`,
+                padding: 32, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+                animation: `fadeUp 0.4s ease both ${0.1 + index * 0.05}s`,
+                ...style
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
+const MetricCard = ({ title, value, icon: Icon, color, bg, subtitle, index }) => (
+    <div 
+        style={{
+            background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}`,
+            display: 'flex', flexDirection: 'column', gap: 16, flex: 1,
+            animation: `fadeUp 0.4s ease both ${0.3 + index * 0.05}s`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+        }}
+    >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: bg, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={20} strokeWidth={2.5} />
+            </div>
+        </div>
+        <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>{value}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle, textTransform: 'uppercase', marginTop: 4 }}>{subtitle}</div>
+        </div>
+    </div>
+);
 
 const MyAttendance = () => {
     const [viewDate, setViewDate] = useState(new Date());
@@ -27,6 +78,7 @@ const MyAttendance = () => {
 
     const fetchAttendance = async () => {
         try {
+            setLoading(true);
             const [attRes, statusRes] = await Promise.all([
                 apiClient.get('/member/attendance'),
                 apiClient.get('/member/attendance/status')
@@ -65,13 +117,6 @@ const MyAttendance = () => {
         } finally { setActionLoading(false); }
     };
 
-    const stats = [
-        { title: 'Total Visits', value: attendanceData.stats.totalVisits?.toString() || '0', icon: CheckCircle2, color: 'primary' },
-        { title: 'Days This Month', value: attendanceData.stats.visitsThisMonth?.toString() || '0', icon: CalendarIcon, color: 'success' },
-        { title: 'Avg Duration', value: attendanceData.stats.avgDuration || '0 min', icon: Clock, color: 'warning' },
-        { title: 'Consistency', value: attendanceData.stats.consistency || '0%', icon: Activity, color: 'info' }
-    ];
-
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
     const getFirstDay = (y, m) => new Date(y, m, 1).getDay();
@@ -93,199 +138,176 @@ const MyAttendance = () => {
         return new Date(isoStr).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            </div>
-        );
-    }
+    if (loading) return <Loader message="Accessing attendance logs..." />;
 
     return (
-        <div className="saas-container space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b-2 border-slate-100">
-                <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-violet-100">
-                        <CalendarIcon size={32} strokeWidth={2.5} />
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            `}</style>
+
+            {/* HEADER BANNER */}
+            <div style={{
+                background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+                borderRadius: 24, padding: '24px 32px',
+                boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 32, position: 'relative', overflow: 'hidden'
+            }} className="animate-fadeIn">
+                <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 56, height: 56, borderRadius: 16,
+                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <CalendarIcon size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">My Attendance</h1>
-                        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Track your gym visits & check in/out</p>
+                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Attendance</h1>
+                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Track your gym visits and check-in history</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm">
-                    <CalendarIcon size={18} className="text-primary" />
-                    <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{monthName} {currentYear}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                    <CalendarIcon size={18} strokeWidth={2.5} />
+                    <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{monthName} {currentYear}</span>
                 </div>
             </div>
 
-            {/* ── CHECK-IN / CHECK-OUT HERO ── */}
-            <div className={`relative overflow-hidden rounded-[3rem] p-10 sm:p-14 border-2 shadow-xl transition-all duration-500 ${checkInStatus.isCheckedIn
-                    ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-emerald-100'
-                    : checkInStatus.isCheckedOut
-                        ? 'bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200'
-                        : 'bg-gradient-to-br from-violet-50 to-indigo-50 border-violet-200 shadow-violet-100'
-                }`}>
-                <div className="absolute top-0 right-0 opacity-5 -mt-8 -mr-8 pointer-events-none">
-                    <Dumbbell size={200} strokeWidth={1} />
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-8">
-                    <div>
-                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${checkInStatus.isCheckedIn ? 'bg-emerald-100 text-emerald-700'
-                                : checkInStatus.isCheckedOut ? 'bg-slate-100 text-slate-600'
-                                    : 'bg-violet-100 text-violet-700'
-                            }`}>
-                            <span className={`w-2 h-2 rounded-full ${checkInStatus.isCheckedIn ? 'bg-emerald-500 animate-pulse' : checkInStatus.isCheckedOut ? 'bg-slate-400' : 'bg-violet-500'}`} />
-                            {checkInStatus.isCheckedIn ? 'Currently Inside' : checkInStatus.isCheckedOut ? 'Visited Today' : 'Not Checked In'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+                {/* CHECK-IN HERO CARD */}
+                <div style={{ 
+                    background: checkInStatus.isCheckedIn ? '#E8FBF2' : '#F9F8FF', 
+                    padding: 48, borderRadius: 40, border: `2px solid ${checkInStatus.isCheckedIn ? '#22C97A15' : T.border}`,
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden'
+                }} className="animate-fadeIn">
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, background: `linear-gradient(135deg, ${checkInStatus.isCheckedIn ? T.greenLight : T.accentLight} 0%, transparent 100%)`, opacity: 0.4, pointerEvents: 'none' }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 2 }}>
+                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 10, background: checkInStatus.isCheckedIn ? T.green : T.accent, color: '#fff', marginBottom: 16 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', animation: checkInStatus.isCheckedIn ? 'pulse 2s infinite' : 'none' }} />
+                            <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{checkInStatus.isCheckedIn ? 'Session Live' : 'Offline'}</span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-                            {checkInStatus.isCheckedIn ? "You're in the gym! 💪" : checkInStatus.isCheckedOut ? 'Great workout today! 🏆' : 'Ready to train today? 🎯'}
+                        <h2 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-1px' }}>
+                            {checkInStatus.isCheckedIn ? "Great workout day!" : checkInStatus.isCheckedOut ? "Workout Completed!" : "Ready to Train?"}
                         </h2>
-                        <div className="flex flex-wrap gap-5 text-sm font-bold text-slate-500">
+                        <div style={{ display: 'flex', gap: 24 }}>
                             {checkInStatus.checkInTime && (
-                                <span className="flex items-center gap-1.5">
-                                    <LogIn size={14} className="text-emerald-500" />
-                                    In: {formatTime(checkInStatus.checkInTime)}
-                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.green }}><LogIn size={16} /></div>
+                                    <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>In: {formatTime(checkInStatus.checkInTime)}</span>
+                                </div>
                             )}
                             {checkInStatus.checkOutTime && (
-                                <span className="flex items-center gap-1.5">
-                                    <LogOut size={14} className="text-rose-500" />
-                                    Out: {formatTime(checkInStatus.checkOutTime)}
-                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.rose }}><LogOut size={16} /></div>
+                                    <span style={{ fontSize: 13, fontWeight: 800, color: T.text }}>Out: {formatTime(checkInStatus.checkOutTime)}</span>
+                                </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="shrink-0">
+                    <div style={{ position: 'relative', zIndex: 2 }}>
                         {!checkInStatus.isCheckedIn && !checkInStatus.isCheckedOut && (
-                            <button
-                                onClick={handleCheckIn}
-                                disabled={actionLoading}
-                                className="flex items-center gap-3 px-10 h-16 bg-primary text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-violet-200 hover:bg-primary-hover hover:-translate-y-1 transition-all disabled:opacity-50"
-                            >
-                                {actionLoading ? <Loader2 size={20} className="animate-spin" /> : <LogIn size={20} />}
-                                Check In
+                            <button onClick={handleCheckIn} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.accent, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(124,92,252,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {actionLoading ? <RefreshCw className="animate-spin" size={20} /> : <LogIn size={20} />} Check In Now
                             </button>
                         )}
                         {checkInStatus.isCheckedIn && (
-                            <button
-                                onClick={handleCheckOut}
-                                disabled={actionLoading}
-                                className="flex items-center gap-3 px-10 h-16 bg-rose-600 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-rose-200 hover:bg-rose-700 hover:-translate-y-1 transition-all disabled:opacity-50"
-                            >
-                                {actionLoading ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
-                                Check Out
+                            <button onClick={handleCheckOut} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.rose, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(244,63,94,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {actionLoading ? <RefreshCw className="animate-spin" size={20} /> : <LogOut size={20} />} End Session
                             </button>
                         )}
                         {checkInStatus.isCheckedOut && (
-                            <div className="flex items-center gap-3 px-10 h-16 bg-emerald-50 text-emerald-700 rounded-[1.5rem] font-black text-sm uppercase tracking-widest border-2 border-emerald-200">
-                                <CheckCircle2 size={20} />
-                                Done for Today
+                            <div style={{ height: 64, padding: '0 48px', background: T.green, color: '#fff', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontWeight: 900, textTransform: 'uppercase', border: 'none' }}>
+                                <CheckCircle2 size={24} /> Done for Today
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* Stats */}
-            <DashboardGrid>
-                {stats.map((stat, idx) => (
-                    <StatsCard key={idx} title={stat.title} value={stat.value} icon={stat.icon} color={stat.color} isEarningsLayout={true} />
-                ))}
-            </DashboardGrid>
-
-            {/* Calendar */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary">
-                        <CalendarIcon size={16} />
-                    </div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Attendance Calendar</h2>
+                {/* STATS ROW */}
+                <div style={{ display: 'flex', gap: 24 }}>
+                    <MetricCard title="Total Visits" value={attendanceData.stats.totalVisits || 0} icon={CheckCircle2} color={T.accent} bg={T.accentLight} subtitle="Overall" index={0} />
+                    <MetricCard title="Days Active" value={attendanceData.stats.visitsThisMonth || 0} icon={CalendarIcon} color={T.green} bg={T.greenLight} subtitle="This Month" index={1} />
+                    <MetricCard title="Avg Duration" value={attendanceData.stats.avgDuration || '0 m'} icon={Clock} color={T.amber} bg={T.amberLight} subtitle="Per Session" index={2} />
+                    <MetricCard title="Consistency" value={attendanceData.stats.consistency || '0%'} icon={Activity} color={T.blue} bg={T.blueLight} subtitle="Visit Rate" index={3} />
                 </div>
-                <Card className="p-10 sm:p-14 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[3.5rem] bg-white">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="pl-4">
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">{monthName} {currentYear}</h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Monthly Visit Overview</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => setViewDate(new Date(currentYear, currentMonth - 1, 1))} className="p-2.5 rounded-xl border border-slate-100 text-slate-400 hover:bg-slate-50 transition-colors">
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button onClick={() => setViewDate(new Date(currentYear, currentMonth + 1, 1))} className="p-2.5 rounded-xl border border-slate-100 text-slate-400 hover:bg-slate-50 transition-colors">
-                                <ChevronRight size={20} />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-7 gap-4">
-                        {weekDays.map(day => (
-                            <div key={day} className="text-center py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{day}</div>
-                        ))}
-                        {blanks.map(blank => <div key={`b-${blank}`} className="aspect-square" />)}
-                        {dates.map(date => {
-                            const visited = isVisited(date);
-                            return (
-                                <div key={date} className={`aspect-square flex flex-col items-center justify-center rounded-[24px] border ${visited ? 'bg-primary border-primary text-white shadow-lg shadow-violet-100' : 'border-slate-100 bg-slate-50/30 text-slate-700 hover:border-violet-200'} transition-all duration-300 relative`}>
-                                    <span className={`text-sm font-black ${visited ? 'text-white' : ''}`}>{date}</span>
-                                    {visited && <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-200" />}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </Card>
-            </div>
 
-            {/* Recent Activity */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                        <Clock size={16} />
-                    </div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Recent Activity</h2>
-                </div>
-                <Card className="p-8 sm:p-10 border-2 border-slate-100 shadow-2xl shadow-slate-100/20 rounded-[3rem] bg-white">
-                    {attendanceData.logs.length > 0 ? (
-                        <div className="space-y-4">
-                            {attendanceData.logs.map((log, idx) => (
-                                <div key={log.id || idx} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-violet-100 transition-all">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-primary shadow-sm">
-                                            <CalendarIcon size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900">
-                                                {new Date(log.date || log.checkIn).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                            </p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">General Check-in</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right space-y-1">
-                                        <div className="flex items-center justify-end gap-2 text-emerald-600 font-black text-xs uppercase tracking-widest">
-                                            <LogIn size={12} />
-                                            {formatTime(log.checkIn || log.checkInTime)}
-                                        </div>
-                                        {(log.checkOut || log.checkOutTime) && (
-                                            <div className="flex items-center justify-end gap-2 text-rose-500 font-black text-xs uppercase tracking-widest">
-                                                <LogOut size={12} />
-                                                {formatTime(log.checkOut || log.checkOutTime)}
-                                            </div>
-                                        )}
-                                    </div>
+                {/* CALENDAR & RECENT LOGS GRID */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 32 }}>
+                    
+                    {/* CALENDAR SECTION */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <PremiumCard index={4}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+                                <SectionHeader icon={CalendarIcon} title="Attendance Calendar" subtitle="Monthly progress overview" />
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <button onClick={() => setViewDate(new Date(currentYear, currentMonth - 1, 1))} style={{ width: 40, height: 40, borderRadius: 12, border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ChevronLeft size={18} /></button>
+                                    <button onClick={() => setViewDate(new Date(currentYear, currentMonth + 1, 1))} style={{ width: 40, height: 40, borderRadius: 12, border: `1px solid ${T.border}`, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ChevronRight size={18} /></button>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mb-4 border-2 border-dashed border-slate-100">
-                                <Search size={24} />
                             </div>
-                            <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">No activity found</h4>
-                            <p className="text-xs font-bold text-slate-300 mt-1">Check in above to start tracking!</p>
-                        </div>
-                    )}
-                </Card>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12 }}>
+                                {weekDays.map(day => (
+                                    <div key={day} style={{ textAlign: 'center', padding: '12px 0', fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{day}</div>
+                                ))}
+                                {blanks.map(b => <div key={`b-${b}`} />)}
+                                {dates.map(date => {
+                                    const visited = isVisited(date);
+                                    return (
+                                        <div key={date} style={{ 
+                                            aspectRatio: '1', borderRadius: 20, 
+                                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                            background: visited ? T.accent : '#F9F8FF',
+                                            color: visited ? '#fff' : T.text,
+                                            border: `1px solid ${visited ? T.accent : T.border}`,
+                                            fontWeight: 900, fontSize: 14, cursor: 'default', transition: '0.2s',
+                                            boxShadow: visited ? '0 8px 20px rgba(124,92,252,0.2)' : 'none'
+                                        }}>
+                                            {date}
+                                            {visited && <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#fff', marginTop: 4, opacity: 0.6 }} />}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </PremiumCard>
+                    </div>
+
+                    {/* RECENT ACTIVITY SECTION */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <PremiumCard index={5} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <SectionHeader icon={History} title="Recent Activity" subtitle="Your latest logs" color={T.amber} />
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', paddingRight: 4 }}>
+                                {attendanceData.logs.length > 0 ? attendanceData.logs.slice(0, 8).map((log, i) => (
+                                    <div key={i} style={{ padding: '16px 20px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><UserCheck size={16} /></div>
+                                            <div>
+                                                <p style={{ fontSize: 13, fontWeight: 800, color: T.text, margin: 0 }}>{new Date(log.date || log.checkIn).toLocaleDateString('en-GB')}</p>
+                                                <p style={{ fontSize: 9, fontWeight: 900, color: T.muted, textTransform: 'uppercase', margin: 0 }}>Gym Session</p>
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.green, fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }}><LogIn size={12} /> {formatTime(log.checkIn)}</div>
+                                            {log.checkOut && <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.rose, fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }}><LogOut size={12} /> {formatTime(log.checkOut)}</div>}
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div style={{ textAlign: 'center', padding: 48, opacity: 0.4 }}><History size={40} /><p style={{ fontSize: 12, fontWeight: 700, marginTop: 12 }}>No recent logs.</p></div>
+                                )}
+                            </div>
+                        </PremiumCard>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     );

@@ -1,10 +1,79 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Filter, FileText, Calendar, DollarSign, Search, Receipt, TrendingDown, PieChart, Users, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import {
+    Plus, Filter, FileText, Calendar, DollarSign, Search, Receipt, TrendingDown,
+    PieChart, Users, AlertCircle, CheckCircle, Clock, ChevronDown, X
+} from 'lucide-react';
+import Loader from '../../../components/common/Loader';
 import RightDrawer from '../../../components/common/RightDrawer';
-import Button from '../../../components/ui/Button';
 import { fetchExpenses, addExpense, fetchExpenseCategories } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
-import { ChevronDown } from 'lucide-react';
+
+const T = {
+    accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+    border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+    muted: '#7B7A8E', subtle: '#B0ADCC', error: '#FF4D4D', success: '#00C853',
+    cardShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08), 0 8px 10px -6px rgba(124, 92, 252, 0.05)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: '#FFF', borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: 'all 0.3s ease' },
+    input: { height: '48px', padding: '0 16px', borderRadius: '14px', border: `2px solid ${T.border}`, fontSize: '14px', fontWeight: '600', color: T.text, outline: 'none', transition: 'all 0.2s ease', background: '#FFF' },
+    btn: { height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    badge: { padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }
+};
+
+const CustomDropdown = ({ options, value, onChange, icon: Icon, placeholder }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    useEffect(() => {
+        const handleClickOutside = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false); };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} style={{ position: 'relative', minWidth: '160px' }}>
+            <button
+                type="button" onClick={() => setIsOpen(!isOpen)}
+                style={{
+                    width: '100%', height: '48px', padding: '0 16px', borderRadius: '14px',
+                    border: `2px solid ${isOpen ? T.accent : T.border}`, background: '#FFF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: isOpen ? '0 0 0 4px ' + T.accentLight : 'none'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {Icon && <Icon size={18} color={T.muted} />}
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: T.text }}>{value === '' ? placeholder : value}</span>
+                </div>
+                <ChevronDown size={18} color={T.muted} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }} />
+            </button>
+            {isOpen && (
+                <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                    background: '#FFF', borderRadius: '16px', border: `1px solid ${T.border}`,
+                    boxShadow: '0 15px 30px -5px rgba(0,0,0,0.1)', zIndex: 100, overflow: 'hidden'
+                }}>
+                    <button type="button" onClick={() => { onChange(''); setIsOpen(false); }} style={{ width: '100%', padding: '12px 16px', border: 'none', background: 'transparent', color: T.text, fontSize: '14px', fontWeight: '600', textAlign: 'left', cursor: 'pointer' }}>{placeholder}</button>
+                    {options.map((opt) => (
+                        <button
+                            key={opt} type="button" onClick={() => { onChange(opt); setIsOpen(false); }}
+                            style={{
+                                width: '100%', padding: '12px 16px', border: 'none', background: value === opt ? T.accentLight : 'transparent',
+                                color: value === opt ? T.accent : T.text, fontSize: '14px', fontWeight: '600', textAlign: 'left',
+                                cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                            }}
+                        >
+                            {opt}
+                            {value === opt && <CheckCircle size={16} />}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const Expenses = () => {
     const { selectedBranch, branches } = useBranchContext();
@@ -17,52 +86,29 @@ const Expenses = () => {
     const [loading, setLoading] = useState(true);
 
     const [newExpense, setNewExpense] = useState({
-        title: '',
-        category: '',
-        amount: '',
-        date: new Date().toISOString().split('T')[0],
-        notes: '',
-        status: 'Pending',
-        branchId: selectedBranch || 'all'
+        title: '', category: '', amount: '', date: new Date().toISOString().split('T')[0], notes: '', status: 'Pending', branchId: selectedBranch || 'all'
     });
 
-    useEffect(() => {
-        setNewExpense(prev => ({ ...prev, branchId: selectedBranch || 'all' }));
-    }, [selectedBranch]);
+    useEffect(() => { setNewExpense(prev => ({ ...prev, branchId: selectedBranch || 'all' })); }, [selectedBranch]);
 
     useEffect(() => {
         const fetchFormCats = async () => {
-            try {
-                const cats = await fetchExpenseCategories(newExpense.branchId);
-                setFormCategoriesList(cats || []);
-            } catch (error) {
-                console.error('Failed to fetch form categories', error);
-            }
+            try { const cats = await fetchExpenseCategories(newExpense.branchId); setFormCategoriesList(cats || []); }
+            catch (error) { console.error('Failed to fetch form categories', error); }
         };
-        if (newExpense.branchId) {
-            fetchFormCats();
-        }
+        if (newExpense.branchId) fetchFormCats();
     }, [newExpense.branchId]);
 
-    useEffect(() => {
-        loadData();
-    }, [selectedBranch]);
-
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setLoading(true);
-            const [data, cats] = await Promise.all([
-                fetchExpenses(selectedBranch),
-                fetchExpenseCategories(selectedBranch)
-            ]);
-            setExpenses(data);
-            setCategoriesList(cats || []);
-        } catch (error) {
-            console.error('Failed to fetch data', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+            const [data, cats] = await Promise.all([fetchExpenses(selectedBranch), fetchExpenseCategories(selectedBranch)]);
+            setExpenses(data); setCategoriesList(cats || []);
+        } catch (error) { console.error('Failed to fetch data', error); }
+        finally { setLoading(false); }
+    }, [selectedBranch]);
+
+    useEffect(() => { loadData(); }, [loadData]);
 
     const dynamicCategories = useMemo(() => {
         const list = categoriesList.map(c => c.name);
@@ -75,15 +121,13 @@ const Expenses = () => {
     }, [formCategoriesList]);
 
     const filteredExpenses = expenses.filter(expense => {
-        const matchesSearch = expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (expense.notes && expense.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesSearch = expense.title.toLowerCase().includes(searchTerm.toLowerCase()) || (expense.notes && expense.notes.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesCategory = filterCategory === '' || expense.category === filterCategory;
         return matchesSearch && matchesCategory;
     });
 
     const totalExpenses = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
 
-    // Category-wise breakdown for the month
     const categoryBreakdown = dynamicCategories.map(cat => {
         const amount = expenses.filter(e => e.category === cat).reduce((sum, exp) => sum + Number(exp.amount), 0);
         const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
@@ -96,381 +140,132 @@ const Expenses = () => {
             const added = await addExpense(newExpense);
             setExpenses([added, ...expenses]);
             setShowAddDrawer(false);
-            setNewExpense({
-                title: '',
-                category: '',
-                amount: '',
-                date: new Date().toISOString().split('T')[0],
-                notes: '',
-                status: 'Pending',
-                branchId: selectedBranch || 'all'
-            });
-        } catch (error) {
-            console.error('Failed to add expense', error);
-        }
+            setNewExpense({ title: '', category: '', amount: '', date: new Date().toISOString().split('T')[0], notes: '', status: 'Pending', branchId: selectedBranch || 'all' });
+        } catch (error) { console.error('Failed to add expense', error); }
     };
 
     return (
-        <div className=" bg-gradient-to-br from-slate-50 via-white to-primary-light/30 min-h-screen font-sans">
-            <div className="max-w-full mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-                    <div>
-                        <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                            <TrendingDown size={28} className="text-primary sm:w-9 sm:h-9 shrink-0" />
-                            Operations Expenses
-                        </h1>
-                        <p className="text-gray-500 font-medium mt-1.5 flex items-center gap-2 text-sm">
-                            Manage operational costs and track spending categories.
-                        </p>
-                    </div>
-                    <Button
-                        onClick={() => setShowAddDrawer(true)}
-                        variant="primary"
-                        className="h-11 px-8 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all transform active:scale-95"
-                        icon={Plus}
-                    >
-                        Log New Expense
-                    </Button>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            `}</style>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: 0 }}>Operational Expenses</h1>
+                    <p style={{ fontSize: '13px', fontWeight: '600', color: T.muted, marginTop: '4px' }}>Track overheads, utility costs & vendor payments</p>
                 </div>
+                <button onClick={() => setShowAddDrawer(true)} style={{ ...S.btn, background: T.accent, color: '#FFF', boxShadow: '0 8px 16px rgba(124, 92, 252, 0.2)' }}><Plus size={18} /> Log New Expense</button>
+            </div>
 
-                {/* Summary Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Monthly Summary Card */}
-                    <div className="bg-white rounded-2xl  text-slate-900 border border-slate-200 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 opacity-[0.03] text-slate-900 group-hover:scale-110 transition-transform duration-500">
-                            <PieChart size={120} />
-                        </div>
-                        <div className="relative z-10">
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Total Expenses (Current)</p>
-                            <h2 className="text-5xl font-black mb-6 text-slate-900">₹{totalExpenses.toLocaleString()}</h2>
-
-                            <div className="space-y-4">
-                                <p className="text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2">Category Breakdown</p>
-                                <div className="space-y-3">
-                                    {categoryBreakdown.slice(0, 3).map((item, idx) => (
-                                        <div key={idx} className="space-y-1">
-                                            <div className="flex justify-between text-xs font-bold text-slate-700">
-                                                <span>{item.category}</span>
-                                                <span className="text-slate-900">₹{item.amount.toLocaleString()}</span>
-                                            </div>
-                                            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-primary rounded-full transition-all duration-1000"
-                                                    style={{ width: `${item.percentage}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {categoryBreakdown.length > 3 && (
-                                        <p className="text-[10px] text-slate-500 text-center pt-2 font-bold">+ {categoryBreakdown.length - 3} more categories</p>
-                                    )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '48px' }}>
+                <div style={{ ...S.card, padding: '32px', gridColumn: 'span 1' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Total Monthly Burn</p>
+                    <h2 style={{ fontSize: '36px', fontWeight: '900', color: T.text, margin: '0 0 24px' }}>₹{totalExpenses.toLocaleString()}</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {categoryBreakdown.slice(0, 3).map((item, i) => (
+                            <div key={i}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: T.text, marginBottom: '6px' }}>
+                                    <span>{item.category}</span>
+                                    <span>₹{item.amount.toLocaleString()}</span>
+                                </div>
+                                <div style={{ height: '6px', background: T.bg, borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${item.percentage}%`, background: T.accent, borderRadius: '3px' }}></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Stats Grid */}
-                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-                                <CheckCircle size={24} />
-                            </div>
-                            <div>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Paid Expenses</p>
-                                <h3 className="text-3xl font-black text-slate-900">
-                                    ₹{expenses.filter(e => e.status === 'Paid').reduce((sum, e) => sum + Number(e.amount), 0).toLocaleString()}
-                                </h3>
-                                <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                                    <CheckCircle size={12} /> Fullfilled payments
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between text-left">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
-                                <Clock size={24} />
-                            </div>
-                            <div>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Pending Amount</p>
-                                <h3 className="text-3xl font-black text-slate-900">
-                                    ₹{expenses.filter(e => e.status === 'Pending').reduce((sum, e) => sum + Number(e.amount), 0).toLocaleString()}
-                                </h3>
-                                <p className="text-xs text-amber-600 font-bold mt-2 flex items-center gap-1">
-                                    <AlertCircle size={12} /> Awaiting verification
-                                </p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
-
-                {/* Filters & Search */}
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl ">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative group">
-                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary" />
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Search by title or notes..."
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all"
-                            />
+                <div style={{ ...S.card, padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '32px' }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: '#ECFDF5', color: T.success, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CheckCircle size={24} /></div>
+                        <div>
+                            <p style={{ fontSize: '11px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '4px' }}>Paid Amount</p>
+                            <p style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>₹{expenses.filter(e => e.status === 'Paid').reduce((sum, e) => sum + Number(e.amount), 0).toLocaleString()}</p>
                         </div>
-                        <div className="relative group">
-                            <Filter size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
-                            <select
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-white transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="">All Categories</option>
-                                {dynamicCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
+                     </div>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: '#FFFBEB', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={24} /></div>
+                        <div>
+                            <p style={{ fontSize: '11px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '4px' }}>Pending Amount</p>
+                            <p style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>₹{expenses.filter(e => e.status === 'Pending').reduce((sum, e) => sum + Number(e.amount), 0).toLocaleString()}</p>
                         </div>
-                    </div>
+                     </div>
                 </div>
-
-                {/* Listing Table */}
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-2xl overflow-hidden">
-                    {/* Mobile Card View */}
-                    <div className="md:hidden">
-                        <div className="space-y-4 p-4">
-                            {filteredExpenses.map((expense) => (
-                                <div key={expense.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary-light text-primary-hover border border-violet-100">
-                                                    {expense.category}
-                                                </span>
-                                                <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                                    {expense.tenant?.name || 'Main'}
-                                                </span>
-                                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                                    {new Date(expense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                </span>
-                                            </div>
-                                            <h4 className="font-bold text-slate-900 text-sm">{expense.title}</h4>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-base font-black text-slate-900">
-                                                ₹{Number(expense.amount).toLocaleString()}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {expense.notes && (
-                                        <div className="bg-slate-50 p-3 rounded-lg mb-3">
-                                            <p className="text-xs font-medium text-slate-500 line-clamp-2 italic">
-                                                "{expense.notes}"
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
-                                                {expense.addedBy?.[0] || 'A'}
-                                            </div>
-                                            <span>{expense.addedBy || 'System'}</span>
-                                        </div>
-                                        <button className="text-primary text-xs font-black uppercase tracking-wide">View Details</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        {filteredExpenses.length === 0 && (
-                            <div className="p-12 text-center">
-                                <Receipt size={48} className="text-slate-200 mx-auto mb-4" />
-                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No expenses found</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Branch</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Expense Title</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Added By</th>
-                                    <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {filteredExpenses.map((expense) => (
-                                    <tr key={expense.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                                                <Calendar size={14} className="text-primary" />
-                                                {new Date(expense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-widest">
-                                                {expense.tenant?.name || 'Main'}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">
-                                                {expense.title}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary-light text-primary-hover border border-violet-100">
-                                                {expense.category}
-                                            </span>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div className="text-xs font-medium text-slate-500 max-w-[200px] truncate" title={expense.notes}>
-                                                {expense.notes || '—'}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                                <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
-                                                    {expense.addedBy?.[0] || 'A'}
-                                                </div>
-                                                {expense.addedBy || 'System'}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-5 text-right">
-                                            <div className="text-base font-black text-slate-900">
-                                                ₹{Number(expense.amount).toLocaleString()}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {filteredExpenses.length === 0 && (
-                            <div className="p-20 text-center">
-                                <Receipt size={48} className="text-slate-200 mx-auto mb-4" />
-                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No expenses found</p>
-                            </div>
-                        )}
-                    </div>
+                <div style={{ ...S.card, padding: '32px', background: T.accent, color: '#FFF', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                     <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}><PieChart size={32} color="#FFF" /></div>
+                     <h3 style={{ fontSize: '18px', fontWeight: '900', margin: '0 0 4px' }}>Budget Health</h3>
+                     <p style={{ fontSize: '13px', fontWeight: '600', opacity: 0.8 }}>Spending is within normal parameters for this branch.</p>
                 </div>
             </div>
 
-            {/* Add Expense Drawer */}
-            <RightDrawer
-                isOpen={showAddDrawer}
-                onClose={() => setShowAddDrawer(false)}
-                title="Log Operational Expense"
-                maxWidth="max-w-md"
-            >
-                <form onSubmit={handleAddExpense} className="p-8 space-y-6">
-                    {/* Branch Selection */}
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Branch *</label>
-                        <div className="relative group">
-                            <select
-                                required
-                                value={newExpense.branchId}
-                                onChange={(e) => setNewExpense({ ...newExpense, branchId: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
-                            >
-                                <option value="all">Select Branch</option>
-                                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        </div>
+            <div style={{ ...S.card, overflow: 'visible' }}>
+                <div style={{ padding: '24px', borderBottom: `1px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <CustomDropdown options={dynamicCategories} value={filterCategory} onChange={setFilterCategory} placeholder="All Categories" icon={Filter} />
+                    <div style={{ position: 'relative', width: '320px' }}>
+                        <Search size={18} color={T.subtle} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input type="text" placeholder="Search expenses..." style={{ ...S.input, width: '100%', paddingLeft: '48px' }} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Expense Title</label>
-                        <input
-                            required
-                            type="text"
-                            value={newExpense.title}
-                            onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
-                            placeholder="e.g. Electricity Bill Jan 2024"
-                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all"
-                        />
+                </div>
+
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ background: T.bg }}>
+                                {['Date', 'Branch', 'Title', 'Category', 'Notes', 'Amount'].map(h => <th key={h} style={{ padding: '16px 24px', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="6" style={{ padding: '80px 0' }}><Loader message="Fetching expenses..." /></td></tr>
+                            ) : filteredExpenses.length === 0 ? (
+                                <tr><td colSpan="6" style={{ padding: '80px', textAlign: 'center', fontSize: '14px', fontWeight: '700', color: T.subtle }}>No expenses logged yet.</td></tr>
+                            ) : (
+                                filteredExpenses.map((expense, idx) => (
+                                    <tr key={idx} style={{ borderBottom: `1px solid ${T.bg}`, transition: 'all 0.2s' }}>
+                                        <td style={{ padding: '20px 24px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '700', color: T.subtle }}><Calendar size={14} /> {new Date(expense.date).toLocaleDateString()}</div>
+                                        </td>
+                                        <td style={{ padding: '20px 24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{expense.tenant?.name || 'Main'}</span></td>
+                                        <td style={{ padding: '20px 24px', fontSize: '14px', fontWeight: '800', color: T.text }}>{expense.title}</td>
+                                        <td style={{ padding: '20px 24px' }}><span style={{ fontSize: '11px', fontWeight: '800', color: T.muted, background: T.bg, padding: '4px 10px', borderRadius: '8px' }}>{expense.category}</span></td>
+                                        <td style={{ padding: '20px 24px', fontSize: '12px', fontWeight: '600', color: T.subtle, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{expense.notes || '—'}</td>
+                                        <td style={{ padding: '20px 24px', fontSize: '16px', fontWeight: '900', color: T.text, textAlign: 'right' }}>₹{Number(expense.amount).toLocaleString()}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <RightDrawer isOpen={showAddDrawer} onClose={() => setShowAddDrawer(false)} title="Log Expense" subtitle="Record new operational cost" width="450px">
+                <form onSubmit={handleAddExpense} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '100px' }}>
+                    <div style={{ padding: '20px', background: T.accentLight, borderRadius: '20px', border: `1px solid ${T.accentMid}` }}>
+                        <label style={{ fontSize: '10px', fontWeight: '900', color: T.accent, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Assign to Branch *</label>
+                        <select required style={{ ...S.input, width: '100%' }} value={newExpense.branchId} onChange={(e) => setNewExpense({ ...newExpense, branchId: e.target.value })}>
+                            <option value="all">Select Branch</option>
+                            {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                        </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Category</label>
-                            <select
-                                required
-                                value={newExpense.category}
-                                onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
-                            >
-                                <option value="">Select</option>
-                                {dynamicFormCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                            </select>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Expense Title *</label><input required style={S.input} placeholder="Electricity Bill Jan..." value={newExpense.title} onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })} /></div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Category *</label><select required style={{ ...S.input, width: '100%' }} value={newExpense.category} onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}><option value="">Select</option>{dynamicFormCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div>
+                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Amount (₹) *</label><input required type="number" style={S.input} placeholder="0" value={newExpense.amount} onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })} /></div>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Amount (₹)</label>
-                            <input
-                                required
-                                type="number"
-                                value={newExpense.amount}
-                                onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                                placeholder="0"
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all"
-                            />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Expense Date</label><input type="date" style={S.input} value={newExpense.date} onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })} /></div>
+                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Status</label><select style={{ ...S.input, width: '100%' }} value={newExpense.status} onChange={(e) => setNewExpense({ ...newExpense, status: e.target.value })}><option value="Pending">Pending</option><option value="Paid">Paid</option></select></div>
                         </div>
+                        <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Notes</label><textarea rows="4" style={{ ...S.input, height: '120px', paddingTop: '12px', resize: 'none' }} placeholder="Additional details..." value={newExpense.notes} onChange={(e) => setNewExpense({ ...newExpense, notes: e.target.value })}></textarea></div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Expense Date</label>
-                            <input
-                                required
-                                type="date"
-                                value={newExpense.date}
-                                onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Status</label>
-                            <select
-                                required
-                                value={newExpense.status}
-                                onChange={(e) => setNewExpense({ ...newExpense, status: e.target.value })}
-                                className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all bg-slate-50/50 appearance-none cursor-pointer"
-                            >
-                                <option value="Pending">Pending</option>
-                                <option value="Paid">Paid</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Additional Notes</label>
-                        <textarea
-                            rows="4"
-                            value={newExpense.notes}
-                            onChange={(e) => setNewExpense({ ...newExpense, notes: e.target.value })}
-                            placeholder="Mention utility month, invoice reference, etc..."
-                            className="w-full px-5 py-4 border-2 border-slate-100 rounded-[24px] focus:border-primary outline-none font-bold text-gray-900 transition-all resize-none bg-slate-50/50"
-                        ></textarea>
-                    </div>
-
-                    <div className="flex gap-4 pt-6">
-                        <button
-                            type="button"
-                            onClick={() => setShowAddDrawer(false)}
-                            className="flex-1 px-8 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-xs hover:bg-slate-100 transition-all uppercase tracking-widest"
-                        >
-                            Discard
-                        </button>
-                        <button
-                            type="submit"
-                            className="flex-[2] px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-violet-200 hover:bg-primary-hover transition-all uppercase tracking-widest flex items-center justify-center gap-2"
-                        >
-                            <CheckCircle size={18} />
-                            Save Expense
-                        </button>
+                    <div style={{ position: 'fixed', bottom: 0, right: 0, width: '450px', padding: '24px', background: '#FFF', borderTop: `1px solid ${T.bg}`, display: 'flex', gap: '12px', zIndex: 10 }}>
+                        <button type="button" onClick={() => setShowAddDrawer(false)} style={{ ...S.btn, flex: 1, background: T.bg, color: T.muted }}>Discard</button>
+                        <button type="submit" style={{ ...S.btn, flex: 2, background: T.accent, color: '#FFF' }}><CheckCircle size={18} /> Save Expense</button>
                     </div>
                 </form>
             </RightDrawer>

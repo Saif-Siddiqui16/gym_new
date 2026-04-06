@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
-import { X, Save, Calendar, Info, Trash2, Edit3, Settings } from 'lucide-react';
+import { X, Save, Calendar, Info, Trash2, Edit3, Settings, Box, Wrench, MapPin, Tag } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
 
 const AddEquipmentDrawer = ({ isOpen, onClose, onAdd }) => {
     const [newItem, setNewItem] = useState({
@@ -44,149 +64,164 @@ const AddEquipmentDrawer = ({ isOpen, onClose, onAdd }) => {
         onClose();
     };
 
+    const InputLabel = ({ children, required }) => (
+        <label style={{ display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, marginLeft: 4 }}>
+            {children} {required && <span style={{ color: T.accent }}>*</span>}
+        </label>
+    );
+
+    const TextInput = ({ icon: Icon, ...props }) => (
+        <div style={{ position: 'relative' }}>
+            {Icon && <Icon size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />}
+            <input
+                {...props}
+                style={{
+                    width: '100%', height: 54, padding: Icon ? '0 16px 0 48px' : '0 16px', borderRadius: 16, border: `2px solid ${T.border}`,
+                    background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s',
+                    ...props.style
+                }}
+                onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+            />
+        </div>
+    );
+
+    const SelectInput = ({ icon: Icon, options, ...props }) => (
+        <div style={{ position: 'relative' }}>
+            {Icon && <Icon size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />}
+            <select
+                {...props}
+                style={{
+                    width: '100%', height: 54, padding: Icon ? '0 40px 0 48px' : '0 40px 0 16px', borderRadius: 16, border: `2px solid ${T.border}`,
+                    background: '#fff', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: '0.3s',
+                    appearance: 'none', cursor: 'pointer', ...props.style
+                }}
+                onFocus={e => { e.target.style.borderColor = T.accent; e.target.style.boxShadow = `0 0 0 4px ${T.accentLight}`; }}
+                onBlur={e => { e.target.style.borderColor = T.border; e.target.style.boxShadow = 'none'; }}
+            >
+                {options.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+            </select>
+            <Settings size={14} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle, pointerEvents: 'none' }} />
+        </div>
+    );
+
     return (
         <RightDrawer
             isOpen={isOpen}
             onClose={onClose}
-            title="Add New Equipment"
-            subtitle="Add equipment to track in your gym"
-            footer={
-                <div className="flex gap-3 w-full">
+            title="Register Asset"
+            subtitle="Catalog a new machine into the inventory node"
+        >
+            <form id="add-equipment-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
+                <div style={{ background: T.bg, padding: 24, borderRadius: 28, border: `1.5px solid ${T.border}`, marginBottom: 8 }}>
+                    <InputLabel required>Asset Designation</InputLabel>
+                    <TextInput 
+                        icon={Box}
+                        placeholder="e.g. Life-X Series 500 Treadmill"
+                        value={newItem.name}
+                        onChange={e => setNewItem({ ...newItem, name: e.target.value })}
+                        required
+                    />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                        <InputLabel>Manufacturer</InputLabel>
+                        <TextInput 
+                            placeholder="e.g. Life Fitness"
+                            value={newItem.brand}
+                            onChange={e => setNewItem({ ...newItem, brand: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <InputLabel>Model ID</InputLabel>
+                        <TextInput 
+                            placeholder="e.g. T5-GO"
+                            value={newItem.model}
+                            onChange={e => setNewItem({ ...newItem, model: e.target.value })}
+                        />
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                        <InputLabel>Engineering Class</InputLabel>
+                        <SelectInput 
+                            icon={Tag}
+                            value={newItem.category}
+                            onChange={e => setNewItem({ ...newItem, category: e.target.value })}
+                            options={[
+                                { label: 'Select Class', value: '' },
+                                ...categories.map(c => ({ label: c, value: c }))
+                            ]}
+                        />
+                    </div>
+                    <div>
+                        <InputLabel>Placement Zone</InputLabel>
+                        <TextInput 
+                            icon={MapPin}
+                            placeholder="e.g. Cardio Zone"
+                            value={newItem.location}
+                            onChange={e => setNewItem({ ...newItem, location: e.target.value })}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <InputLabel>Engineering Serial (UID)</InputLabel>
+                    <TextInput 
+                        placeholder="Unique identifier found on chassis"
+                        value={newItem.serialNumber}
+                        onChange={e => setNewItem({ ...newItem, serialNumber: e.target.value })}
+                    />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                        <InputLabel>Acquisition Date</InputLabel>
+                        <TextInput 
+                            type="date"
+                            value={newItem.purchaseDate}
+                            onChange={e => setNewItem({ ...newItem, purchaseDate: e.target.value })}
+                        />
+                    </div>
+                    <div>
+                        <InputLabel>Acquisition Value (₹)</InputLabel>
+                        <TextInput 
+                            type="number"
+                            placeholder="0"
+                            value={newItem.purchasePrice}
+                            onChange={e => setNewItem({ ...newItem, purchasePrice: e.target.value })}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <InputLabel>Warranty Expiry Node</InputLabel>
+                    <TextInput 
+                        type="date"
+                        value={newItem.warrantyExpiry}
+                        onChange={e => setNewItem({ ...newItem, warrantyExpiry: e.target.value })}
+                    />
+                </div>
+
+                <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-6 py-4 border-2 border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 hover:bg-slate-50 transition-all uppercase tracking-widest"
+                        style={{ flex: 1, height: 54, borderRadius: 16, border: `2px solid ${T.border}`, background: '#fff', color: T.text, fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s' }}
                     >
-                        Cancel
+                        Abort
                     </button>
                     <button
                         type="submit"
-                        form="add-equipment-form"
                         disabled={!newItem.name}
-                        className="flex-1 px-6 py-4 bg-primary text-white rounded-2xl text-[10px] font-black hover:bg-primary-hover transition-all uppercase tracking-widest disabled:opacity-50 shadow-lg shadow-violet-100"
+                        style={{ flex: 2, height: 54, borderRadius: 16, border: 'none', background: T.accent, color: '#fff', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s', boxShadow: T.shadow, opacity: !newItem.name ? 0.5 : 1 }}
                     >
-                        Add Equipment
+                        Commit Asset
                     </button>
-                </div>
-            }
-        >
-            <form id="add-equipment-form" onSubmit={handleSubmit} className="space-y-6 pb-4">
-                {/* Equipment Name */}
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Equipment Name *</label>
-                    <input
-                        required
-                        type="text"
-                        value={newItem.name}
-                        onChange={e => setNewItem({ ...newItem, name: e.target.value })}
-                        placeholder="e.g., Treadmill, Bench Press"
-                        className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                    />
-                </div>
-
-                {/* Brand & Model */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Brand</label>
-                        <input
-                            type="text"
-                            value={newItem.brand}
-                            onChange={e => setNewItem({ ...newItem, brand: e.target.value })}
-                            placeholder="e.g. Life Fitness"
-                            className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Model</label>
-                        <input
-                            type="text"
-                            value={newItem.model}
-                            onChange={e => setNewItem({ ...newItem, model: e.target.value })}
-                            placeholder="e.g. T5-GO"
-                            className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                        />
-                    </div>
-                </div>
-
-                {/* Category & Location */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Category</label>
-                        <div className="relative">
-                            <select
-                                value={newItem.category}
-                                onChange={e => setNewItem({ ...newItem, category: e.target.value })}
-                                className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer shadow-sm"
-                            >
-                                <option value="">Select category</option>
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Location</label>
-                        <input
-                            type="text"
-                            value={newItem.location}
-                            onChange={e => setNewItem({ ...newItem, location: e.target.value })}
-                            placeholder="e.g. Cardio Zone"
-                            className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                        />
-                    </div>
-                </div>
-
-                {/* Serial Number */}
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Serial Number</label>
-                    <input
-                        type="text"
-                        value={newItem.serialNumber}
-                        onChange={e => setNewItem({ ...newItem, serialNumber: e.target.value })}
-                        placeholder="Equipment serial number"
-                        className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                    />
-                </div>
-
-                {/* Purchase Date & Price */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Purchase Date</label>
-                        <div className="relative group">
-                            <input
-                                type="date"
-                                value={newItem.purchaseDate}
-                                onChange={e => setNewItem({ ...newItem, purchaseDate: e.target.value })}
-                                className="w-full pl-5 pr-12 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all shadow-sm"
-                            />
-                            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary" />
-                        </div>
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Purchase Price (₹)</label>
-                        <input
-                            type="number"
-                            value={newItem.purchasePrice}
-                            onChange={e => setNewItem({ ...newItem, purchasePrice: e.target.value })}
-                            placeholder="0"
-                            className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all placeholder:text-slate-300 shadow-sm"
-                        />
-                    </div>
-                </div>
-
-                {/* Warranty Expiry */}
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 ml-1">Warranty Expiry</label>
-                    <div className="relative group">
-                        <input
-                            type="date"
-                            value={newItem.warrantyExpiry}
-                            onChange={e => setNewItem({ ...newItem, warrantyExpiry: e.target.value })}
-                            className="w-full pl-5 pr-12 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all shadow-sm"
-                        />
-                        <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary" />
-                    </div>
                 </div>
             </form>
         </RightDrawer>

@@ -1,8 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Calendar, TrendingUp, Users, Banknote, XCircle, CheckCircle, Clock, Download, FileText, ChevronRight, IndianRupee } from 'lucide-react';
-import MobileCard from '../../components/common/MobileCard';
+import { 
+    Search, Filter, Calendar, TrendingUp, Users, Banknote, XCircle, 
+    CheckCircle, Clock, Download, FileText, ChevronRight, IndianRupee,
+    ArrowRight, User, Sparkles, X
+} from 'lucide-react';
 import RightDrawer from '../../components/common/RightDrawer';
 import { fetchPayrollHistoryAPI } from '../../api/admin/adminApi';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF',
+};
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+   ───────────────────────────────────────────── */
+const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+    <div style={{
+        background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
+        borderRadius: 20, padding: '20px 26px',
+        boxShadow: '0 8px 32px rgba(124,92,252,0.28)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 28, position: 'relative'
+    }} className="fu">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <div style={{
+                width: 52, height: 52, borderRadius: 14,
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', flexShrink: 0
+            }}>
+                <Icon size={26} color="#fff" strokeWidth={2.2} />
+            </div>
+            <div>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.5px' }}>{title}</h1>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '4px 0 0', fontWeight: 500 }}>{sub}</p>
+            </div>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>{actions}</div>
+    </div>
+);
+
+const MetricCard = ({ title, value, icon: Icon, iconColor, iconBg, caption, isFirst = false }) => {
+    const [hover, setHover] = useState(false);
+    return (
+        <div 
+            style={{
+                background: isFirst ? `linear-gradient(135deg, ${T.accent}, ${T.accent2})` : T.surface,
+                borderRadius: 18, border: isFirst ? 'none' : `1px solid ${T.border}`,
+                boxShadow: isFirst ? '0 8px 24px rgba(124,92,252,0.28)' : '0 2px 12px rgba(124,92,252,0.06)',
+                padding: 20, transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+                cursor: 'default'
+            }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: isFirst ? 'rgba(255,255,255,0.2)' : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={16} color={isFirst ? '#fff' : iconColor} strokeWidth={2.5} />
+                </div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: isFirst ? 'rgba(255,255,255,0.7)' : T.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{title}</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: isFirst ? '#fff' : T.text, marginBottom: 2 }}>{value}</div>
+            {caption && <div style={{ fontSize: 9, fontWeight: 700, color: isFirst ? 'rgba(255,255,255,0.5)' : T.subtle }}>{caption}</div>}
+        </div>
+    );
+};
 
 const PayrollHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -16,12 +86,9 @@ const PayrollHistory = () => {
         const loadHistory = async () => {
             try {
                 const data = await fetchPayrollHistoryAPI();
-                setHistory(data);
-            } catch (error) {
-                console.error("Error loading payroll history:", error);
-            } finally {
-                setLoading(false);
-            }
+                setHistory(data || []);
+            } catch (error) { console.error(error); }
+            finally { setLoading(false); }
         };
         loadHistory();
     }, []);
@@ -32,199 +99,199 @@ const PayrollHistory = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const openDrawer = (record) => {
-        setSelectedEmployee(record);
-        setIsDrawerOpen(true);
-    };
-
-    const closeDrawer = () => {
-        setIsDrawerOpen(false);
-        setTimeout(() => setSelectedEmployee(null), 300);
-    };
-
+    const openDrawer = (record) => { setSelectedEmployee(record); setIsDrawerOpen(true); };
+    const closeDrawer = () => { setIsDrawerOpen(false); setTimeout(() => setSelectedEmployee(null), 300); };
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+    if (loading && history.length === 0) return (
+        <div style={{ background: T.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap'); @keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            <div style={{ width: 44, height: 44, border: `3px solid ${T.accentMid}`, borderTopColor: T.accent, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+            <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, uppercase: true, letterSpacing: '0.18em', textTransform: 'uppercase' }}>Auditing Ledgers…</p>
+        </div>
+    );
+
     return (
-        <div className="bg-gradient-to-br from-slate-50 via-white to-primary-light/30 p-4 sm:p-6 pb-12 min-h-screen font-sans">
-            {/* Header section */}
-            <div className="mb-6 sm:mb-8 relative max-w-full mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent mb-1 flex items-center gap-2">
-                                <FileText className="text-primary" size={24} />
-                                Payroll History
-                            </h1>
-                            <p className="text-slate-600 text-xs sm:text-sm">View and manage employee payment history</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style={{
+            background: T.bg, minHeight: '100vh', padding: '28px 28px 48px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif", animation: 'fadeUp 0.38s ease both'
+        }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                
+                .grid-table { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 100px; align-items: center; }
+                
+                @media (max-width: 1024px) {
+                    .table-wrapper { overflow-x: auto !important; }
+                    .table-content { min-width: 900px; }
+                }
+                @media (max-width: 640px) {
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 16px 18px !important; }
+                    .filter-bar { flex-direction: column; align-items: stretch !important; gap: 12px !important; }
+                    .grid-table { grid-template-columns: 1fr !important; gap: 10px; padding: 18px !important; border-bottom: 6px solid ${T.bg} !important; position: relative; }
+                    .table-header { display: none !important; }
+                    .mobile-label { display: block !important; margin-bottom: 2px; font-size: 8px !important; color: ${T.subtle} !important; text-transform: uppercase; font-weight: 800; }
+                    .actions-cell { border-top: 1px solid ${T.border}; padding-top: 10px !important; display: flex !important; justify-content: flex-start !important; }
+                }
+            `}</style>
 
-            {/* Filters Bar */}
-            <div className="mb-6 bg-white/60 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-4 sm:p-5 max-w-full mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="md:col-span-2 relative group">
-                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all duration-300" />
-                        <input
-                            type="text"
-                            placeholder="Search by name..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 hover:border-slate-200 shadow-sm"
-                        />
-                    </div>
-
-                    <div className="relative">
-                        <Filter size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary z-10" />
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 appearance-none cursor-pointer hover:border-slate-200 shadow-sm"
-                        >
-                            <option value="">All Status</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Pending">Pending</option>
-                        </select>
-                    </div>
-
-                    <button className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-black hover:bg-slate-800 transition-all duration-300 shadow-lg shadow-slate-200">
-                        <Download size={18} /> Export Data
-                    </button>
-                </div>
-            </div>
-
-            {/* Mobile Cards (md:hidden) */}
-            <div className="grid grid-cols-1 gap-4 md:hidden mb-6 max-w-full mx-auto">
-                {loading ? (
-                    <div className="text-center py-10 font-bold text-slate-400 tracking-widest uppercase">Loading History...</div>
-                ) : filteredRecords.length === 0 ? (
-                    <div className="text-center py-10 font-bold text-slate-400 tracking-widest uppercase">No records found</div>
-                ) : filteredRecords.map(record => (
-                    <MobileCard
-                        key={record.id}
-                        title={record.staffName}
-                        subtitle={`${monthNames[record.month]} ${record.year}`}
-                        badge={{
-                            label: record.status,
-                            color: record.status === 'Paid' ? 'emerald' : 'amber'
+            <HeaderBanner 
+                title="Payroll Auditing"
+                sub="Historical settlement records & compensation analytics"
+                icon={FileText}
+                actions={
+                    <button 
+                        style={{
+                            background: '#fff', border: 'none', borderRadius: 10,
+                            padding: '10px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                            color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                         }}
-                        fields={[
-                            { label: 'Net Pay', value: `₹${Number(record.amount).toLocaleString()}`, icon: IndianRupee },
-                            { label: 'Paid On', value: record.status === 'Paid' ? 'Processed' : '-', icon: Calendar },
-                        ]}
-                        actions={[
-                            {
-                                label: 'View Details',
-                                icon: ChevronRight,
-                                variant: 'secondary',
-                                onClick: () => openDrawer(record)
-                            }
-                        ]}
+                    >
+                        <Download size={16} strokeWidth={3} /> Export Audit
+                    </button>
+                }
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 28 }} className="grid-metrics">
+                <MetricCard title="Settled Volume" value={`₹${history.reduce((acc, r) => acc + (r.status === 'Paid' ? Number(r.amount) : 0), 0).toLocaleString()}`} icon={Banknote} iconColor={T.accent} iconBg={T.accentLight} isFirst={true} />
+                <MetricCard title="Transactions" value={history.length} icon={Users} iconColor={T.blue} iconBg={T.blueLight} caption="Historical count" />
+                <MetricCard title="Pending Sync" value={history.filter(r => r.status === 'Pending').length} icon={Clock} iconColor={T.amber} iconBg={T.amberLight} />
+                <MetricCard title="Success Rate" value="100%" icon={CheckCircle} iconColor={T.green} iconBg={T.greenLight} />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }} className="filter-bar">
+                <div style={{ flex: 1, height: 44, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <Search size={18} color={T.subtle} strokeWidth={2.5} />
+                    <input 
+                        type="text" placeholder="Search by personnel name or department…" 
+                        value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                        style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                     />
-                ))}
+                </div>
+                <div style={{ width: 220, height: 44, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '0 12px', display: 'flex', alignItems: 'center', position: 'relative' }}>
+                    <Filter size={16} color={T.subtle} style={{ marginRight: 8 }} />
+                    <select 
+                        value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+                        style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontWeight: 700, color: T.text, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                    >
+                        <option value="">Status Stream</option>
+                        <option value="Paid">Success</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
             </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-w-full mx-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="bg-slate-50 border-b border-slate-100">
-                            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Employee</th>
-                            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Month</th>
-                            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Net Pay</th>
-                            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
-                            <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {loading ? (
-                            <tr>
-                                <td colSpan="5" className="px-6 py-10 text-center font-bold text-slate-400 tracking-widest uppercase">Loading History...</td>
-                            </tr>
-                        ) : filteredRecords.length === 0 ? (
-                            <tr>
-                                <td colSpan="5" className="px-6 py-10 text-center font-bold text-slate-400 tracking-widest uppercase">No records found</td>
-                            </tr>
-                        ) : filteredRecords.map(record => (
-                            <tr key={record.id} className="group hover:bg-slate-50/50 transition-colors cursor-pointer" onClick={() => openDrawer(record)}>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-primary font-bold border border-violet-200">
-                                            {record.staffName?.charAt(0)}
-                                        </div>
-                                        <span className="text-sm font-black text-slate-900">{record.staffName}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-sm font-bold text-slate-500">{monthNames[record.month]} {record.year}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-sm font-black text-slate-900">₹{Number(record.amount).toLocaleString()}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest ${record.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                        {record.status === 'Paid' ? <CheckCircle size={12} /> : <Clock size={12} />}
-                                        {record.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); openDrawer(record); }}
-                                        className="p-2 bg-slate-50 text-slate-400 hover:text-primary hover:bg-primary-light rounded-xl transition-all duration-300"
-                                    >
-                                        <ChevronRight size={18} />
-                                    </button>
-                                </td>
-                            </tr>
+            <div style={{ background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(124,92,252,0.06)', overflow: 'hidden' }} className="table-wrapper">
+                <div className="table-content">
+                    <div style={{ padding: '12px 22px', background: T.bg, borderBottom: `1px solid ${T.border}` }} className="grid-table table-header">
+                        {['Personnel', 'Fiscal Month', 'Net Settlement', 'Sync Status', 'Audit'].map((h, i) => (
+                            <span key={h} style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: i === 4 ? 'right' : 'left' }}>{h}</span>
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+
+                    {filteredRecords.length > 0 ? filteredRecords.map((r, i) => (
+                        <div 
+                            key={r.id}
+                            style={{ padding: '16px 22px', borderBottom: i < filteredRecords.length - 1 ? `1px solid ${T.border}` : 'none', transition: '0.1s', cursor: 'pointer' }}
+                            className="grid-table"
+                            onClick={() => openDrawer(r)}
+                            onMouseEnter={e => { e.currentTarget.style.background = T.bg; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ 
+                                    width: 36, height: 36, borderRadius: 11, background: T.bg, border: `1px solid ${T.border}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: T.accent
+                                }}>
+                                    {r.staffName?.charAt(0)}
+                                </div>
+                                <div>
+                                    <span style={{ display: 'none' }} className="mobile-label">Personnel</span>
+                                    <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{r.staffName}</div>
+                                    <div style={{ fontSize: 9, fontWeight: 700, color: T.muted }}>ID: #{String(r.id).slice(-4).toUpperCase()}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span style={{ display: 'none' }} className="mobile-label">Fiscal Month</span>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{monthNames[r.month]} {r.year}</div>
+                            </div>
+
+                            <div>
+                                <span style={{ display: 'none' }} className="mobile-label">Net Settlement</span>
+                                <div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>₹{Number(r.amount).toLocaleString()}</div>
+                            </div>
+
+                            <div>
+                                <span style={{ display: 'none' }} className="mobile-label">Sync Status</span>
+                                <span style={{ 
+                                    fontSize: 9, fontWeight: 800, textTransform: 'uppercase', padding: '4px 10px', borderRadius: 20,
+                                    background: r.status === 'Paid' ? T.greenLight : T.amberLight,
+                                    color: r.status === 'Paid' ? T.green : T.amber,
+                                    border: `1px solid ${r.status === 'Paid' ? '#D1FAE5' : '#FEF3C7'}`
+                                }}>{r.status}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }} className="actions-cell">
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); openDrawer(r); }}
+                                    style={{ 
+                                        width: 30, height: 30, borderRadius: 8, border: `1px solid ${T.border}`,
+                                        background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}
+                                ><ChevronRight size={14} strokeWidth={3} /></button>
+                            </div>
+                        </div>
+                    )) : (
+                        <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+                            <div style={{ width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}><FileText size={24} color={T.subtle} /></div>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, color: T.muted, margin: '0 0 4px' }}>Empty Archive</h3>
+                            <p style={{ fontSize: 11, color: T.subtle, italic: true }}>No payroll events identified in this audit window</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Payroll Details Drawer */}
             <RightDrawer
                 isOpen={isDrawerOpen}
                 onClose={closeDrawer}
-                title="Payroll Details"
-                subtitle={selectedEmployee ? `${selectedEmployee.staffName} - ${monthNames[selectedEmployee.month]} ${selectedEmployee.year}` : ''}
+                title="Personnel Audit"
+                subtitle={selectedEmployee ? `${selectedEmployee.staffName} • Ledger Analysis` : ''}
             >
                 {selectedEmployee && (
-                    <div className="space-y-8">
-                        {/* Header Info */}
-                        <div className="bg-gradient-to-br from-primary via-primary to-fuchsia-600 p-6 rounded-2xl text-white shadow-xl">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-black border border-white/30">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ 
+                            background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, 
+                            padding: 24, borderRadius: 20, color: '#fff', boxShadow: '0 10px 24px rgba(124,92,252,0.2)' 
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900 }}>
                                     {selectedEmployee.staffName?.charAt(0)}
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black tracking-tight">{selectedEmployee.staffName}</h2>
-                                    <div className="text-violet-100 text-sm font-medium">{monthNames[selectedEmployee.month]} {selectedEmployee.year} History</div>
+                                    <h2 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>{selectedEmployee.staffName}</h2>
+                                    <p style={{ fontSize: 11, fontWeight: 600, opacity: 0.8, margin: '2px 0 0' }}>{monthNames[selectedEmployee.month]} {selectedEmployee.year} Sequence</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className={`px-4 py-1.5 rounded-xl text-xs font-black shadow-lg ${selectedEmployee.status === 'Paid' ? 'bg-emerald-400 text-emerald-950' : 'bg-amber-400 text-amber-950'}`}>
-                                    {selectedEmployee.status.toUpperCase()}
-                                </span>
+                        </div>
+
+                        <div style={{ padding: 20, borderRadius: 18, border: `1px solid ${T.border}`, background: T.bg }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Net Settlement</div>
+                            <div style={{ fontSize: 32, fontWeight: 900, color: T.text }}>₹{Number(selectedEmployee.amount).toLocaleString()}</div>
+                            <div style={{ marginTop: 12, display: 'inline-flex', padding: '6px 14px', borderRadius: 20, background: '#fff', border: `1px solid ${T.border}`, fontSize: 11, fontWeight: 800, color: selectedEmployee.status === 'Paid' ? T.green : T.amber }}>
+                                STATUS: {selectedEmployee.status.toUpperCase()}
                             </div>
                         </div>
 
-                        {/* Detailed Stats */}
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center pt-6">
-                                <span className="text-lg font-black text-slate-900 uppercase tracking-widest">Net Payout</span>
-                                <span className="text-3xl font-black text-primary">₹{Number(selectedEmployee.amount).toLocaleString()}</span>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="pt-6">
-                            <button
-                                onClick={closeDrawer}
-                                className="w-full py-4 px-6 bg-slate-900 text-white rounded-2xl font-black text-lg shadow-xl shadow-slate-200 hover:scale-[1.02] active:scale-95 transition-all"
-                            >
-                                Close Details
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <button style={{ height: 48, borderRadius: 12, border: `1px solid ${T.border}`, background: '#fff', color: T.text, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                <Download size={16} /> Download Slip
+                            </button>
+                            <button onClick={closeDrawer} style={{ height: 48, borderRadius: 12, border: 'none', background: T.text, color: '#fff', fontSize: 13, fontWeight: 900, cursor: 'pointer' }}>
+                                Close Audit
                             </button>
                         </div>
                     </div>

@@ -235,3 +235,25 @@ const Dashboard = () => {
 
 export default Dashboard;
 
+{/* System Alerts Column */ }
+<div className="xl:col-span-4 space-y-6">
+    <h2 className="text-lg font-black text-gray-900 italic uppercase tracking-tighter">System Alerts</h2>
+
+    <div className="fit-card p-10 bg-emerald-50/20 border-none shadow-xl flex flex-col items-center justify-center text-center gap-8 min-h-[300px] rounded-[40px]">
+        <div className="h-16 w-16 bg-white text-emerald-500 rounded-3xl flex items-center justify-center shadow-2xl relative">
+            <div className="absolute inset-0 bg-emerald-500 rounded-3xl animate-ping opacity-20"></div>
+            <CheckCircle2 size={36} className="relative z-10" />
+        </div>
+        <div className="space-y-2">
+            <h4 className="text-base font-black text-emerald-900 uppercase tracking-widest italic">Infrastructure Stable</h4>
+            <p className="text-[11px] font-bold text-emerald-600 uppercase opacity-60 tracking-widest">No active alerts detected in platform core</p>
+        </div>
+    </div>
+</div>
+
+            </div >
+        </div >
+    );
+};
+
+export default Dashboard;

@@ -1,14 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { rewardApi } from '../../../api/rewardApi';
 import toast from 'react-hot-toast';
-import { Gift, Plus, Award, Settings, Trash2, Zap, Star, Users, Calendar } from 'lucide-react';
+import { Gift, Plus, Award, Settings, Trash2, Zap, Star, Users, Calendar, ChevronRight, Save, Coins } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddRewardDrawer from './AddRewardDrawer';
 import { getTenantSettings } from '../../../api/admin/settingsApi';
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  indigo: '#6366F1',
+  indigoLight: '#EEF2FF',
+  shadow: '0 10px 30px -10px rgba(124, 92, 252, 0.15)',
+  cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)'
+};
+
 const RewardsProgram = () => {
     const [rewards, setRewards] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pointsConfig, setPointsConfig] = useState({
+        checkIn: 10,
+        referral: 500,
+        review: 100,
+        classBooking: 20
+    });
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     useEffect(() => {
         loadRewards();
@@ -30,15 +65,14 @@ const RewardsProgram = () => {
         try {
             setLoading(true);
             const data = await rewardApi.getAllRewards();
-            // Map the data appropriately if needed, expecting: id, member, points, description, date
             const formatted = data.map(r => ({
                 id: r.id,
-                name: r.member, // using member name as reward 'name' in UI context for now
+                name: r.member, 
                 points: r.points,
                 description: r.description,
                 category: 'Custom'
             }));
-            setRewards(formatted);
+            setRewards(formatted || []);
         } catch (error) {
             console.error(error);
             toast.error('Failed to load rewards');
@@ -46,15 +80,6 @@ const RewardsProgram = () => {
             setLoading(false);
         }
     };
-
-    const [pointsConfig, setPointsConfig] = useState({
-        checkIn: 10,
-        referral: 500,
-        review: 100,
-        classBooking: 20
-    });
-
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const handleAddReward = async (newReward) => {
         try {
@@ -74,185 +99,189 @@ const RewardsProgram = () => {
         setRewards(rewards.filter(r => r.id !== id));
     };
 
+    const ActionButton = ({ children, onClick, variant = 'primary', icon: Icon, style = {} }) => (
+        <button
+            onClick={onClick}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = T.shadow; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: variant === 'outline' ? `2px solid ${T.border}` : 'none',
+                background: variant === 'outline' ? '#fff' : T.accent, color: variant === 'outline' ? T.text : '#fff',
+                fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 10, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', ...style
+            }}
+        >
+            {Icon && <Icon size={18} strokeWidth={2.5} />}
+            {children}
+        </button>
+    );
+
+    const ConfigRow = ({ label, value, onChange, icon: Icon, color, bg }) => (
+        <div style={{ background: T.bg, padding: 16, borderRadius: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: color }}>
+                    <Icon size={18} strokeWidth={2.5} />
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{label}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                    type="number"
+                    value={value}
+                    onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+                    style={{ width: 60, height: 36, background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 900, color: T.text, outline: 'none' }}
+                />
+                <span style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>PTS</span>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="min-h-screen ">
-            {/* Premium Header */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                            <Gift size={28} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                    Rewards Program
-                                </h1>
-                                <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse">
-                                    PREMIUM ✨
-                                </span>
-                            </div>
-                            <p className="text-slate-600 text-sm mt-1">Configure loyalty points and redeemable rewards</p>
-                        </div>
+        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .reward-card:hover { transform: translateY(-5px); box-shadow: ${T.shadow}; border-color: ${T.accentLight} !important; }
+            `}</style>
+
+            {/* Header Section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
+                        <Gift size={28} strokeWidth={2.5} />
                     </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>Rewards Hub</h1>
+                        <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>Incentivize member loyalty with automation & point triggers</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <ActionButton onClick={() => setIsDrawerOpen(true)} icon={Plus}>Create Reward</ActionButton>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Points Configuration */}
-                <div className="group relative bg-white rounded-2xl shadow-lg border border-slate-100 p-6 lg:col-span-1 overflow-hidden h-fit">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary-light/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative z-10">
-                        <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-md">
-                                <Settings size={16} strokeWidth={2.5} />
+            <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 32, animation: 'fadeIn 0.6s ease-out' }}>
+                {/* Left: Configuration */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ background: '#fff', padding: 32, borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
+                                <Settings size={20} strokeWidth={2.5} />
                             </div>
-                            Earning Rules
-                        </h3>
-
-                        <div className="space-y-4">
-                            <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors duration-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <div className="p-1.5 bg-green-100 text-green-600 rounded-lg">
-                                            <Zap size={14} />
-                                        </div>
-                                        Per Check-in
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <input
-                                            type="number"
-                                            value={pointsConfig.checkIn}
-                                            onChange={(e) => setPointsConfig({ ...pointsConfig, checkIn: parseInt(e.target.value) })}
-                                            className="w-16 p-1.5 bg-white border-2 border-slate-200 rounded-lg text-right font-black text-slate-900 focus:border-primary focus:outline-none transition-all text-sm"
-                                        />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">PTS</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors duration-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <div className="p-1.5 bg-purple-100 text-primary rounded-lg">
-                                            <Users size={14} />
-                                        </div>
-                                        Per Referral
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <input
-                                            type="number"
-                                            value={pointsConfig.referral}
-                                            onChange={(e) => setPointsConfig({ ...pointsConfig, referral: parseInt(e.target.value) })}
-                                            className="w-16 p-1.5 bg-white border-2 border-slate-200 rounded-lg text-right font-black text-slate-900 focus:border-primary focus:outline-none transition-all text-sm"
-                                        />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">PTS</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors duration-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <div className="p-1.5 bg-amber-100 text-amber-600 rounded-lg">
-                                            <Star size={14} />
-                                        </div>
-                                        Google Review
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <input
-                                            type="number"
-                                            value={pointsConfig.review}
-                                            onChange={(e) => setPointsConfig({ ...pointsConfig, review: parseInt(e.target.value) })}
-                                            className="w-16 p-1.5 bg-white border-2 border-slate-200 rounded-lg text-right font-black text-slate-900 focus:border-primary focus:outline-none transition-all text-sm"
-                                        />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">PTS</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors duration-300">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm">
-                                        <div className="p-1.5 bg-violet-100 text-primary rounded-lg">
-                                            <Calendar size={14} />
-                                        </div>
-                                        Class Booking
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <input
-                                            type="number"
-                                            value={pointsConfig.classBooking}
-                                            onChange={(e) => setPointsConfig({ ...pointsConfig, classBooking: parseInt(e.target.value) })}
-                                            className="w-16 p-1.5 bg-white border-2 border-slate-200 rounded-lg text-right font-black text-slate-900 focus:border-primary focus:outline-none transition-all text-sm"
-                                        />
-                                        <span className="text-[10px] font-black text-slate-400 uppercase">PTS</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>Earning Automations</h3>
                         </div>
 
-                        <button className="w-full mt-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl font-bold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105 transition-all duration-300">
-                            Save Configuration
-                        </button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <ConfigRow 
+                                label="Member Check-in" 
+                                icon={Zap} color={T.green} bg={T.greenLight}
+                                value={pointsConfig.checkIn} 
+                                onChange={(val) => setPointsConfig({ ...pointsConfig, checkIn: val })} 
+                            />
+                            <ConfigRow 
+                                label="Branch Referral" 
+                                icon={Users} color={T.accent} bg={T.accentLight}
+                                value={pointsConfig.referral} 
+                                onChange={(val) => setPointsConfig({ ...pointsConfig, referral: val })} 
+                            />
+                            <ConfigRow 
+                                label="Google Reviews" 
+                                icon={Star} color={T.amber} bg={T.amberLight}
+                                value={pointsConfig.review} 
+                                onChange={(val) => setPointsConfig({ ...pointsConfig, review: val })} 
+                            />
+                            <ConfigRow 
+                                label="Class Bookings" 
+                                icon={Calendar} color={T.indigo} bg={T.indigoLight}
+                                value={pointsConfig.classBooking} 
+                                onChange={(val) => setPointsConfig({ ...pointsConfig, classBooking: val })} 
+                            />
+                        </div>
+
+                        <ActionButton 
+                            variant="primary" 
+                            style={{ width: '100%', marginTop: 24, height: 52 }}
+                            icon={Save}
+                            onClick={() => toast.success('Configuration synchronized')}
+                        >
+                            Sync Triggers
+                        </ActionButton>
+                    </div>
+
+                    <div style={{ background: `linear-gradient(135deg, ${T.accent}, ${T.indigo})`, padding: 32, borderRadius: 32, color: '#fff', position: 'relative', overflow: 'hidden' }}>
+                        <Coins size={120} style={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.1, transform: 'rotate(-15deg)' }} />
+                        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>Loyalty Strategy</h4>
+                        <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 500, opacity: 0.8, lineHeight: 1.5 }}>
+                            Points are calculated in real-time as members interact with the gym ecosystem.
+                        </p>
                     </div>
                 </div>
 
-                {/* Rewards List */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-xl font-black text-slate-900">Active Rewards</h3>
-                        <button
-                            onClick={() => setIsDrawerOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:border-primary hover:text-primary transition-all duration-300"
-                        >
-                            <Plus size={16} strokeWidth={2.5} /> Add Reward
-                        </button>
+                {/* Right: Rewards Listing */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>Active Redemption Items</h3>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: T.muted }}>{rewards.length} Rewards Active</span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {rewards.map(reward => (
-                            <div key={reward.id} className="group relative bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-violet-200 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/30 to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                                    <button
+                    {loading ? (
+                        <div style={{ height: 400, background: '#fff', borderRadius: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Star size={40} color={T.accent} style={{ animation: 'spin 2s linear infinite' }} />
+                        </div>
+                    ) : rewards.length === 0 ? (
+                        <div style={{ height: 400, background: '#fff', borderRadius: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 40 }}>
+                            <div style={{ width: 100, height: 100, borderRadius: 40, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, marginBottom: 24 }}>
+                                <Award size={48} />
+                            </div>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>Catalog is Empty</h3>
+                            <p style={{ color: T.muted, fontSize: 14, fontWeight: 500, marginTop: 10 }}>Add some redeemable rewards to start the loyalty program.</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
+                            {rewards.map(reward => (
+                                <div 
+                                    key={reward.id} 
+                                    className="reward-card"
+                                    style={{ 
+                                        background: '#fff', padding: 24, borderRadius: 28, boxShadow: T.cardShadow, border: `1.5px solid #fff`,
+                                        transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', position: 'relative'
+                                    }}
+                                >
+                                    <button 
                                         onClick={() => handleDeleteReward(reward.id)}
-                                        className="p-2 bg-white rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm"
+                                        style={{ position: 'absolute', top: 20, right: 20, width: 32, height: 32, borderRadius: 10, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
                                     >
                                         <Trash2 size={16} />
                                     </button>
-                                </div>
 
-                                <div className="relative z-10 flex items-start gap-4">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                                        <Award size={28} strokeWidth={2.5} />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-slate-900 text-lg group-hover:text-primary-hover transition-colors">{reward.name}</h4>
-                                        <div className="inline-flex items-center gap-1 text-amber-600 font-black text-sm mb-2 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
-                                            <Star size={12} fill="currentColor" /> {reward.points} Points
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                                        <div style={{ width: 52, height: 52, borderRadius: 16, background: `linear-gradient(135deg, ${T.amber}, ${T.amber}dd)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 8px 20px -5px rgba(245, 158, 11, 0.4)' }}>
+                                            <Award size={26} strokeWidth={2.5} />
                                         </div>
-                                        <p className="text-sm text-slate-600 font-medium leading-relaxed">{reward.description}</p>
+                                        <div style={{ flex: 1, paddingRight: 40 }}>
+                                            <h4 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: T.text }}>{reward.name}</h4>
+                                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px', background: T.amberLight, borderRadius: 8, marginTop: 6 }}>
+                                                <Star size={12} fill={T.amber} color={T.amber} />
+                                                <span style={{ fontSize: 11, fontWeight: 900, color: T.amber }}>{reward.points} Points</span>
+                                            </div>
+                                            <p style={{ margin: '14px 0 0', fontSize: 13, color: T.muted, fontWeight: 500, lineHeight: 1.5, minHeight: 40 }}>
+                                                {reward.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: 24, paddingTop: 20, borderTop: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: 11, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>Redeemable Item</span>
+                                        <ChevronRight size={18} color={T.subtle} />
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Right Side Drawer */}
-            <RightDrawer
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                title="Create Reward"
-            >
-                <AddRewardDrawer
-                    isOpen={isDrawerOpen}
-                    onClose={() => setIsDrawerOpen(false)}
-                    onAdd={handleAddReward}
-                />
+            <RightDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} title="Create Reward">
+                <AddRewardDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} onAdd={handleAddReward} />
             </RightDrawer>
         </div>
     );

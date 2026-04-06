@@ -8,11 +8,36 @@ import { fetchDevicesFromDB, updateDeviceInDB, deleteDeviceFromDB, fetchGymDevic
 import { fetchAllGyms } from '../../../api/superadmin/superAdminApi';
 import RightDrawer from '../../../components/common/RightDrawer';
 import AddDeviceDrawer from './AddDeviceDrawer';
-import Button from '../../../components/ui/Button';
 import { useBranchContext } from '../../../context/BranchContext';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC',        
+  accent2: '#9B7BFF',       
+  accentLight: '#F0ECFF',   
+  accentMid: '#E4DCFF',     
+  border: '#EAE7FF',        
+  bg: '#F6F5FF',            
+  surface: '#FFFFFF',       
+  text: '#1A1533',          
+  muted: '#7B7A8E',         
+  subtle: '#B0ADCC',        
+  green: '#22C97A',         
+  greenLight: '#E8FBF2',
+  amber: '#F59E0B',         
+  amberLight: '#FEF3C7',
+  rose: '#F43F5E',          
+  roseLight: '#FFF1F4',
+  blue: '#3B82F6',          
+  blueLight: '#EFF6FF',
+  cyan: '#06B6D4',
+  cyanLight: '#ECFEFF'
+};
 
 // ─── Assign Branch Modal ──────────────────────────────────────────────────────
 const AssignBranchModal = ({ device, branches, onConfirm, onClose }) => {
@@ -32,67 +57,71 @@ const AssignBranchModal = ({ device, branches, onConfirm, onClose }) => {
     const selectedBranch = branches.find(b => String(b.id) === selectedBranchId);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center">
-                            <Building2 size={20} className="text-amber-600" />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(26,21,51,0.4)', backdropFilter: 'blur(4px)' }} onClick={onClose} />
+            <div style={{ 
+                position: 'relative', width: '100%', maxWidth: 440, background: T.surface, 
+                borderRadius: 24, padding: 32, boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+                animation: 'fadeUp 0.3s ease-out' 
+            }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: T.amberLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.amber }}>
+                            <Building2 size={22} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Assign Branch</h3>
-                            <p className="text-[10px] text-slate-400 font-medium mt-0.5 truncate max-w-[200px]">{device.name}</p>
+                            <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Assign Branch</h3>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: T.subtle, margin: '2px 0 0' }}>{device.name}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
-                        <X size={16} />
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.subtle }}>
+                        <X size={20} />
                     </button>
                 </div>
 
-                {/* Device Key info */}
-                <div className="mb-4 px-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Device Key</p>
-                    <p className="text-xs font-mono font-bold text-slate-700">{device.deviceKey || '—'}</p>
+                <div style={{ marginBottom: 20, padding: '12px 16px', background: T.bg, border: `1px solid ${T.border}`, borderRadius: 16 }}>
+                    <p style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px' }}>Device Key</p>
+                    <p style={{ fontSize: 12, fontWeight: 800, color: T.muted, fontFamily: 'monospace', margin: 0 }}>{device.deviceKey || '—'}</p>
                 </div>
 
-                {/* Branch Select */}
-                <div className="mb-6">
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Select Branch</label>
+                <div style={{ marginBottom: 32 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, display: 'block' }}>Select Branch</label>
                     <select
                         value={selectedBranchId}
                         onChange={e => setSelectedBranchId(e.target.value)}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                        style={{ 
+                            width: '100%', height: 48, px: 16, background: T.bg, border: `1px solid ${T.border}`, 
+                            borderRadius: 14, fontSize: 13, fontWeight: 700, color: T.text, outline: 'none',
+                            padding: '0 16px', cursor: 'pointer'
+                        }}
                     >
                         <option value="">— Select a branch —</option>
                         {branches.map(b => (
-                            <option key={b.id} value={b.id}>
-                                {b.branchName || b.gymName}
-                            </option>
+                            <option key={b.id} value={b.id}>{b.branchName || b.gymName}</option>
                         ))}
                     </select>
-                    {selectedBranch && (
-                        <p className="text-[10px] text-emerald-600 font-bold mt-2 px-1">
-                            ✓ Will assign to: {selectedBranch.branchName || selectedBranch.gymName}
-                        </p>
-                    )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-3">
+                <div style={{ display: 'flex', gap: 12 }}>
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 rounded-2xl border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 transition-all"
+                        style={{ 
+                            flex: 1, height: 48, border: `1px solid ${T.border}`, background: 'none', 
+                            borderRadius: 14, fontSize: 13, fontWeight: 800, color: T.muted, cursor: 'pointer' 
+                        }}
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={saving || !selectedBranchId}
-                        className="flex-1 py-3 rounded-2xl bg-primary text-white text-xs font-black uppercase tracking-widest hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ 
+                            flex: 1, height: 48, background: T.accent, border: 'none', 
+                            borderRadius: 14, fontSize: 13, fontWeight: 800, color: '#fff', 
+                            cursor: 'pointer', opacity: saving || !selectedBranchId ? 0.6 : 1
+                        }}
                     >
-                        {saving ? 'Saving...' : 'Assign Branch'}
+                        {saving ? 'Saving...' : 'Confirm'}
                     </button>
                 </div>
             </div>
@@ -111,7 +140,7 @@ const Devices = () => {
     const [isRefreshing, setIsRefreshing] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [assignModal, setAssignModal] = useState(null); // device object or null
+    const [assignModal, setAssignModal] = useState(null); 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
     useEffect(() => {
@@ -133,19 +162,16 @@ const Devices = () => {
                 ? (selectedBranch && selectedBranch !== 'all' ? selectedBranch : null)
                 : null;
 
-            // Fetch DB devices + MIPS live data in parallel
             const [dbDevices, mipsDevices] = await Promise.all([
                 fetchDevicesFromDB(branchId),
                 fetchGymDevices(branchId).catch(() => [])
             ]);
 
-            // Build a lookup map: deviceKey → MIPS live data
             const mipsMap = {};
             (Array.isArray(mipsDevices) ? mipsDevices : []).forEach(d => {
                 if (d.deviceKey) mipsMap[d.deviceKey] = d;
             });
 
-            // Merge: enrich each DB device with MIPS live fields
             const merged = (Array.isArray(dbDevices) ? dbDevices : []).map(device => {
                 const live = device.deviceKey ? mipsMap[device.deviceKey] : null;
                 return {
@@ -193,7 +219,7 @@ const Devices = () => {
             loadDevices();
         } catch (error) {
             toast.error(error.message || 'Failed to assign branch');
-            throw error; // re-throw so modal can reset saving state
+            throw error; 
         }
     };
 
@@ -230,89 +256,114 @@ const Devices = () => {
     const unassignedCount = devices.filter(d => !d.branchId).length;
     const onlineCount = devices.filter(d => d.status === 'connected' || d.status === 'Online').length;
 
-    return (
-        <div className="min-h-screen">
-            {/* Header */}
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse" />
-                <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white shadow-lg shadow-violet-200">
-                                <Smartphone size={28} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                                    Device Dashboard
-                                    <span className="px-2 py-0.5 bg-violet-100 text-primary text-[10px] font-black rounded-lg uppercase tracking-tighter">Live Monitor</span>
-                                </h1>
-                                <p className="text-slate-500 font-medium text-sm mt-1">Manage and assign entry hardware to branches</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={loadDevices}
-                                disabled={isRefreshing}
-                                className="flex items-center gap-2 px-5 py-3 bg-white border-2 border-slate-200 rounded-2xl text-sm font-black text-slate-700 hover:border-violet-300 hover:text-primary transition-all disabled:opacity-50"
-                            >
-                                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
-                                Sync
-                            </button>
-                            <Button
-                                onClick={() => setIsDrawerOpen(true)}
-                                variant="primary"
-                                className="px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 flex items-center gap-2"
-                                icon={Plus}
-                            >
-                                Add Device
-                            </Button>
-                        </div>
-                    </div>
+    const [focusInput, setFocusInput] = useState(false);
 
-                    <div className="mt-6 flex gap-4 items-center flex-wrap">
-                        <div className="relative flex-1 min-w-[200px] max-w-sm group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-all" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Search by name, type, device key..."
-                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-700 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .summary-card:hover { transform: translateY(-4px); }
+                .device-card:hover { border-color: ${T.accentMid} !important; }
+                @media (max-width: 768px) {
+                    .header-act { flex-direction: column !important; width: 100%; }
+                    .header-act button { width: 100%; }
+                }
+            `}</style>
+
+            {/* Header Area */}
+            <div style={{ 
+                background: T.surface, borderRadius: 24, padding: 32, 
+                border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(124,92,252,0.06)',
+                display: 'flex', flexDirection: 'column', gap: 24
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                        <div style={{ 
+                            width: 56, height: 56, borderRadius: 18, 
+                            background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                        }}>
+                            <Smartphone size={28} strokeWidth={2.5} />
                         </div>
-                        {/* Unassigned warning banner */}
-                        {isSuperAdmin && unassignedCount > 0 && (
-                            <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-2xl">
-                                <AlertTriangle size={14} className="text-amber-500 flex-shrink-0" />
-                                <span className="text-xs font-black text-amber-700">
-                                    {unassignedCount} device{unassignedCount > 1 ? 's' : ''} unassigned — click Assign Branch
-                                </span>
-                            </div>
-                        )}
+                        <div>
+                            <h1 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>Devices</h1>
+                            <p style={{ fontSize: 13, fontWeight: 700, color: T.subtle, margin: '4px 0 0' }}>Manage and monitor your gym's entry hardware</p>
+                        </div>
                     </div>
+                    <div className="header-act" style={{ display: 'flex', gap: 12 }}>
+                        <button
+                            onClick={loadDevices}
+                            disabled={isRefreshing}
+                            style={{ 
+                                height: 48, padding: '0 24px', background: T.surface, border: `2px solid ${T.border}`,
+                                borderRadius: 14, fontSize: 13, fontWeight: 800, color: T.muted, cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', gap: 10, transition: '0.2s'
+                            }}
+                        >
+                            <RefreshCw size={16} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+                            Sync
+                        </button>
+                        <button
+                            onClick={() => setIsDrawerOpen(true)}
+                            style={{ 
+                                height: 48, padding: '0 24px', background: T.accent, border: 'none',
+                                borderRadius: 14, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', gap: 10, transition: '0.2s',
+                                boxShadow: `0 8px 16px ${T.accent}30`
+                            }}
+                        >
+                            <Plus size={18} strokeWidth={2.5} />
+                            Add Device
+                        </button>
+                    </div>
+                </div>
+
+                <div style={{ height: 1, background: T.bg }} />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: 280 }}>
+                        <Search size={18} color={focusInput ? T.accent : T.subtle} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', transition: '0.2s' }} />
+                        <input 
+                            type="text"
+                            placeholder="Search devices..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            onFocus={() => setFocusInput(true)}
+                            onBlur={() => setFocusInput(false)}
+                            style={{ 
+                                width: '100%', height: 48, background: T.bg, border: `2px solid ${focusInput ? T.accent : 'transparent'}`,
+                                borderRadius: 16, padding: '0 16px 0 48px', fontSize: 13, fontWeight: 600, color: T.text, outline: 'none',
+                                transition: '0.2s'
+                            }}
+                        />
+                    </div>
+                    {isSuperAdmin && unassignedCount > 0 && (
+                        <div style={{ padding: '10px 20px', borderRadius: 12, background: T.amberLight, border: `1px solid ${T.amber}25`, display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <AlertTriangle size={16} color={T.amber} />
+                            <span style={{ fontSize: 12, fontWeight: 800, color: T.amber }}>{unassignedCount} devices unassigned</span>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <SummaryCard icon={<Smartphone size={22} />} label="Total Devices" value={devices.length} color="violet" />
-                <SummaryCard icon={<Activity size={22} />} label="Online Devices" value={onlineCount} color="emerald" trend={`${onlineCount}/${devices.length} Active`} />
-                <SummaryCard icon={<Building2 size={22} />} label="Unassigned" value={unassignedCount} color={unassignedCount > 0 ? 'amber' : 'emerald'} trend={unassignedCount > 0 ? 'Needs Branch' : 'All Assigned'} />
-            </div>
+            {/* Summary Grid */}
+            {/* Summary cards removed per user request for original layout */}
 
             {/* Device Grid */}
             {isRefreshing && devices.length === 0 ? (
-                <div className="flex items-center justify-center py-24">
-                    <RefreshCw size={28} className="animate-spin text-primary opacity-50" />
+                <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <RefreshCw size={32} color={T.accent} style={{ animation: 'spin 1s linear infinite', opacity: 0.5 }} />
                 </div>
             ) : filteredDevices.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-                    <Smartphone size={40} className="mb-3 opacity-30" />
-                    <p className="text-sm font-black uppercase tracking-widest">No devices found</p>
-                    <p className="text-xs mt-1">Add a device or adjust your search</p>
+                <div style={{ height: 300, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: T.surface, borderRadius: 24, border: `1px solid ${T.border}` }}>
+                    <Smartphone size={48} color={T.subtle} style={{ marginBottom: 16, opacity: 0.4 }} />
+                    <h3 style={{ fontSize: 13, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>No devices found</h3>
+                    <p style={{ fontSize: 11, color: T.subtle, margin: '4px 0 0' }}>Add a device or broaden your search</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
                     {filteredDevices.map(device => (
                         <DeviceCard
                             key={device.id}
@@ -328,31 +379,31 @@ const Devices = () => {
                 </div>
             )}
 
-            {/* Footer Notice */}
-            <div className="mt-12">
-                <div className="bg-primary-light/50 rounded-2xl border border-violet-100 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0">
-                            <CheckCircle size={20} />
-                        </div>
-                        <div>
-                            <p className="text-sm font-black text-violet-900">Automatic Hardware Synchronization</p>
-                            <p className="text-xs text-slate-500 font-medium">Device access syncs with Member Status and Attendance automatically.</p>
-                        </div>
+            {/* Bottom Alert */}
+            <div style={{ 
+                background: T.blueLight, padding: 24, borderRadius: 24, border: `1px solid ${T.blue}20`,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.blue }}>
+                        <CheckCircle size={22} />
                     </div>
-                    <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-white border border-violet-200 text-primary text-[10px] font-black rounded-lg uppercase tracking-widest">Active</span>
-                        <span className="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-lg uppercase tracking-widest">Verified</span>
+                    <div>
+                        <p style={{ fontSize: 13, fontWeight: 900, color: T.text, margin: 0 }}>Automatic Hardware Sync</p>
+                        <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, margin: '2px 0 0' }}>Member status and attendance records are synchronized automatically</p>
                     </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <span style={{ padding: '6px 12px', background: '#fff', color: T.blue, fontSize: 10, fontWeight: 900, borderRadius: 8, textTransform: 'uppercase' }}>Active</span>
+                    <span style={{ padding: '6px 12px', background: T.blue, color: '#fff', fontSize: 10, fontWeight: 900, borderRadius: 8, textTransform: 'uppercase' }}>Verified</span>
                 </div>
             </div>
 
-            {/* Add Device Drawer */}
             <RightDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                title="Initialize Hardware"
-                subtitle="Add a new entry monitoring device"
+                title="Add New Device"
+                subtitle="Connect a new biometric or RFID sensor to your network"
             >
                 <AddDeviceDrawer
                     onClose={() => setIsDrawerOpen(false)}
@@ -360,7 +411,6 @@ const Devices = () => {
                 />
             </RightDrawer>
 
-            {/* Assign Branch Modal */}
             {assignModal && (
                 <AssignBranchModal
                     device={assignModal}
@@ -370,13 +420,12 @@ const Devices = () => {
                 />
             )}
 
-            {/* Delete Confirmation */}
             <ConfirmationModal
                 isOpen={confirmModal.isOpen}
                 onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
                 onConfirm={processDelete}
-                title="Decommission Device?"
-                message="This device will be removed from the system. All associated access logs will be preserved."
+                title="Delete Device?"
+                message="Are you sure you want to remove this device? This action cannot be undone."
                 confirmText="Delete Device"
                 type="danger"
                 loading={confirmModal.loading}
@@ -387,136 +436,140 @@ const Devices = () => {
 
 // ─── Device Card ──────────────────────────────────────────────────────────────
 const DeviceCard = ({ device, branchName, isSuperAdmin, onAssign, onDelete, onOpenDoor, onReboot }) => {
+    const [hover, setHover] = useState(false);
     const isOnline = device.status === 'connected' || device.status === 'Online';
     const isUnassigned = !device.branchId;
 
     return (
-        <div className="group relative bg-white rounded-[2rem] shadow-lg border border-slate-100 overflow-hidden hover:shadow-2xl hover:border-violet-200 transition-all duration-500 hover:-translate-y-1 flex flex-col">
-            {/* Top status bar */}
-            <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${isOnline ? 'from-emerald-400 to-teal-500' : 'from-red-400 to-rose-500'}`} />
-            {/* Unassigned indicator */}
-            {isUnassigned && (
-                <div className="absolute top-0 right-0 w-full h-1.5 bg-gradient-to-l from-amber-400 to-orange-400" />
-            )}
+        <div 
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            className="device-card"
+            style={{ 
+                position: 'relative', background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`,
+                padding: 24, display: 'flex', flexDirection: 'column', gap: 20, transition: '0.3s',
+                boxShadow: hover ? '0 12px 30px rgba(124,92,252,0.1)' : '0 4px 12px rgba(0,0,0,0.02)',
+                overflow: 'hidden'
+            }}
+        >
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 4, background: isOnline ? T.green : T.rose }} />
+            {isUnassigned && <div style={{ position: 'absolute', top: 0, right: 0, height: 4, width: '50%', background: T.amber }} />}
 
-            <div className="p-6 relative z-10 flex flex-col flex-1">
-                {/* Top row */}
-                <div className="flex justify-between items-start mb-5">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3
-                        ${device.type === 'Face ID' || device.type === 'face'
-                            ? 'bg-violet-50 text-primary border border-violet-100'
-                            : 'bg-cyan-50 text-cyan-600 border border-cyan-100'}`}>
-                        {device.type === 'Face ID' || device.type === 'face'
-                            ? <ShieldCheck size={24} />
-                            : <Activity size={24} />}
-                    </div>
-
-                    {/* Status badge */}
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border
-                        ${isOnline
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                            : 'bg-red-50 text-red-500 border-red-200'}`}>
-                        {isOnline ? <Wifi size={10} strokeWidth={3} /> : <WifiOff size={10} strokeWidth={3} />}
-                        {isOnline ? 'Online' : 'Offline'}
-                    </span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ 
+                    width: 48, height: 48, borderRadius: 14, 
+                    background: (device.type === 'Face ID' || device.type === 'face') ? T.accentLight : T.cyanLight,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: (device.type === 'Face ID' || device.type === 'face') ? T.accent : T.cyan
+                }}>
+                    {(device.type === 'Face ID' || device.type === 'face') ? <ShieldCheck size={24} /> : <Activity size={24} />}
                 </div>
+                <div style={{ 
+                    padding: '4px 12px', borderRadius: 20, background: isOnline ? T.greenLight : T.roseLight,
+                    border: `1px solid ${isOnline ? T.green : T.rose}30`,
+                    display: 'flex', alignItems: 'center', gap: 6
+                }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: isOnline ? T.green : T.rose }} />
+                    <span style={{ fontSize: 10, fontWeight: 900, color: isOnline ? T.green : T.rose, textTransform: 'uppercase' }}>{isOnline ? 'Online' : 'Offline'}</span>
+                </div>
+            </div>
 
-                {/* Name & type */}
-                <h3 className="text-lg font-black text-slate-900 group-hover:text-primary transition-colors tracking-tight truncate" title={device.name}>
-                    {device.name}
-                </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{device.type}</p>
-
-                {/* Device Key */}
+            <div>
+                <h3 style={{ fontSize: 17, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.3px truncate' }}>{device.name}</h3>
+                <p style={{ fontSize: 11, fontWeight: 800, color: T.subtle, margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{device.type}</p>
                 {device.deviceKey && (
-                    <p className="mt-2 text-[9px] font-mono text-slate-400 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 truncate">
+                    <p style={{ fontSize: 10, fontWeight: 700, color: T.subtle, background: T.bg, padding: '4px 8px', borderRadius: 6, display: 'inline-block', marginTop: 8, fontFamily: 'monospace' }}>
                         {device.deviceKey}
                     </p>
                 )}
+            </div>
 
-                {/* Branch assignment status */}
-                <div className="mt-4">
-                    {isUnassigned ? (
-                        <div className="flex items-center gap-1.5 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl">
-                            <AlertTriangle size={12} className="text-amber-500 flex-shrink-0" />
-                            <span className="text-[10px] font-black text-amber-700 uppercase tracking-wider">No Branch Assigned</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
-                            <Building2 size={12} className="text-emerald-500 flex-shrink-0" />
-                            <span className="text-[10px] font-black text-emerald-700 truncate">{branchName}</span>
-                        </div>
-                    )}
-                </div>
+            <div style={{ height: 1, background: T.bg }} />
 
-                {/* Stats */}
-                <div className="mt-4 grid grid-cols-2 gap-3 p-3 bg-slate-50/70 rounded-2xl border border-slate-100">
-                    <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Entries Today</p>
-                        <p className="text-xl font-black text-slate-900">{device.entriesToday || 0}</p>
+            <div style={{ display: 'flex', gap: 8 }}>
+                {isUnassigned ? (
+                    <div style={{ flex: 1, padding: '8px 12px', borderRadius: 12, background: T.amberLight, border: `1px solid ${T.amber}20`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <AlertTriangle size={14} color={T.amber} />
+                        <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, textTransform: 'uppercase' }}>Unassigned</span>
                     </div>
-                    <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Last Seen</p>
-                        <p className="text-[10px] font-black text-slate-600">
-                            {device.lastSeen
-                                ? new Date(device.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                : 'Never'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Last person detected */}
-                {device.lastPersonName && (
-                    <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-violet-50/60 border border-violet-100 rounded-xl">
-                        <Users size={11} className="text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Last Entry</p>
-                            <p className="text-[10px] font-black text-slate-700 truncate">{device.lastPersonName}</p>
-                        </div>
+                ) : (
+                    <div style={{ flex: 1, padding: '8px 12px', borderRadius: 12, background: T.greenLight, border: `1px solid ${T.green}20`, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                        <Building2 size={14} color={T.green} />
+                        <span style={{ fontSize: 11, fontWeight: 800, color: T.green, truncate: true, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{branchName}</span>
                     </div>
                 )}
+            </div>
 
-                {/* Action buttons */}
-                <div className="flex gap-2 mt-4 flex-wrap">
-                    {/* Assign Branch */}
-                    {isSuperAdmin && (
-                        <button
-                            onClick={onAssign}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all min-w-0
-                                ${isUnassigned
-                                    ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-200'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-violet-100 hover:text-primary'}`}
-                        >
-                            <Building2 size={11} />
-                            {isUnassigned ? 'Assign' : 'Reassign'}
-                        </button>
-                    )}
-                    {/* Open Door */}
-                    {isOnline && (
-                        <button
-                            onClick={onOpenDoor}
-                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-black hover:bg-emerald-100 transition-all"
-                            title="Remote Open Door"
-                        >
-                            <Unlock size={11} />
-                            Open
-                        </button>
-                    )}
-                    {/* Reboot */}
-                    <button
-                        onClick={onReboot}
-                        className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-black hover:bg-blue-100 transition-all"
-                        title="Reboot Device"
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ background: T.bg, padding: 12, borderRadius: 16 }}>
+                    <p style={{ fontSize: 8, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', marginBottom: 2 }}>Today</p>
+                    <p style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>{device.entriesToday || 0}</p>
+                </div>
+                <div style={{ background: T.bg, padding: 12, borderRadius: 16 }}>
+                    <p style={{ fontSize: 8, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', marginBottom: 2 }}>Last Seen</p>
+                    <p style={{ fontSize: 12, fontWeight: 800, color: T.muted, margin: 0 }}>
+                        {device.lastSeen ? new Date(device.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never'}
+                    </p>
+                </div>
+            </div>
+
+            {device.lastPersonName && (
+                <div style={{ background: T.accentLight, padding: 12, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Users size={14} color={T.accent} />
+                    <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 8, fontWeight: 800, color: T.accent, textTransform: 'uppercase', marginBottom: 1 }}>Last Action</p>
+                        <p style={{ fontSize: 11, fontWeight: 800, color: T.text, margin: 0, truncate: true, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{device.lastPersonName}</p>
+                    </div>
+                </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {isSuperAdmin && (
+                    <button 
+                        onClick={onAssign}
+                        style={{ 
+                            flex: 1, minWidth: 80, height: 36, borderRadius: 10, 
+                            background: isUnassigned ? T.amber : T.bg, 
+                            border: 'none', color: isUnassigned ? '#fff' : T.muted,
+                            fontSize: 11, fontWeight: 900, cursor: 'pointer', transition: '0.2s',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                        }}
                     >
-                        <RotateCcw size={11} />
+                        <Building2 size={12} /> {isUnassigned ? 'Assign' : 'Edit'}
                     </button>
-                    {/* Delete */}
-                    <button
-                        onClick={onDelete}
-                        className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all border border-slate-100"
-                        title="Decommission Device"
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                    {isOnline && (
+                        <button 
+                            onClick={onOpenDoor}
+                            style={{ 
+                                width: 36, height: 36, borderRadius: 10, background: T.greenLight, 
+                                border: `1px solid ${T.green}20`, color: T.green, cursor: 'pointer',
+                                display: 'grid', placeItems: 'center', padding: 0
+                            }}
+                        >
+                            <Unlock size={14} style={{ display: 'block' }} />
+                        </button>
+                    )}
+                    <button 
+                        onClick={onReboot}
+                        style={{ 
+                            width: 36, height: 36, borderRadius: 10, background: T.blueLight, 
+                            border: `1px solid ${T.blue}20`, color: T.blue, cursor: 'pointer',
+                            display: 'grid', placeItems: 'center', padding: 0
+                        }}
                     >
-                        <Trash2 size={14} />
+                        <RotateCcw size={14} style={{ display: 'block' }} />
+                    </button>
+                    <button 
+                        onClick={onDelete}
+                        style={{ 
+                            width: 36, height: 36, borderRadius: 10, background: T.roseLight, 
+                            border: `1px solid ${T.rose}20`, color: T.rose, cursor: 'pointer',
+                            display: 'grid', placeItems: 'center', padding: 0
+                        }}
+                    >
+                        <Trash2 size={14} style={{ display: 'block' }} />
                     </button>
                 </div>
             </div>
@@ -526,21 +579,31 @@ const DeviceCard = ({ device, branchName, isSuperAdmin, onAssign, onDelete, onOp
 
 // ─── Summary Card ─────────────────────────────────────────────────────────────
 const SummaryCard = ({ icon, label, value, color, trend }) => {
-    const colorMap = {
-        violet: 'from-primary to-violet-600 shadow-violet-200',
-        emerald: 'from-emerald-500 to-teal-600 shadow-emerald-200',
-        amber: 'from-amber-500 to-orange-500 shadow-amber-200',
+    const cMap = {
+        violet: { bg: T.accent, grad: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, shadow: `${T.accent}30` },
+        emerald: { bg: T.green, grad: `linear-gradient(135deg, #22C97A, #10B981)`, shadow: `${T.green}30` },
+        amber: { bg: T.amber, grad: `linear-gradient(135deg, #F59E0B, #D97706)`, shadow: `${T.amber}30` },
     };
+    const s = cMap[color] || cMap.violet;
+
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 flex items-center gap-5 hover:scale-[1.02] transition-all duration-300">
-            <div className={`w-13 h-13 w-12 h-12 rounded-2xl bg-gradient-to-br ${colorMap[color]} flex items-center justify-center text-white shadow-lg`}>
+        <div className="summary-card" style={{ 
+            background: T.surface, borderRadius: 24, padding: '24px 28px', 
+            border: `1px solid ${T.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+            display: 'flex', alignItems: 'center', gap: 20, transition: '0.3s'
+        }}>
+            <div style={{ 
+                width: 52, height: 52, borderRadius: 16, background: s.grad,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                boxShadow: `0 8px 16px ${s.shadow}`
+            }}>
                 {icon}
             </div>
             <div>
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-                <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-black text-slate-900 tracking-tight">{value}</p>
-                    {trend && <span className="text-[10px] font-black text-slate-400 uppercase">{trend}</span>}
+                <p style={{ fontSize: 11, fontWeight: 800, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 4px' }}>{label}</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                    <h2 style={{ fontSize: 28, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-1px' }}>{value}</h2>
+                    {trend && <span style={{ fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>{trend}</span>}
                 </div>
             </div>
         </div>
