@@ -50,6 +50,9 @@ const RightDrawer = ({
 
     // Map Tailwind max-width classes to px if strings are provided
     const getWidth = (w) => {
+        if (w.includes('max-w-sm')) return '384px';
+        if (w.includes('max-w-md')) return '448px';
+        if (w.includes('max-w-lg')) return '512px';
         if (w.includes('max-w-xl')) return '576px';
         if (w.includes('max-w-2xl')) return '672px';
         if (w.includes('max-w-3xl')) return '768px';
@@ -168,15 +171,7 @@ const RightDrawer = ({
                     padding: showHeader ? '24px 32px' : '0',
                     background: T.bg
                 }}>
-                    <div style={{
-                        background: T.surface,
-                        borderRadius: '24px',
-                        border: `1px solid ${T.border}`,
-                        padding: '24px',
-                        boxShadow: '0 4px 20px rgba(124,92,252,0.04)'
-                    }}>
-                        {children}
-                    </div>
+                    {children}
                 </div>
 
                 {/* Footer */}

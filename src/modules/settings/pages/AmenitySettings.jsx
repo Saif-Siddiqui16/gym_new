@@ -225,20 +225,137 @@ const AmenitySettings = () => {
 
             {/* Right Drawer (Add/Edit) */}
             <RightDrawer isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingAmenity ? 'Scale Facility' : 'New Core Amenity'} subtitle="Configure internal logic and identifiers">
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 50 }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 50 }}>
+                    {/* Name */}
                      <div>
                         <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Amenity Title</label>
                         <input style={S.input} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required placeholder="e.g. Luxury Steam Suite" />
                      </div>
-                     <div>
-                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Access Policy</label>
-                        <select style={S.input} value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })}>
-                            <option value="UNISEX">Unisex (Global)</option>
-                            <option value="MALE">Male Only</option>
-                            <option value="FEMALE">Female Only</option>
-                        </select>
+
+                    {/* Description */}
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Description / Value Proposition</label>
+                        <textarea 
+                            style={{ ...S.input, height: 100, padding: '16px 24px', resize: 'none' }} 
+                            value={formData.description} 
+                            onChange={e => setFormData({ ...formData, description: e.target.value })} 
+                            placeholder="Briefly describe the amenity..." 
+                        />
+                    </div>
+
+                    {/* Icon Picker */}
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Visual Identifier (Icon)</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+                            {ICON_OPTIONS.map(opt => (
+                                <div 
+                                    key={opt.name}
+                                    onClick={() => setFormData({ ...formData, icon: opt.name })}
+                                    style={{
+                                        height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        background: formData.icon === opt.name ? T.accent : T.bg,
+                                        color: formData.icon === opt.name ? '#fff' : T.subtle,
+                                        cursor: 'pointer', transition: '0.2s'
+                                    }}
+                                >
+                                    <opt.icon size={20} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Gender & Status */}
+                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Access Policy</label>
+                            <select style={S.input} value={formData.gender} onChange={e => setFormData({ ...formData, gender: e.target.value })}>
+                                <option value="UNISEX">Unisex (Global)</option>
+                                <option value="MALE">Male Only</option>
+                                <option value="FEMALE">Female Only</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Operational Status</label>
+                            <select style={S.input} value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
                      </div>
-                     <button type="submit" style={{ height: 64, borderRadius: 24, background: T.accent, color: '#fff', border: 'none', fontSize: 14, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: T.shadow }}>Confirm Creation</button>
+
+                    {/* Pricing (Extra Price) */}
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Premium Pricing (₹ Extra)</label>
+                        <div style={{ position: 'relative' }}>
+                            <span style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', fontWeight: 900, color: T.subtle }}>₹</span>
+                            <input 
+                                type="number"
+                                style={{ ...S.input, paddingLeft: 44 }} 
+                                value={formData.extraPrice} 
+                                onChange={e => setFormData({ ...formData, extraPrice: e.target.value })} 
+                                placeholder="0 for Free" 
+                            />
+                        </div>
+                        <p style={{ margin: '8px 4px 0', fontSize: 10, fontWeight: 800, color: T.subtle }}>Members will be charged this amount per booking.</p>
+                    </div>
+
+                    {/* Slot Toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', background: T.bg, borderRadius: 22 }}>
+                        <div>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: T.text }}>Slot Booking System</div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: T.subtle }}>Enable defined time intervals</div>
+                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => setFormData({ ...formData, slotEnabled: !formData.slotEnabled })}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: formData.slotEnabled ? T.accent : T.subtle }}
+                        >
+                            {formData.slotEnabled ? <ToggleRight size={44} strokeWidth={1.5} /> : <ToggleLeft size={44} strokeWidth={1.5} />}
+                        </button>
+                    </div>
+
+                    {/* Slots Management */}
+                    {formData.slotEnabled && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginLeft: 4 }}>
+                                <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Configure Slots</label>
+                                <button 
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, slots: [...formData.slots, { startTime: '', endTime: '', capacity: 5 }] })}
+                                    style={{ padding: '8px 16px', borderRadius: 12, background: T.accent, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, cursor: 'pointer' }}
+                                >
+                                    Add Slot
+                                </button>
+                            </div>
+                            {formData.slots.map((slot, idx) => (
+                                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 80px 40px', gap: 10, alignItems: 'center', background: T.bg, padding: 12, borderRadius: 16 }}>
+                                    <input type="time" style={{ ...S.input, height: 44, padding: '0 12px', fontSize: 11 }} value={slot.startTime} onChange={e => {
+                                        const newSlots = [...formData.slots];
+                                        newSlots[idx].startTime = e.target.value;
+                                        setFormData({ ...formData, slots: newSlots });
+                                    }} />
+                                    <input type="time" style={{ ...S.input, height: 44, padding: '0 12px', fontSize: 11 }} value={slot.endTime} onChange={e => {
+                                        const newSlots = [...formData.slots];
+                                        newSlots[idx].endTime = e.target.value;
+                                        setFormData({ ...formData, slots: newSlots });
+                                    }} />
+                                    <input type="number" placeholder="Cap" style={{ ...S.input, height: 44, padding: '0 12px', fontSize: 11 }} value={slot.capacity} onChange={e => {
+                                        const newSlots = [...formData.slots];
+                                        newSlots[idx].capacity = e.target.value;
+                                        setFormData({ ...formData, slots: newSlots });
+                                    }} />
+                                    <button type="button" onClick={() => {
+                                        const newSlots = formData.slots.filter((_, i) => i !== idx);
+                                        setFormData({ ...formData, slots: newSlots });
+                                    }} style={{ color: T.rose, background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <button type="submit" style={{ height: 64, borderRadius: 24, background: T.accent, color: '#fff', border: 'none', fontSize: 14, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: T.shadow, marginTop: 20 }}>
+                        {editingAmenity ? 'Update Facility' : 'Confirm Creation'}
+                    </button>
                 </form>
             </RightDrawer>
 

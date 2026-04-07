@@ -126,6 +126,17 @@ export const menuConfig = {
         // },
         { label: 'General Settings', path: '/superadmin/general-settings/general', icon: Building },
         {
+            label: 'E-Commerce & Store',
+            icon: ShoppingCart,
+            children: [
+                { label: 'Store Dashboard', path: '/superadmin/store/dashboard', icon: LayoutDashboard },
+                { label: 'Store Products', path: '/superadmin/store/products', icon: Box },
+                { label: 'Store Orders', path: '/superadmin/store/orders', icon: ShoppingCart },
+                { label: 'Store Inventory', path: '/superadmin/store/inventory', icon: Archive },
+                { label: 'Discount Coupons', path: '/superadmin/store/coupons', icon: Percent },
+            ]
+        },
+        {
             label: 'Smart AIoT',
             icon: Smartphone,
             children: [
@@ -135,7 +146,6 @@ export const menuConfig = {
                 { label: 'Live Monitor', path: '/operations/live-monitor', icon: Activity },
             ]
         },
-        // { label: 'Hardware Settings', path: '/superadmin/general-settings/hardware', icon: Lock },
         {
             label: 'Profile',
             icon: User,

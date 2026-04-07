@@ -414,6 +414,7 @@ export default function App() {
                 <Route path="/superadmin/store/products" element={<ProductList />} />
                 <Route path="/superadmin/store/orders" element={<StoreOrders />} />
                 <Route path="/superadmin/store/inventory" element={<StoreInventory />} />
+                <Route path="/superadmin/store/coupons" element={<Coupons />} />
               </>
             )}
 

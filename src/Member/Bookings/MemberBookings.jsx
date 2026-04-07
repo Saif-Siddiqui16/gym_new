@@ -266,51 +266,122 @@ const MemberBookings = () => {
 
             {/* BOOKING MODAL */}
             <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Create New Booking" maxWidth="max-w-md">
-                <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                    <div style={{ display: 'flex', padding: 6, background: T.bg, borderRadius: 16 }}>
-                        <button onClick={() => setBookingType('Class')} style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: bookingType === 'Class' ? '#fff' : 'transparent', color: bookingType === 'Class' ? T.accent : T.muted, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: bookingType === 'Class' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>Classes & Recovery</button>
-                        <button onClick={() => setBookingType('PT')} style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: bookingType === 'PT' ? '#fff' : 'transparent', color: bookingType === 'PT' ? T.accent : T.muted, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: bookingType === 'PT' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none' }}>Private Training</button>
+                <div style={{ padding: '24px 32px 32px', display: 'flex', flexDirection: 'column', gap: 28 }}>
+                    {/* Premium Tab Switcher */}
+                    <div style={{ 
+                        display: 'flex', 
+                        padding: 6, 
+                        background: '#F0F0F8', 
+                        borderRadius: 20,
+                        position: 'relative'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            top: 6, bottom: 6,
+                            left: bookingType === 'Class' ? 6 : 'calc(50% + 2px)',
+                            width: 'calc(50% - 8px)',
+                            background: '#FFFFFF',
+                            borderRadius: 14,
+                            boxShadow: '0 8px 16px rgba(124, 92, 252, 0.12)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            zIndex: 0
+                        }} />
+                        <button 
+                            onClick={() => setBookingType('Class')} 
+                            style={{ 
+                                flex: 1, height: 48, borderRadius: 14, border: 'none', outline: 'none',
+                                background: 'transparent',
+                                color: bookingType === 'Class' ? T.accent : T.muted, 
+                                fontSize: 10, fontWeight: 900, textTransform: 'uppercase', 
+                                cursor: 'pointer', transition: 'all 0.3s ease',
+                                zIndex: 1
+                            }}
+                        >
+                            Classes & Recovery
+                        </button>
+                        <button 
+                            onClick={() => setBookingType('PT')} 
+                            style={{ 
+                                flex: 1, height: 48, borderRadius: 14, border: 'none', outline: 'none',
+                                background: 'transparent',
+                                color: bookingType === 'PT' ? T.accent : T.muted, 
+                                fontSize: 10, fontWeight: 900, textTransform: 'uppercase', 
+                                cursor: 'pointer', transition: 'all 0.3s ease',
+                                zIndex: 1
+                            }}
+                        >
+                            Private Training
+                        </button>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Target Date</label>
-                        <input type="date" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }} />
-                    </div>
-
-                    {bookingType === 'Class' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
-                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Select Session</label>
-                                <select value={selectedClassId} onChange={e => setSelectedClassId(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }}>
-                                    <option value="">-- Choose Option --</option>
-                                    {availableClasses.map(c => <option key={c.id} value={c.id}>{c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''}</option>)}
-                                </select>
-                            </div>
+                    {/* Form Fields */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <label style={{ fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>Target Date</label>
+                            <input 
+                                type="date" 
+                                value={bookingDate} 
+                                onChange={e => setBookingDate(e.target.value)} 
+                                min={new Date().toISOString().split('T')[0]} 
+                                style={{ width: '100%', height: 56, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, padding: '0 20px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', transition: 'all 0.2s ease' }}
+                                onFocus={e => e.target.style.borderColor = T.accent}
+                                onBlur={e => e.target.style.borderColor = T.border}
+                            />
                         </div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
-                             {ptAccounts.length === 0 ? (
-                                <div style={{ padding: 20, background: T.roseLight, color: T.rose, borderRadius: 16, fontSize: 12, fontWeight: 700, textAlign: 'center' }}>No active PT packages available. Purchase a package to book private sessions.</div>
-                             ) : (
-                                <>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>PT Package</label>
-                                        <select value={selectedPtAccountId} onChange={e => setSelectedPtAccountId(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }}>
-                                            <option value="">-- Select Package --</option>
-                                            {ptAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.package?.name} ({acc.remainingSessions} Left)</option>)}
+
+                        {bookingType === 'Class' ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                    <label style={{ fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>Select Session</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <select 
+                                            value={selectedClassId} 
+                                            onChange={e => setSelectedClassId(e.target.value)} 
+                                            style={{ width: '100%', height: 56, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, padding: '0 20px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                                        >
+                                            <option value="">-- Choose Option --</option>
+                                            {availableClasses.map(c => <option key={c.id} value={c.id}>{c.name} {c.startTime ? `(${formatTime(c.startTime)})` : ''}</option>)}
                                         </select>
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                        <label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Preferred Time</label>
-                                        <input type="time" value={ptTime} onChange={e => setPtTime(e.target.value)} style={{ width: '100%', height: 50, borderRadius: 14, background: '#fff', border: `2px solid ${T.border}`, padding: '0 16px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }} />
-                                    </div>
-                                </>
-                             )}
-                        </div>
-                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fadeIn">
+                                {ptAccounts.length === 0 ? (
+                                    <div style={{ padding: 20, background: T.roseLight, color: T.rose, borderRadius: 16, fontSize: 12, fontWeight: 700, textAlign: 'center', border: `1px solid ${T.rose}20` }}>No active PT packages available. Purchase a package to book private sessions.</div>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            <label style={{ fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>PT Package</label>
+                                            <select value={selectedPtAccountId} onChange={e => setSelectedPtAccountId(e.target.value)} style={{ width: '100%', height: 56, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, padding: '0 20px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none', appearance: 'none', cursor: 'pointer' }}>
+                                                <option value="">-- Select Package --</option>
+                                                {ptAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.package?.name} ({acc.remainingSessions} Left)</option>)}
+                                            </select>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            <label style={{ fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: 4 }}>Preferred Time</label>
+                                            <input type="time" value={ptTime} onChange={e => setPtTime(e.target.value)} style={{ width: '100%', height: 56, borderRadius: 16, background: '#fff', border: `2px solid ${T.border}`, padding: '0 20px', fontSize: 14, fontWeight: 700, color: T.text, outline: 'none' }} />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
-                    <button onClick={handleBookClass} disabled={isSubmitting} style={{ height: 56, background: T.accent, color: '#fff', borderRadius: 16, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 8 }}>
-                        {isSubmitting ? <RefreshCw className="animate-spin" size={20} /> : <Zap size={20} />} Commit Booking
+                    <button 
+                        onClick={handleBookClass} 
+                        disabled={isSubmitting} 
+                        style={{ 
+                            height: 60, background: T.accent, color: '#fff', borderRadius: 20, border: 'none', 
+                            fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                            cursor: 'pointer', boxShadow: '0 12px 24px -6px rgba(124,92,252,0.4)', 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, 
+                            marginTop: 12, transition: 'all 0.3s ease'
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 16px 32px -8px rgba(124,92,252,0.5)'; }}
+                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 24px -6px rgba(124,92,252,0.4)'; }}
+                    >
+                        {isSubmitting ? <RefreshCw className="animate-spin" size={22} /> : <Zap size={22} fill="#fff" />} COMMIT BOOKING
                     </button>
                 </div>
             </Modal>

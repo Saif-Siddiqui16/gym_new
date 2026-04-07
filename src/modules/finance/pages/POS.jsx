@@ -304,6 +304,57 @@ const POS = () => {
                         </div>
 
                         <div style={{ borderTop: `1px solid ${T.bg}`, paddingTop: '24px' }}>
+                            {/* Discount Coupon Section */}
+                            <div style={{ marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                    <Sparkles size={14} color={T.accent} />
+                                    <span style={{ fontSize: '11px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rewards & Coupons</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <div style={{ position: 'relative', flex: 1 }}>
+                                        <input 
+                                            style={{ ...S.input, height: '44px', width: '100%', paddingRight: appliedCoupon ? '40px' : '16px' }} 
+                                            placeholder="Promo code..." 
+                                            value={couponCode} 
+                                            onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                                            disabled={appliedCoupon || isValidatingCoupon}
+                                        />
+                                        {appliedCoupon && (
+                                            <button 
+                                                onClick={() => { setAppliedCoupon(null); setCouponCode(''); }} 
+                                                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', color: T.error, cursor: 'pointer' }}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {!appliedCoupon && (
+                                        <button 
+                                            onClick={() => handleApplyCouponWithCode(couponCode)} 
+                                            disabled={!couponCode || isValidatingCoupon}
+                                            style={{ ...S.btn, background: T.text, color: '#FFF', height: '44px', padding: '0 16px', opacity: couponCode ? 1 : 0.5 }}
+                                        >
+                                            {isValidatingCoupon ? '...' : 'APPLY'}
+                                        </button>
+                                    )}
+                                </div>
+                                {availableCoupons.length > 0 && !appliedCoupon && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+                                        {availableCoupons.map(c => (
+                                            <button 
+                                                key={c.id} 
+                                                onClick={() => handleApplyCouponWithCode(c.code)} 
+                                                style={{ padding: '6px 12px', borderRadius: '8px', background: T.accentLight, color: T.accent, border: `1px solid ${T.accentMid}`, fontSize: '9px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}
+                                                onMouseOver={e => e.currentTarget.style.background = T.accentMid}
+                                                onMouseOut={e => e.currentTarget.style.background = T.accentLight}
+                                            >
+                                                {c.code}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '20px' }}>
                                 {['Cash', 'UPI', 'Card', 'QR', 'Link'].map(m => (
                                     <button key={m} onClick={() => setPaymentMethod(m === 'Link' ? 'Online Link' : m)} style={{ padding: '10px 0', borderRadius: '10px', fontSize: '10px', fontWeight: '800', border: 'none', background: paymentMethod === (m === 'Link' ? 'Online Link' : m) ? T.accent : T.bg, color: paymentMethod === (m === 'Link' ? 'Online Link' : m) ? '#FFF' : T.muted, cursor: 'pointer', transition: 'all 0.2s' }}>{m}</button>

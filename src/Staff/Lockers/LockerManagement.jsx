@@ -236,9 +236,21 @@ const LockerManagement = () => {
                                 );
                             })}
                             {filteredLockers.length === 0 && (
-                                <div style={{ gridColumn: '1 / -1', padding: '60px 0', textAlign: 'center', color: T.subtle }}>
-                                    <Box size={40} strokeWidth={1} style={{ marginBottom: 12, opacity: 0.5 }} />
-                                    <p style={{ fontSize: 13, fontWeight: 700 }}>No lockers found matching your criteria</p>
+                                <div style={{ 
+                                    gridColumn: '1 / -1', 
+                                    padding: '120px 0', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    color: T.subtle,
+                                    gap: 16
+                                }}>
+                                    <Box size={64} strokeWidth={1} style={{ opacity: 0.15 }} />
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ fontSize: 16, fontWeight: 900, color: T.text, marginBottom: 4 }}>No lockers found</p>
+                                        <p style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>Adjust your search or filter criteria to find more results.</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -271,9 +283,14 @@ const LockerManagement = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="4" style={{ padding: '80px 0', textAlign: 'center', color: T.subtle }}>
-                                                <Users size={40} strokeWidth={1} style={{ marginBottom: 12, opacity: 0.5 }} />
-                                                <p style={{ fontSize: 13, fontWeight: 700 }}>No lockers are currently occupied</p>
+                                            <td colSpan="4" style={{ padding: '100px 0' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                                                    <Users size={64} strokeWidth={1} style={{ opacity: 0.15, color: T.subtle }} />
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <p style={{ fontSize: 16, fontWeight: 900, color: T.text, marginBottom: 4 }}>No occupied lockers</p>
+                                                        <p style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>Assigned lockers will appear in this list.</p>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     )}

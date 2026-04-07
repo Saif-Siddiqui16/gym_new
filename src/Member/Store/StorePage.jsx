@@ -57,8 +57,11 @@ const StorePage = () => {
     const [availableCoupons, setAvailableCoupons] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => { fetchProducts(); }, [selectedCategory, searchTerm]);
-    useEffect(() => { fetchCoupons(); }, []);
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const branchId = userData.tenantId;
+
+    useEffect(() => { fetchProducts(); }, [selectedCategory, searchTerm, branchId]);
+    useEffect(() => { fetchCoupons(); }, [branchId]);
 
     const fetchCoupons = async () => {
         try {
@@ -70,7 +73,11 @@ const StorePage = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const data = await getStoreProducts({ category: selectedCategory, search: searchTerm });
+            const data = await getStoreProducts({ 
+                category: selectedCategory, 
+                search: searchTerm,
+                branchId: branchId 
+            });
             setProducts(data);
         } catch (error) { console.error("Failed to fetch products:", error); }
         finally { setLoading(false); }
@@ -133,7 +140,39 @@ const StorePage = () => {
 
     return (
         <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {/* ... style tags ... */}
+            <style>{`
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fadeIn { animation: fadeUp 0.6s ease forwards; }
+                
+                .store-grid { 
+                    display: grid; 
+                    grid-template-columns: 1fr 400px; 
+                    gap: 32px; 
+                    align-items: start; 
+                }
+                
+                .product-grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+                    gap: 28px; 
+                }
+
+                @media (max-width: 1400px) {
+                    .store-grid { grid-template-columns: 1fr 360px; gap: 24px; }
+                }
+
+                @media (max-width: 1200px) {
+                    .store-grid { grid-template-columns: 1fr; }
+                    .cart-column { order: 2; }
+                    .dashboard-container { padding: 20px 16px 40px !important; }
+                }
+
+                @media (max-width: 640px) {
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 20px !important; }
+                    .search-container { width: 100% !important; }
+                    .product-grid { grid-template-columns: 1fr; gap: 20px; }
+                }
+            `}</style>
 
             {/* HEADER BANNER */}
             <div style={{

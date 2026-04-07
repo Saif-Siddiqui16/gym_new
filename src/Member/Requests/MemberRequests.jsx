@@ -96,7 +96,34 @@ const MemberRequests = () => {
 
     return (
         <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {/* ... style tags ... */}
+            <style>{`
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fadeIn { animation: fadeUp 0.6s ease forwards; }
+                
+                .action-grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+                    gap: 32px; 
+                }
+
+                .history-item:hover {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    transform: translateX(4px);
+                    background: #fff !important;
+                }
+
+                @media (max-width: 1200px) {
+                    .action-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 640px) {
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 24px !important; }
+                    .header-banner-badge { width: 100% !important; justify-content: center; }
+                    .banner-title { font-size: 22px !important; }
+                    .action-grid { grid-template-columns: 1fr; gap: 20px; }
+                    .dashboard-container { padding: 20px 16px 40px !important; }
+                }
+            `}</style>
 
             {/* HEADER BANNER */}
             <div style={{
@@ -144,15 +171,17 @@ const MemberRequests = () => {
                             <button 
                                 onClick={() => handleOpenDrawer(card.type)}
                                 style={{
-                                    height: 48, width: '100%', borderRadius: 12, border: `1.5px solid ${T.bg}`,
-                                    background: card.type === 'Freeze Membership' ? T.accent : (card.type === 'Request Locker' ? T.green : '#fff'),
-                                    color: (card.type === 'Freeze Membership' || card.type === 'Request Locker') ? '#fff' : T.text,
-                                    fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
-                                    cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                    boxShadow: (card.type === 'Freeze Membership' || card.type === 'Request Locker') ? '0 8px 16px rgba(0,0,0,0.1)' : 'none'
+                                    height: 52, width: '100%', borderRadius: 16, border: 'none',
+                                    background: card.color,
+                                    color: '#fff',
+                                    fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: 'all 0.3s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                                    boxShadow: `0 8px 20px -4px ${card.color}40`,
                                 }}
+                                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 12px 24px -4px ${card.color}60`; }}
+                                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 8px 20px -4px ${card.color}40`; }}
                             >
-                                Request {card.title.split(' ')[0]} <ChevronRight size={14} strokeWidth={3} />
+                                Request {card.title.split(' ')[0]} <ChevronRight size={16} strokeWidth={3} />
                             </button>
                         </PremiumCard>
                     ))}
