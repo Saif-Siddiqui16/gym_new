@@ -173,7 +173,19 @@ const BranchManagerDashboard = () => {
                 fetchTrainerAvailability(selectedBranch)
             ]);
 
-            setStats(statsData.stats || []);
+            // Map all stats into the 8-card format expected by the UI
+            const allStats = [
+                statsData.stats[0] || { title: 'Total Members', value: 0, trend: 'LIVE' },
+                statsData.stats[1] || { title: 'Monthly Revenue', value: '₹0', trend: 'THIS MONTH' },
+                statsData.stats[2] || { title: 'Store Sales', value: '₹0', trend: 'MONTHLY' },
+                statsData.stats[3] || { title: 'Today Check-ins', value: 0, trend: 'TODAY' },
+                { title: 'Net Profit (Store)', value: `₹${Number(statsData.netProfit || 0).toFixed(0)}`, trend: 'MONTHLY' },
+                { title: 'New Leads', value: statsData.newLeads || 0, trend: 'THIS MONTH' },
+                { title: 'Today\'s Classes', value: statsData.todaysClasses || 0, trend: 'SCHEDULED' },
+                { title: 'Pending Approvals', value: statsData.pendingApprovals || 0, trend: 'REVIEW PENDING' }
+            ];
+
+            setStats(allStats);
             setRecentActivities(activitiesData || []);
             setTrainers(trainersData || []);
             if (statsData.revenueOverview) setRevenueOverview(statsData.revenueOverview);
@@ -319,12 +331,27 @@ const BranchManagerDashboard = () => {
 
                 <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
                     <SectionDivider title="Check-ins by Hour" sub="Daily Traffic Flow" />
-                    <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.bg, borderRadius: 16, marginTop: 20 }}>
-                        <div style={{ textAlign: 'center' }}>
-                            <ActivityIcon size={32} color={T.accentMid} style={{ marginBottom: 12, opacity: 0.5 }} />
-                            <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, fontStyle: 'italic' }}>No check-ins recorded today</p>
+                <div style={{ background: T.bg, borderRadius: 16, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 20, padding: 20 }}>
+                    {checkInsByHour.reduce((acc, h) => acc + h.count, 0) > 0 ? (
+                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, width: '100%', height: '100%' }}>
+                            {checkInsByHour.map((h, i) => {
+                                const maxVal = Math.max(...checkInsByHour.map(x => x.count), 5);
+                                const height = (h.count / maxVal) * 100;
+                                return (
+                                    <div key={i} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', gap: 4 }}>
+                                        <div style={{ width: '60%', height: `${Math.max(height, 5)}%`, background: h.count > 0 ? T.accent : T.subtle + '30', borderRadius: '4px 4px 0 0', transition: 'height 0.8s ease' }}></div>
+                                        <span style={{ fontSize: 8, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{h.hour % 4 === 0 ? h.label : ''}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    </div>
+                    ) : (
+                        <div style={{ textAlign: 'center' }}>
+                            <ActivityIcon size={32} color={T.subtle} style={{ marginBottom: 12, opacity: 0.3 }} />
+                            <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, fontStyle: 'italic', margin: 0 }}>Traffic flow will appear here as members check-in</p>
+                        </div>
+                    )}
+                </div>
                 </div>
             </div>
 

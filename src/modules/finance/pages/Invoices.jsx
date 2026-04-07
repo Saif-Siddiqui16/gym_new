@@ -263,8 +263,21 @@ const Invoices = () => {
                                         </td>
                                         <td style={{ padding: '20px 24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{inv.tenant?.name || 'Main'}</span></td>
                                         <td style={{ padding: '20px 24px' }}><div><p style={{ fontSize: '14px', fontWeight: '800', color: T.text, margin: 0 }}>{inv.member?.name || 'Walk-in'}</p><p style={{ fontSize: '10px', fontWeight: '700', color: T.subtle, margin: 0 }}>{inv.member?.memberId || 'GUEST'}</p></div></td>
-                                        <td style={{ padding: '20px 24px', fontSize: '14px', fontWeight: '900', color: T.text }}>₹{Number(inv.amount).toLocaleString()}</td>
-                                        <td style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '700', color: T.subtle }}>{new Date(inv.dueDate).toLocaleDateString()}</td>
+                                        <td style={{ padding: '20px 24px' }}>
+                                            <p style={{ fontSize: '14px', fontWeight: '900', color: T.text, margin: 0 }}>₹{Number(inv.amount).toLocaleString()}</p>
+                                            {inv.status === 'Partially Paid' && (
+                                                <div style={{ marginTop: '4px' }}>
+                                                    <p style={{ fontSize: '10px', fontWeight: '700', color: T.success, margin: 0 }}>Paid: ₹{Number(inv.paidAmount).toLocaleString()}</p>
+                                                    <p style={{ fontSize: '10px', fontWeight: '700', color: T.error, margin: 0 }}>Balance: ₹{Number(inv.balance).toLocaleString()}</p>
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '20px 24px' }}>
+                                            <p style={{ fontSize: '13px', fontWeight: '700', color: T.subtle, margin: 0 }}>{new Date(inv.dueDate).toLocaleDateString()}</p>
+                                            {inv.status === 'Partially Paid' && inv.balanceDueDate && (
+                                                <p style={{ fontSize: '10px', fontWeight: '800', color: '#D97706', margin: '4px 0 0', textTransform: 'uppercase' }}>Balance Due: {new Date(inv.balanceDueDate).toLocaleDateString()}</p>
+                                            )}
+                                        </td>
                                         <td style={{ padding: '20px 24px' }}>
                                             <span style={{ ...S.badge, background: inv.status === 'Paid' ? '#ECFDF5' : (inv.status === 'Overdue' ? '#FEF2F2' : '#FFFBEB'), color: inv.status === 'Paid' ? T.success : (inv.status === 'Overdue' ? T.error : '#D97706'), border: `1px solid ${inv.status === 'Paid' ? '#D1FAE5' : (inv.status === 'Overdue' ? '#FEE2E2' : '#FEF3C7')}` }}>{inv.status}</span>
                                         </td>
@@ -336,12 +349,71 @@ const Invoices = () => {
                     <div style={{ ...S.card, width: '100%', maxWidth: '400px', padding: '32px', animation: 'slideUp 0.3s ease' }}>
                         <h2 style={{ fontSize: '20px', fontWeight: '900', color: T.text, margin: '0 0 8px' }}>Settle Invoice</h2>
                         <p style={{ fontSize: '14px', fontWeight: '600', color: T.muted, marginBottom: '24px' }}>Record payment for Invoice #{settlementData.invoiceId}</p>
-                        <form onSubmit={handleSettleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Payment Method</label><select style={{ ...S.input, width: '100%' }} value={settlementData.method} onChange={e => setSettlementData({ ...settlementData, method: e.target.value })}><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select></div>
-                            <div><label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Amount (₹)</label><input type="number" style={S.input} value={settlementData.amount} onChange={e => setSettlementData({ ...settlementData, amount: e.target.value })} /></div>
+                        <form onSubmit={handleSettleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Payment Method</label>
+                                <select style={{ ...S.input, width: '100%' }} value={settlementData.method} onChange={e => setSettlementData({ ...settlementData, method: e.target.value })}>
+                                    <option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: T.bg, borderRadius: '14px', border: `1px solid ${T.border}` }}>
+                                <input 
+                                    type="checkbox" 
+                                    id="isPartial" 
+                                    checked={settlementData.isPartial} 
+                                    onChange={e => {
+                                        const checked = e.target.checked;
+                                        setSettlementData({ 
+                                            ...settlementData, 
+                                            isPartial: checked,
+                                            amount: checked ? (settlementData.amount / 2) : settlementData.fullAmount 
+                                        });
+                                    }}
+                                    style={{ width: '18px', height: '18px', accentColor: T.accent, cursor: 'pointer' }}
+                                />
+                                <label htmlFor="isPartial" style={{ fontSize: '13px', fontWeight: '700', color: T.text, cursor: 'pointer' }}>Partial Payment</label>
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Amount to Pay (₹)</label>
+                                <input 
+                                    type="number" 
+                                    style={S.input} 
+                                    value={settlementData.amount} 
+                                    onChange={e => setSettlementData({ ...settlementData, amount: e.target.value })} 
+                                    readOnly={!settlementData.isPartial}
+                                />
+                                {!settlementData.isPartial && <p style={{ fontSize: '10px', fontWeight: '600', color: T.muted, margin: '4px 0 0' }}>Settle full amount of ₹{settlementData.fullAmount}</p>}
+                            </div>
+
+                            {settlementData.isPartial && (
+                                <div style={{ animation: 'slideUp 0.3s ease' }}>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Balance Due Date</label>
+                                    <input 
+                                        type="date" 
+                                        style={S.input} 
+                                        value={settlementData.balanceDueDate} 
+                                        onChange={e => setSettlementData({ ...settlementData, balanceDueDate: e.target.value })} 
+                                    />
+                                </div>
+                            )}
+
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Reference Number (Optional)</label>
+                                <input 
+                                    placeholder="e.g. UPI ID or Trans ID" 
+                                    style={S.input} 
+                                    value={settlementData.referenceNumber} 
+                                    onChange={e => setSettlementData({ ...settlementData, referenceNumber: e.target.value })} 
+                                />
+                            </div>
+
                             <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                                 <button type="button" onClick={() => setIsSettleModalOpen(false)} style={{ ...S.btn, flex: 1, background: T.bg, color: T.muted }}>Cancel</button>
-                                <button type="submit" disabled={isSettling} style={{ ...S.btn, flex: 2, background: T.accent, color: '#FFF' }}>{isSettling ? 'Processing...' : 'Settle Now'}</button>
+                                <button type="submit" disabled={isSettling} style={{ ...S.btn, flex: 2, background: T.accent, color: '#FFF', boxShadow: '0 8px 16px rgba(124, 92, 252, 0.2)' }}>
+                                    {isSettling ? 'Processing...' : (settlementData.isPartial ? 'Settle Partially' : 'Settle Full')}
+                                </button>
                             </div>
                         </form>
                     </div>

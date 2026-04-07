@@ -187,7 +187,10 @@ const FinancialDashboard = () => {
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <p style={{ fontSize: '12px', fontWeight: '900', color: txn.flow === 'in' ? T.text : T.error }}>{txn.flow === 'in' ? '+' : '-'}₹{txn.amount}</p>
+                                    <p style={{ fontSize: '12px', fontWeight: '900', color: txn.flow === 'in' ? T.text : T.error }}>{txn.flow === 'in' ? '+' : '-'}₹{txn.amount.toLocaleString()}</p>
+                                    {txn.status === 'Partial' && (
+                                        <p style={{ fontSize: '8px', fontWeight: '800', color: T.error, margin: 0 }}>BAL: ₹{Number(txn.balance || 0).toLocaleString()}</p>
+                                    )}
                                     <p style={{ fontSize: '9px', fontWeight: '700', color: T.accent }}>{txn.branch}</p>
                                 </div>
                             </div>
@@ -214,12 +217,33 @@ const FinancialDashboard = () => {
                             <tbody>
                                 {transactions.filter(t => t.flow === (activeTab === 'income' ? 'in' : 'out')).map((txn, idx) => (
                                     <tr key={idx} style={{ borderBottom: `1px solid ${T.bg}` }}>
-                                        <td style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '700', color: T.subtle }}>{txn.date}</td>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <p style={{ fontSize: '13px', fontWeight: '700', color: T.text, margin: 0 }}>{txn.date}</p>
+                                            {(txn.status === 'Partial' || txn.status === 'Partially Paid') && txn.balanceDueDate && (
+                                                <p style={{ fontSize: '9px', fontWeight: '800', color: '#D97706', margin: '4px 0 0', textTransform: 'uppercase' }}>Balance Due: {new Date(txn.balanceDueDate).toLocaleDateString()}</p>
+                                            )}
+                                        </td>
                                         <td style={{ padding: '16px 24px', fontSize: '12px', fontWeight: '900', color: T.text }}>{txn.type}</td>
                                         <td style={{ padding: '16px 24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{txn.branch}</span></td>
                                         <td style={{ padding: '16px 24px', fontSize: '13px', fontWeight: '800', color: T.text }}>{txn.member}</td>
-                                        <td style={{ padding: '16px 24px' }}><span style={{ ...S.badge, background: txn.status === 'Paid' ? '#ecfdf5' : '#fffbeb', color: txn.status === 'Paid' ? T.success : '#d97706' }}>{txn.status || 'Paid'}</span></td>
-                                        <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '900', color: txn.flow === 'in' ? T.text : T.error, textAlign: 'right' }}>{txn.flow === 'in' ? '+' : '-'} ₹{txn.amount.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <span style={{ 
+                                                ...S.badge, 
+                                                background: txn.status === 'Paid' ? '#ecfdf5' : ((txn.status === 'Partial' || txn.status === 'Partially Paid') ? '#eef2ff' : '#fffbeb'), 
+                                                color: txn.status === 'Paid' ? T.success : ((txn.status === 'Partial' || txn.status === 'Partially Paid') ? '#6366f1' : '#d97706') 
+                                            }}>
+                                                {txn.status || 'Paid'}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                            <p style={{ fontSize: '14px', fontWeight: '900', color: txn.flow === 'in' ? T.text : T.error, margin: 0 }}>{txn.flow === 'in' ? '+' : '-'} ₹{txn.totalAmount?.toLocaleString() || txn.amount.toLocaleString()}</p>
+                                            {(txn.status === 'Partial' || txn.status === 'Partially Paid') && (
+                                                <div style={{ marginTop: '4px' }}>
+                                                    <p style={{ fontSize: '9px', fontWeight: '700', color: T.success, margin: 0 }}>Paid: ₹{Number(txn.paidAmount || 0).toLocaleString()}</p>
+                                                    <p style={{ fontSize: '9px', fontWeight: '700', color: T.error, margin: 0 }}>Balance: ₹{Number(txn.balance || 0).toLocaleString()}</p>
+                                                </div>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -5,7 +5,7 @@ import {
     FileText, History, X
 } from 'lucide-react';
 import Loader from '../../../components/common/Loader';
-import { fetchTransactions, fetchInvoiceById } from '../../../api/finance/financeApi';
+import { fetchTransactions, fetchInvoiceById, settleInvoice } from '../../../api/finance/financeApi';
 import { fetchOrderById } from '../../../api/storeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import toast from 'react-hot-toast';
@@ -90,6 +90,14 @@ const Payments = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
+    const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+    const [settlementData, setSettlementData] = useState({ 
+        invoiceId: null, method: 'Cash', fullAmount: 0, amount: 0, 
+        isPartial: false, referenceNumber: '', date: new Date().toISOString().split('T')[0], 
+        balanceDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
+    });
+    const [isSettling, setIsSettling] = useState(false);
+
     const loadPayments = async () => {
         try {
             setLoading(true);
@@ -98,6 +106,35 @@ const Payments = () => {
             setData(res);
         } catch (error) { toast.error("Failed to sync payments"); }
         finally { setLoading(false); }
+    };
+
+    const openSettleModal = (inv) => {
+        const payableAmount = (Number(inv.balance) > 0) ? Number(inv.balance) : Number(inv.amount);
+        setSettlementData({ 
+            invoiceId: inv.id, method: 'Cash', fullAmount: payableAmount, amount: payableAmount, 
+            isPartial: false, referenceNumber: '', date: new Date().toISOString().split('T')[0], 
+            balanceDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
+        });
+        setIsSettleModalOpen(true);
+    };
+
+    const handleSettleSubmit = async (e) => {
+        e.preventDefault();
+        try { 
+            setIsSettling(true); 
+            await settleInvoice(settlementData.invoiceId, { 
+                method: settlementData.method, 
+                referenceNumber: settlementData.referenceNumber, 
+                amount: settlementData.amount, 
+                date: settlementData.date, 
+                balanceDueDate: settlementData.isPartial ? settlementData.balanceDueDate : null 
+            }); 
+            toast.success("Payment recorded!"); 
+            setIsSettleModalOpen(false); 
+            loadPayments(); 
+        }
+        catch (error) { toast.error("Failed to record payment"); }
+        finally { setIsSettling(false); }
     };
 
     useEffect(() => { loadPayments(); }, [selectedBranch, methodFilter, statusFilter, startDate, endDate]);
@@ -152,16 +189,39 @@ const Payments = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '48px' }}>
                 {[
-                    { label: "Today's Collection", value: `₹${data.stats.todayCollection.toLocaleString()}`, icon: TrendingUp, color: '#D97706', bg: '#FFFBEB' },
-                    { label: "Filtered Total", value: `₹${data.stats.filteredTotal.toLocaleString()}`, icon: History, color: T.success, bg: '#ECFDF5' },
-                    { label: "Completed", value: `₹${data.stats.completed.toLocaleString()}`, icon: CheckCircle2, color: '#4F46E5', bg: '#EEF2FF' },
-                    { label: "Pending", value: `₹${data.stats.pending.toLocaleString()}`, icon: Clock, color: T.accent, bg: T.accentLight },
+                    { 
+                        label: "Today's Collection", 
+                        value: `₹${(data.transactions || [])
+                            .filter(t => t.status === 'Paid' && new Date(t.date).toDateString() === new Date().toDateString())
+                            .reduce((sum, t) => sum + Number(t.amount || 0), 0).toLocaleString()}`, 
+                        icon: TrendingUp, color: '#D97706', bg: '#FFFBEB' 
+                    },
+                    { 
+                        label: "Filtered Total", 
+                        value: `₹${(data.transactions || [])
+                            .reduce((sum, t) => sum + Number(t.amount || 0), 0).toLocaleString()}`, 
+                        icon: History, color: T.success, bg: '#ECFDF5' 
+                    },
+                    { 
+                        label: "Completed", 
+                        value: `₹${(data.transactions || [])
+                            .filter(t => t.status === 'Paid')
+                            .reduce((sum, t) => sum + Number(t.amount || 0), 0).toLocaleString()}`, 
+                        icon: CheckCircle2, color: '#4F46E5', bg: '#EEF2FF' 
+                    },
+                    { 
+                        label: "Pending", 
+                        value: `₹${(data.transactions || [])
+                            .filter(t => t.status !== 'Paid')
+                            .reduce((sum, t) => sum + Number(t.amount || 0), 0).toLocaleString()}`, 
+                        icon: Clock, color: T.accent, bg: T.accentLight 
+                    },
                 ].map((stat, i) => (
                     <div key={i} style={{ ...S.card, padding: '24px', display: 'flex', alignItems: 'center', gap: '20px', animation: `slideUp 0.4s ease forwards ${i * 0.1}s` }}>
                         <div style={{ width: '60px', height: '60px', borderRadius: '18px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><stat.icon size={24} color={stat.color} /></div>
                         <div>
                             <p style={{ fontSize: '11px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{stat.label}</p>
-                            <p style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{stat.value}</p>
+                            <p style={{ fontSize: '24px', fontWeight: '900', color: T.text, margin: 0 }}>{loading ? '...' : stat.value}</p>
                         </div>
                     </div>
                 ))}
@@ -207,18 +267,48 @@ const Payments = () => {
                                             <td style={{ padding: '20px 24px' }}><span style={{ ...S.badge, background: T.accentLight, color: T.accent }}>{txn.branch}</span></td>
                                             <td style={{ padding: '20px 24px' }}><span style={{ fontSize: '10px', fontWeight: '800', background: T.bg, padding: '4px 8px', borderRadius: '6px', color: T.muted }}>{txn.id}</span></td>
                                             <td style={{ padding: '20px 24px' }}>
+                                                <p style={{ fontSize: '14px', fontWeight: '900', color: T.text, margin: 0 }}>₹{(txn.totalAmount || txn.amount).toLocaleString()}</p>
+                                                {(txn.status === 'Partial' || txn.status === 'Partially Paid') && (
+                                                    <div style={{ marginTop: '4px' }}>
+                                                        <p style={{ fontSize: '10px', fontWeight: '700', color: T.success, margin: 0 }}>Paid: ₹{Number(txn.paidAmount || 0).toLocaleString()}</p>
+                                                        <p style={{ fontSize: '10px', fontWeight: '700', color: T.error, margin: 0 }}>Balance: ₹{Number(txn.balance || 0).toLocaleString()}</p>
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
                                                 <p style={{ fontSize: '13px', fontWeight: '700', color: T.text, margin: 0 }}>{new Date(txn.date).toLocaleDateString()}</p>
                                                 <p style={{ fontSize: '10px', fontWeight: '600', color: T.subtle, margin: 0 }}>{new Date(txn.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                {(txn.status === 'Partial' || txn.status === 'Partially Paid') && txn.balanceDueDate && (
+                                                    <p style={{ fontSize: '10px', fontWeight: '800', color: '#D97706', margin: '6px 0 0', textTransform: 'uppercase' }}>Balance Due: {new Date(txn.balanceDueDate).toLocaleDateString()}</p>
+                                                )}
                                             </td>
                                             <td style={{ padding: '20px 24px' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '700', color: T.muted }}><MethodIcon size={14} /> {txn.method}</div>
+                                                <span style={{ 
+                                                    ...S.badge, 
+                                                    background: txn.status === 'Paid' ? '#ECFDF5' : (txn.status === 'Partial' ? '#EEF2FF' : '#FFFBEB'), 
+                                                    color: txn.status === 'Paid' ? T.success : (txn.status === 'Partial' ? '#6366F1' : '#D97706'), 
+                                                    border: `1px solid ${txn.status === 'Paid' ? '#D1FAE5' : (txn.status === 'Partial' ? '#E0E7FF' : '#FEF3C7')}` 
+                                                }}>
+                                                    {txn.status || 'Pending'}
+                                                </span>
                                             </td>
-                                            <td style={{ padding: '20px 24px', fontSize: '14px', fontWeight: '900', color: T.text }}>₹{txn.amount.toLocaleString()}</td>
                                             <td style={{ padding: '20px 24px' }}>
-                                                <span style={{ ...S.badge, background: txn.status === 'Paid' ? '#ECFDF5' : '#FFFBEB', color: txn.status === 'Paid' ? T.success : '#D97706', border: `1px solid ${txn.status === 'Paid' ? '#D1FAE5' : '#FEF3C7'}` }}>{txn.status === 'Paid' ? 'Paid' : 'Pending'}</span>
-                                            </td>
-                                            <td style={{ padding: '20px 24px' }}>
-                                                <button onClick={() => handleViewReceipt(txn.internalId || txn.id)} style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.bg, border: 'none', color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Receipt size={16} /></button>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <button onClick={() => handleViewReceipt(txn.internalId || txn.id)} style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.bg, border: 'none', color: T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Receipt size={16} /></button>
+                                                    {txn.status !== 'Paid' && txn.internalId && (
+                                                        <button 
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const inv = await fetchInvoiceById(txn.internalId);
+                                                                    openSettleModal(inv);
+                                                                } catch (e) { toast.error("Failed to load settlement info"); }
+                                                            }} 
+                                                            style={{ width: '36px', height: '36px', borderRadius: '10px', background: T.accentLight, border: 'none', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                                        >
+                                                            <CreditCard size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -228,6 +318,67 @@ const Payments = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Settle Modal */}
+            {isSettleModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(26, 21, 51, 0.4)', backdropFilter: 'blur(8px)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ ...S.card, width: '100%', maxWidth: '400px', padding: '32px', animation: 'slideUp 0.3s ease' }}>
+                        <h2 style={{ fontSize: '20px', fontWeight: '900', color: T.text, margin: '0 0 8px' }}>Record Payment</h2>
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: T.muted, marginBottom: '24px' }}>Settle balance for Invoice #{settlementData.invoiceId}</p>
+                        
+                        <form onSubmit={handleSettleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Payment Method</label>
+                                <select style={{ ...S.input, width: '100%' }} value={settlementData.method} onChange={e => setSettlementData({ ...settlementData, method: e.target.value })}>
+                                    <option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: T.bg, borderRadius: '14px', border: `1px solid ${T.border}` }}>
+                                <input 
+                                    type="checkbox" id="isPartialTrace" 
+                                    checked={settlementData.isPartial} 
+                                    onChange={e => {
+                                        const checked = e.target.checked;
+                                        setSettlementData({ ...settlementData, isPartial: checked, amount: checked ? (settlementData.fullAmount / 2) : settlementData.fullAmount });
+                                    }}
+                                    style={{ width: '18px', height: '18px', accentColor: T.accent, cursor: 'pointer' }}
+                                />
+                                <label htmlFor="isPartialTrace" style={{ fontSize: '13px', fontWeight: '700', color: T.text, cursor: 'pointer' }}>Partial Payment</label>
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Amount to Pay (₹)</label>
+                                <input 
+                                    type="number" style={S.input} value={settlementData.amount} 
+                                    onChange={e => setSettlementData({ ...settlementData, amount: e.target.value })} 
+                                    readOnly={!settlementData.isPartial}
+                                />
+                                {!settlementData.isPartial && <p style={{ fontSize: '10px', fontWeight: '600', color: T.muted, margin: '4px 0 0' }}>Settle full balance of ₹{settlementData.fullAmount}</p>}
+                            </div>
+
+                            {settlementData.isPartial && (
+                                <div style={{ animation: 'slideUp 0.3s ease' }}>
+                                    <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Balance Due Date</label>
+                                    <input type="date" style={S.input} value={settlementData.balanceDueDate} onChange={e => setSettlementData({ ...settlementData, balanceDueDate: e.target.value })} />
+                                </div>
+                            )}
+
+                            <div>
+                                <label style={{ fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Reference Number</label>
+                                <input placeholder="Optional receipt/ID" style={S.input} value={settlementData.referenceNumber} onChange={e => setSettlementData({ ...settlementData, referenceNumber: e.target.value })} />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                                <button type="button" onClick={() => setIsSettleModalOpen(false)} style={{ ...S.btn, flex: 1, background: T.bg, color: T.muted }}>Cancel</button>
+                                <button type="submit" disabled={isSettling} style={{ ...S.btn, flex: 2, background: T.accent, color: '#FFF' }}>
+                                    {isSettling ? 'Processing...' : (settlementData.isPartial ? 'Record Partial' : 'Record Full')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <RightDrawer isOpen={isReceiptOpen} onClose={() => { setIsReceiptOpen(false); setSelectedReceipt(null); }} title="Receipt Details" subtitle="Transaction forensic view" width="450px">
                 {fetchingReceipt ? <div style={{ padding: '80px 0' }}><Loader message="Fetching Receipt..." /></div> : selectedReceipt && (
