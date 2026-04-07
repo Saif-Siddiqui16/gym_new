@@ -76,9 +76,9 @@
   --max-content-width: 1440px;
 
   /* Z-Index Scale */
-  --z-sidebar: 100;
-  --z-topbar: 200;
-  --z-dropdown: 300;
+  --z-sidebar: 1000;
+  --z-topbar: 1100;
+  --z-dropdown: 1200;
 
   /* Additional Shadows */
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);

@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Cake, Send, Ghost, Star, Calendar, Bell } from 'lucide-react';
+import { Cake, Send, Ghost, Star, Calendar, Bell, Loader2, Sparkles, User, RefreshCw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { triggerBirthdayCheck, triggerPersonalBirthdayWish } from '../../api/manager/managerApi';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
+  border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF'
+};
 
 const Birthdays = () => {
     const [birthdays, setBirthdays] = useState([]);
@@ -15,6 +26,7 @@ const Birthdays = () => {
 
     const fetchBirthdays = async () => {
         try {
+            setLoading(true);
             const data = await triggerBirthdayCheck();
             setBirthdays(data.wishes || []);
         } catch (error) {
@@ -54,91 +66,108 @@ const Birthdays = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50/30">
-            {/* Header */}
-            <div className="p-8 bg-white border-b border-slate-100 flex items-center justify-between shrink-0">
-                <div>
-                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                        <Cake className="text-pink-500" />
-                        Birthday Reminders
-                    </h2>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Automatic & Manual Greetings</p>
+        <div style={{ background: T.bg, flex: 1, width: '100%', overflowY: 'auto', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.38s ease both; }
+                .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; }
+            `}</style>
+
+            {/* Header Banner */}
+            <div style={{ padding: '0 8px 30px' }} className="fu fu1">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                         <div style={{ width: 4, height: 32, background: T.rose, borderRadius: 4 }} />
+                         <div>
+                            <h1 style={{ fontSize: 36, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-1px' }}>Birthday Reminders</h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                                 <span style={{ fontSize: 10, fontWeight: 900, color: T.rose, background: T.roseLight, padding: '3px 10px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '1px' }}>Celebration Hub</span>
+                                 <span style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
+                                 <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', margin: 0 }}>Automatic & Manual Greetings</p>
+                            </div>
+                         </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button 
+                            onClick={fetchBirthdays}
+                            style={{ width: 44, height: 44, borderRadius: 16, background: T.surface, border: `1px solid ${T.border}`, color: T.muted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                        </button>
+                        <button 
+                            onClick={sendWishes}
+                            disabled={processing || birthdays.length === 0}
+                            style={{ background: T.accent, color: '#fff', border: 'none', padding: '14px 30px', borderRadius: 16, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 10px 24px rgba(124,92,252,0.22)', display: 'flex', alignItems: 'center', gap: 10, opacity: (processing || birthdays.length === 0) ? 0.6 : 1 }}
+                        >
+                            <Send size={20} /> {processing ? 'Sending...' : 'Send All Wishes'}
+                        </button>
+                    </div>
                 </div>
-                <button 
-                    onClick={sendWishes}
-                    disabled={processing || birthdays.length === 0}
-                    className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/20 hover:scale-105 transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                    <Send size={16} />
-                    {processing ? 'Sending...' : 'Send All Wishes'}
-                </button>
             </div>
 
-            {/* List */}
-            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
+            {/* Content Area */}
+            <div className="fu fu2">
                 {loading ? (
-                    <div className="h-64 flex items-center justify-center">
-                        <div className="w-12 h-12 border-4 border-slate-200 border-t-pink-500 rounded-full animate-spin" />
+                    <div style={{ padding: '100px 0', textAlign: 'center' }}>
+                        <Loader2 size={40} className="animate-spin" style={{ color: T.accent, margin: '0 auto 16px' }} />
+                        <p style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '1px' }}>Checking guest list...</p>
                     </div>
                 ) : birthdays.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-                        <Ghost size={64} className="text-slate-300" />
-                        <h3 className="text-xl font-black text-slate-800 mt-6 mt-4">No Birthdays Today</h3>
-                        <p className="text-sm font-medium text-slate-500 max-w-xs mt-2">
-                            Check back tomorrow! The system automatically sends wishes at midnight.
-                        </p>
+                    <div style={{ padding: '80px 0', textAlign: 'center' }}>
+                        <div style={{ width: 100, height: 100, borderRadius: '50%', background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                             <Ghost size={48} color={T.subtle} style={{ opacity: 0.5 }} />
+                        </div>
+                        <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: 0 }}>No Birthdays Today</h3>
+                        <p style={{ fontSize: 13, color: T.muted, margin: '8px 0 0' }}>Check back tomorrow! The system automatically sends wishes at midnight.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {birthdays.map((member) => (
-                            <div key={member.id} className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-xl transition-all">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform">
-                                    <Cake size={80} className="text-pink-500" />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+                        {birthdays.map((member, i) => (
+                            <div key={member.id} style={{ background: T.surface, padding: 28, borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', transition: '0.3s', position: 'relative', overflow: 'hidden' }} className="member-card">
+                                <div style={{ position: 'absolute', top: -20, right: -20, opacity: 0.03 }}>
+                                    <Cake size={120} />
                                 </div>
-                                
-                                <div className="relative z-10 flex flex-col items-center text-center">
-                                    <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-black text-2xl shadow-lg mb-4">
+                                <div style={{ display: 'flex', flexDirection: 'column', itemsCenter: 'center', textAlign: 'center' }}>
+                                    <div style={{ width: 80, height: 80, margin: '0 auto 20px', borderRadius: 24, background: `linear-gradient(135deg, ${T.rose}, ${T.accent2})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24, fontWeight: 900, boxShadow: '0 8px 30px rgba(244,63,94,0.3)' }}>
                                         {member.name.charAt(0)}
                                     </div>
-                                    <h4 className="text-lg font-black text-slate-800">{member.name}</h4>
-                                    <div className="mt-2 flex items-center gap-2">
-                                        <span className="px-3 py-1 bg-pink-50 text-pink-600 text-[10px] font-black uppercase tracking-widest rounded-full">Today</span>
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
-                                            <Bell size={10} /> Notified
-                                        </span>
+                                    <h4 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: 0 }}>{member.name}</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 12 }}>
+                                        <span style={{ fontSize: 9, fontWeight: 900, color: T.rose, background: T.roseLight, padding: '4px 12px', borderRadius: 10, textTransform: 'uppercase' }}>Today</span>
+                                        <span style={{ fontSize: 9, fontWeight: 900, color: T.green, background: T.greenLight, padding: '4px 12px', borderRadius: 10, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}><Bell size={10} /> Notified</span>
                                     </div>
                                     
                                     <button 
                                         onClick={() => sendPersonalMessage(member.id, member.name)}
                                         disabled={sendingPersonalTo === member.id}
-                                        className="w-full mt-6 py-4 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all disabled:opacity-50"
+                                        style={{ width: '100%', marginTop: 28, height: 48, borderRadius: 16, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer', transition: '0.2s' }}
+                                        onMouseOver={e => { e.currentTarget.style.background = T.rose; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = T.rose; }}
+                                        onMouseOut={e => { e.currentTarget.style.background = T.bg; e.currentTarget.style.color = T.text; e.currentTarget.style.borderColor = T.border; }}
                                     >
-                                        {sendingPersonalTo === member.id ? 'Sending...' : 'Send Personal Message'}
+                                        {sendingPersonalTo === member.id ? 'Sending...' : 'Send Personal Wish'}
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
+            </div>
 
-                {/* Automation Info Card */}
-                <div className="mt-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[24px] p-6 text-white relative overflow-hidden">
-                    <div className="absolute top-[-20px] right-[-20px] w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-                        <div className="w-14 h-14 bg-white/20 rounded-[16px] flex items-center justify-center shrink-0">
-                            <Star size={28} className="text-yellow-300 fill-yellow-300" />
-                        </div>
-                        <div className="flex-1 text-center md:text-left">
-                            <h3 className="text-lg font-black mb-1">Automation is Active</h3>
-                            <p className="text-white/80 text-sm font-medium">
-                                The system is configured to automatically detect member birthdays and send greetings every 24 hours.
-                            </p>
-                        </div>
-                        <div className="flex flex-col items-center gap-1.5 px-6 py-3 bg-white/10 rounded-[16px] border border-white/20 shrink-0">
-                            <Calendar size={16} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Next Run</span>
-                            <span className="text-base font-black">Daily Cycle</span>
-                        </div>
+            {/* Automation Roster */}
+            <div style={{ marginTop: 40, background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, borderRadius: 32, padding: 32, color: '#fff', position: 'relative', overflow: 'hidden' }} className="fu fu3">
+                <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, background: 'rgba(255,255,255,0.1)', borderRadius: '50%', blur: '40px' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 1 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Sparkles size={32} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>Automation is Active</h3>
+                        <p style={{ fontSize: 13, fontWeight: 500, margin: '6px 0 0', color: 'rgba(255,255,255,0.8)' }}>Members receive an automated greeting every 24 hours at midnight.</p>
+                    </div>
+                    <div style={{ padding: '16px 24px', background: 'rgba(255,255,255,0.1)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.2)', textAlign: 'center' }}>
+                        <div style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', opacity: 0.8, marginBottom: 4 }}>Next Cycle</div>
+                        <div style={{ fontSize: 16, fontWeight: 900 }}>Daily @ Midnight</div>
                     </div>
                 </div>
             </div>
@@ -147,3 +176,4 @@ const Birthdays = () => {
 };
 
 export default Birthdays;
+

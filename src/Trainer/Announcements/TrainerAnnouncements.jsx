@@ -60,77 +60,119 @@ const TrainerAnnouncements = () => {
         fetchData();
     }, [selectedBranch]);
 
+    /* ─────────────────────────────────────────────────────────────────────────────
+       DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+       ───────────────────────────────────────────────────────────────────────── */
+    const T = {
+        accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+        border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+        muted: '#7B7A8E', subtle: '#B0ADCC',
+        shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+        bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+        cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+    };
+
+    const S = {
+        ff: "'Plus Jakarta Sans', sans-serif"
+    };
+
     const StatItem = ({ title, value, subtitle, icon: Icon, color = 'primary' }) => {
-        const colorClasses = {
-            primary: { bg: 'bg-primary-light', text: 'text-primary', iconBg: 'group-hover:bg-primary group-hover:text-white' },
-            success: { bg: 'bg-emerald-50', text: 'text-emerald-600', iconBg: 'group-hover:bg-emerald-600 group-hover:text-white' },
-            warning: { bg: 'bg-amber-50', text: 'text-amber-600', iconBg: 'group-hover:bg-amber-600 group-hover:text-white' },
+        const colorMap = {
+            primary: { bg: '#F0ECFF', text: T.accent, iconBg: T.accent },
+            success: { bg: '#ECFDF5', text: '#059669', iconBg: '#059669' },
+            warning: { bg: '#FFF7ED', text: '#EA580C', iconBg: '#EA580C' },
         };
-        const currentStyle = colorClasses[color] || colorClasses.primary;
+        const st = colorMap[color] || colorMap.primary;
 
         return (
-            <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30/10 border border-transparent hover:border-violet-100 cursor-pointer p-4 md:p-5 h-full">
-                <div className="flex justify-between items-start mb-2 relative z-10">
-                    <div className="min-w-0">
-                        <div className="text-gray-400 font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-1 truncate">{title}</div>
-                        <div className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight mb-1">{value}</div>
+            <div style={{
+                background: '#fff', borderRadius: 24, padding: '24px 28px', border: `1px solid ${T.border}`,
+                boxShadow: T.cardShadow, transition: '0.3s', display: 'flex', flexDirection: 'column', gap: 12,
+                cursor: 'pointer', position: 'relative', overflow: 'hidden'
+            }} className="group hover:-translate-y-1">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <div style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{title}</div>
+                        <div style={{ fontSize: 32, fontWeight: 900, color: T.text, letterSpacing: '-1px' }}>{value}</div>
                     </div>
-                    <div className={`shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm ${currentStyle.bg} ${currentStyle.text} ${currentStyle.iconBg}`}>
-                        {Icon && <Icon size={20} className="md:w-[22px] md:h-[22px] transition-colors duration-300" strokeWidth={2.5} />}
+                    <div style={{ 
+                        width: 48, height: 48, borderRadius: 14, background: st.bg, color: st.text,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s'
+                    }} className="group-hover:scale-110">
+                        {Icon && <Icon size={24} strokeWidth={2.5} />}
                     </div>
                 </div>
                 {subtitle && (
-                    <div className="flex items-center gap-2 mt-2 md:mt-3">
-                        <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg ${currentStyle.bg} ${currentStyle.text} border border-transparent group-hover:border-current/10 whitespace-nowrap`}>
-                            {subtitle}
-                        </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 9, fontWeight: 900, color: st.text, padding: '4px 10px', background: st.bg, borderRadius: 8, textTransform: 'uppercase' }}>{subtitle}</span>
                     </div>
                 )}
-                <div className={`absolute -bottom-4 -right-4 w-20 h-20 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${currentStyle.bg}`}></div>
-            </Card>
+            </div>
         );
     };
 
     return (
-        <div className="saas-container   space-y-8 fade-in scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 md:pb-8 border-b-2 border-slate-100 px-1">
-                <div className="space-y-2">
-                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">
-                        Communication Hub
-                    </h1>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-primary-light text-primary rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-violet-100">Broadcasting System</span>
-                        <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-200" />
-                        <p className="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest leading-relaxed">
-                            Manage member engagement and updates
-                        </p>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '32px 32px 64px', fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+            `}</style>
+
+            {/* PREMIUM HEADER BANNER */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 32,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`,
+                position: 'relative', overflow: 'hidden'
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <Megaphone size={30} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>
+                            Communication Hub
+                        </h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                            <span style={{ padding: '4px 10px', background: '#F0ECFF', color: T.accent, borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Broadcasting System
+                            </span>
+                            <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.border }} />
+                            <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, margin: 0 }}>Manage member engagement and live updates</p>
+                        </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 w-full lg:w-auto">
+                <div style={{ display: 'flex', gap: 12 }}>
                     <button
                         onClick={() => setIsTemplatesDrawerOpen(true)}
-                        className="flex-1 lg:flex-none h-10 md:h-11 px-3 md:px-8 bg-white border-2 border-slate-100 text-slate-700 rounded-xl md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-200 transition-all flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap"
+                        style={{ height: 48, padding: '0 24px', background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 16, color: T.text, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', gap: 10 }}
+                        className="hover:bg-slate-50"
                     >
-                        <Layout size={14} className="shrink-0" /> Templates
+                        <Layout size={16} color={T.accent} /> Templates
                     </button>
                     <button
                         onClick={() => setIsBroadcastDrawerOpen(true)}
-                        className="flex-1 lg:flex-none h-10 md:h-11 px-3 md:px-8 bg-white border-2 border-slate-100 text-slate-700 rounded-xl md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:border-slate-200 transition-all flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap"
+                        style={{ height: 48, padding: '0 24px', background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 16, color: T.text, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', gap: 10 }}
+                        className="hover:bg-slate-50"
                     >
-                        <Send size={14} className="shrink-0" /> Broadcast
+                        <Send size={16} color={T.accent} /> Broadcast
                     </button>
                     <button
                         onClick={() => setIsCreateDrawerOpen(true)}
-                        className="flex-1 lg:flex-none h-10 md:h-11 px-3 md:px-8 bg-primary !text-white rounded-xl md:rounded-2xl font-black text-[8px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-violet-100 hover:bg-primary-hover hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
+                        style={{ height: 48, padding: '0 24px', background: T.accent, border: 'none', borderRadius: 16, color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s', boxShadow: `0 8px 16px ${T.accent}30`, display: 'flex', alignItems: 'center', gap: 10 }}
+                        className="hover:scale-105"
                     >
-                        <Plus size={14} strokeWidth={3} className="shrink-0" /> New Announcement
+                        <Plus size={18} strokeWidth={3} /> New Announcement
                     </button>
                 </div>
             </div>
 
             {/* Top Stats Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 px-1">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 40 }}>
                 <StatItem title="Total Announcements" value={stats.totalAnnouncements} subtitle="All time" icon={Megaphone} color="primary" />
                 <StatItem title="Active" value={stats.activeAnnouncements} subtitle="Visible" icon={CheckCircle2} color="success" />
                 <StatItem title="Messages Sent" value={stats.messagesSent} subtitle="Outreach" icon={MessageSquare} color="warning" />
@@ -138,122 +180,112 @@ const TrainerAnnouncements = () => {
             </div>
 
             {/* Tabs Section */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-2 border-b-2 border-slate-50 pb-px overflow-x-auto">
-                    {['Announcements', 'Communication Logs'].map(tab => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${activeTab === tab
-                                ? 'text-primary'
-                                : 'text-slate-400 hover:text-slate-600'
-                                }`}
-                        >
-                            {tab}
-                            {activeTab === tab && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-4px_12px_rgba(79,70,229,0.4)]" />
-                            )}
-                        </button>
-                    ))}
-                </div>
+            <div style={{ display: 'flex', gap: 2, background: '#F1F0F9', padding: 4, borderRadius: 20, width: 'fit-content', marginBottom: 32 }}>
+                {['Announcements', 'Communication Logs'].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{
+                            padding: '12px 32px', borderRadius: 16, border: 'none', background: activeTab === tab ? '#fff' : 'transparent',
+                            color: activeTab === tab ? T.accent : T.muted, fontSize: 11, fontWeight: 900, textTransform: 'uppercase',
+                            letterSpacing: '0.05em', cursor: 'pointer', transition: '0.3s',
+                            boxShadow: activeTab === tab ? '0 4px 12px rgba(124, 92, 252, 0.1)' : 'none'
+                        }}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
 
-                {/* Tab Content */}
-                <div className="min-h-[300px] md:min-h-[400px]">
-                    {activeTab === 'Announcements' && (
-                        announcements.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {announcements.map((ann) => (
-                                    <Card key={ann.id} className="p-6 border-2 border-slate-100 hover:border-violet-100 hover:shadow-xl transition-all group">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${ann.priority > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
-                                                {ann.priority > 0 ? 'High Priority' : 'Normal'}
-                                            </div>
-                                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${ann.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                {ann.status}
-                                            </span>
+            {/* Content Area */}
+            <div className="min-h-[400px]">
+                {activeTab === 'Announcements' && (
+                    announcements.length > 0 ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 24 }}>
+                            {announcements.map((ann) => (
+                                <div key={ann.id} style={{ background: '#fff', borderRadius: 24, padding: 32, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s', position: 'relative' }} className="hover:-translate-y-1">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 20 }}>
+                                        <div style={{ padding: '4px 10px', background: ann.priority > 0 ? '#FEF2F2' : T.bg, color: ann.priority > 0 ? '#EF4444' : T.muted, borderRadius: 8, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', border: `1px solid ${ann.priority > 0 ? '#FEE2E2' : T.border}` }}>
+                                            {ann.priority > 0 ? 'High Priority' : 'Normal'}
                                         </div>
-                                        <h3 className="font-black text-slate-900 mb-2 group-hover:text-primary transition-colors uppercase tracking-tight">{ann.title}</h3>
-                                        <p className="text-xs text-slate-500 font-medium mb-4 line-clamp-3">{ann.content}</p>
-                                        <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center text-primary">
-                                                    <Users size={12} />
-                                                </div>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ann.targetRole}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-slate-300">
-                                                <Calendar size={12} />
-                                                <span className="text-[9px] font-bold uppercase tracking-widest">{new Date(ann.createdAt).toLocaleDateString()}</span>
-                                            </div>
+                                        <div style={{ padding: '4px 10px', background: ann.status === 'Active' ? '#ECFDF5' : '#FFF7ED', color: ann.status === 'Active' ? '#10B981' : '#F59E0B', borderRadius: 8, fontSize: 9, fontWeight: 900, textTransform: 'uppercase' }}>
+                                            {ann.status}
                                         </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center px-6">
-                                <div className="w-20 h-20 md:w-24 md:h-24 bg-white/60 backdrop-blur-md rounded-3xl md:rounded-[40px] shadow-2xl shadow-violet-100/20 flex items-center justify-center text-slate-200 mb-6 md:mb-8 border border-white/50 group hover:scale-110 hover:rotate-12 transition-all duration-500">
-                                    <Megaphone size={40} className="md:w-12 md:h-12 opacity-20 group-hover:opacity-40" />
+                                    </div>
+                                    <h3 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-0.5px' }}>{ann.title}</h3>
+                                    <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: '0 0 24px', minHeight: 60 }}>{ann.content}</p>
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24, borderTop: `1px solid ${T.border}` }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#F0ECFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}><Users size={14} /></div>
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{ann.targetRole}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.subtle }}>
+                                            <Calendar size={14} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>{new Date(ann.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">No announcements yet</h3>
-                                <p className="text-[11px] md:text-sm text-slate-500 mt-2 max-w-xs md:max-w-sm font-medium leading-relaxed font-bold uppercase tracking-widest opacity-60">
-                                    Create your first announcement to reach your members instantly.
-                                </p>
-                            </div>
-                        )
-                    )}
+                            ))}
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 0', textAlign: 'center' }}>
+                            <div style={{ width: 100, height: 100, borderRadius: 32, background: '#fff', border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, marginBottom: 24, boxShadow: T.cardShadow }}><Megaphone size={48} strokeWidth={1.5} style={{ opacity: 0.3 }} /></div>
+                            <h3 style={{ fontSize: 20, fontWeight: 900, color: T.text, margin: '0 0 8px' }}>No active transmissions</h3>
+                            <p style={{ fontSize: 13, color: T.subtle, margin: 0, fontWeight: 600 }}>Ready to broadcast? Create your first announcement to reach your members.</p>
+                        </div>
+                    )
+                )}
 
-                    {activeTab === 'Communication Logs' && (
-                        logs.length > 0 ? (
-                            <div className="overflow-hidden bg-white border-2 border-slate-50 rounded-3xl">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-slate-50/50">
-                                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Member</th>
-                                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Channel</th>
-                                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Message</th>
-                                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
+                {activeTab === 'Communication Logs' && (
+                    logs.length > 0 ? (
+                        <div style={{ background: '#fff', borderRadius: 28, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: T.cardShadow }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ background: '#F9FAFB' }}>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Recipient Id</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Channel</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Payload Content</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Status</th>
+                                        <th style={{ padding: '20px 24px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {logs.map((log) => (
+                                        <tr key={log.id} style={{ borderTop: `1px solid ${T.border}`, transition: '0.3s' }} className="hover:bg-slate-50/50">
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ fontSize: 12, fontWeight: 900, color: T.text, textTransform: 'uppercase' }}>{log.memberId ? `Member #${log.memberId}` : 'Broadcast Group'}</div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                                    <MessageSquare size={16} color={T.accent} />
+                                                    <span style={{ fontSize: 12, fontWeight: 700, color: T.muted, textTransform: 'uppercase' }}>{log.channel}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <p style={{ fontSize: 12, color: T.muted, margin: 0, fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.message}</p>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <span style={{ padding: '6px 12px', background: '#ECFDF5', color: '#059669', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase' }}>{log.status}</span>
+                                            </td>
+                                            <td style={{ padding: '20px 24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: T.subtle }}>
+                                                    <Clock size={14} />
+                                                    <span style={{ fontSize: 11, fontWeight: 800 }}>{new Date(log.createdAt).toLocaleString()}</span>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {logs.map((log) => (
-                                            <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{log.memberId ? `Member #${log.memberId}` : 'Broadcast'}</span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <MessageSquare size={14} className="text-primary" />
-                                                        <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">{log.channel}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <p className="text-xs text-slate-500 font-medium truncate max-w-xs">{log.message}</p>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
-                                                        {log.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-1.5 text-slate-400">
-                                                        <Clock size={12} />
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(log.createdAt).toLocaleString()}</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center opacity-40 px-6">
-                                <History size={40} className="md:w-12 md:h-12 text-slate-300 mb-4" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">No logs found</p>
-                            </div>
-                        )
-                    )}
-                </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '100px 0', textAlign: 'center', opacity: 0.5 }}>
+                            <History size={48} strokeWidth={1} style={{ marginBottom: 16 }} />
+                            <p style={{ fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Archive is empty</p>
+                        </div>
+                    )
+                )}
             </div>
 
             {/* Drawers */}

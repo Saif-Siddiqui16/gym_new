@@ -1,44 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import Card from '../../../components/ui/Card';
-import Button from '../../../components/ui/Button';
-import { CreditCard, Download, Loader } from 'lucide-react';
+import { CreditCard, Download, Loader, RefreshCw, Layers, ShieldCheck, FileText, ChevronRight } from 'lucide-react';
 import { fetchAllGyms } from '../../../api/superadmin/superAdminApi';
 import { getInvoices } from '../../../api/finance/invoiceApi';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    input: { width: '100%', height: 48, borderRadius: 16, border: `2.5px solid ${T.bg}`, background: T.bg, padding: '0 16px', fontSize: 13, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif" },
+    th: { padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'left', borderBottom: `1px solid ${T.bg}` },
+    td: { padding: '14px 20px', fontSize: 13, color: T.text, fontWeight: 700, borderBottom: `1px solid ${T.bg}` }
+};
+
 const BillingPlans = () => {
     const [loading, setLoading] = useState(true);
-    const [planInfo, setPlanInfo] = useState({
-        plan: 'Loading...',
-        price: '...',
-        nextBilling: '...',
-        paymentMethod: '...'
-    });
+    const [planInfo, setPlanInfo] = useState({ plan: 'Loading...', price: '...', nextBilling: '...', paymentMethod: '...' });
     const [invoices, setInvoices] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true);
-                // In a real scenario, we'd have a specific endpoint for the tenant's current plan.
-                // For now, we'll use fetchAllGyms as it returns the plan for the tenant's gym.
                 const gymsData = await fetchAllGyms();
-                const currentGym = gymsData.gyms?.[0]; // Assuming the first one is the primary gym for the user
-
+                const currentGym = gymsData.gyms?.[0];
                 if (currentGym) {
                     setPlanInfo({
                         plan: currentGym.planName || 'Standard Plan',
-                        price: 'Custom', // Backend doesn't return price in getAllGyms
-                        nextBilling: 'Coming Soon', // Need a specific subscription endpoint for this
+                        price: 'Enterprise Flux',
+                        nextBilling: 'Coming Soon',
                         paymentMethod: 'Bank Transfer'
                     });
                 }
-
-                // Fetch invoices (assuming these are SaaS invoices or system invoices)
                 const invoicesData = await getInvoices();
                 setInvoices(invoicesData || []);
-
             } catch (error) {
-                console.error('Failed to load billing data:', error);
+                console.error('Core sync failure:', error);
             } finally {
                 setLoading(false);
             }
@@ -46,112 +54,135 @@ const BillingPlans = () => {
         loadData();
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={40} />
-            </div>
-        );
-    }
+    if (loading) return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh' }}>
+            <Loader className="animate-spin" style={{ color: T.accent }} size={32} />
+        </div>
+    );
 
     return (
-        <div className="fade-in p-4 sm:p-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Billing & Plans</h2>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '0 0 60px', fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.15s }
+                .tab-row:hover { background: rgba(124, 92, 252, 0.015) !important; }
+            `}</style>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-                <Card title="Current Plan" className="lg:col-span-2">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-                        <div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{planInfo.plan}</h3>
-                            <p className="text-sm sm:text-base text-gray-500">{planInfo.price} billed monthly</p>
-                        </div>
-                        <Button variant="primary" className="w-full sm:w-auto">Upgrade Plan</Button>
+            {/* Premium Header Banner (Matching White Aesthetic) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                    }}>
+                        <Layers size={30} strokeWidth={2.5} />
                     </div>
-                    <div className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-500">
-                        Next billing date: <span className="text-gray-900 font-semibold">{planInfo.nextBilling}</span>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Billing & Subscriptions</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manage your operational commitment and payment history</p>
                     </div>
-                </Card>
-
-                <Card title="Payment Method">
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="p-2.5 sm:p-3 bg-gray-100 rounded-lg shrink-0">
-                            <CreditCard size={20} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-sm sm:text-base text-gray-900">{planInfo.paymentMethod}</div>
-                            <div className="text-xs sm:text-sm text-gray-500">Active Service</div>
-                        </div>
-                    </div>
-                    <Button variant="outline" size="small" className="mt-3 sm:mt-4 w-full">Update Information</Button>
-                </Card>
+                </div>
+                <button style={{ height: 48, padding: '0 24px', borderRadius: 14, background: T.accent, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, boxShadow: T.shadow }}>
+                    <RefreshCw size={16} /> Upgrade Identity
+                </button>
             </div>
 
-            <Card title="Invoice History">
-                {invoices.length > 0 ? (
-                    <>
-                        <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full border-collapse text-sm">
-                                <thead>
-                                    <tr className="text-left border-b border-gray-200">
-                                        <th className="py-3 font-semibold text-gray-700">Invoice ID</th>
-                                        <th className="py-3 font-semibold text-gray-700">Date</th>
-                                        <th className="py-3 font-semibold text-gray-700">Amount</th>
-                                        <th className="py-3 font-semibold text-gray-700">Status</th>
-                                        <th className="py-3 font-semibold text-gray-700 text-right">Download</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {invoices.map((inv) => (
-                                        <tr key={inv.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                            <td className="py-3 font-medium text-gray-900">{inv.invoiceNumber || inv.id}</td>
-                                            <td className="py-3 text-gray-600">{new Date(inv.createdAt).toLocaleDateString()}</td>
-                                            <td className="py-3 text-gray-900">{inv.amount}</td>
-                                            <td className="py-3">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                                    inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                                }`}>
-                                                    {inv.status}
-                                                </span>
-                                            </td>
-                                            <td className="py-3 text-right">
-                                                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700">
-                                                    <Download size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 24, marginBottom: 28 }} className="fu1">
+                {/* Current Plan Card */}
+                <div style={{ ...S.card, padding: 32, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                             <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Current active cycle</p>
+                             <h2 style={{ margin: 0, fontSize: 28, fontWeight: 900, color: T.text, letterSpacing: '-1px' }}>{planInfo.plan}</h2>
+                             <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                  <span style={{ fontSize: 13, fontWeight: 800, color: T.accent }}>{planInfo.price}</span>
+                                  <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: T.subtle }}>Billed Annually</span>
+                             </div>
                         </div>
+                        <div style={{ width: 56, height: 56, borderRadius: 16, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                             <ShieldCheck size={28} />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 32, padding: '16px 20px', background: T.bg, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                         <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: T.muted }}>NEXT MANIFESTATION DATE</p>
+                         <p style={{ margin: 0, fontSize: 12, fontWeight: 900, color: T.text }}>{planInfo.nextBilling}</p>
+                    </div>
+                </div>
 
-                        <div className="md:hidden space-y-3">
-                            {invoices.map((inv) => (
-                                <div key={inv.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <div className="font-bold text-sm text-gray-900 mb-1">{inv.invoiceNumber || inv.id}</div>
-                                            <div className="text-xs text-gray-500">{new Date(inv.createdAt).toLocaleDateString()}</div>
-                                        </div>
-                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                            inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                        }`}>
+                {/* Primary Method Card */}
+                <div style={{ ...S.card, padding: 32 }}>
+                    <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Identity Verification</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 12, background: T.bg, color: T.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <CreditCard size={20} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{planInfo.paymentMethod}</div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: T.subtle, textTransform: 'uppercase' }}>Operational Linked Account</div>
+                        </div>
+                    </div>
+                    <button style={{ width: '100%', height: 44, borderRadius: 12, border: `1.5px solid ${T.border}`, background: '#fff', color: T.text, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', transition: '0.2s' }}>
+                        Update Matrix Information
+                    </button>
+                </div>
+            </div>
+
+            {/* Invoices Table Card */}
+            <div style={S.card} className="fu2">
+                <div style={{ padding: '24px 32px', borderBottom: `1px solid ${T.bg}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <FileText size={18} color={T.accent} />
+                    <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: T.text }}>Emission Logs (Invoices)</h3>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg }}>
+                                <th style={S.th}>Manifest ID</th>
+                                <th style={S.th}>Cycle Date</th>
+                                <th style={S.th}>Quantum Amount</th>
+                                <th style={S.th}>Status</th>
+                                <th style={{ ...S.th, textAlign: 'right' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {invoices.length > 0 ? invoices.map((inv) => (
+                                <tr key={inv.id} style={{ transition: '0.2s' }} className="tab-row">
+                                    <td style={S.td}><span style={{ color: T.accent }}>#</span> {inv.invoiceNumber || inv.id.slice(-8)}</td>
+                                    <td style={{ ...S.td, color: T.muted }}>{new Date(inv.createdAt).toLocaleDateString()}</td>
+                                    <td style={S.td}>₹ {inv.amount}</td>
+                                    <td style={S.td}>
+                                        <span style={{ 
+                                            padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase',
+                                            background: inv.status === 'Paid' ? T.greenLight : T.roseLight,
+                                            color: inv.status === 'Paid' ? T.green : T.rose
+                                        }}>
                                             {inv.status}
                                         </span>
-                                    </div>
-                                    <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <div className="font-bold text-base text-gray-900">{inv.amount}</div>
-                                        <button className="p-2 bg-white hover:bg-gray-100 rounded-lg transition-colors text-gray-600 border border-gray-200">
-                                            <Download size={16} />
+                                    </td>
+                                    <td style={{ ...S.td, textAlign: 'right' }}>
+                                        <button style={{ width: 36, height: 36, borderRadius: 10, background: T.bg, color: T.text, border: 'none', cursor: 'pointer', transition: '0.2s' }}>
+                                            <Download size={14} />
                                         </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    <div className="py-10 text-center text-gray-500">No invoice history found.</div>
-                )}
-            </Card>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="5" style={{ padding: '40px 0', textAlign: 'center', color: T.subtle, fontSize: 13, fontWeight: 700 }}>
+                                        No operational logs manifested yet.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };

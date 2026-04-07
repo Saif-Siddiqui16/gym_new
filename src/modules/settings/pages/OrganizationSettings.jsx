@@ -1,222 +1,197 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, UploadCloud, Globe, DollarSign, Calendar, Save, Loader } from 'lucide-react';
+import { Building2, UploadCloud, Globe, DollarSign, Calendar, Save, Loader, Mail, Phone, MapPin, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { getTenantSettings, updateTenantSettings } from '../../../api/admin/settingsApi';
 import { toast } from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    input: { width: '100%', height: 48, borderRadius: 15, border: `2px solid ${T.bg}`, background: T.bg, padding: '0 20px 0 48px', fontSize: 13, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: '0.3s', outline: 'none' },
+    label: { display: 'block', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 8px 4px' },
+    icon: { position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: T.subtle }
+};
 
 const OrganizationSettings = ({ role }) => {
     const isManager = role === 'MANAGER';
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        email: '',
-        location: '',
-        timezone: 'Asia/Kolkata',
-        currency: 'INR',
-        fiscalYearStart: 'April',
-        referralReward: 500
-    });
+    const [formData, setFormData] = useState({ name: '', phone: '', email: '', location: '', timezone: 'Asia/Kolkata', currency: 'INR', fiscalYearStart: 'April', referralReward: 500 });
     const [logoFile, setLogoFile] = useState(null);
     const [logoPreview, setLogoPreview] = useState(null);
 
-    useEffect(() => {
-        loadSettings();
-    }, []);
+    useEffect(() => { loadSettings(); }, []);
 
     const loadSettings = async () => {
         try {
             setLoading(true);
             const data = await getTenantSettings();
-            setFormData({
-                name: data.name || '',
-                phone: data.phone || '',
-                email: data.email || '',
-                location: data.location || '',
-                timezone: data.timezone || 'Asia/Kolkata',
-                currency: data.currency || 'INR',
-                fiscalYearStart: data.fiscalYearStart || 'April',
-                referralReward: data.referralReward || 500
-            });
-            if (data.logo) {
-                setLogoPreview(data.logo);
-            }
-        } catch (error) {
-            console.error('Failed to fetch settings:', error);
-            toast.error('Failed to load settings');
-        } finally {
-            setLoading(false);
-        }
+            setFormData({ name: data.name || '', phone: data.phone || '', email: data.email || '', location: data.location || '', timezone: data.timezone || 'Asia/Kolkata', currency: data.currency || 'INR', fiscalYearStart: data.fiscalYearStart || 'April', referralReward: data.referralReward || 500 });
+            if (data.logo) setLogoPreview(data.logo);
+        } catch (error) { toast.error('Failed to load settings'); } finally { setLoading(false); }
     };
 
     const handleSave = async () => {
         try {
             setSaving(true);
-            const payload = {
-                name: formData.name,
-                phone: formData.phone,
-                email: formData.email,
-                location: formData.location,
-                timezone: formData.timezone,
-                currency: formData.currency,
-                fiscalYearStart: formData.fiscalYearStart,
-                referralReward: parseInt(formData.referralReward)
-            };
-            if (logoFile) {
-                payload.logo = logoFile;
-            }
-
+            const payload = { ...formData, referralReward: parseInt(formData.referralReward) };
+            if (logoFile) payload.logo = logoFile;
             await updateTenantSettings(payload);
-            toast.success('Organization settings updated successfully');
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            toast.error('Failed to save settings');
-        } finally {
-            setSaving(false);
-        }
+            toast.success('Brand identity synchronized');
+        } catch (error) { toast.error('Check server logs'); } finally { setSaving(false); }
     };
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleLogoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setLogoFile(reader.result);
-            };
+            reader.onloadend = () => setLogoFile(reader.result);
             reader.readAsDataURL(file);
             setLogoPreview(URL.createObjectURL(file));
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={40} />
-            </div>
-        );
-    }
-
-    const T = {
-        accent: '#7C5CFC', accentLight: '#F0ECFF', border: '#EAE7FF', bg: '#F6F5FF', 
-        surface: '#FFFFFF', text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC'
-    };
-
-    const S = {
-        ff: "'Plus Jakarta Sans', sans-serif",
-        card: { background: T.surface, borderRadius: '24px', border: `1px solid ${T.border}`, boxShadow: '0 10px 25px -5px rgba(124, 92, 252, 0.08)', padding: '32px' },
-        btn: { height: '48px', padding: '0 24px', borderRadius: '14px', border: 'none', fontSize: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', transition: 'all 0.2s', background: T.accent, color: '#fff' },
-        input: { width: '100%', height: '48px', borderRadius: '14px', border: `2px solid ${T.border}`, background: T.bg, padding: '0 16px 0 44px', fontSize: '13px', fontWeight: '700', color: T.text, outline: 'none' },
-        label: { display: 'block', fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px 4px' },
-        icon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: T.subtle }
-    };
-
-    if (loading) {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-                <Loader className="animate-spin text-primary" size={40} color={T.accent} />
-            </div>
-        );
-    }
+    if (loading) return <div style={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}><Loader className="animate-spin" style={{ color: T.accent }} size={40} /></div>;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
-            
-            <div style={{ ...S.card, marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                     <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.accent, margin: 0 }}>Organization Settings</h1>
-                     <p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, marginTop: '6px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manage your brand identity and global localization</p>
+        <div style={{ fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s }
+            `}</style>
+
+            {/* Premium Header Banner (Compact) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <Building2 size={30} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Brand Identity</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manage your organizational signature and localization</p>
+                    </div>
                 </div>
-                <button onClick={handleSave} disabled={saving} style={S.btn}>
-                    {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} />} Save Brand Identity
+                <button 
+                    onClick={handleSave}
+                    disabled={saving}
+                    style={{ 
+                        height: 52, padding: '0 32px', borderRadius: 16, 
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, 
+                        color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, 
+                        textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, 
+                        boxShadow: `0 10px 25px -8px ${T.accent}80`, transition: '0.3s'
+                    }}
+                >
+                    {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} strokeWidth={2.5} />} {saving ? 'Saving...' : 'Deploy Updates'}
                 </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: '24px', alignItems: 'start' }}>
-                {/* Logo Card */}
-                <div style={{ ...S.card, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '900', color: T.text, margin: '0 0 4px 0' }}>Brand Logo</h3>
-                    <p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '24px' }}>Appears on public website</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: 28, alignItems: 'start' }} className="fu1">
+                {/* Logo Customization Card */}
+                <div style={{ ...S.card, padding: 32, borderRadius: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}><ImageIcon size={20} /></div>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: '0 0 4px' }}>Network Logo</h3>
+                    <p style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 28 }}>Appears on public interfaces</p>
                     
-                    <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '20px', border: `2px dashed ${T.border}`, background: T.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden' }}>
+                    <div style={{ position: 'relative', width: 180, height: 180, borderRadius: 32, background: T.bg, border: `2px dashed ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden' }}>
                         {logoPreview ? (
-                            <img src={logoPreview} alt="Logo" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '16px', background: '#fff' }} />
+                            <img src={logoPreview} alt="Logo" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: 24, background: '#fff' }} />
                         ) : (
                             <>
-                                <div style={{ width: '48px', height: '48px', background: T.surface, borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', border: `1px solid ${T.border}` }}><UploadCloud color={T.subtle} size={24} /></div>
-                                <p style={{ fontSize: '11px', fontWeight: '800', color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Upload Logo</p>
-                                <p style={{ fontSize: '9px', fontWeight: '800', color: T.subtle, margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>JPG, PNG up to 2MB</p>
+                                <UploadCloud size={32} color={T.subtle} style={{ marginBottom: 12 }} />
+                                <p style={{ fontSize: 12, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase' }}>Upload</p>
                             </>
                         )}
                         <input type="file" accept="image/*" onChange={handleLogoChange} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
                     </div>
+                    <div style={{ marginTop: 40, padding: '12px 24px', borderRadius: 14, background: T.bg, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        2048 x 2048 MAX (PNG/STG)
+                    </div>
                 </div>
 
-                {/* Info Card */}
-                <div style={{ ...S.card }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${T.border}` }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: T.bg, color: T.subtle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Building2 size={24} />
-                        </div>
-                        <div>
-                             <h3 style={{ fontSize: '18px', fontWeight: '900', color: T.text, margin: 0 }}>Organization Profile</h3>
-                             <p style={{ fontSize: '10px', fontWeight: '800', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Core business details</p>
-                        </div>
+                {/* Organizational Structure Card */}
+                <div style={{ ...S.card, padding: 40, borderRadius: 28 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid ${T.border}` }}>
+                         <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={20} /></div>
+                         <div>
+                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: T.text }}>Profile Matrix</h2>
+                            <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Core operational configuration</p>
+                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                         <div>
-                            <label style={S.label}>Legal Organization Name</label>
+                            <label style={S.label}>Legal Hub Name</label>
                             <div style={{ position: 'relative' }}>
-                                <Building2 size={16} style={S.icon} />
-                                <input type="text" name="name" value={formData.name} onChange={handleChange} style={S.input} />
+                                <Building2 size={18} style={S.icon} />
+                                <input type="text" name="name" value={formData.name} onChange={handleChange} style={S.input} placeholder="e.g. Roar Fitness Global" />
                             </div>
                         </div>
                         <div>
-                            <label style={S.label}>Public Phone</label>
+                            <label style={S.label}>Network Hotline</label>
                             <div style={{ position: 'relative' }}>
-                                <Globe size={16} style={S.icon} />
-                                <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={S.input} />
+                                <Phone size={18} style={S.icon} />
+                                <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={S.input} placeholder="+91 XXXX XXX XXX" />
                             </div>
                         </div>
                         <div>
-                            <label style={S.label}>Public Email</label>
+                            <label style={S.label}>Master Email Node</label>
                             <div style={{ position: 'relative' }}>
-                                <Globe size={16} style={S.icon} />
-                                <input type="email" name="email" value={formData.email} onChange={handleChange} style={S.input} />
+                                <Mail size={18} style={S.icon} />
+                                <input type="email" name="email" value={formData.email} onChange={handleChange} style={S.input} placeholder="hq@roarfitness.com" />
                             </div>
                         </div>
                         <div>
-                            <label style={S.label}>Fiscal Year Start</label>
+                            <label style={S.label}>Fiscal Year Baseline</label>
                             <div style={{ position: 'relative' }}>
-                                <Calendar size={16} style={S.icon} />
+                                <Calendar size={18} style={S.icon} />
                                 <select name="fiscalYearStart" value={formData.fiscalYearStart} onChange={handleChange} style={{ ...S.input, appearance: 'none' }}>
-                                    <option value="April">April</option>
-                                    <option value="January">January</option>
+                                    <option value="April">April 01</option>
+                                    <option value="January">January 01</option>
                                 </select>
                             </div>
                         </div>
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={S.label}>Business Address</label>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={S.label}>Headquarters Address</label>
                             <div style={{ position: 'relative' }}>
-                                <Building2 size={16} style={S.icon} />
-                                <input type="text" name="location" value={formData.location} onChange={handleChange} style={S.input} />
+                                <MapPin size={18} style={S.icon} />
+                                <input type="text" name="location" value={formData.location} onChange={handleChange} style={{ ...S.input }} placeholder="Commercial Street, Main Hub, City" />
                             </div>
                         </div>
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={S.label}>Referral Reward (Points)</label>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={S.label}>Referral Rewards (Loyalty Points)</label>
                             <div style={{ position: 'relative' }}>
-                                <DollarSign size={16} style={S.icon} />
+                                <DollarSign size={18} style={S.icon} />
                                 <input type="number" name="referralReward" value={formData.referralReward} onChange={handleChange} style={S.input} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div style={{ height: 60 }} />
         </div>
     );
 };

@@ -1,10 +1,30 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Mail, Bell, Clock, Play, Save, Loader } from 'lucide-react';
+import { Mail, Bell, Clock, Play, Save, Loader, Sparkles, Inbox, Zap, CheckCircle2 } from 'lucide-react';
 import { ROLES } from '../../../config/roles';
 import { useBranchContext } from '../../../context/BranchContext';
 import apiClient from '../../../api/apiClient';
 import { toast } from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    toggleWrap: { width: 44, height: 24, borderRadius: 12, border: 'none', position: 'relative', cursor: 'pointer', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' },
+    toggleDot: { width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }
+};
 
 const Notifications = () => {
     const context = useOutletContext();
@@ -16,67 +36,30 @@ const Notifications = () => {
     const [saving, setSaving] = useState(false);
     const [runningReminders, setRunningReminders] = useState(false);
 
-    const [emailSettings, setEmailSettings] = useState({
-        membershipReminders: true,
-        paymentReceipts: true,
-        classNotifications: true,
-        announcements: true
-    });
-
-    const [systemSettings, setSystemSettings] = useState({
-        lowStockAlerts: true,
-        newLeadAlerts: true,
-        paymentAlerts: true,
-        taskReminders: true
-    });
-
+    const [emailSettings, setEmailSettings] = useState({ membershipReminders: true, paymentReceipts: true, classNotifications: true, announcements: true });
+    const [systemSettings, setSystemSettings] = useState({ lowStockAlerts: true, newLeadAlerts: true, paymentAlerts: true, taskReminders: true });
     const [selectedReminderType, setSelectedReminderType] = useState('Payment Due');
-    const reminderTypes = [
-        'Payment Due', 'Birthdays', 'Membership Expiry',
-        'Class Reminders', 'PT Sessions', 'Benefit Bookings'
-    ];
+    const reminderTypes = ['Payment Due', 'Birthdays', 'Membership Expiry', 'Class Reminders', 'PT Sessions', 'Benefit Bookings'];
 
     const fetchSettings = useCallback(async () => {
         try {
             setLoading(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-
             const res = await apiClient.get('/admin/settings/notifications', { headers });
             if (res.data) {
-                setEmailSettings({
-                    membershipReminders: res.data.membershipReminders ?? true,
-                    paymentReceipts: res.data.paymentReceipts ?? true,
-                    classNotifications: res.data.classNotifications ?? true,
-                    announcements: res.data.announcements ?? true
-                });
-                setSystemSettings({
-                    lowStockAlerts: res.data.lowStockAlerts ?? true,
-                    newLeadAlerts: res.data.newLeadAlerts ?? true,
-                    paymentAlerts: res.data.paymentAlerts ?? true,
-                    taskReminders: res.data.taskReminders ?? true
-                });
+                setEmailSettings({ membershipReminders: res.data.membershipReminders ?? true, paymentReceipts: res.data.paymentReceipts ?? true, classNotifications: res.data.classNotifications ?? true, announcements: res.data.announcements ?? true });
+                setSystemSettings({ lowStockAlerts: res.data.lowStockAlerts ?? true, newLeadAlerts: res.data.newLeadAlerts ?? true, paymentAlerts: res.data.paymentAlerts ?? true, taskReminders: res.data.taskReminders ?? true });
             }
-        } catch (error) {
-            console.error('Error fetching notification settings:', error);
-            // Will fallback to defaults
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error(error); } finally { setLoading(false); }
     }, [selectedBranch]);
 
-    useEffect(() => {
-        fetchSettings();
-    }, [fetchSettings]);
+    useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
-    const toggleEmailSetting = (key) => {
+    const toggleSet = (type, key) => {
         if (isReadOnly) return;
-        setEmailSettings(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
-    const toggleSystemSetting = (key) => {
-        if (isReadOnly) return;
-        setSystemSettings(prev => ({ ...prev, [key]: !prev[key] }));
+        if (type === 'email') setEmailSettings(prev => ({ ...prev, [key]: !prev[key] }));
+        else setSystemSettings(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleSave = async () => {
@@ -84,19 +67,9 @@ const Notifications = () => {
             setSaving(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-
-            await apiClient.patch('/admin/settings/notifications', {
-                ...emailSettings,
-                ...systemSettings
-            }, { headers });
-
-            toast.success('Notification settings saved successfully!');
-        } catch (error) {
-            console.error('Error saving settings:', error);
-            toast.error(error?.response?.data?.message || 'Failed to save settings');
-        } finally {
-            setSaving(false);
-        }
+            await apiClient.patch('/admin/settings/notifications', { ...emailSettings, ...systemSettings }, { headers });
+            toast.success('System preferences updated');
+        } catch (error) { toast.error('Update failed'); } finally { setSaving(false); }
     };
 
     const handleRunReminders = async () => {
@@ -105,163 +78,153 @@ const Notifications = () => {
             setRunningReminders(true);
             const branchId = selectedBranch?.id;
             const headers = branchId ? { 'x-tenant-id': branchId } : {};
-
-            const res = await apiClient.post('/admin/settings/reminders/run', {
-                type: selectedReminderType
-            }, { headers });
-
-            toast.success(res.data.message || `Triggered ${selectedReminderType} reminders`);
-        } catch (error) {
-            console.error('Error running reminders:', error);
-            toast.error(error?.response?.data?.message || 'Failed to trigger reminders');
-        } finally {
-            setRunningReminders(false);
-        }
+            const res = await apiClient.post('/admin/settings/reminders/run', { type: selectedReminderType }, { headers });
+            toast.success(res.data.message || `Triggered ${selectedReminderType}`);
+        } catch (error) { toast.error('Engine error'); } finally { setRunningReminders(false); }
     };
 
     const Toggle = ({ active, onToggle }) => (
-        <button
-            onClick={onToggle}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${active ? 'bg-primary' : 'bg-slate-200'}`}
-        >
-            <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${active ? 'translate-x-6' : 'translate-x-1'}`}
-            />
+        <button onClick={onToggle} style={{ ...S.toggleWrap, background: active ? T.accent : T.subtle }}>
+            <div style={{ ...S.toggleDot, left: active ? 23 : 3 }} />
         </button>
     );
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader className="animate-spin text-primary" size={32} />
-            </div>
-        );
-    }
+    if (loading) return <div style={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}><Loader className="animate-spin" style={{ color: T.accent }} size={40} /></div>;
 
     return (
-        <div className="space-y-8 animate-fadeIn">
-            {/* Header */}
-            <div>
-                <h1 className="text-page-title">Notification Settings</h1>
-                <p className="text-muted mt-1">Configure email and system notifications</p>
-            </div>
+        <div style={{ fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.2s }
+            `}</style>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Email Notifications */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 sm:p-8">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-primary-light text-primary rounded-2xl">
-                            <Mail size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-slate-900">Email Notifications</h2>
-                            <p className="text-muted text-sm mt-0.5">Configure email alerts for member events</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        {[
-                            { key: 'membershipReminders', title: 'Membership Reminders', desc: 'Send expiry reminders to members' },
-                            { key: 'paymentReceipts', title: 'Payment Receipts', desc: 'Send receipts after payments' },
-                            { key: 'classNotifications', title: 'Class Notifications', desc: 'Send class booking confirmations' },
-                            { key: 'announcements', title: 'Announcements', desc: 'Receive gym announcements via email' }
-                        ].map(({ key, title, desc }) => (
-                            <div key={key} className="flex items-center justify-between gap-4">
-                                <div>
-                                    <h3 className="font-semibold text-slate-800">{title}</h3>
-                                    <p className="text-slate-500 text-xs mt-0.5">{desc}</p>
-                                </div>
-                                <Toggle active={emailSettings[key]} onToggle={() => toggleEmailSetting(key)} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* System Alerts */}
-                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-6 sm:p-8">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-primary-light text-primary rounded-2xl">
-                            <Bell size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-slate-900">System Alerts</h2>
-                            <p className="text-muted text-sm mt-0.5">Manage inner-app notification triggers</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        {[
-                            { key: 'lowStockAlerts', title: 'Low Stock Alerts', desc: 'Get notified when inventory is low' },
-                            { key: 'newLeadAlerts', title: 'New Lead Alerts', desc: 'Get notified about new leads' },
-                            { key: 'paymentAlerts', title: 'Payment Alerts', desc: 'Get notified about overdue payments' },
-                            { key: 'taskReminders', title: 'Task Reminders', desc: 'Get reminders for assigned tasks' }
-                        ].map(({ key, title, desc }) => (
-                            <div key={key} className="flex items-center justify-between gap-4">
-                                <div>
-                                    <h3 className="font-semibold text-slate-800">{title}</h3>
-                                    <p className="text-slate-500 text-xs mt-0.5">{desc}</p>
-                                </div>
-                                <Toggle active={systemSettings[key]} onToggle={() => toggleSystemSetting(key)} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Automated Reminders */}
-            <div className="bg-white rounded-[24px] border border-slate-100 p-6 sm:p-8 shadow-sm">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl shrink-0">
-                        <Clock size={24} />
+            {/* Premium Header Banner (Compact Version) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <Bell size={30} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h2 className="text-lg sm:text-xl font-bold text-slate-900">Reminders Engine</h2>
-                        <p className="text-muted text-xs sm:text-sm mt-0.5">Manually trigger system reminders</p>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Signal Control</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Configure automated alerts and system transmissions</p>
                     </div>
                 </div>
-
-                <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                    Manually trigger all pending reminders (payments, birthdays, membership expiry, class/PT/benefit bookings).
-                </p>
-
-                <div className="space-y-8">
-                    <div className="flex flex-wrap gap-2">
-                        {reminderTypes.map(type => (
-                            <button
-                                key={type}
-                                onClick={() => setSelectedReminderType(type)}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedReminderType === type
-                                    ? 'bg-slate-900 text-white shadow-md'
-                                    : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
-                                    }`}
-                            >
-                                {type}
-                            </button>
-                        ))}
-                    </div>
-
-                    <button
-                        onClick={handleRunReminders}
-                        disabled={runningReminders || isReadOnly}
-                        className="w-full sm:w-auto px-6 py-3.5 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                        {runningReminders ? <Loader size={18} className="animate-spin text-primary" /> : <Play size={18} fill="currentColor" className="text-primary" />}
-                        {runningReminders ? 'Triggering...' : 'Run Reminders Now'}
-                    </button>
-                </div>
-            </div>
-
-            {/* Save Action */}
-            <div className="flex justify-end pt-6 pb-10">
-                <button
+                <button 
                     onClick={handleSave}
                     disabled={saving || isReadOnly}
-                    className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-primary to-primary text-white font-black rounded-xl shadow-xl shadow-primary/30/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{ 
+                        height: 52, padding: '0 32px', borderRadius: 16, 
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, 
+                        color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, 
+                        textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, 
+                        boxShadow: `0 10px 25px -8px ${T.accent}80`, transition: '0.3s', opacity: saving ? 0.6 : 1
+                    }}
                 >
-                    {saving ? <Loader size={20} className="animate-spin" /> : <Save size={20} />}
-                    {saving ? 'Saving Changes...' : 'Save All Changes'}
+                    {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} strokeWidth={2.5} />} {saving ? 'Syncing...' : 'Save Configuration'}
                 </button>
             </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, marginBottom: 28 }} className="fu1">
+                {/* Email Notifications Block */}
+                <div style={{ ...S.card, padding: 32 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Mail size={20} /></div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: T.text }}>Outbound Mail</h2>
+                            <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Member communication triggers</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                        {[
+                            { key: 'membershipReminders', title: 'Renewal Reminders', desc: 'Auto-transmit expiry alerts to members' },
+                            { key: 'paymentReceipts', title: 'Transactional Receipts', desc: 'Securely dispatch payment confirmations' },
+                            { key: 'classNotifications', title: 'Session Updates', desc: 'Confirm class bookings and trainer slots' },
+                            { key: 'announcements', title: 'Global Bulletins', desc: 'Include branch in broadcast transmissions' }
+                        ].map((m) => (
+                            <div key={m.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 900, color: T.text }}>{m.title}</h4>
+                                    <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: T.muted }}>{m.desc}</p>
+                                </div>
+                                <Toggle active={emailSettings[m.key]} onToggle={() => toggleSet('email', m.key)} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* System Alerts Block */}
+                <div style={{ ...S.card, padding: 32 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Zap size={20} /></div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: T.text }}>Internal Signals</h2>
+                            <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Dashboard event manifestations</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        {[
+                            { key: 'lowStockAlerts', title: 'Inventory Warning', desc: 'Notify admin when product stock depletes' },
+                            { key: 'newLeadAlerts', title: 'Lead Manifestation', desc: 'Alert staff on new member inquiries' },
+                            { key: 'paymentAlerts', title: 'Default Detection', desc: 'Flag overdue accounts on the dashboard' },
+                            { key: 'taskReminders', title: 'Workflow Overdue', desc: 'Reminder for assigned staff objectives' }
+                        ].map((m) => (
+                            <div key={m.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 900, color: T.text }}>{m.title}</h4>
+                                    <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: T.muted }}>{m.desc}</p>
+                                </div>
+                                <Toggle active={systemSettings[m.key]} onToggle={() => toggleSet('system', m.key)} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* automated Engine Block */}
+            <div style={{ ...S.card, padding: 40, marginBottom: 40 }} className="fu2">
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 28 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: T.amberLight, color: T.amber, display: 'flex', alignItems: 'center', justifyContent: 'center', shrink: 0 }}>
+                         <Clock size={28} strokeWidth={2.5} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 900, color: T.text }}>Engine Overrides</h2>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: T.muted, lineHeight: 1.6, maxWidth: 640 }}>
+                            Manually trigger all pending system reminders (payments, birthdays, membership expiry, class/PT/benefit bookings). This utility overrides the scheduled cron cycles.
+                        </p>
+                        
+                        <div style={{ marginTop: 36, display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+                            {reminderTypes.map(type => (
+                                <button key={type} onClick={() => setSelectedReminderType(type)} style={{
+                                    height: 48, padding: '0 24px', borderRadius: 16, border: selectedReminderType === type ? 'none' : `1.5px solid ${T.border}`,
+                                    background: selectedReminderType === type ? T.text : '#fff', color: selectedReminderType === type ? '#fff' : T.muted,
+                                    fontSize: 12, fontWeight: 900, cursor: 'pointer', transition: '0.2s', textTransform: 'uppercase', letterSpacing: '0.05em'
+                                }}>{type}</button>
+                            ))}
+                        </div>
+
+                        <button onClick={handleRunReminders} disabled={runningReminders || isReadOnly} style={{
+                            marginTop: 40, height: 60, padding: '0 36px', borderRadius: 20, background: T.bg, border: `2px solid ${T.accent}`, color: T.accent,
+                            fontWeight: 900, fontSize: 13, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: '0.3s'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = T.accent + '10'}
+                        onMouseOut={e => e.currentTarget.style.background = T.bg}
+                        >
+                            {runningReminders ? <Loader className="animate-spin" size={20} /> : <Play size={20} fill={T.accent} />} {runningReminders ? 'Running Cycles...' : 'Execute Manual Engine Trigger'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style={{ height: 40 }} />
         </div>
     );
 };

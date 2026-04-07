@@ -1,10 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, X, Key, Loader, AlertTriangle, Save } from 'lucide-react';
+import { User, Mail, Phone, Shield, Lock, Bell, CheckCircle2, Camera, MapPin, Calendar, Activity, X, Key, Loader, Save, RefreshCw } from 'lucide-react';
 import { fetchManagerProfile, updateManagerProfile } from '../../api/manager/managerApi';
 import { useAuth } from '../../context/AuthContext';
 import NotificationsList from '../../components/notifications/NotificationsList';
 import apiClient from '../../api/apiClient';
 import { toast } from 'react-hot-toast';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    input: { width: '100%', height: 48, borderRadius: 16, border: `2.5px solid ${T.bg}`, background: T.bg, padding: '0 20px 0 46px', fontSize: 13, fontWeight: 700, color: T.text, outline: 'none', transition: '0.2s', fontFamily: "'Plus Jakarta Sans', sans-serif" },
+    label: { display: 'block', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', marginLeft: '4px' },
+    icon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: T.subtle },
+    btn: { height: 48, padding: '0 28px', borderRadius: 14, background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: `0 10px 25px -8px ${T.accent}80` }
+};
 
 const MyProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -13,25 +35,13 @@ const MyProfile = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-    });
+    const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        avatar: ''
-    });
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', avatar: '' });
     const { login: updateAuthUser } = useAuth();
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
+    useEffect(() => { loadProfile(); }, []);
 
     const loadProfile = async () => {
         try {
@@ -46,8 +56,7 @@ const MyProfile = () => {
                 avatar: data.avatar || ''
             });
         } catch (error) {
-            console.error("Error loading profile:", error);
-            setMessage({ type: 'error', text: 'Failed to load profile data.' });
+            setMessage({ type: 'error', text: 'Failed to synchronize identity profile.' });
         } finally {
             setLoading(false);
         }
@@ -62,9 +71,7 @@ const MyProfile = () => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, avatar: reader.result }));
-            };
+            reader.onloadend = () => setFormData(prev => ({ ...prev, avatar: reader.result }));
             reader.readAsDataURL(file);
         }
     };
@@ -73,22 +80,15 @@ const MyProfile = () => {
         e.preventDefault();
         setIsSaving(true);
         setMessage({ type: '', text: '' });
-
         try {
             const updated = await updateManagerProfile(formData);
             setProfile(updated);
-
-            // Sync with Auth Context
-            updateAuthUser({
-                ...JSON.parse(localStorage.getItem('userData')),
-                name: updated.name,
-                phone: updated.phone,
-                avatar: updated.avatar
-            });
-
-            setMessage({ type: 'success', text: 'Profile updated successfully!' });
+            updateAuthUser({ ...JSON.parse(localStorage.getItem('userData')), name: updated.name, phone: updated.phone, avatar: updated.avatar });
+            toast.success("Identity Matrix Updated!");
+            setMessage({ type: 'success', text: 'Identity synchronized successfully!' });
         } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update profile.' });
+            toast.error("Critical Failure: Sync Refused");
+            setMessage({ type: 'error', text: 'Failed to update identity protocols.' });
         } finally {
             setIsSaving(false);
         }
@@ -96,85 +96,26 @@ const MyProfile = () => {
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
-
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            toast.error("New password and confirm password do not match.");
-            return;
-        }
-
-        if (passwordData.newPassword.length < 8) {
-            toast.error("New password must be at least 8 characters long.");
-            return;
-        }
-
+        if (passwordData.newPassword !== passwordData.confirmPassword) return toast.error("Key mismatch detected.");
+        if (passwordData.newPassword.length < 8) return toast.error("Security violation: Key too simple.");
         setIsChangingPassword(true);
         try {
-            await apiClient.post('/auth/change-password', {
-                currentPassword: passwordData.currentPassword,
-                newPassword: passwordData.newPassword,
-            });
-            toast.success("Password updated successfully!");
+            await apiClient.post('/auth/change-password', { currentPassword: passwordData.currentPassword, newPassword: passwordData.newPassword });
+            toast.success("Security keys rotated!");
             setIsPasswordModalOpen(false);
-            setPasswordData({
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            });
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (error) {
-            console.error("Error changing password:", error);
-            const errorMessage = error.response?.data?.message || "Failed to change password. Please try again.";
-            toast.error(errorMessage);
+            toast.error(error.response?.data?.message || "Failed to rotate security keys.");
         } finally {
             setIsChangingPassword(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-gray-500 font-medium">Loading profile...</p>
-            </div>
-        );
-    }
-
-    if (!profile) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
-                    <Shield size={32} className="text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800">Could Not Load Profile</h3>
-                <p className="text-slate-500 text-sm max-w-xs text-center">
-                    {message.text || 'There was an error fetching your profile. Please try refreshing the page.'}
-                </p>
-                <button
-                    onClick={loadProfile}
-                    className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary-hover transition-all"
-                >
-                    Retry
-                </button>
-            </div>
-        );
-    }
-
-    const T = {
-        accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF', accentMid: '#E4DCFF',
-        border: '#EAE7FF', bg: '#F6F5FF', surface: '#FFFFFF',
-        text: '#1A1533', muted: '#7B7A8E', subtle: '#B0ADCC',
-        green: '#22C97A', greenLight: '#E8FBF2',
-        rose: '#F43F5E', roseLight: '#FFF1F4',
-        amber: '#F59E0B', amberLight: '#FEF3C7',
-    };
-
-    const S = {
-        ff: "'Plus Jakarta Sans', sans-serif",
-        card: { background: T.surface, borderRadius: '32px', border: `1px solid ${T.border}`, boxShadow: '0 8px 32px rgba(124,92,252,0.06)' },
-        input: { width: '100%', height: '52px', borderRadius: '16px', border: `2px solid ${T.border}`, background: T.bg, padding: '0 16px 0 46px', fontSize: '14px', fontWeight: '700', color: T.text, outline: 'none', transition: '0.2s', fontFamily: "'Plus Jakarta Sans', sans-serif" },
-        label: { display: 'block', fontSize: '10px', fontWeight: '900', color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', marginLeft: '4px' },
-        icon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: T.subtle },
-        btn: { height: '52px', padding: '0 32px', borderRadius: '16px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', border: 'none', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: `0 8px 24px rgba(124,92,252,0.3)` }
-    };
+    if (loading) return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+            <Loader className="animate-spin" style={{ color: T.accent }} size={32} />
+        </div>
+    );
 
     const tabs = [
         { id: 'personal', label: 'Personal Info', icon: User },
@@ -183,167 +124,204 @@ const MyProfile = () => {
     ];
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');`}</style>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.15s }
+                input::placeholder { color: ${T.subtle}; opacity: 0.8; }
+            `}</style>
 
-            <div style={{ ...S.card, marginBottom: '24px', overflow: 'hidden' }}>
-                <div style={{ height: '140px', background: `linear-gradient(135deg, ${T.accent}, #AE52FF)` }} />
-                <div style={{ padding: '0 32px 32px', display: 'flex', gap: '32px', alignItems: 'flex-end', marginTop: '-48px' }}>
+            {/* Premium Header Banner (White Aesthetic) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
                     <div style={{ position: 'relative' }}>
-                        <div style={{ width: '120px', height: '120px', borderRadius: '24px', background: T.surface, padding: '4px', boxShadow: '0 8px 24px rgba(124, 92, 252, 0.15)' }}>
-                            <div style={{ width: '100%', height: '100%', borderRadius: '20px', background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', fontSize: '36px', fontWeight: '900' }}>
-                                {formData.avatar ? (
-                                    <img src={formData.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (profile.avatar && profile.avatar.length > 10 ? (
-                                    <img src={profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    profile.avatar || profile.name?.charAt(0).toUpperCase()
-                                ))}
+                        <div style={{ width: 100, height: 100, borderRadius: 24, background: T.bg, padding: 3, border: `1px solid ${T.border}`, boxShadow: T.cardShadow }}>
+                            <div style={{ width: '100%', height: '100%', borderRadius: 20, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', fontSize: 32, fontWeight: 900 }}>
+                                {formData.avatar || profile.avatar ? (
+                                    <img src={formData.avatar || profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (profile.name?.charAt(0).toUpperCase())}
                             </div>
                         </div>
-                        <label style={{ position: 'absolute', bottom: '-4px', right: '-4px', width: '36px', height: '36px', background: T.surface, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', border: `1px solid ${T.border}` }}>
-                            <Camera size={16} />
+                        <label style={{ position: 'absolute', bottom: -6, right: -6, width: 36, height: 36, background: '#fff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent, boxShadow: '0 6px 15px rgba(0,0,0,0.1)', cursor: 'pointer', border: `1px solid ${T.border}` }}>
+                            <Camera size={16} strokeWidth={2.5} />
                             <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
                         </label>
                     </div>
                     
-                    <div style={{ flex: 1, paddingBottom: '8px' }}>
-                        <h1 style={{ fontSize: '28px', fontWeight: '900', color: T.text, margin: '0 0 8px 0' }}>{profile.name}</h1>
-                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                            <span style={{ padding: '4px 12px', background: T.accentLight, color: T.accent, borderRadius: '20px', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{profile.role.replace('_', ' ')}</span>
-                            <span style={{ fontSize: '11px', fontWeight: '800', color: T.success, display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}><Activity size={14} /> {profile.status}</span>
-                            <span style={{ fontSize: '11px', fontWeight: '800', color: T.muted, display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}><Calendar size={14} /> Joined {profile.joinedDate}</span>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: '0 0 6px 0', letterSpacing: '-1.2px' }}>{profile.name}</h1>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                            <span style={{ padding: '4px 12px', background: T.accentLight, color: T.accent, borderRadius: 10, fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{profile.role?.replace('_', ' ')}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: T.green }}>
+                                <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green }} /> {profile.status}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: T.subtle }}>
+                                <Calendar size={14} opacity={0.6} /> Manifested {profile.joinedDate}
+                            </div>
                         </div>
                     </div>
-                    <div style={{ paddingBottom: '16px' }}>
-                        <span style={{ padding: '8px 16px', background: T.successLight, color: T.success, borderRadius: '14px', fontSize: '11px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <CheckCircle2 size={16} /> Manager Account
-                        </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ padding: '10px 20px', background: T.greenLight, color: T.green, borderRadius: 14, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <CheckCircle2 size={16} strokeWidth={2.5} /> Operational Status: Active
                     </div>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 3fr)', gap: '24px', alignItems: 'start' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }} className="fu1">
+                {/* Lateral Tab Matrix */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             style={{ 
-                                height: '48px', padding: '0 20px', borderRadius: '16px', border: 'none', 
-                                display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', fontWeight: '800', cursor: 'pointer',
-                                background: activeTab === tab.id ? T.accent : T.surface, 
+                                height: 52, padding: '0 20px', borderRadius: 16, border: 'none', 
+                                display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                                background: activeTab === tab.id ? T.accent : '#fff', 
                                 color: activeTab === tab.id ? '#FFF' : T.muted,
-                                boxShadow: activeTab === tab.id ? '0 8px 20px rgba(124, 92, 252, 0.2)' : `0 2px 8px ${T.border}`
+                                border: activeTab === tab.id ? 'none' : `1px solid ${T.border}`,
+                                boxShadow: activeTab === tab.id ? `0 10px 25px -8px ${T.accent}80` : T.cardShadow,
+                                transition: '0.3s'
                             }}
                         >
-                            <tab.icon size={18} /> {tab.label}
+                            <tab.icon size={18} strokeWidth={activeTab === tab.id ? 2.5 : 2} /> {tab.label}
                         </button>
                     ))}
                 </div>
 
-                <div style={{ ...S.card, padding: '32px' }}>
+                {/* Main Identity Matrix */}
+                <div style={{ ...S.card, padding: 32 }}>
                     {message.text && (
-                        <div style={{ padding: '16px', borderRadius: '16px', marginBottom: '24px', backgroundColor: message.type === 'success' ? T.successLight : T.dangerLight, color: message.type === 'success' ? T.success : '#F43F5E', fontSize: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Activity size={16} /> {message.text}
+                        <div style={{ padding: '16px 20px', borderRadius: 16, marginBottom: 28, backgroundColor: message.type === 'success' ? T.greenLight : T.roseLight, color: message.type === 'success' ? T.green : T.rose, fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Activity size={18} /> {message.text}
                         </div>
                     )}
 
                     {activeTab === 'personal' && (
-                        <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                        <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                             <div>
-                                <label style={S.label}>Full Name</label>
+                                <label style={S.label}>Functional Name</label>
                                 <div style={{ position: 'relative' }}>
-                                    <User size={16} style={S.icon} />
+                                    <User size={18} style={S.icon} />
                                     <input type="text" name="name" value={formData.name} onChange={handleInputChange} style={S.input} />
                                 </div>
                             </div>
                             <div>
-                                <label style={S.label}>Email Address</label>
+                                <label style={S.label}>Communications (Email)</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Mail size={16} style={S.icon} />
+                                    <Mail size={18} style={S.icon} />
                                     <input type="email" name="email" value={formData.email} onChange={handleInputChange} style={S.input} />
                                 </div>
                             </div>
                             <div>
-                                <label style={S.label}>Phone Number</label>
+                                <label style={S.label}>Contact Protocol (Phone)</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Phone size={16} style={S.icon} />
+                                    <Phone size={18} style={S.icon} />
                                     <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} style={S.input} />
                                 </div>
                             </div>
                             <div>
-                                <label style={S.label}>Location</label>
+                                <label style={S.label}>Physical Matrix (Location)</label>
                                 <div style={{ position: 'relative' }}>
-                                    <MapPin size={16} style={S.icon} />
+                                    <MapPin size={18} style={S.icon} />
                                     <input type="text" name="address" value={formData.address} onChange={handleInputChange} style={S.input} />
                                 </div>
                             </div>
-                            <div style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+                            <div style={{ gridColumn: '1 / -1', marginTop: 12 }}>
                                 <button type="submit" disabled={isSaving} style={S.btn}>
-                                    {isSaving ? <Loader size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Save Profile Changes
+                                    {isSaving ? <Loader size={18} className="animate-spin" /> : <Save size={18} strokeWidth={2.5} />} Sync Identity
                                 </button>
                             </div>
                         </form>
                     )}
 
                     {activeTab === 'security' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <div style={{ background: '#FFF1F4', border: '1px solid #FFE4E6', padding: '24px', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                                <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Shield size={22} /></div>
                                 <div>
-                                    <h4 style={{ fontSize: '14px', fontWeight: '900', color: '#E11D48', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}><Lock size={16} /> Password Management</h4>
-                                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#F43F5E', margin: 0 }}>It's recommended to update your password every 90 days for maximum security.</p>
+                                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: T.text }}>Authentication Hardening</h2>
+                                     <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manage secure access protocols</p>
                                 </div>
-                                <button onClick={() => setIsPasswordModalOpen(true)} style={{ height: '36px', padding: '0 16px', borderRadius: '10px', background: '#E11D48', color: '#FFF', border: 'none', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-                                    Change Password
+                            </div>
+
+                            <div style={{ background: T.roseLight, border: `1px solid ${T.rose}20`, padding: 24, borderRadius: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h4 style={{ fontSize: 14, fontWeight: 900, color: T.rose, margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: 8 }}><Lock size={16} /> Key Rotation (Password)</h4>
+                                    <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, margin: 0, opacity: 0.8 }}>Update your security keys frequently for maximum hardening.</p>
+                                </div>
+                                <button onClick={() => setIsPasswordModalOpen(true)} style={{ height: 44, padding: '0 20px', borderRadius: 12, background: T.rose, color: '#FFF', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: `0 8px 20px -6px ${T.rose}60` }}>
+                                    Rotate Cipher
                                 </button>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'notifications' && (
-                        <NotificationsList />
+                        <div style={{ animation: 'fadeUp 0.4s ease both' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+                                <div style={{ width: 44, height: 44, borderRadius: 14, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Bell size={22} /></div>
+                                <div>
+                                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: T.text }}>Alert Manifestations</h2>
+                                     <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Monitor system signals and logs</p>
+                                </div>
+                            </div>
+                            <NotificationsList />
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* ──────── PASSWORD MODAL ──────── */}
+            {/* ──────── CIPHER ROTATION MODAL ──────── */}
             {isPasswordModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 100001, background: 'rgba(13,10,31,0.6)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-                    <div style={{ background: T.surface, width: '100%', maxWidth: 460, borderRadius: 32, overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.4)', animation: 'fadeUp 0.3s ease both' }}>
-                        <div style={{ padding: '28px 36px', background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>Reset Security</h3>
-                                <p style={{ fontSize: 11, fontWeight: 700, margin: '4px 0 0', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Create a new robust password</p>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 100001, background: 'rgba(26,21,51,0.5)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                    <div style={{ background: '#fff', width: '100%', maxWidth: 480, borderRadius: 32, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.2)', animation: 'fadeUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) both' }}>
+                        <div style={{ padding: '32px 40px', background: T.bg, borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                                 <div style={{ width: 6, height: 32, background: T.accent, borderRadius: 6 }} />
+                                 <div>
+                                     <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: T.text }}>Rotate Keys</h3>
+                                     <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase' }}>Security Protocol 442-A</p>
+                                 </div>
                             </div>
-                            <button onClick={() => setIsPasswordModalOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', width: 36, height: 36, borderRadius: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} strokeWidth={2.5} /></button>
+                            <button onClick={() => setIsPasswordModalOpen(false)} style={{ background: 'none', border: 'none', color: T.subtle, cursor: 'pointer' }}><X size={32} style={{ transform: 'rotate(45deg)' }} /></button>
                         </div>
                         
-                        <form onSubmit={handlePasswordChange} style={{ padding: 36, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <form onSubmit={handlePasswordChange} style={{ padding: 40, display: 'flex', flexDirection: 'column', gap: 24 }}>
                             <div>
-                                <label style={S.label}>Current Password</label>
+                                <label style={S.label}>Current Security Key</label>
                                 <div style={{ position: 'relative' }}>
                                     <Lock size={18} style={S.icon} />
                                     <input type="password" required value={passwordData.currentPassword} onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
                                 </div>
                             </div>
-                            <div>
-                                <label style={S.label}>New Password</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Key size={18} style={S.icon} />
-                                    <input type="password" required value={passwordData.newPassword} onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                                <div>
+                                    <label style={S.label}>New Key</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Key size={18} style={S.icon} />
+                                        <input type="password" required value={passwordData.newPassword} onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})} style={{ ...S.input, paddingLeft: 46 }} placeholder="••••••" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <label style={S.label}>Confirm New Password</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Shield size={18} style={S.icon} />
-                                    <input type="password" required value={passwordData.confirmPassword} onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})} style={S.input} placeholder="••••••••••••" />
+                                <div>
+                                    <label style={S.label}>Confirm Key</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Shield size={18} style={S.icon} />
+                                        <input type="password" required value={passwordData.confirmPassword} onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})} style={{ ...S.input, paddingLeft: 46 }} placeholder="••••••" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <button type="submit" disabled={isChangingPassword} style={{ ...S.btn, marginTop: 10 }}>
-                                {isChangingPassword ? <Loader size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <><Save size={20} strokeWidth={2.5} /> ROTATE PASSWORD</>}
+                            <button type="submit" disabled={isChangingPassword} style={{ ...S.btn, width: '100%', marginTop: 8 }}>
+                                {isChangingPassword ? <Loader size={20} className="animate-spin" /> : <><RefreshCw size={20} strokeWidth={2.5} /> Rotate & Sync</>}
                             </button>
                         </form>
                     </div>

@@ -1,10 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Plus, Tag, FileText, Trash2, Loader } from 'lucide-react';
+import { DollarSign, Plus, Tag, FileText, Trash2, Loader, Sparkles, Inbox, LayoutGrid } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { fetchExpenseCategories, addExpenseCategory, deleteExpenseCategory } from '../../../api/finance/financeApi';
 import { useBranchContext } from '../../../context/BranchContext';
 import { toast } from 'react-hot-toast';
 import ConfirmationModal from '../../../components/common/ConfirmationModal';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    input: { width: '100%', height: 52, borderRadius: 16, border: `2.5px solid ${T.bg}`, background: T.bg, padding: '0 20px', fontSize: 13, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: '0.3s', outline: 'none' }
+};
 
 const ExpenseSettings = () => {
     const { selectedBranch } = useBranchContext();
@@ -15,21 +34,11 @@ const ExpenseSettings = () => {
     const [formData, setFormData] = useState({ name: '', description: '' });
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, loading: false });
 
-    useEffect(() => {
-        loadCategories();
-    }, [selectedBranch]);
+    useEffect(() => { loadCategories(); }, [selectedBranch]);
 
     const loadCategories = async () => {
-        try {
-            setLoading(true);
-            const data = await fetchExpenseCategories(selectedBranch);
-            setCategories(data || []);
-        } catch (error) {
-            console.error('Failed to parse categories:', error);
-            toast.error('Failed to load expense categories');
-        } finally {
-            setLoading(false);
-        }
+        try { setLoading(true); const data = await fetchExpenseCategories(selectedBranch); setCategories(data || []); } 
+        catch (error) { toast.error('Failed to load categories'); } finally { setLoading(false); }
     };
 
     const handleCreate = async (e) => {
@@ -37,161 +46,112 @@ const ExpenseSettings = () => {
         try {
             setSubmitting(true);
             await addExpenseCategory({ ...formData, branchId: selectedBranch });
-            toast.success('Category created successfully');
-            setIsDrawerOpen(false);
-            setFormData({ name: '', description: '' });
-            loadCategories();
-        } catch (error) {
-            console.error('Failed to stringify error:', error);
-            toast.error(error.response?.data?.message || 'Failed to create category');
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleDelete = (id) => {
-        setConfirmModal({ isOpen: true, id, loading: false });
+            toast.success('Category created'); setIsDrawerOpen(false); setFormData({ name: '', description: '' }); loadCategories();
+        } catch (error) { toast.error(error.response?.data?.message || 'Failed'); } finally { setSubmitting(false); }
     };
 
     const processDelete = async () => {
         try {
             setConfirmModal(prev => ({ ...prev, loading: true }));
             await deleteExpenseCategory(confirmModal.id);
-            toast.success('Category deleted successfully');
-            setConfirmModal({ isOpen: false, id: null, loading: false });
-            loadCategories();
-        } catch (error) {
-            toast.error('Failed to delete category');
-            setConfirmModal(prev => ({ ...prev, loading: false }));
-        }
+            toast.success('Category deleted'); setConfirmModal({ isOpen: false, id: null, loading: false }); loadCategories();
+        } catch (error) { toast.error('Check dependency'); setConfirmModal(prev => ({ ...prev, loading: false })); }
     };
 
     return (
-        <div className="p-4 sm:p-8 max-w-full mx-auto font-sans animate-in fade-in duration-500">
-            <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-6 sm:p-8 transition-all duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
-                    <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center text-primary shadow-sm border border-violet-100">
-                            <DollarSign size={28} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900 tracking-tight leading-none mb-2">
-                                Expense Categories
-                            </h1>
-                            <p className="text-slate-500 text-sm font-medium">
-                                Manage expense categories for financial tracking
-                            </p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => setIsDrawerOpen(true)}
-                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary text-white rounded-xl text-xs font-bold hover:from-primary-hover hover:to-primary-hover transition-all shadow-lg shadow-violet-100 self-start sm:self-center active:scale-95"
-                    >
-                        <Plus size={18} />
-                        Add Category
-                    </button>
-                </div>
+        <div style={{ fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.2s }
+                input::placeholder { color: ${T.subtle}; opacity: 0.8; }
+            `}</style>
 
-                {loading ? (
-                    <div className="py-24 flex justify-center">
-                        <Loader className="animate-spin text-primary" size={32} />
+            {/* Premium Header Banner (Compact Version) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`, position: 'relative'
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <DollarSign size={30} strokeWidth={2.5} />
                     </div>
-                ) : categories.length === 0 ? (
-                    <div className="py-24 flex flex-col items-center justify-center text-center">
-                        <div className="p-4 rounded-full bg-slate-50 mb-4">
-                            <DollarSign size={32} className="text-slate-300" />
-                        </div>
-                        <p className="text-slate-400 font-medium italic">No expense categories found</p>
-                        <p className="text-slate-300 text-[10px] uppercase tracking-widest mt-2 font-bold">Start by adding your first category</p>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Expense Categories</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manage your financial classification and tracking</p>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {categories.map((cat) => (
-                            <div key={cat.id} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all flex flex-col text-left group">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-slate-800 text-sm">{cat.name}</h3>
-                                    <button
-                                        onClick={() => handleDelete(cat.id)}
-                                        className="text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all p-1.5"
-                                        title="Delete Category"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                                <p className="text-xs text-slate-500 line-clamp-2 mt-1">
-                                    {cat.description || 'No description provided.'}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                </div>
+                <button 
+                    onClick={() => setIsDrawerOpen(true)}
+                    style={{ 
+                        height: 52, padding: '0 32px', borderRadius: 16, 
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, 
+                        color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, 
+                        textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, 
+                        boxShadow: `0 10px 25px -8px ${T.accent}80`, transition: '0.3s'
+                    }}
+                >
+                    <Plus size={18} strokeWidth={3} /> Add Category
+                </button>
             </div>
 
-            <RightDrawer
-                isOpen={isDrawerOpen}
-                onClose={() => setIsDrawerOpen(false)}
-                title="Add Category"
-                subtitle="Create a new expense category"
-            >
-                <form onSubmit={handleCreate} className="p-8 space-y-6 text-left">
-                    <div className="space-y-4">
-                        <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-                                <Tag size={12} strokeWidth={3} /> Name *
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                placeholder="Utilities"
-                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/30 focus:bg-white transition-all shadow-sm"
-                            />
+            {/* Categories Grid (Compact) */}
+            {loading ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+                    {[1, 2, 3].map(i => <div key={i} style={{ height: 220, borderRadius: 28, background: '#fff', border: `1px solid ${T.border}` }} className="animate-pulse" />)}
+                </div>
+            ) : categories.length === 0 ? (
+                <div style={{ padding: '100px 0', textAlign: 'center', background: '#fff', borderRadius: 32, border: `2px dashed ${T.border}` }}>
+                    <Inbox size={64} color={T.subtle} style={{ opacity: 0.3, marginBottom: 20 }} />
+                    <h3 style={{ fontSize: 22, fontWeight: 900, color: T.text, margin: 0 }}>No Categories Identified</h3>
+                    <p style={{ fontSize: 14, color: T.muted, margin: '8px 0 32px' }}>Categorize your outgoing cash flow for better reporting.</p>
+                    <button onClick={() => setIsDrawerOpen(true)} style={{ height: 52, padding: '0 36px', borderRadius: 16, background: T.accent, color: '#fff', border: 'none', fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: T.shadow }}>Add First Category</button>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }} className="fu1">
+                    {categories.map((cat) => (
+                        <div key={cat.id} style={{ ...S.card, padding: 28 }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseOut={e => e.currentTarget.style.transform = 'none'}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 16, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Tag size={22} strokeWidth={2.5} />
+                                </div>
+                                <button onClick={() => setConfirmModal({ isOpen: true, id: cat.id, loading: false })} style={{ width: 36, height: 36, borderRadius: 10, background: T.roseLight, border: 'none', color: T.rose, cursor: 'pointer' }}>
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                            <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 900, color: T.text }}>{cat.name}</h3>
+                            <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: T.muted, lineHeight: 1.5, height: 36, overflow: 'hidden' }}>{cat.description || 'Global classification for tracking organizational expenses Across the network.'}</p>
+                            <div style={{ marginTop: 20, padding: '6px 14px', borderRadius: 10, background: T.bg, display: 'inline-flex', fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                ACTIVE CATEGORY
+                            </div>
                         </div>
+                    ))}
+                </div>
+            )}
 
-                        <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-                                <FileText size={12} strokeWidth={3} /> Description
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="Electricity, Water, Internet"
-                                rows={4}
-                                className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:outline-none focus:border-primary/30 focus:bg-white transition-all shadow-sm resize-none"
-                            />
-                        </div>
+            {/* Right Drawer - Add Category */}
+            <RightDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} title="New Expense Node" subtitle="Define a classification for budgeting">
+                <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 40 }}>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Category Identity</label>
+                        <input style={S.input} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required placeholder="e.g. Maintenance & Repairs" />
                     </div>
-
-                    <div className="flex items-center gap-4 pt-4">
-                        <button
-                            type="button"
-                            onClick={() => setIsDrawerOpen(false)}
-                            className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-95"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="flex-[2] flex justify-center items-center gap-2 py-4 bg-gradient-to-r from-primary to-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-violet-100 hover:from-primary-hover hover:to-primary-hover transition-all active:scale-95 disabled:opacity-50"
-                        >
-                            {submitting && <Loader size={14} className="animate-spin" />}
-                            {submitting ? 'Creating...' : 'Create'}
-                        </button>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Functional Details</label>
+                        <textarea style={{ ...S.input, height: 140, padding: 22, paddingTop: 18, resize: 'none' }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="What does this category cover?" />
                     </div>
+                    <button type="submit" disabled={submitting} style={{ height: 64, borderRadius: 22, background: T.accent, color: '#fff', border: 'none', fontSize: 14, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: T.shadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 12 }}>
+                        {submitting ? <Loader className="animate-spin" size={20} /> : <Plus size={20} strokeWidth={3} />} {submitting ? 'Creating...' : 'Deploy Category'}
+                    </button>
                 </form>
             </RightDrawer>
-            <ConfirmationModal
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })}
-                onConfirm={processDelete}
-                title="Delete Category?"
-                message="This expense category will be permanently removed."
-                confirmText="Delete"
-                type="danger"
-                loading={confirmModal.loading}
-            />
+
+            <ConfirmationModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({ isOpen: false, id: null, loading: false })} onConfirm={processDelete} title="Purge Category?" message="This will remove the classification from global settings." confirmText="Purge" type="danger" loading={confirmModal.loading} />
         </div>
     );
 };

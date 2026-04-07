@@ -174,6 +174,22 @@ const WorkoutPlans = ({ role }) => {
         }
     };
 
+    /* ─────────────────────────────────────────────────────────────────────────────
+       DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+       ───────────────────────────────────────────────────────────────────────── */
+    const T = {
+        accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+        border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+        muted: '#7B7A8E', subtle: '#B0ADCC',
+        shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+        bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+        cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+    };
+
+    const S = {
+        ff: "'Plus Jakarta Sans', sans-serif"
+    };
+
     if (isMember) {
         const activePlan = myPlans.length > 0 ? myPlans[0] : null;
 
@@ -196,219 +212,219 @@ const WorkoutPlans = ({ role }) => {
         const dayLabelObj = DAY_LABELS.find(d => d.key === dayToRender);
 
         return (
-            <div className="space-y-8 fade-in">
-                {/* Header Section */}
-                <div className="page-header flex-column md:flex-row items-start md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-4 md:gap-5">
-                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary-gradient flex items-center justify-center text-white shadow-lg shrink-0">
-                            <Dumbbell size={28} className="md:w-8 md:h-8" />
+            <div style={{ background: T.bg, minHeight: '100vh', padding: '32px 32px 64px', fontFamily: S.ff }} className="fu">
+                <style>{`
+                    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                    .fu { animation: fadeUp 0.4s ease both }
+                    .fu1 { animation-delay: 0.1s }
+                    .tab-active { background: #fff !important; color: ${T.accent} !important; border: 1.5px solid ${T.border} !important; box-shadow: 0 4px 12px rgba(124,92,252,0.1) !important; }
+                `}</style>
+
+                {/* PREMIUM HEADER BANNER */}
+                <div style={{
+                    background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 32,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    boxShadow: T.bannerShadow, border: `1px solid ${T.border}`,
+                    position: 'relative', overflow: 'hidden'
+                }} className="fu">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                        <div style={{ 
+                            width: 64, height: 64, borderRadius: 18, background: T.accent,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                        }}>
+                            <Dumbbell size={30} strokeWidth={2.5} />
                         </div>
-                        <div className="min-w-0">
-                            <h1 className="page-title truncate">
+                        <div>
+                            <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>
                                 {activePlan ? activePlan.name : 'My Workout'}
                             </h1>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-muted font-bold text-[9px] md:text-[10px] uppercase tracking-widest shrink-0">
-                                    Goal:
-                                </span>
-                                <span className="px-2 md:px-3 py-0.5 md:py-1 bg-primary-light text-primary rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-primary/10 truncate">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                                <span style={{ color: T.subtle, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Protocol:</span>
+                                <span style={{ padding: '4px 10px', background: '#F0ECFF', color: T.accent, borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                     {activePlan ? activePlan.goal : 'No Plan Assigned'}
                                 </span>
                             </div>
                         </div>
                     </div>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                        <div style={{ padding: '12px 24px', borderRadius: 16, background: '#F9F8FF', border: `1px solid ${T.border}`, textAlign: 'right' }}>
+                            <div style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Today's Focus</div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{DAY_LABELS.find(d => d.key === todayKey)?.focus || 'Rest Day'}</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 max-w-full">
-                    {/* Tab Switcher: Today's Workout / My Plan */}
-                    <div className="p-1 px-1.5 bg-slate-100/50 rounded-2xl w-full sm:w-fit flex items-center gap-1 border border-white shadow-sm shadow-slate-200/50 overflow-x-auto no-scrollbar scrollbar-hide">
-                        <button
-                            onClick={() => setMemberActiveTab('today')}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95 whitespace-nowrap ${memberActiveTab === 'today'
-                                ? 'bg-white text-slate-900 shadow-xl shadow-slate-200/50'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/40'
-                                }`}
-                        >
-                            <Zap
-                                size={16}
-                                className={`transition-colors ${memberActiveTab === 'today' ? 'text-primary' : 'text-slate-400 opacity-60'}`}
-                            />
-                            Today
-                        </button>
-                        <button
-                            onClick={() => setMemberActiveTab('plan')}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all duration-300 active:scale-95 whitespace-nowrap ${memberActiveTab === 'plan'
-                                ? 'bg-white text-slate-900 shadow-xl shadow-slate-200/50'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/40'
-                                }`}
-                        >
-                            <Dumbbell
-                                size={16}
-                                className={`transition-colors ${memberActiveTab === 'plan' ? 'text-primary' : 'text-slate-400 opacity-60'}`}
-                            />
-                            Full Plan
-                        </button>
-                    </div>
-
-                    {memberActiveTab === 'plan' && (
-                        <div className="flex overflow-x-auto border-b border-gray-100 bg-[#FCFCFE] rounded-t-xl mb-4">
-                            {DAY_LABELS.map((day) => (
-                                <button
-                                    key={day.key}
-                                    onClick={() => setMemberActiveDay(day.key)}
-                                    className={`flex-shrink-0 px-6 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all border-b-4 whitespace-nowrap ${memberActiveDay === day.key
-                                        ? 'text-primary border-primary bg-white'
-                                        : 'text-gray-400 border-transparent hover:text-gray-600 hover:bg-white/60'
-                                        }`}
-                                >
-                                    {day.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="space-y-6">
-                        {loadingPlans ? (
-                            <div className="flex justify-center p-10"><Zap className="animate-pulse text-violet-400" /></div>
-                        ) : activePlan ? (
-                            <>
-                                {/* Today's Workout Card - Progress Info */}
-                                <Card className=" border-2 border-slate-100 shadow-sm rounded-3xl bg-white space-y-4 md:space-y-6">
-                                    <div className="space-y-1">
-                                        <h3 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">
-                                            {dayLabelObj?.label} — {dayLabelObj?.focus}
-                                        </h3>
-                                        <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                            Current Focus
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-4 pt-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-primary" />
-                                            <span className="text-xs font-black text-slate-700 uppercase tracking-widest">To Do: {exercisesToRender.length || 0} Sets</span>
-                                        </div>
-                                    </div>
-                                </Card>
-
-                                {exercisesToRender.length > 0 ? (
-                                    <div className="space-y-4">
-                                        {exercisesToRender.map((ex, idx) => (
-                                            <Card key={idx} className="p-5 border-2 border-slate-50 hover:border-violet-100 bg-[#FCFCFE] rounded-2xl transition-all">
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-[12px] font-black text-primary">
-                                                            {idx + 1}
-                                                        </span>
-                                                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">{ex.name}</h4>
-                                                    </div>
-                                                </div>
-                                                <div className="grid grid-cols-3 gap-4 mt-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-                                                    <div className="text-center">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sets</p>
-                                                        <p className="text-sm font-bold text-slate-800">{ex.sets}</p>
-                                                    </div>
-                                                    <div className="text-center border-x border-slate-100">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reps</p>
-                                                        <p className="text-sm font-bold text-slate-800">{ex.reps}</p>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rest</p>
-                                                        <p className="text-sm font-bold text-slate-800">{ex.rest}s</p>
-                                                    </div>
-                                                </div>
-                                                <div className="mt-4 flex flex-col sm:flex-row gap-4">
-                                                    {ex.equipment && (
-                                                        <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                                                            <Target size={12} /> {ex.equipment}
-                                                        </span>
-                                                    )}
-                                                    {ex.notes && (
-                                                        <p className="text-[11px] text-slate-500 italic flex-1 border-l-2 border-violet-200 pl-3 py-1 bg-white rounded-r-lg">
-                                                            "{ex.notes}"
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <Card className="p-6 md:p-10 border-2 border-slate-100 shadow-sm rounded-3xl bg-white">
-                                        <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                            <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-300 border-2 border-dashed border-slate-100 shrink-0">
-                                                <Info size={24} className="md:w-8 md:h-8" strokeWidth={1.5} />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-[11px] md:text-sm font-black text-slate-900 uppercase tracking-tight">
-                                                    Rest Day or No Exercises
-                                                </h4>
-                                                <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
-                                                    There are no routines assigned for this day segment.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                )}
-                            </>
-                        ) : (
-                            <Card className="p-6 md:p-10 border-2 border-slate-100 shadow-sm rounded-3xl bg-white">
-                                <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-300 border-2 border-dashed border-slate-100 shrink-0">
-                                        <Dumbbell size={24} className="md:w-8 md:h-8" strokeWidth={1.5} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h4 className="text-[11px] md:text-sm font-black text-slate-900 uppercase tracking-tight">
-                                            No Active Program Found
-                                        </h4>
-                                        <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
-                                            Contact your trainer or branch admin to generate and assign your new training block!
-                                        </p>
-                                    </div>
-                                </div>
-                            </Card>
-                        )}
-                    </div>
-
-                    {/* Tips Section */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3 px-1">
-                            <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-                                <Info size={16} />
-                            </div>
-                            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">💡 Workout Tips</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 32, alignItems: 'start' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }} className="fu1">
+                        {/* Tab Switcher */}
+                        <div style={{ 
+                            display: 'flex', gap: 8, padding: 8, background: '#F1F0F9', borderRadius: 20, width: 'fit-content'
+                        }}>
+                            <button
+                                onClick={() => setMemberActiveTab('today')}
+                                style={{
+                                    height: 44, padding: '0 24px', borderRadius: 14, border: '1.5px solid transparent',
+                                    fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', gap: 8,
+                                    background: memberActiveTab === 'today' ? '#fff' : 'transparent',
+                                    color: memberActiveTab === 'today' ? T.accent : T.muted,
+                                    boxShadow: memberActiveTab === 'today' ? '0 4px 12px rgba(124,92,252,0.1)' : 'none',
+                                    border: memberActiveTab === 'today' ? `1.5px solid ${T.border}` : '1.5px solid transparent'
+                                }}
+                            >
+                                <Zap size={16} color={memberActiveTab === 'today' ? T.accent : T.muted} strokeWidth={2.5} /> Today
+                            </button>
+                            <button
+                                onClick={() => setMemberActiveTab('plan')}
+                                style={{
+                                    height: 44, padding: '0 24px', borderRadius: 14, border: '1.5px solid transparent',
+                                    fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    cursor: 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', gap: 10,
+                                    background: memberActiveTab === 'plan' ? '#fff' : 'transparent',
+                                    color: memberActiveTab === 'plan' ? T.accent : T.muted,
+                                    boxShadow: memberActiveTab === 'plan' ? '0 4px 12px rgba(124,92,252,0.1)' : 'none',
+                                    border: memberActiveTab === 'plan' ? `1.5px solid ${T.border}` : '1.5px solid transparent'
+                                }}
+                            >
+                                <Dumbbell size={18} color={memberActiveTab === 'plan' ? T.accent : T.muted} strokeWidth={2.5} /> Full Plan
+                            </button>
                         </div>
 
-                        <Card className=" border-2 border-slate-100 bg-white rounded-3xl shadow-sm hover:shadow-md transition-all">
-                            <ul className="space-y-4 md:space-y-6">
-                                {[
-                                    "Warm up for 5-10 minutes before starting your workout",
-                                    "Stay hydrated throughout your session",
-                                    "Focus on proper form over heavy weights",
-                                    "Rest 60-90 seconds between sets",
-                                    "Track your progress in the My Progress section"
-                                ].map((tip, idx) => (
-                                    <li key={idx} className="flex items-start gap-3 md:gap-4 group">
-                                        <div className="mt-1 w-5 h-5 rounded-full bg-primary-light flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary group-hover:bg-white transition-colors" />
-                                        </div>
-                                        <p className="text-[10px] md:text-xs font-bold text-slate-600 leading-relaxed uppercase tracking-wide">
-                                            {tip}
-                                        </p>
-                                    </li>
+                        {memberActiveTab === 'plan' && (
+                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }} className="no-scrollbar">
+                                {DAY_LABELS.map((day) => (
+                                    <button
+                                        key={day.key}
+                                        onClick={() => setMemberActiveDay(day.key)}
+                                        style={{
+                                            padding: '12px 20px', borderRadius: 16, background: memberActiveDay === day.key ? T.accent : '#fff',
+                                            color: memberActiveDay === day.key ? '#fff' : T.muted,
+                                            border: `1px solid ${memberActiveDay === day.key ? T.accent : T.border}`,
+                                            fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em',
+                                            cursor: 'pointer', transition: '0.3s', whiteSpace: 'nowrap',
+                                            boxShadow: memberActiveDay === day.key ? `0 8px 16px ${T.accent}30` : 'none'
+                                        }}
+                                    >
+                                        {day.label}
+                                    </button>
                                 ))}
-                            </ul>
-
-                            <div className="mt-8 md:mt-10 pt-6 md:pt-8 border-t border-slate-100">
-                                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-primary-light/50 rounded-2xl border border-violet-100/50">
-                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-primary text-white rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-violet-100 shrink-0">
-                                        <Target size={18} className="md:w-5 md:h-5" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest">Pro Tip</p>
-                                        <p className="text-[10px] md:text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate">Consistency beats intensity.</p>
-                                    </div>
-                                </div>
                             </div>
-                        </Card>
+                        )}
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            {loadingPlans ? (
+                                <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Zap className="animate-spin" color={T.accent} size={32} /></div>
+                            ) : activePlan ? (
+                                <>
+                                    {/* Focus Card */}
+                                    <div style={{ background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, padding: 32, borderRadius: 28, color: '#fff', boxShadow: `0 15px 35px -10px ${T.accent}50` }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Target size={18} /></div>
+                                            <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.9 }}>Current Target</span>
+                                        </div>
+                                        <h3 style={{ fontSize: 24, fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>{dayLabelObj?.label} — {dayLabelObj?.focus}</h3>
+                                        <div style={{ display: 'flex', gap: 24, marginTop: 24 }}>
+                                            <div>
+                                                <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', opacity: 0.8, marginBottom: 4 }}>Total Blocks</div>
+                                                <div style={{ fontSize: 20, fontWeight: 900 }}>{exercisesToRender.length || 0} Sets</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', opacity: 0.8, marginBottom: 4 }}>Time Est.</div>
+                                                <div style={{ fontSize: 20, fontWeight: 900 }}>45-60 Min</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {exercisesToRender.length > 0 ? (
+                                        exercisesToRender.map((ex, idx) => (
+                                            <div key={idx} style={{ background: '#fff', borderRadius: 24, border: `1px solid ${T.border}`, padding: 24, boxShadow: T.cardShadow, transition: '0.3s' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                                        <div style={{ width: 40, height: 40, borderRadius: 12, background: '#F0ECFF', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900 }}>{idx + 1}</div>
+                                                        <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>{ex.name}</h4>
+                                                    </div>
+                                                    {ex.equipment && (
+                                                        <div style={{ padding: '6px 14px', borderRadius: 10, background: '#F9F8FF', border: `1px solid ${T.border}`, fontSize: 10, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>{ex.equipment}</div>
+                                                    )}
+                                                </div>
+                                                
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: ex.notes ? 20 : 0 }}>
+                                                    <div style={{ padding: 16, borderRadius: 15, background: T.bg, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+                                                        <div style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 4 }}>Sets</div>
+                                                        <div style={{ fontSize: 16, fontWeight: 900, color: T.text }}>{ex.sets}</div>
+                                                    </div>
+                                                    <div style={{ padding: 16, borderRadius: 15, background: T.bg, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+                                                        <div style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 4 }}>Reps</div>
+                                                        <div style={{ fontSize: 16, fontWeight: 900, color: T.text }}>{ex.reps}</div>
+                                                    </div>
+                                                    <div style={{ padding: 16, borderRadius: 15, background: T.bg, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+                                                        <div style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginBottom: 4 }}>Rest</div>
+                                                        <div style={{ fontSize: 16, fontWeight: 900, color: T.text }}>{ex.rest}s</div>
+                                                    </div>
+                                                </div>
+
+                                                {ex.notes && (
+                                                    <div style={{ padding: '12px 16px', borderRadius: 14, background: '#FDFCF4', borderLeft: `3px solid #EAB308`, fontSize: 11, color: '#854D0E', fontWeight: 600, fontStyle: 'italic' }}>
+                                                        "{ex.notes}"
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div style={{ padding: 60, background: '#fff', borderRadius: 28, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+                                            <div style={{ width: 64, height: 64, borderRadius: 20, background: '#F9F8FF', color: T.subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}><Info size={32} strokeWidth={1.5} /></div>
+                                            <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: '0 0 8px' }}>Rest Day Active</h4>
+                                            <p style={{ fontSize: 12, color: T.subtle, margin: 0, fontWeight: 600 }}>Enjoy your recovery session. No routines assigned for this day segment.</p>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div style={{ padding: 80, background: '#fff', borderRadius: 32, border: `2px dashed ${T.border}`, textAlign: 'center' }}>
+                                    <div style={{ width: 80, height: 80, borderRadius: 24, background: '#F9F8FF', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', opacity: 0.5 }}><Dumbbell size={40} strokeWidth={1} /></div>
+                                    <h4 style={{ fontSize: 18, fontWeight: 900, color: T.text, margin: '0 0 10px' }}>No Active Blueprint found</h4>
+                                    <p style={{ fontSize: 13, color: T.subtle, margin: 0, fontWeight: 600 }}>Please synch with your trainer to deploy your customized workout plan.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Sidebar Tips Panel */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ background: '#fff', borderRadius: 28, border: `1px solid ${T.border}`, padding: 32, boxShadow: T.cardShadow }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FFF7ED', color: '#EA580C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Target size={18} /></div>
+                                <h2 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Tactical Tips</h2>
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                {[
+                                    "Warm up for 5-10 minutes locally",
+                                    "Maintain electrolyte hydration",
+                                    "Prioritize form over load",
+                                    "Strict 60-90s rest protocols",
+                                    "Log sessions in progress portal"
+                                ].map((tip, idx) => (
+                                    <div key={idx} style={{ display: 'flex', gap: 14 }}>
+                                        <div style={{ marginTop: 4, width: 6, height: 6, borderRadius: '50%', background: T.accent, flexShrink: 0 }} />
+                                        <p style={{ fontSize: 12, fontWeight: 700, color: T.muted, margin: 0, lineHeight: 1.5 }}>{tip}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ marginTop: 40, padding: 24, borderRadius: 20, background: T.bg, border: `1px solid ${T.border}` }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                    <Zap size={14} color={T.accent} />
+                                    <span style={{ fontSize: 10, fontWeight: 900, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Core Mantra</span>
+                                </div>
+                                <p style={{ fontSize: 13, fontWeight: 800, color: T.text, margin: 0 }}>Consistency beats intensity, always.</p>
+                            </div>
+                        </div>
+
+                        <div style={{ background: '#fff', borderRadius: 28, border: `1px solid ${T.border}`, padding: 24, textAlign: 'center' }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: T.subtle }}>Need a custom diet plan?</div>
+                            <button onClick={() => navigate('/member/diet-plans')} style={{ width: '100%', height: 48, marginTop: 16, borderRadius: 14, background: '#F0ECFF', color: T.accent, border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', transition: '0.3s' }}>View Nutrition Strategy</button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Calendar, User, CheckCircle, Clock, Users, TrendingUp,
-    Dumbbell, Activity, ArrowRight, Zap, BarChart2, Star, CheckCircle2, Info, Plus, Save, X, BookmarkPlus, RefreshCcw, Shield, Utensils, UserCheck, MessageSquare, IndianRupee, Target, Radio, Layout, Fingerprint, Lock, ShieldCheck
+    Dumbbell, Activity, ArrowRight, Zap, BarChart2, Star, CheckCircle2, Info, Plus, Save, X, BookmarkPlus, RefreshCcw, Shield, Utensils, UserCheck, MessageSquare, IndianRupee, Target, Radio, Layout, Fingerprint, Lock, ShieldCheck, Flame
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useBranchContext } from '../../../context/BranchContext';

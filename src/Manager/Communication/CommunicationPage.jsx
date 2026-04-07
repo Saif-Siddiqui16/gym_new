@@ -101,7 +101,7 @@ const CommunicationPage = ({ initialModule = 'chats' }) => {
             </div>
 
             <div className="fu" style={{ flex: 1, display: 'flex', background: 'white', borderRadius: 24, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                {activeModule === 'announcements' ? <Announcements /> : activeModule === 'birthdays' ? <Birthdays /> : (
+                {activeModule === 'announcements' ? <div style={{ flex: 1, display: 'flex' }}><Announcements /></div> : activeModule === 'birthdays' ? <div style={{ flex: 1, display: 'flex' }}><Birthdays /></div> : (
                     <>
                         {/* Sidebar */}
                         <div style={{ width: 340, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column' }}>

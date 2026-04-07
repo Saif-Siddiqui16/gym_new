@@ -47,7 +47,7 @@ const RenewalAlertsWidget = ({ alertsData }) => {
 
     return (
         <div className="bg-white rounded-[32px] shadow-xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-500">
-            <div className=" border-b border-slate-100 bg-gradient-to-r from-amber-50/50 to-rose-50/50 flex items-center justify-between">
+            <div className="px-8 py-6 border-b border-slate-100 bg-gradient-to-r from-amber-50/50 to-rose-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-amber-500">
                         <AlertCircle size={20} />
@@ -59,18 +59,18 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                 </div>
                 <button
                     onClick={() => navigate('/members/renewal-alerts')}
-                    className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm"
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-[9px] font-black uppercase tracking-[0.1em] text-slate-500 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm hover:translate-y-[-1px] active:translate-y-0"
                 >
-                    View All <ChevronRight size={14} />
+                    View All <ChevronRight size={13} />
                 </button>
             </div>
 
-            <div className=" space-y-8">
+            <div className="px-8 py-7 space-y-9">
                 {/* Expiring Soon Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between px-2">
-                        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
                             Expiring in 7 Days
                         </h4>
                         <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
@@ -109,8 +109,9 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                                 </div>
                             </div>
                         )) : (
-                            <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No immediate renewals</p>
+                            <div className="py-10 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 mx-1">
+                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-1">No immediate renewals</p>
+                                <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest opacity-60">Retention is at 100%</p>
                             </div>
                         )}
                     </div>
@@ -119,8 +120,8 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                 {/* Recently Expired Section */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex items-center justify-between px-2">
-                        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
                             Recently Expired
                         </h4>
                         <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
@@ -147,7 +148,9 @@ const RenewalAlertsWidget = ({ alertsData }) => {
                                 </div>
                             </div>
                         )) : (
-                            <p className="text-center py-4 text-xs font-bold text-slate-300 uppercase tracking-widest">No recent expirations</p>
+                            <div className="py-6 text-center">
+                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">No recent expirations</p>
+                            </div>
                         )}
                     </div>
                 </div>

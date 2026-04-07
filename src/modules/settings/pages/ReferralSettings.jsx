@@ -1,8 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Gift, Users, UserPlus, CheckCircle, Clock, TrendingUp, Plus, Search, X, Phone, Mail, Loader, ChevronRight } from 'lucide-react';
+import { 
+    Gift, Users, UserPlus, CheckCircle, Clock, TrendingUp, Plus, Search, X, 
+    Phone, Mail, Loader, ChevronRight, CheckCircle2, UserCheck, Inbox, ArrowUpRight
+} from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 import { toast } from 'react-hot-toast';
 import RightDrawer from '../../../components/common/RightDrawer';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  amber: '#F59E0B', amberLight: '#FEF3C7', rose: '#F43F5E', roseLight: '#FFF1F4',
+  blue: '#3B82F6', blueLight: '#EFF6FF',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    input: { width: '100%', height: 48, borderRadius: 15, border: `2.5px solid ${T.bg}`, background: T.bg, padding: '0 20px', fontSize: 13, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif", transition: '0.3s', outline: 'none' },
+    th: { padding: '24px 32px', fontSize: 11, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.15em', textAlign: 'left', borderBottom: `1px solid ${T.border}` }
+};
 
 const ReferralSettings = () => {
     const [referrals, setReferrals] = useState([]);
@@ -13,67 +37,33 @@ const ReferralSettings = () => {
     const [verifying, setVerifying] = useState(false);
     const [referrerVerified, setReferrerVerified] = useState(null);
 
-    const [formData, setFormData] = useState({
-        referredName: '',
-        phone: '',
-        email: '',
-        referrerId: ''
-    });
+    const [formData, setFormData] = useState({ referredName: '', phone: '', email: '', referrerId: '' });
 
     const fetchReferrals = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await apiClient.get('/referrals');
-            setReferrals(res.data || []);
-        } catch (err) {
-            toast.error('Failed to load referrals');
-        } finally {
-            setLoading(false);
-        }
+        try { setLoading(true); const res = await apiClient.get('/referrals'); setReferrals(res.data || []); } 
+        catch (err) { toast.error('Failed to load referrals'); } finally { setLoading(false); }
     }, []);
 
-    useEffect(() => {
-        fetchReferrals();
-    }, [fetchReferrals]);
+    useEffect(() => { fetchReferrals(); }, [fetchReferrals]);
 
     const handleVerifyReferrer = async () => {
         if (!formData.referrerId.trim()) return;
         try {
             setVerifying(true);
             const res = await apiClient.get(`/referrals/verify/${formData.referrerId.trim()}`);
-            if (res.data.valid) {
-                setReferrerVerified(res.data.referrerName);
-                toast.success(`Referrer found: ${res.data.referrerName}`);
-            } else {
-                setReferrerVerified(null);
-                toast.error('No member found with this code');
-            }
-        } catch {
-            toast.error('Verification failed');
-        } finally {
-            setVerifying(false);
-        }
+            if (res.data.valid) { setReferrerVerified(res.data.referrerName); toast.success(`Referrer: ${res.data.referrerName}`); } 
+            else { setReferrerVerified(null); toast.error('No member found'); }
+        } catch { toast.error('Verification failed'); } finally { setVerifying(false); }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.referredName || !formData.phone) {
-            toast.error('Name and Phone are required');
-            return;
-        }
+        if (!formData.referredName || !formData.phone) { toast.error('Required fields missing'); return; }
         try {
             setSubmitting(true);
             await apiClient.post('/referrals', formData);
-            toast.success('Referral created successfully!');
-            setFormData({ referredName: '', phone: '', email: '', referrerId: '' });
-            setReferrerVerified(null);
-            setShowForm(false);
-            fetchReferrals();
-        } catch (err) {
-            toast.error(err?.response?.data?.message || 'Failed to create referral');
-        } finally {
-            setSubmitting(false);
-        }
+            toast.success('Referral created'); setFormData({ referredName: '', phone: '', email: '', referrerId: '' }); setReferrerVerified(null); setShowForm(false); fetchReferrals();
+        } catch (err) { toast.error(err?.response?.data?.message || 'Failed'); } finally { setSubmitting(false); }
     };
 
     const filtered = referrals.filter(r =>
@@ -90,226 +80,174 @@ const ReferralSettings = () => {
     };
 
     return (
-        <div className="space-y-6 p-0 md:p-6 animate-fadeIn">
-            {/* Header */}
-            <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-fuchsia-600 rounded-3xl blur-3xl opacity-10 pointer-events-none"></div>
-                <div className="relative bg-white/80 backdrop-blur-md rounded-[32px] shadow-2xl shadow-primary/30/10 border border-white/50 p-6 sm:p-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-4xl bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent font-black tracking-tighter">
-                            Referral Program
-                        </h1>
-                        <p className="text-slate-400 text-[10px] sm:text-xs mt-1 uppercase tracking-widest font-bold">Configure rewards for members who refer new members</p>
+        <div style={{ fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.15s }
+                input::placeholder { color: ${T.subtle}; opacity: 0.8; }
+            `}</style>
+
+            {/* Premium Header Banner (Compact Version) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`, position: 'relative'
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <Gift size={30} strokeWidth={2.5} />
                     </div>
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gradient-to-r from-primary via-primary to-fuchsia-600 text-white rounded-2xl text-sm font-black shadow-2xl shadow-primary/30/25 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto uppercase tracking-widest"
-                    >
-                        <Plus size={18} strokeWidth={3} /> Add Referral
-                    </button>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Referral Program</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Configure rewards for members who refer new members</p>
+                    </div>
                 </div>
+                <button 
+                    onClick={() => setShowForm(true)}
+                    style={{ 
+                        height: 52, padding: '0 32px', borderRadius: 16, 
+                        background: `linear-gradient(135deg, ${T.accent}, ${T.accent3})`, 
+                        color: '#fff', border: 'none', fontSize: 12, fontWeight: 900, 
+                        textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, 
+                        boxShadow: `0 10px 25px -8px ${T.accent}80`, transition: '0.3s'
+                    }}
+                >
+                    <Plus size={18} strokeWidth={3} /> Add Referral
+                </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Stats Cards (Compact Grid) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 28 }} className="fu1">
                 {[
-                    { label: 'Total Referrals', value: stats.total, icon: Users, color: 'violet' },
-                    { label: 'Converted', value: stats.converted, icon: CheckCircle, color: 'emerald' },
-                    { label: 'Pending', value: stats.pending, icon: Clock, color: 'amber' },
-                    { label: 'Conversion Rate', value: `${stats.rate}%`, icon: TrendingUp, color: 'blue' },
+                    { label: 'Total Referrals', value: stats.total, icon: Users, bg: '#F5F3FF', color: '#7C5CFC' },
+                    { label: 'Converted', value: stats.converted, icon: CheckCircle2, bg: '#ECFDF5', color: '#10B981' },
+                    { label: 'Pending', value: stats.pending, icon: Clock, bg: '#FFFBEB', color: '#F59E0B' },
+                    { label: 'Conversion Rate', value: `${stats.rate}%`, icon: TrendingUp, bg: '#EFF6FF', color: '#3B82F6' },
                 ].map((s) => (
-                    <div key={s.label} className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-${s.color}-50`}>
-                            <s.icon className={`text-${s.color}-600`} size={20} />
+                    <div key={s.label} style={{ background: '#fff', borderRadius: 28, padding: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: s.bg, color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                            <s.icon size={20} strokeWidth={2.5} />
                         </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
-                        <p className="text-2xl font-black text-slate-900 mt-1">{s.value}</p>
+                        <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</p>
+                        <p style={{ margin: '6px 0 0', fontSize: 24, fontWeight: 900, color: T.text }}>{s.value}</p>
                     </div>
                 ))}
             </div>
 
-            {/* Add Referral Drawer */}
-            <RightDrawer
-                isOpen={showForm}
-                onClose={() => setShowForm(false)}
-                title={
-                    <span className="flex items-center gap-2">
-                        <UserPlus size={20} className="text-primary" /> Add New Referral
-                    </span>
-                }
-                subtitle="Record a member referral"
-                footer={
-                    <div className="flex gap-3">
-                        <button onClick={() => setShowForm(false)} className="flex-1 py-3.5 bg-white border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-black hover:bg-slate-50 transition-all">
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                            disabled={submitting}
-                            className="flex-[2] py-3.5 bg-primary text-white rounded-xl text-sm font-black shadow-md shadow-violet-200 hover:bg-primary-hover disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                        >
-                            {submitting ? <Loader className="animate-spin" size={16} /> : <Gift size={16} />}
-                            {submitting ? 'Creating...' : 'Create Referral'}
-                        </button>
+            {/* Data Table Area (Compact) */}
+            <div style={{ background: '#fff', borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, overflow: 'hidden' }} className="fu2">
+                <div style={{ padding: '24px 32px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                         <div style={{ width: 10, height: 10, borderRadius: 3, background: T.accent }} />
+                         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: T.text }}>All Referrals</h2>
                     </div>
-                }
-            >
-                <form id="referral-form" onSubmit={handleSubmit} className="space-y-5">
-                    {/* Referrer Code */}
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Referrer's Member ID (Optional)</label>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="e.g. MBR001"
-                                value={formData.referrerId}
-                                onChange={(e) => { setFormData({ ...formData, referrerId: e.target.value }); setReferrerVerified(null); }}
-                                className="flex-1 h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleVerifyReferrer}
-                                disabled={verifying || !formData.referrerId}
-                                className="px-4 h-12 bg-slate-900 text-white rounded-xl text-xs font-black disabled:opacity-40 hover:bg-primary transition-all"
-                            >
-                                {verifying ? <Loader className="animate-spin" size={16} /> : 'Verify'}
-                            </button>
-                        </div>
-                        {referrerVerified && (
-                            <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                                <CheckCircle size={13} /> Referrer: {referrerVerified}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Referred Name */}
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Referred Person's Name *</label>
-                        <input
-                            type="text"
-                            required
-                            placeholder="Full Name"
-                            value={formData.referredName}
-                            onChange={(e) => setFormData({ ...formData, referredName: e.target.value })}
-                            className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all"
-                        />
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-1"><Phone size={10} /> Phone *</label>
-                        <input
-                            type="tel"
-                            required
-                            placeholder="Phone Number"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all"
-                        />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-1"><Mail size={10} /> Email</label>
-                        <input
-                            type="email"
-                            placeholder="Email (optional)"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full h-12 px-4 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all"
-                        />
-                    </div>
-                </form>
-            </RightDrawer>
-
-            {/* Referrals List */}
-            <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm overflow-hidden">
-                {/* Table Header */}
-                <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <h2 className="text-lg font-black text-slate-900">All Referrals</h2>
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Search referrals..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-violet-400 transition-all"
-                        />
+                    <div style={{ position: 'relative', width: 320 }}>
+                        <Search size={18} style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
+                        <input style={{ ...S.input, height: 48, paddingLeft: 52, borderRadius: 14 }} placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="flex items-center justify-center py-16">
-                        <Loader className="animate-spin text-primary" size={32} />
-                    </div>
-                ) : filtered.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                            <Gift className="text-slate-300" size={32} />
-                        </div>
-                        <p className="text-slate-400 font-bold text-sm">No referrals found</p>
-                        <p className="text-slate-300 text-xs mt-1">Click "Add Referral" to get started</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-slate-50/70">
-                                    <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-4">Referred Person</th>
-                                    <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-4">Referrer</th>
-                                    <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-4">Contact</th>
-                                    <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-4">Status</th>
-                                    <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-4">Date</th>
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr style={{ background: T.bg }}>
+                                <th style={S.th}>Referred Person</th>
+                                <th style={S.th}>Referrer Source</th>
+                                <th style={S.th}>Contact Meta</th>
+                                <th style={S.th}>Funnel Status</th>
+                                <th style={S.th}>Registered On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="5" style={{ padding: 120, textAlign: 'center' }}><Loader size={32} className="animate-spin" style={{ color: T.accent, margin: '0 auto' }} /></td></tr>
+                            ) : filtered.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" style={{ padding: 120, textAlign: 'center' }}>
+                                        <Inbox size={64} color={T.subtle} style={{ opacity: 0.3, marginBottom: 20 }} />
+                                        <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: T.subtle }}>No referrals documented yet</p>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {filtered.map((r) => (
-                                    <tr key={r.id} className="hover:bg-primary-light/30 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 bg-gradient-to-br from-primary to-fuchsia-500 rounded-full flex items-center justify-center text-white font-black text-xs shrink-0">
-                                                    {r.referredName?.[0]?.toUpperCase() || '?'}
-                                                </div>
+                            ) : (
+                                filtered.map((r) => (
+                                    <tr key={r.id} style={{ borderBottom: `1px solid ${T.border}`, transition: '0.15s' }}>
+                                        <td style={{ padding: '16px 32px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                                <div style={{ width: 36, height: 36, borderRadius: 10, background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: T.accent, fontSize: 14 }}>{(r.referredName || '?')[0]}</div>
                                                 <div>
-                                                    <p className="font-black text-sm text-slate-900">{r.referredName || 'N/A'}</p>
-                                                    <p className="text-xs text-slate-400 font-bold">{r.email || '—'}</p>
+                                                    <div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>{r.referredName}</div>
+                                                    {r.email && <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle }}>{r.email}</div>}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <ChevronRight size={14} className="text-slate-300" />
-                                                <div>
-                                                    <p className="font-bold text-sm text-slate-700">{r.referrerName || 'Unknown'}</p>
-                                                    {r.referrerId && <p className="text-[10px] text-slate-400 font-bold">ID: {r.referrerId}</p>}
-                                                </div>
+                                        <td style={{ padding: '16px 32px' }}>
+                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.accent }} />
+                                                <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{r.referrerName || 'Legacy Sync'}</div>
+                                             </div>
+                                             {r.referrerId && <div style={{ fontSize: 9, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', marginLeft: 14 }}>ID: {r.referrerId}</div>}
+                                        </td>
+                                        <td style={{ padding: '16px 32px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: T.muted }}><Phone size={12} opacity={0.5} /> {r.phone}</div>
+                                        </td>
+                                        <td style={{ padding: '16px 32px' }}>
+                                            <div style={{ 
+                                                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 10, 
+                                                background: r.status === 'Converted' ? T.greenLight : T.amberLight,
+                                                color: r.status === 'Converted' ? T.green : T.amber
+                                            }}>
+                                                <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{r.status}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <p className="font-bold text-sm text-slate-700">{r.phone || '—'}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${r.status === 'Converted'
-                                                ? 'bg-emerald-50 text-emerald-600'
-                                                : 'bg-amber-50 text-amber-600'
-                                                }`}>
-                                                {r.status === 'Converted' ? <CheckCircle size={10} /> : <Clock size={10} />}
-                                                {r.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-slate-500">
-                                                {r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                                            </p>
+                                        <td style={{ padding: '16px 32px' }}>
+                                            <div style={{ fontSize: 12, fontWeight: 800, color: T.muted }}>{new Date(r.createdAt).toLocaleDateString()}</div>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {/* Right Drawer - Add Referral */}
+            <RightDrawer isOpen={showForm} onClose={() => setShowForm(false)} title="Add New Referral" subtitle="Record a direct member referral for rewards">
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32, paddingBottom: 40 }}>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Referrer's Member ID</label>
+                        <div style={{ display: 'flex', gap: 16 }}>
+                            <input style={{ ...S.input, flex: 1 }} placeholder="e.g. MBR123" value={formData.referrerId} onChange={e => { setFormData({ ...formData, referrerId: e.target.value }); setReferrerVerified(null); }} />
+                            <button type="button" onClick={handleVerifyReferrer} disabled={verifying || !formData.referrerId} style={{ height: 60, padding: '0 24px', borderRadius: 20, background: T.bg, border: 'none', color: T.accent, fontWeight: 900, fontSize: 12, textTransform: 'uppercase', cursor: 'pointer' }}>{verifying ? '...' : 'Verify'}</button>
+                        </div>
+                        {referrerVerified && <div style={{ marginTop: 12, fontSize: 12, fontWeight: 800, color: T.green }}>Verified: {referrerVerified}</div>}
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Referred Person's Name</label>
+                        <input style={S.input} value={formData.referredName} onChange={e => setFormData({ ...formData, referredName: e.target.value })} required placeholder="Full Name" />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Phone</label>
+                            <input style={S.input} type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required placeholder="Phone Number" />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: T.muted, textTransform: 'uppercase', marginBottom: 12, marginLeft: 4 }}>Email</label>
+                            <input style={S.input} type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="Email (Optional)" />
+                        </div>
+                    </div>
+
+                    <button type="submit" disabled={submitting} style={{ height: 64, borderRadius: 22, background: T.accent, color: '#fff', border: 'none', fontSize: 14, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: T.shadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 12 }}>
+                        {submitting ? <Loader className="animate-spin" size={20} /> : <Gift size={20} />} {submitting ? 'Creating...' : 'Create Referral Record'}
+                    </button>
+                </form>
+            </RightDrawer>
         </div>
     );
 };

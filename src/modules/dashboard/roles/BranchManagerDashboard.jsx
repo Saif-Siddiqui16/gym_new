@@ -4,7 +4,7 @@ import {
     IndianRupee, CreditCard, Smartphone, Banknote, ShieldAlert, Zap, XOctagon,
     Package, ShoppingBag, Star, Calendar, UserPlus, BarChart3, ArrowUpRight,
     ArrowDownRight, RefreshCw, Shield, Activity as ActivityIcon, ArrowRight,
-    Briefcase, LayoutDashboard, Eye, TrendingDown
+    Briefcase, LayoutDashboard, Eye, TrendingDown, AlertTriangle
 } from 'lucide-react';
 import RenewalAlertsWidget from '../../membership/components/RenewalAlertsWidget';
 import TodayFollowUpsWidget from '../../crm/components/TodayFollowUpsWidget';
@@ -139,7 +139,9 @@ const ChartBar = ({ label, value, max, color = T.accent, isCurrency = false }) =
     const pct = max > 0 ? Math.max((value / max) * 100, 4) : 4;
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'end', height: '100%', gap: 8 }}>
-            <div style={{ width: '40%', background: color, height: `${pct}%`, borderRadius: '4px 4px 0 0', transition: 'height 0.8s' }} />
+            <div style={{ position: 'relative', width: '40%', background: color, height: `${pct}%`, borderRadius: '6px 6px 0 0', transition: 'height 0.8s ease' }}>
+                <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', fontSize: 9, fontWeight: 800, color: T.text }}>{isCurrency ? `₹${value}` : value}</div>
+            </div>
             <span style={{ fontSize: 9, fontWeight: 800, color: T.subtle, textTransform: 'uppercase' }}>{label}</span>
         </div>
     );
@@ -228,89 +230,127 @@ const BranchManagerDashboard = () => {
                 }
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 30 }}>
-                {stats.slice(0, 4).map((s, i) => (
-                    <MetricCard 
-                        key={i} index={i} isFirst={i === 0}
-                        title={s.title} value={s.value} trend={s.trend}
-                        icon={s.icon === 'Users' ? Users : s.icon === 'DollarSign' ? IndianRupee : Zap}
-                        iconColor={[T.accent, T.blue, T.amber, T.green][i % 4]}
-                        iconBg={[T.accentLight, T.blueLight, T.amberLight, T.greenLight][i % 4]}
-                    />
-                ))}
+            <SectionDivider title="Gym Health Section" sub="Real-time overview of your business" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 30 }}>
+                {Array.from({ length: 8 }).map((_, i) => {
+                    const titles = ['Total Members', 'Monthly Revenue', 'Store Sales', 'Today Check-ins', 'Net Profit (Store)', 'New Leads', 'Today\'s Classes', 'Pending Approvals'];
+                    const trends = ['LIVE', 'THIS MONTH', 'MONTHLY', 'TODAY', 'MONTHLY', 'THIS MONTH', 'SCHEDULED', 'REVIEW PENDING'];
+                    const icons = [Users, IndianRupee, ShoppingBag, CheckCircle, TrendingUp, UserPlus, Calendar, ShieldAlert];
+                    const colors = [T.accent, T.green, T.amber, T.blue, T.green, T.accent, T.amber, T.rose];
+                    const bgs = [T.accentLight, T.greenLight, T.amberLight, T.blueLight, T.greenLight, T.accentLight, T.amberLight, T.roseLight];
+                    
+                    // Priority: If API provides a stat at this index or with this title, use it.
+                    // Otherwise, use a default placeholder.
+                    const s = stats[i] || {};
+                    const title = s.title || titles[i];
+                    const value = s.value || '0';
+                    const trend = s.trend || trends[i];
+                    
+                    return (
+                        <MetricCard 
+                            key={i} index={i} isFirst={false}
+                            title={title}
+                            value={value}
+                            trend={trend}
+                            icon={icons[i % 8]}
+                            iconColor={colors[i % 8]}
+                            iconBg={bgs[i % 8]}
+                        />
+                    );
+                })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
-                <div className="fu fu3" style={{ background: T.surface, borderRadius: 20, padding: 24, border: `1px solid ${T.border}` }}>
-                    <SectionDivider title="Revenue Overview" sub="Monthly Tracking" />
-                    <div style={{ height: 180, display: 'flex', alignItems: 'end', gap: 12 }}>
-                        {revenueOverview.map((r, i) => (
-                            <ChartBar key={i} label={r.month} value={r.value} max={Math.max(...revenueOverview.map(x => x.value), 1)} color={T.accent} />
+            <div style={{ background: T.surface, borderRadius: 24, padding: '24px 28px', border: `1px solid ${T.border}`, marginBottom: 32 }} className="fu fu2">
+                <SectionDivider title="OPERATIONAL TASK PERFORMANCE" sub="REAL-TIME TASK LIFECYCLE TRACKING" />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 20 }}>
+                    {[
+                        { label: 'PENDING', val: extraStats.taskStats.pending, color: T.blue },
+                        { label: 'IN PROGRESS', val: extraStats.taskStats.inProgress, color: T.amber },
+                        { label: 'COMPLETED', val: extraStats.taskStats.completed, color: T.green },
+                        { label: 'APPROVED', val: extraStats.taskStats.approved, color: T.accent },
+                        { label: 'OVERDUE', val: extraStats.taskStats.overdue, color: T.rose }
+                    ].map((st, i) => (
+                        <div key={i} style={{ borderLeft: `4px solid ${st.color}`, padding: '16px 20px', background: T.surface, borderRadius: 12, boxShadow: '0 2px 10px rgba(0,0,0,0.03)', border: `1px solid ${T.border}` }}>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.05em' }}>{st.label}</div>
+                            <div style={{ fontSize: 28, fontWeight: 900, color: T.text }}>{st.val}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                    <SectionDivider title="Revenue Overview" sub="Monthly Tracking (Last 6 Months)" />
+                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10 }}>
+                        {(revenueOverview.length > 0 ? revenueOverview : [{month:'Nov',value:0},{month:'Dec',value:0},{month:'Jan',value:0},{month:'Feb',value:0},{month:'Mar',value:0},{month:'Apr',value:0}]).map((r, i) => (
+                            <ChartBar key={i} label={r.month} value={r.value} max={Math.max(...revenueOverview.map(x => x.value), 100)} color={T.accent} isCurrency />
                         ))}
                     </div>
                 </div>
-                <div className="fu fu3" style={{ background: T.surface, borderRadius: 20, padding: 24, border: `1px solid ${T.border}` }}>
-                    <SectionDivider title="Weekly Footfall" sub="Check-in Activity" />
-                    <div style={{ height: 180, display: 'flex', alignItems: 'end', gap: 12 }}>
-                        {weeklyAttendance.map((a, i) => (
-                            <ChartBar key={i} label={a.day} value={a.count} max={Math.max(...weeklyAttendance.map(x => x.count), 1)} color={T.green} />
+                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                    <SectionDivider title="Weekly Footfall" sub="Check-in Activity (Last 7 Days)" />
+                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10 }}>
+                        {(weeklyAttendance.length > 0 ? weeklyAttendance : [{day:'Wed',count:0},{day:'Thu',count:0},{day:'Fri',count:0},{day:'Sat',count:0},{day:'Sun',count:0},{day:'Mon',count:2},{day:'Tue',count:0}]).map((a, i) => (
+                            <ChartBar key={i} label={a.day} value={a.count} max={Math.max(...weeklyAttendance.map(x => x.count), 5)} color={T.green} />
                         ))}
                     </div>
                 </div>
-                <div className="fu fu3" style={{ background: T.surface, borderRadius: 20, padding: 24, border: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <SectionDivider title="Live Status" sub="Occupancy Rate" />
-                    <div style={{ position: 'relative', width: 100, height: 100, margin: '20px 0' }}>
-                        <svg width="100" height="100" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke={T.bg} strokeWidth="8" />
-                            <circle cx="50" cy="50" r="45" fill="none" stroke={T.accent} strokeWidth="8" strokeDasharray={`${(liveOccupancy.current / liveOccupancy.capacity) * 282} 282`} strokeLinecap="round" transform="rotate(-90 50 50)" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+                <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                    <SectionDivider title="Live Occupancy" sub="Real-time Status" />
+                    <div style={{ position: 'relative', width: 140, height: 140, margin: '24px 0' }}>
+                        <svg width="140" height="140" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke={T.bg} strokeWidth="6" />
+                            <circle cx="50" cy="50" r="45" fill="none" stroke={T.accent} strokeWidth="6" strokeDasharray={`${(liveOccupancy.current / liveOccupancy.capacity) * 282} 282`} strokeLinecap="round" transform="rotate(-90 50 50)" style={{ transition: 'stroke-dasharray 1s ease' }} />
                         </svg>
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 900, color: T.text }}>{liveOccupancy.current}</div>
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ fontSize: 32, fontWeight: 900, color: T.text }}>{liveOccupancy.current}</div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: T.muted }}>OF {liveOccupancy.capacity}</div>
+                        </div>
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: T.accent, textTransform: 'uppercase' }}>{liveOccupancy.current} / {liveOccupancy.capacity} Members</div>
+                    <div style={{ background: T.accentLight, padding: '6px 16px', borderRadius: 20, color: T.accent, fontSize: 12, fontWeight: 900 }}>{Math.round((liveOccupancy.current / liveOccupancy.capacity) * 100)}% FULL</div>
+                </div>
+
+                <div className="fu fu4">
+                    <TodayFollowUpsWidget />
+                </div>
+
+                <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                    <SectionDivider title="Check-ins by Hour" sub="Daily Traffic Flow" />
+                    <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.bg, borderRadius: 16, marginTop: 20 }}>
+                        <div style={{ textAlign: 'center' }}>
+                            <ActivityIcon size={32} color={T.accentMid} style={{ marginBottom: 12, opacity: 0.5 }} />
+                            <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, fontStyle: 'italic' }}>No check-ins recorded today</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 24, alignItems: 'start' }}>
                 <div className="fu fu4">
-                    <SectionDivider title="Operational HQ" sub="Real-time Entrance Logs" />
-                    <div style={{ background: T.surface, borderRadius: 18, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+                    <SectionDivider title="Entrance HQ" sub="Recent Member Access Logs" />
+                    <div style={{ background: T.surface, borderRadius: 20, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
                         {recentActivities.map((act, i) => (
                             <div key={i} style={{ 
-                                display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', padding: '14px 20px', 
+                                display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', padding: '16px 24px', 
                                 borderBottom: i === recentActivities.length - 1 ? 'none' : `1px solid ${T.border}`, transition: '0.15s' 
                             }} onMouseOver={e => e.currentTarget.style.background = T.bg} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ width: 34, height: 34, borderRadius: 10, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>{act.member.charAt(0)}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 38, height: 38, borderRadius: 12, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14 }}>{act.member.charAt(0)}</div>
                                     <div>
-                                        <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{act.member}</div>
-                                        <div style={{ fontSize: 10, color: T.subtle, fontWeight: 600 }}>{act.action}</div>
+                                        <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{act.member}</div>
+                                        <div style={{ fontSize: 11, color: T.muted, fontWeight: 600 }}>{act.action}</div>
                                     </div>
                                 </div>
-                                <div style={{ fontSize: 10, fontWeight: 800, color: T.subtle }}>{act.time}</div>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: T.subtle }}>{act.time}</div>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div className="fu fu4">
-                    <SectionDivider title="Compliance" sub="Facility Alerts" />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 18 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                                <div style={{ color: T.rose }}><AlertTriangle size={18} /></div>
-                                <div style={{ fontSize: 13, fontWeight: 800, color: T.text, textTransform: 'uppercase' }}>Risk Monitoring</div>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                                <div style={{ background: T.bg, padding: 16, borderRadius: 12 }}>
-                                    <div style={{ fontSize: 9, fontWeight: 800, color: T.subtle, uppercase: true }}>Pending Tasks</div>
-                                    <div style={{ fontSize: 20, fontWeight: 900, color: T.text }}>{extraStats.taskStats.pending}</div>
-                                </div>
-                                <div style={{ background: T.roseLight, padding: 16, borderRadius: 12 }}>
-                                    <div style={{ fontSize: 9, fontWeight: 800, color: T.rose, uppercase: true }}>Overdue</div>
-                                    <div style={{ fontSize: 20, fontWeight: 900, color: T.rose }}>{extraStats.taskStats.overdue}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <RenewalAlertsWidget />
                 </div>
             </div>
         </div>

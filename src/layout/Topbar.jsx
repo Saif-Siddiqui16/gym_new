@@ -35,7 +35,7 @@ const styles = {
     topbar: {
         position: 'sticky',
         top: 0,
-        zIndex: 50,
+        zIndex: 1100,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -156,7 +156,7 @@ const styles = {
         border: `1px solid ${T.border}`,
         borderRadius: 14,
         boxShadow: '0 8px 32px rgba(124,92,252,0.14)',
-        zIndex: 100,
+        zIndex: 1200,
         overflow: 'hidden',
         padding: '6px',
     },

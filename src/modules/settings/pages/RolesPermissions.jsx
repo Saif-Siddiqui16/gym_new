@@ -1,5 +1,25 @@
 import React from 'react';
-import { Shield, Check, X, Users, Lock, ChevronRight, Edit2, AlertCircle } from 'lucide-react';
+import { Shield, Check, X, Users, Lock, Edit2, AlertCircle, Plus } from 'lucide-react';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accentLight: '#F0ECFF',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC', green: '#22C97A', greenLight: '#E8FBF2',
+  rose: '#F43F5E', roseLight: '#FFF1F4', amber: '#F59E0B', amberLight: '#FEF3C7',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif",
+    card: { background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, transition: '0.3s ease' },
+    th: { padding: '16px 20px', fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'left', borderBottom: `1px solid ${T.bg}` },
+    td: { padding: '14px 20px', fontSize: 13, color: T.text, fontWeight: 600, borderBottom: `1px solid ${T.bg}` }
+};
 
 const ROLES_MATRIX = [
     { role: 'Super Admin', users: 1, permissions: { members: true, finance: true, settings: true, reports: true } },
@@ -9,90 +29,85 @@ const ROLES_MATRIX = [
 
 const RolesPermissions = () => {
     return (
-        <div className="min-h-screen ">
-            {/* Premium Header */}
-            <div className="mb-6 sm:mb-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-fuchsia-500 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 p-4 sm:p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:rotate-6">
-                                <Users size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Roles & Permissions
-                                    </h1>
-                                    <span className="hidden sm:inline-block px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse">
-                                        PREMIUM ✨
-                                    </span>
-                                </div>
-                                <p className="text-slate-600 text-xs sm:text-sm mt-0.5 sm:mt-1">Manage access control and user privileges</p>
-                            </div>
-                        </div>
-                        <button className="group flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-primary text-white rounded-lg sm:rounded-xl text-sm font-bold shadow-xl shadow-primary/30/50 hover:shadow-2xl hover:shadow-primary/30/60 hover:scale-105 transition-all w-full lg:w-auto">
-                            <Shield size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Create New Role
-                        </button>
+        <div style={{ background: T.bg, minHeight: '100vh', padding: '0 0 60px', fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+                .fu1 { animation-delay: 0.1s } .fu2 { animation-delay: 0.15s }
+            `}</style>
+
+            {/* Premium Header Banner (Matching White Aesthetic - Compact) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                    }}>
+                        <Shield size={30} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Access Control</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Roles, Permissions & Security Hierarchies</p>
                     </div>
                 </div>
+                <button style={{ height: 48, padding: '0 24px', borderRadius: 14, background: T.accent, color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, boxShadow: T.shadow }}>
+                    <Plus size={16} /> New Security Role
+                </button>
             </div>
 
-            {/* Premium Table Card */}
-            <div className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-light/10 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                <div className="relative z-10 overflow-x-auto">
-                    <table className="w-full">
+            {/* Matrix Card */}
+            <div style={S.card} className="fu1">
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr className="bg-slate-50/50 border-b border-slate-200">
-                                <th className="text-left py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Role Name</th>
-                                <th className="text-center py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Members</th>
-                                <th className="text-center py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Financials</th>
-                                <th className="text-center py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Settings</th>
-                                <th className="text-center py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Reports</th>
-                                <th className="text-right py-5 px-6 text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
+                            <tr style={{ background: T.bg }}>
+                                <th style={S.th}>Access Role</th>
+                                <th style={{ ...S.th, textAlign: 'center' }}>Identity</th>
+                                <th style={{ ...S.th, textAlign: 'center' }}>Finance</th>
+                                <th style={{ ...S.th, textAlign: 'center' }}>Protocols</th>
+                                <th style={{ ...S.th, textAlign: 'center' }}>Analytics</th>
+                                <th style={{ ...S.th, textAlign: 'right' }}>Management</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody>
                             {ROLES_MATRIX.map((role, idx) => (
-                                <tr key={idx} className="group/row hover:bg-primary-light/30 transition-colors duration-200">
-                                    <td className="py-5 px-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-lg ${role.role === 'Super Admin' ? 'bg-purple-100 text-primary' :
-                                                role.role === 'Manager' ? 'bg-violet-100 text-primary' :
-                                                    role.role === 'Trainer' ? 'bg-emerald-100 text-emerald-600' :
-                                                        'bg-slate-100 text-slate-600'
-                                                }`}>
-                                                <Lock size={16} strokeWidth={2.5} />
+                                <tr key={idx} style={{ transition: '0.2s' }} className="table-row">
+                                    <td style={S.td}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                            <div style={{ width: 40, height: 40, borderRadius: 12, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Lock size={16} />
                                             </div>
                                             <div>
-                                                <div className="font-bold text-slate-800">{role.role}</div>
-                                                <div className="text-xs font-medium text-slate-400">{role.users || 0} Users</div>
+                                                <div style={{ fontWeight: 800, color: T.text }}>{role.role}</div>
+                                                <div style={{ fontSize: 10, fontWeight: 700, color: T.subtle }}>{role.users} Active Users</div>
                                             </div>
                                         </div>
                                     </td>
-
                                     {[
                                         role.permissions.members,
                                         role.permissions.finance,
                                         role.permissions.settings,
                                         role.permissions.reports
                                     ].map((perm, pIdx) => (
-                                        <td key={pIdx} className="py-5 px-6 text-center">
-                                            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-transform duration-300 group-hover/row:scale-110 ${perm
-                                                ? 'bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-600 shadow-emerald-200'
-                                                : 'bg-gradient-to-br from-red-50 to-red-100 text-red-400'
-                                                }`}>
+                                        <td key={pIdx} style={{ ...S.td, textAlign: 'center' }}>
+                                            <div style={{ 
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', 
+                                                width: 32, height: 32, borderRadius: 10,
+                                                background: perm ? T.greenLight : T.roseLight,
+                                                color: perm ? T.green : T.rose
+                                            }}>
                                                 {perm ? <Check size={16} strokeWidth={3} /> : <X size={16} strokeWidth={3} />}
                                             </div>
                                         </td>
                                     ))}
-
-                                    <td className="py-5 px-6 text-right">
-                                        <button className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-bold shadow-sm hover:border-primary hover:text-primary hover:shadow-md transition-all duration-300">
-                                            <Edit2 size={12} strokeWidth={2.5} /> Edit
+                                    <td style={{ ...S.td, textAlign: 'right' }}>
+                                        <button style={{ height: 36, padding: '0 16px', borderRadius: 10, background: '#fff', border: `1.5px solid ${T.bg}`, color: T.text, fontSize: 11, fontWeight: 900, cursor: 'pointer', transition: '0.2s', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                                            <Edit2 size={12} strokeWidth={2.5} /> Modify
                                         </button>
                                     </td>
                                 </tr>
@@ -102,17 +117,16 @@ const RolesPermissions = () => {
                 </div>
             </div>
 
-            {/* Info Card */}
-            <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-3">
-                <AlertCircle size={20} className="text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                    <h4 className="font-bold text-amber-800 text-sm">Permission Updates</h4>
-                    <p className="text-amber-700 text-xs mt-1">
-                        Changes to role permissions may take up to 5 minutes to propagate to all active user sessions.
-                        Users may need to re-login to see updated access rights.
-                    </p>
-                </div>
+            {/* Propagation Note */}
+            <div style={{ marginTop: 24, padding: '16px 20px', borderRadius: 18, background: T.amberLight, border: `1.5px solid ${T.amber}20`, display: 'flex', alignItems: 'center', gap: 14 }} className="fu2">
+                <AlertCircle size={18} color={T.amber} strokeWidth={2.5} />
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: '#92400E', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Permission changes propagate through the neural network within 300 seconds. Users may need to re-authenticate.
+                </p>
             </div>
+            <style>{`
+                .table-row:hover { background: rgba(124, 92, 252, 0.02) !important; }
+            `}</style>
         </div>
     );
 };

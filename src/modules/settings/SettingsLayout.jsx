@@ -56,8 +56,8 @@ const SettingsLayout = ({ role }) => {
             <div style={{ 
                 background: T.surface, 
                 borderBottom: `1px solid ${T.border}`, 
-                padding: '28px 32px', 
-                position: 'sticky', top: 0, zIndex: 100,
+                padding: '64px 32px 28px', 
+                position: 'sticky', top: 0, zIndex: 1000,
                 boxShadow: '0 4px 20px rgba(124, 92, 252, 0.04)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>

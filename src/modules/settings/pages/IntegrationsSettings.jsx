@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import {
-    CreditCard,
-    Phone,
-    Mail,
-    MessageSquare,
-    Globe,
-    Settings,
-    XCircle,
-    Cpu,
-    Server,
-    Zap,
-    Cloud,
-    Send,
-    MessageCircle,
-    Layout,
-    MapPin,
-    Share2,
-    Save
+    CreditCard, Phone, Mail, MessageSquare, Globe, Settings, XCircle, Cpu, Server, 
+    Zap, Cloud, Send, MessageCircle, Layout, MapPin, Share2, Save
 } from 'lucide-react';
 import RightDrawer from '../../../components/common/RightDrawer';
 import { getTenantSettings, updateTenantSettings } from '../../../api/admin/settingsApi';
 import toast from 'react-hot-toast';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS (Roar Fitness Premium - White Aesthetic)
+   ───────────────────────────────────────────────────────────────────────── */
+const T = {
+  accent: '#7C5CFC', accent2: '#9B7BFF', accent3: '#B06AB3',
+  border: '#F1F0F9', bg: '#F9F8FF', surface: '#FFFFFF', text: '#1A1533',
+  muted: '#7B7A8E', subtle: '#B0ADCC',
+  shadow: '0 10px 40px -10px rgba(124, 92, 252, 0.15)',
+  bannerShadow: '0 20px 60px -15px rgba(124, 92, 252, 0.18)',
+  cardShadow: '0 4px 24px rgba(0, 0, 0, 0.04)'
+};
+
+const S = {
+    ff: "'Plus Jakarta Sans', sans-serif"
+};
+
 const IntegrationsSettings = () => {
     const [activeTab, setActiveTab] = useState('Payment');
+    // ... states ...
     const [isRazorpayDrawerOpen, setIsRazorpayDrawerOpen] = useState(false);
     const [isPhonePeDrawerOpen, setIsPhonePeDrawerOpen] = useState(false);
     const [isCCAvenueDrawerOpen, setIsCCAvenueDrawerOpen] = useState(false);
@@ -41,145 +43,30 @@ const IntegrationsSettings = () => {
     const [isGupshupWhatsappDrawerOpen, setIsGupshupWhatsappDrawerOpen] = useState(false);
     const [isCustomWhatsappDrawerOpen, setIsCustomWhatsappDrawerOpen] = useState(false);
     const [isGoogleBusinessDrawerOpen, setIsGoogleBusinessDrawerOpen] = useState(false);
-    const [razorpayConfig, setRazorpayConfig] = useState({
-        enabled: false,
-        webhookUrl: '',
-        keyId: '',
-        keySecret: '',
-        merchantId: ''
-    });
-    const [phonepeConfig, setPhonepeConfig] = useState({
-        enabled: false,
-        webhookUrl: '',
-        keyId: '',
-        keySecret: '',
-        merchantId: ''
-    });
-    const [ccavenueConfig, setCcavenueConfig] = useState({
-        enabled: false,
-        webhookUrl: '',
-        keyId: '',
-        keySecret: '',
-        merchantId: ''
-    });
-    const [payuConfig, setPayuConfig] = useState({
-        enabled: false,
-        webhookUrl: '',
-        keyId: '',
-        keySecret: '',
-        merchantId: ''
-    });
-    const [msg91Config, setMsg91Config] = useState({
-        enabled: false,
-        senderId: '',
-        dltEntityId: '',
-        dltTemplateId: '',
-        apiUrl: '',
-        apiKey: '',
-        authToken: ''
-    });
-    const [gupshupConfig, setGupshupConfig] = useState({
-        enabled: false,
-        senderId: '',
-        dltEntityId: '',
-        dltTemplateId: '',
-        apiUrl: '',
-        authKey: '',
-        authToken: ''
-    });
-    const [twilioConfig, setTwilioConfig] = useState({
-        enabled: false,
-        senderId: '',
-        dltEntityId: '',
-        dltTemplateId: '',
-        apiUrl: '',
-        apiKey: '',
-        authToken: ''
-    });
-    const [customSMSConfig, setCustomSMSConfig] = useState({
-        enabled: false,
-        senderId: '',
-        dltEntityId: '',
-        dltTemplateId: '',
-        apiUrl: '',
-        apiKey: '',
-        authToken: ''
-    });
-    const [smtpConfig, setSmtpConfig] = useState({
-        enabled: false,
-        host: '',
-        port: '',
-        fromEmail: '',
-        fromName: '',
-        username: '',
-        password: ''
-    });
-    const [sendGridConfig, setSendGridConfig] = useState({
-        enabled: false,
-        fromEmail: '',
-        fromName: '',
-        apiKey: ''
-    });
-    const [sesConfig, setSesConfig] = useState({
-        enabled: false,
-        fromEmail: '',
-        fromName: '',
-        apiKey: ''
-    });
-    const [mailgunConfig, setMailgunConfig] = useState({
-        enabled: false,
-        fromEmail: '',
-        fromName: '',
-        apiKey: ''
-    });
-    const [watiConfig, setWatiConfig] = useState({
-        enabled: false,
-        phoneNumberId: '',
-        businessAccountId: '',
-        webhookVerifyToken: '',
-        accessToken: '',
-        apiKey: ''
-    });
-    const [interaktConfig, setInteraktConfig] = useState({
-        enabled: false,
-        phoneNumberId: '',
-        businessAccountId: '',
-        webhookVerifyToken: '',
-        accessToken: '',
-        apiKey: ''
-    });
-    const [gupshupWhatsappConfig, setGupshupWhatsappConfig] = useState({
-        enabled: false,
-        phoneNumberId: '',
-        businessAccountId: '',
-        webhookVerifyToken: '',
-        accessToken: '',
-        apiKey: ''
-    });
-    const [customWhatsappConfig, setCustomWhatsappConfig] = useState({
-        enabled: false,
-        phoneNumberId: '',
-        businessAccountId: '',
-        webhookVerifyToken: '',
-        accessToken: '',
-        apiKey: ''
-    });
-    const [googleBusinessConfig, setGoogleBusinessConfig] = useState({
-        enabled: false,
-        reviewLink: ''
-    });
+    const [razorpayConfig, setRazorpayConfig] = useState({ enabled: false, webhookUrl: '', keyId: '', keySecret: '', merchantId: '' });
+    const [phonepeConfig, setPhonepeConfig] = useState({ enabled: false, webhookUrl: '', keyId: '', keySecret: '', merchantId: '' });
+    const [ccavenueConfig, setCcavenueConfig] = useState({ enabled: false, webhookUrl: '', keyId: '', keySecret: '', merchantId: '' });
+    const [payuConfig, setPayuConfig] = useState({ enabled: false, webhookUrl: '', keyId: '', keySecret: '', merchantId: '' });
+    const [msg91Config, setMsg91Config] = useState({ enabled: false, senderId: '', dltEntityId: '', dltTemplateId: '', apiUrl: '', apiKey: '', authToken: '' });
+    const [gupshupConfig, setGupshupConfig] = useState({ enabled: false, senderId: '', dltEntityId: '', dltTemplateId: '', apiUrl: '', authKey: '', authToken: '' });
+    const [twilioConfig, setTwilioConfig] = useState({ enabled: false, senderId: '', dltEntityId: '', dltTemplateId: '', apiUrl: '', apiKey: '', authToken: '' });
+    const [customSMSConfig, setCustomSMSConfig] = useState({ enabled: false, senderId: '', dltEntityId: '', dltTemplateId: '', apiUrl: '', apiKey: '', authToken: '' });
+    const [smtpConfig, setSmtpConfig] = useState({ enabled: false, host: '', port: '', fromEmail: '', fromName: '', username: '', password: '' });
+    const [sendGridConfig, setSendGridConfig] = useState({ enabled: false, fromEmail: '', fromName: '', apiKey: '' });
+    const [sesConfig, setSesConfig] = useState({ enabled: false, fromEmail: '', fromName: '', apiKey: '' });
+    const [mailgunConfig, setMailgunConfig] = useState({ enabled: false, fromEmail: '', fromName: '', apiKey: '' });
+    const [watiConfig, setWatiConfig] = useState({ enabled: false, phoneNumberId: '', businessAccountId: '', webhookVerifyToken: '', accessToken: '', apiKey: '' });
+    const [interaktConfig, setInteraktConfig] = useState({ enabled: false, phoneNumberId: '', businessAccountId: '', webhookVerifyToken: '', accessToken: '', apiKey: '' });
+    const [gupshupWhatsappConfig, setGupshupWhatsappConfig] = useState({ enabled: false, phoneNumberId: '', businessAccountId: '', webhookVerifyToken: '', accessToken: '', apiKey: '' });
+    const [customWhatsappConfig, setCustomWhatsappConfig] = useState({ enabled: false, phoneNumberId: '', businessAccountId: '', webhookVerifyToken: '', accessToken: '', apiKey: '' });
+    const [googleBusinessConfig, setGoogleBusinessConfig] = useState({ enabled: false, reviewLink: '' });
 
     useEffect(() => {
         const fetchSettings = async () => {
             try {
                 const settings = await getTenantSettings();
-                setGoogleBusinessConfig({
-                    enabled: settings.googleBusinessEnabled || false,
-                    reviewLink: settings.googleReviewLink || ''
-                });
-            } catch (error) {
-                console.error('Error fetching settings:', error);
-            }
+                setGoogleBusinessConfig({ enabled: settings.googleBusinessEnabled || false, reviewLink: settings.googleReviewLink || '' });
+            } catch (error) { console.error('Error fetching settings:', error); }
         };
         fetchSettings();
     }, []);
@@ -187,24 +74,18 @@ const IntegrationsSettings = () => {
     const handleSaveGoogle = async () => {
         try {
             toast.loading('Saving Google settings...', { id: 'save-google' });
-            await updateTenantSettings({
-                googleBusinessEnabled: googleBusinessConfig.enabled,
-                googleReviewLink: googleBusinessConfig.reviewLink
-            });
+            await updateTenantSettings({ googleBusinessEnabled: googleBusinessConfig.enabled, googleReviewLink: googleBusinessConfig.reviewLink });
             toast.success('Google Business settings saved!', { id: 'save-google' });
             setIsGoogleBusinessDrawerOpen(false);
-        } catch (error) {
-            console.error('Error saving Google settings:', error);
-            toast.error('Failed to save Google settings', { id: 'save-google' });
-        }
+        } catch (error) { toast.error('Failed to save Google settings', { id: 'save-google' }); }
     };
 
     const stats = [
-        { label: 'Payment Gateways', value: 0, icon: CreditCard },
-        { label: 'SMS Providers', value: 0, icon: Phone },
-        { label: 'Email Providers', value: 0, icon: Mail },
-        { label: 'WhatsApp', value: 0, icon: MessageSquare },
-        { label: 'Google Business', value: 0, icon: Globe },
+        { label: 'Payment Hub', value: 4, icon: CreditCard },
+        { label: 'SMS Nodes', value: 4, icon: Phone },
+        { label: 'Email Relay', value: 4, icon: Mail },
+        { label: 'WhatsApp API', value: 4, icon: MessageSquare },
+        { label: 'SEO Profile', value: 1, icon: Globe },
     ];
 
     const tabs = ['Payment', 'SMS', 'Email', 'WhatsApp', 'Google'];
@@ -237,56 +118,72 @@ const IntegrationsSettings = () => {
         { name: 'Custom API', desc: 'Your own WhatsApp API', icon: Cpu, color: 'slate' },
     ];
 
-    const handleSaveRazorpay = (e) => {
-        e.preventDefault();
-        setIsRazorpayDrawerOpen(false);
-    };
+    const handleSaveRazorpay = (e) => { e.preventDefault(); setIsRazorpayDrawerOpen(false); };
 
     return (
-        <div className="p-4 sm: max-w-full mx-auto font-sans animate-in fade-in duration-500 space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Integrations</h1>
-                <p className="text-slate-500 text-sm font-medium">Configure payment gateways, SMS, email and WhatsApp</p>
+        <div style={{ fontFamily: S.ff }} className="fu">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
+                .fu { animation: fadeUp 0.4s ease both }
+            `}</style>
+
+            {/* Premium Header Banner (Compact Version) */}
+            <div style={{
+                background: '#fff', borderRadius: 32, padding: '28px 40px', marginBottom: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                boxShadow: T.bannerShadow, border: `1px solid ${T.border}`
+            }} className="fu">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                    <div style={{ 
+                        width: 64, height: 64, borderRadius: 18, background: T.accent,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 10px 25px -8px ${T.accent}80`
+                    }}>
+                        <Zap size={30} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 style={{ fontSize: 30, fontWeight: 900, color: T.accent, margin: 0, letterSpacing: '-1.2px' }}>Integration Hub</h1>
+                        <p style={{ margin: '4px 0 0', color: T.subtle, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Configure outer-network nodes for seamless operations</p>
+                    </div>
+                </div>
             </div>
 
-            {/* Stats Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, idx) => {
-                    const Icon = stat.icon;
-                    return (
-                        <div key={idx} className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col justify-between group hover:shadow-md transition-all h-[130px]">
-                            <div className="flex justify-between items-start mb-4">
-                                <span className="text-slate-500 text-xs font-bold leading-tight max-w-[80px]">{stat.label}</span>
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary-light group-hover:text-primary transition-colors border border-slate-100/50">
-                                    <Icon size={20} />
-                                </div>
-                            </div>
-                            <h2 className="text-3xl font-black text-slate-900 leading-none">{stat.value}</h2>
+            {/* Stats Cards Grid (Compact) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24, marginBottom: 32 }} className="fu">
+                {stats.map((stat, idx) => (
+                    <div key={idx} style={{ background: '#fff', borderRadius: 28, padding: 24, border: `1px solid ${T.border}`, boxShadow: T.cardShadow }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <p style={{ margin: 0, fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{stat.label}</p>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: T.bg, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><stat.icon size={18} /></div>
                         </div>
-                    );
-                })}
+                        <p style={{ margin: 0, fontSize: 26, fontWeight: 900, color: T.text }}>{stat.value}</p>
+                    </div>
+                ))}
             </div>
 
-            {/* Content Container */}
-            <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
-                {/* Custom Styled Tabs */}
-                <div className="p-2 bg-slate-50/50 flex flex-wrap gap-1 border-b border-slate-100">
+            {/* Content Container (Compact) */}
+            <div style={{ background: '#fff', borderRadius: 32, border: `1px solid ${T.border}`, boxShadow: T.cardShadow, overflow: 'hidden' }}>
+                {/* Premium Tabs */}
+                <div style={{ padding: 10, background: T.bg, display: 'flex', gap: 8, borderBottom: `1px solid ${T.border}` }}>
                     {tabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-8 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab
-                                ? 'bg-white shadow-sm text-slate-900 ring-1 ring-slate-100/50'
-                                : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
-                                }`}
+                            style={{
+                                flex: 1, height: 42, borderRadius: 14, border: 'none',
+                                background: activeTab === tab ? '#fff' : 'transparent',
+                                color: activeTab === tab ? T.text : T.subtle,
+                                fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em',
+                                cursor: 'pointer', transition: '0.3s',
+                                boxShadow: activeTab === tab ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+                            }}
                         >
                             {tab}
                         </button>
                     ))}
                 </div>
 
-                <div className="p-10">
+                <div style={{ padding: 40 }}>
                     {activeTab === 'Payment' && (
                         <div className="space-y-8">
                             <div className="flex items-center gap-4">
