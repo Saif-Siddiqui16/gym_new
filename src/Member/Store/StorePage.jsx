@@ -132,14 +132,8 @@ const StorePage = () => {
     if (loading && products.length === 0) return <Loader message="Stocking the premium store shelves..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
-                .animate-spin { animation: spin 1s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            `}</style>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {/* ... style tags ... */}
 
             {/* HEADER BANNER */}
             <div style={{
@@ -148,7 +142,7 @@ const StorePage = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -163,7 +157,7 @@ const StorePage = () => {
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Browse high-performance gear and nutrition</p>
                     </div>
                 </div>
-                <div style={{ position: 'relative', width: 340 }}>
+                <div className="search-container" style={{ position: 'relative', width: 340, zIndex: 2 }}>
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white opacity-60" size={18} />
                     <input 
                         type="text" placeholder="Search premium gear..." 
@@ -173,14 +167,14 @@ const StorePage = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 32 }}>
+            <div className="store-grid">
                 
                 {/* PRODUCTS COLUMN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
                     <SectionHeader icon={Sparkles} title="Featured Collection" subtitle="Curated for enthusiasts" />
                     
                     {products.length > 0 ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+                        <div className="product-grid">
                             {products.map((p, idx) => (
                                 <ProductCard key={p.id} product={p} onAddToCart={addToCart} onViewDetails={viewProductDetails} index={idx} />
                             ))}
@@ -195,7 +189,7 @@ const StorePage = () => {
                 </div>
 
                 {/* CART COLUMN */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div className="cart-column" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                     <PremiumCard style={{ position: 'sticky', top: 28, height: 'fit-content' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, paddingBottom: 24, borderBottom: `1px solid ${T.bg}` }}>
                             <div style={{ width: 44, height: 44, borderRadius: 14, background: T.dark, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingCart size={22} /></div>

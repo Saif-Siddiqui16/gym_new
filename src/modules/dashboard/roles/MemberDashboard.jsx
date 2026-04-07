@@ -170,28 +170,91 @@ const MemberDashboard = () => {
     } = data;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
                 .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+
+                .metric-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 24px;
+                }
+
+                .dues-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 24px;
+                }
+
+                .actions-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 16px;
+                }
+
+                .main-content-grid {
+                    display: grid;
+                    grid-template-columns: 1.5fr 1fr;
+                    gap: 24px;
+                }
+
+                .secondary-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                }
+
+                @media (max-width: 1200px) {
+                    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+                    .main-content-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 20px;
+                        padding: 24px !important;
+                    }
+                    .header-banner-date {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    .dues-grid { grid-template-columns: 1fr; }
+                    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+                    .notification-item { flex-direction: column; align-items: flex-start !important; gap: 16px; }
+                    .notification-item button { width: 100%; }
+                }
+
+                @media (max-width: 600px) {
+                    .secondary-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .actions-grid { grid-template-columns: 1fr; }
+                    .header-banner h1 { fontSize: 22px !important; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
-            <div style={{
+            <div className="header-banner animate-fadeIn" style={{
                 background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
                 borderRadius: 24, padding: '24px 32px',
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }}>
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
                         width: 64, height: 64, borderRadius: 20,
                         background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)'
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)',
+                        flexShrink: 0
                     }}>
                         <User size={32} color="#fff" strokeWidth={2.5} />
                     </div>
@@ -199,14 +262,14 @@ const MemberDashboard = () => {
                         <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-1px' }}>
                             Welcome back, <span style={{ color: '#FFE16A' }}>{memberInfo.name || 'Member'}!</span>
                         </h1>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4, flexWrap: 'wrap' }}>
                             <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', background: 'rgba(0,0,0,0.15)', padding: '2px 10px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID: {memberInfo.memberId}</span>
-                            <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.4)' }} />
+                            <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.4)' }} className="hide-mobile" />
                             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>{memberInfo.branchName} • Roar Fitness</p>
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div className="header-banner-date" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <Calendar size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}</span>
                 </div>
@@ -218,9 +281,9 @@ const MemberDashboard = () => {
                 {(membership.daysRemaining <= 10 || stats.pendingDues > 0) && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fadeIn">
                         {membership.daysRemaining <= 10 && (
-                            <div style={{ background: T.roseLight, border: `1px solid ${T.rose}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div className="notification-item" style={{ background: T.roseLight, border: `1px solid ${T.rose}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.rose, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={20} /></div>
+                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.rose, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Clock size={20} /></div>
                                     <div>
                                         <h4 style={{ fontSize: 13, fontWeight: 900, color: T.rose, margin: 0, textTransform: 'uppercase' }}>Plan Expiring Soon</h4>
                                         <p style={{ fontSize: 11, fontWeight: 600, color: T.rose, margin: 0, opacity: 0.8 }}>Reneval needed in {membership.daysRemaining} days to avoid interruption.</p>
@@ -230,9 +293,9 @@ const MemberDashboard = () => {
                             </div>
                         )}
                         {stats.pendingDues > 0 && (
-                            <div style={{ background: T.amberLight, border: `1px solid ${T.amber}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div className="notification-item" style={{ background: T.amberLight, border: `1px solid ${T.amber}20`, padding: '16px 24px', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.amber, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CreditCard size={20} /></div>
+                                    <div style={{ width: 40, height: 40, borderRadius: 12, background: T.amber, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><CreditCard size={20} /></div>
                                     <div>
                                         <h4 style={{ fontSize: 13, fontWeight: 900, color: T.amber, margin: 0, textTransform: 'uppercase' }}>Outstanding Balance</h4>
                                         <p style={{ fontSize: 11, fontWeight: 600, color: T.amber, margin: 0, opacity: 0.8 }}>You have pending dues of ₹{stats.pendingDues.toLocaleString()}.</p>
@@ -245,7 +308,7 @@ const MemberDashboard = () => {
                 )}
 
                 {/* KPI STATS */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                <div className="metric-grid">
                     <MetricCard title="Membership" value={membership.planName} subtitle="Active Plan" icon={Shield} color={T.accent} bg={T.accentLight} index={0} />
                     <MetricCard title="PT Sessions" value={stats.ptSessionsRemaining} subtitle="Remaining" icon={TrendingUp} color={T.green} bg={T.greenLight} index={1} />
                     <MetricCard title="Visits" value={stats.visitsThisMonth} subtitle="This Month" icon={Activity} color={T.amber} bg={T.amberLight} index={2} />
@@ -253,38 +316,38 @@ const MemberDashboard = () => {
                 </div>
 
                 {/* BALANCE & INVOICES */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                <div className="dues-grid">
                     <PremiumCard style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} index={4}>
                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <div style={{ width: 44, height: 44, borderRadius: 14, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IndianRupee size={20} /></div>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: T.roseLight, color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><IndianRupee size={20} /></div>
                             <div>
                                 <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Pending Balance</p>
-                                <h3 style={{ fontSize: 28, fontWeight: 900, color: T.text, margin: 0 }}>₹{(stats.pendingDues || 0).toLocaleString()}</h3>
+                                <h3 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: 0 }}>₹{(stats.pendingDues || 0).toLocaleString()}</h3>
                             </div>
                         </div>
-                        {stats.pendingDues > 0 && <span style={{ fontSize: 10, fontWeight: 900, color: T.rose, background: T.roseLight, padding: '4px 12px', borderRadius: 8, textTransform: 'uppercase' }}>Overdue</span>}
+                        {stats.pendingDues > 0 && <span style={{ fontSize: 10, fontWeight: 900, color: T.rose, background: T.roseLight, padding: '4px 12px', borderRadius: 8, textTransform: 'uppercase' }} className="hide-mobile">Overdue</span>}
                     </PremiumCard>
                     <PremiumCard style={{ background: T.dark, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} index={5} hoverable={true}>
                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CreditCard size={20} /></div>
+                            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><CreditCard size={20} /></div>
                             <div>
                                 <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Active Invoices</p>
-                                <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>{stats.activeInvoices} Pending</h3>
+                                <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>{stats.activeInvoices} Pending</h3>
                             </div>
                         </div>
-                        <button onClick={() => navigate('/member/payments')} style={{ height: 44, padding: '0 24px', background: T.accent, color: '#fff', borderRadius: 14, fontSize: 11, fontWeight: 900, border: 'none', cursor: 'pointer', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(124,92,252,0.3)' }}>Pay Now</button>
+                        <button onClick={() => navigate('/member/payments')} style={{ height: 44, padding: '0 24px', background: T.accent, color: '#fff', borderRadius: 14, fontSize: 11, fontWeight: 900, border: 'none', cursor: 'pointer', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(124,92,252,0.3)' }} className="hide-mobile">Pay Now</button>
                     </PremiumCard>
                 </div>
 
                 {/* QUICK ACTIONS GRID */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="animate-fadeIn">
+                <div className="actions-grid animate-fadeIn">
                     <QuickAction icon={Calendar} label="Book & Schedule" onClick={() => navigate('/member/bookings')} index={0} />
                     <QuickAction icon={Layers} label="Amenity Booking" onClick={() => navigate('/member/amenity-booking')} index={1} />
                     <QuickAction icon={TrendingUp} label="View Progress" onClick={() => navigate('/progress')} index={2} />
                     <QuickAction icon={ShoppingCart} label="Shop Products" onClick={() => navigate('/member/store')} index={3} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 24 }}>
+                <div className="main-content-grid">
                     
                     {/* LEFT COLUMN */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -292,7 +355,7 @@ const MemberDashboard = () => {
                         {/* MEMBERSHIP DETAILS */}
                         <PremiumCard index={6}>
                             <SectionHeader icon={Shield} title="Membership Details" subtitle="Active Plan Info" />
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            <div className="secondary-grid">
                                 {[
                                     { label: 'Plan', value: membership.planName },
                                     { label: 'Status', value: memberInfo.status, color: memberInfo.status === 'Active' ? T.green : T.rose },
@@ -317,10 +380,10 @@ const MemberDashboard = () => {
                                 <SectionHeader icon={Calendar} title="Recent Attendance" subtitle="Your gym activity" />
                                 <button onClick={() => navigate('/member/attendance')} style={{ padding: '6px 12px', background: T.bg, color: T.accent, borderRadius: 10, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>View All <ChevronRight size={12} /></button>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                            <div className="secondary-grid">
                                 {recentAttendance.length > 0 ? recentAttendance.slice(0, 4).map((att, idx) => (
                                     <div key={idx} style={{ padding: '12px 16px', borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
-                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={14} /></div>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Calendar size={14} /></div>
                                         <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{new Date(att.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} — {att.time}</span>
                                     </div>
                                 )) : (
@@ -344,7 +407,7 @@ const MemberDashboard = () => {
                                         catch (e) { benefitList = membership.benefits.split(',').filter(b => b.trim()); }
                                         return benefitList.slice(0, 4).map((b, i) => (
                                             <div key={i} style={{ padding: '12px 16px', borderRadius: 14, background: '#F9F8FF', border: '1px solid #F0ECFF', display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C084FC' }} />
+                                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C084FC', flexShrink: 0 }} />
                                                 <span style={{ fontSize: 12, fontWeight: 800, color: T.text }}>{typeof b === 'object' ? (b.name || b.benefit) : b}</span>
                                             </div>
                                         ));
@@ -378,7 +441,7 @@ const MemberDashboard = () => {
                         <PremiumCard index={10}>
                             <SectionHeader icon={Users} title="My Trainer" subtitle="Assigned PT" color={T.amber} />
                             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                                <div style={{ width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle }}><User size={28} /></div>
+                                <div style={{ width: 52, height: 52, borderRadius: 14, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.subtle, flexShrink: 0 }}><User size={28} /></div>
                                 <div>
                                     <h4 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>{trainer?.name || 'Trainer'}</h4>
                                     <p style={{ fontSize: 11, fontWeight: 800, color: T.amber, textTransform: 'uppercase', margin: 0 }}>{trainer?.specialization || 'PT Specialist'}</p>

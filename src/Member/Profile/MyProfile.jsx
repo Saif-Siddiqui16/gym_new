@@ -169,11 +169,49 @@ const MyProfile = () => {
     const initials = profile.name ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase() : '??';
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 .animate-fadeIn { animation: fadeUp 0.4s ease both; }
+
+                @media (max-width: 1024px) {
+                    .section-grid { grid-template-columns: 1fr 1fr !important; }
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-container { padding: 20px 20px 80px !important; }
+                    .header-banner { flex-direction: column !important; align-items: stretch !important; padding: 24px !important; gap: 24px !important; }
+                    .header-content-container { flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 16px !important; }
+                    .header-text-box { display: flex; flexDirection: column; align-items: center; }
+                    .banner-subtitle { margin-top: 4px !important; }
+                    
+                    .header-banner-actions { flex-direction: column !important; width: 100% !important; }
+                    .header-banner-actions button, .header-banner-actions div { width: 100% !important; }
+                    .header-banner-actions button { justify-content: center !important; height: 52px !important; }
+                    
+                    .tabs-container { overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+                    .tabs-container::-webkit-scrollbar { display: none; }
+                    .tabs-container button { white-space: nowrap; flex-shrink: 0; padding: 12px 20px !important; }
+
+                    .profile-summary-row { flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 24px !important; }
+                    .profile-summary-info { align-items: center !important; }
+                    .profile-status-box { flex-direction: column !important; gap: 8px !important; }
+                    
+                    .section-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+                    .membership-summary-grid { flex-direction: column !important; width: 100% !important; }
+                    
+                    .security-card { flex-direction: column !important; align-items: center !important; text-align: center !important; padding: 32px 24px !important; gap: 24px !important; }
+                    .security-card > div { flex-direction: column !important; align-items: center !important; }
+                    .security-card button { width: 100% !important; }
+                }
+
+                @media (max-width: 480px) {
+                    .banner-title { font-size: 22px !important; }
+                    .profile-name { font-size: 24px !important; }
+                    .premium-card { padding: 24px 20px !important; }
+                    .tabs-container button { padding: 12px 16px !important; font-size: 10px !important; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
@@ -183,27 +221,27 @@ const MyProfile = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
-                    <div style={{
+                <div className="header-content-container" style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
+                    <div className="header-icon-box" style={{
                         width: 56, height: 56, borderRadius: 16,
                         background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                     }}>
                         <UserCheck size={28} color="#fff" strokeWidth={2.5} />
                     </div>
-                    <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Profile</h1>
-                        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage your personal identity and security</p>
+                    <div className="header-text-box">
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Profile</h1>
+                        <p className="banner-subtitle" style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage your personal identity and security</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div className="header-banner-actions" style={{ display: 'flex', gap: 12, position: 'relative', zIndex: 2 }}>
                     <button onClick={() => setShowPasswordModal(true)} style={{ padding: '0 20px', height: 44, background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 14, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}><Key size={16} /> Reset Password</button>
                     {isEditing ? (
-                        <div style={{ display: 'flex', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, width: '100%' }}>
                             <button onClick={() => setIsEditing(false)} style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
-                            <button onClick={handleSaveProfile} disabled={saving} style={{ padding: '0 24px', height: 44, background: '#FFE16A', color: '#1A1533', borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(255,225,106,0.2)' }}>{saving ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />} Save Changes</button>
+                            <button onClick={handleSaveProfile} disabled={saving} style={{ flex: 1, height: 44, background: '#FFE16A', color: '#1A1533', borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(255,225,106,0.2)' }}>{saving ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />} Save Changes</button>
                         </div>
                     ) : (
                         <button onClick={() => setIsEditing(true)} style={{ padding: '0 28px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>Edit Profile</button>
@@ -214,7 +252,7 @@ const MyProfile = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 
                 {/* TABS */}
-                <div style={{ display: 'flex', gap: 12 }} className="animate-fadeIn">
+                <div style={{ display: 'flex', gap: 12 }} className="animate-fadeIn tabs-container">
                     {tabs.map(tab => (
                         <button 
                             key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -237,10 +275,10 @@ const MyProfile = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                         {/* PROFILE SUMMARY BAR */}
                         <PremiumCard index={0} style={{ padding: '24px 40px', background: 'linear-gradient(135deg, #fff 0%, #F9F8FF 100%)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
-                                <div style={{ position: 'relative' }}>
+                            <div className="profile-summary-row" style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+                                <div style={{ position: 'relative', flexShrink: 0 }}>
                                     <div style={{ width: 120, height: 120, borderRadius: '50%', background: T.accent, border: '6px solid #fff', boxShadow: '0 12px 32px rgba(124,92,252,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                        {formData.avatar ? <img src={formData.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : (profile.avatar ? <img src={profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectCover: 'cover' }} /> : <span style={{ fontSize: 36, fontWeight: 900, color: '#fff' }}>{initials}</span>)}
+                                        {formData.avatar ? <img src={formData.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (profile.avatar ? <img src={profile.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 36, fontWeight: 900, color: '#fff' }}>{initials}</span>)}
                                     </div>
                                     {isEditing && (
                                         <label style={{ position: 'absolute', bottom: 4, right: 4, width: 36, height: 36, borderRadius: 12, background: '#fff', border: `1px solid ${T.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
@@ -249,9 +287,9 @@ const MyProfile = () => {
                                         </label>
                                     )}
                                 </div>
-                                <div>
-                                    <h2 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>{profile.name}</h2>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
+                                <div className="profile-summary-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <h2 className="profile-name" style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.5px' }}>{profile.name}</h2>
+                                    <div className="profile-status-box" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
                                         <span style={{ fontSize: 10, fontWeight: 900, color: profile.status === 'Active' ? T.green : T.rose, background: profile.status === 'Active' ? T.greenLight : T.roseLight, padding: '4px 12px', borderRadius: 8, textTransform: 'uppercase' }}>{profile.status} Member</span>
                                         <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.subtle }} />
                                         <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{profile.plan?.name || 'Standard Plan'}</span>
@@ -264,7 +302,7 @@ const MyProfile = () => {
                         {/* PERSONAL INFO DETAILS */}
                         <PremiumCard index={1}>
                             <SectionHeader icon={ShieldCheck} title="Personal Details" subtitle="Verification & Contact" />
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                            <div className="section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
                                 <InputGroup label="Full Name" icon={User} value={profile.name} readOnly={true} hint="Contact admin to change legal name" />
                                 <InputGroup label="Email Address" icon={Mail} value={profile.email} readOnly={true} hint="Registered email cannot be modified" />
                                 <InputGroup label="Phone Number" icon={Phone} value={isEditing ? formData.phone : profile.phone} onChange={v => setFormData({...formData, phone: v})} readOnly={!isEditing} />
@@ -275,13 +313,13 @@ const MyProfile = () => {
                         {/* EMERGENCY CONTACT */}
                         <PremiumCard index={2} style={{ background: T.bg }}>
                             <SectionHeader icon={Activity} title="Emergency Contact" subtitle="Trusted Reach-out" color={T.rose} />
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                            <div className="section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
                                 <InputGroup label="Contact Name" icon={User} value={isEditing ? formData.emergencyName : profile.emergencyName} onChange={v => setFormData({...formData, emergencyName: v})} readOnly={!isEditing} placeholder="Primary Contact Person" />
                                 <InputGroup label="Contact Phone" icon={Phone} value={isEditing ? formData.emergencyPhone : profile.emergencyPhone} onChange={v => setFormData({...formData, emergencyPhone: v})} readOnly={!isEditing} placeholder="Emergency Phone Number" />
                             </div>
                         </PremiumCard>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 24 }}>
+                        <div className="section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 24 }}>
                             {/* BRANCH INFO */}
                             <PremiumCard index={3}>
                                 <SectionHeader icon={MapPin} title="Branch Access" subtitle="Your Home Gym" color={T.blue} />
@@ -297,7 +335,7 @@ const MyProfile = () => {
                             {/* MEMBERSHIP SUMMARY */}
                             <PremiumCard index={4}>
                                 <SectionHeader icon={Shield} title="Membership Overview" subtitle="Plan Details" color={T.green} />
-                                <div style={{ display: 'flex', gap: 20 }}>
+                                <div className="membership-summary-grid" style={{ display: 'flex', gap: 20 }}>
                                     {[
                                         { label: 'Active Plan', value: profile.plan?.name || 'Standard', color: T.accent },
                                         { label: 'Start Date', value: profile.joinDate ? new Date(profile.joinDate).toLocaleDateString('en-GB') : 'N/A', color: T.text },
@@ -316,7 +354,7 @@ const MyProfile = () => {
 
                 {activeTab === 'security' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                        <PremiumCard index={0} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 40, background: T.roseLight }}>
+                        <PremiumCard index={0} className="security-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 40, background: T.roseLight }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                                 <div style={{ width: 64, height: 64, borderRadius: 20, background: '#fff', color: T.rose, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 30px rgba(244,63,94,0.1)' }}><Lock size={32} /></div>
                                 <div>
@@ -327,7 +365,7 @@ const MyProfile = () => {
                             <button onClick={() => setShowPasswordModal(true)} style={{ height: 52, padding: '0 32px', background: T.rose, color: '#fff', borderRadius: 16, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)' }}>Rotate Password</button>
                         </PremiumCard>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                        <div className="section-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                             <PremiumCard index={1} style={{ opacity: 0.6 }}>
                                 <SectionHeader icon={Fingerprint} title="Biometric Access" subtitle="Multi-factor Security" />
                                 <p style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>Face-recognition and fingerprint access for gym entries. Configuration available at branch office.</p>

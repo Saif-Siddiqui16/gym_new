@@ -130,6 +130,37 @@ const MemberBookings = () => {
                 .animate-fadeIn { animation: fadeUp 0.4s ease both; }
                 .animate-spin { animation: spin 1s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+                .booking-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 24px;
+                }
+
+                @media (max-width: 1400px) {
+                    .booking-grid { grid-template-columns: repeat(3, 1fr); }
+                }
+
+                @media (max-width: 1100px) {
+                    .booking-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 24px;
+                        padding: 24px !important;
+                    }
+                    .header-banner-actions { width: 100%; }
+                    .header-banner-btn { width: 100%; justify-content: center; }
+                    .tab-container { overflow-x: auto; padding-bottom: 8px; }
+                    .booking-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
@@ -139,7 +170,7 @@ const MemberBookings = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -154,13 +185,15 @@ const MemberBookings = () => {
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Reserve your classes, recovery sessions and PT slots</p>
                     </div>
                 </div>
-                <button onClick={handleOpenBookingModal} style={{ padding: '0 28px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}><Plus size={18} strokeWidth={3} /> My Bookings</button>
+                <div className="header-banner-actions">
+                    <button className="header-banner-btn" onClick={handleOpenBookingModal} style={{ padding: '0 28px', height: 44, background: '#fff', color: T.accent, borderRadius: 14, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}><Plus size={18} strokeWidth={3} /> NEW BOOKING</button>
+                </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
                 {/* FILTER TABS */}
-                <div style={{ display: 'flex', gap: 12 }} className="animate-fadeIn">
+                <div style={{ display: 'flex', gap: 12, width: '100%' }} className="animate-fadeIn tab-container">
                     {tabs.map(tab => (
                         <button 
                             key={tab} onClick={() => setActiveTab(tab)}
@@ -170,7 +203,8 @@ const MemberBookings = () => {
                                 color: activeTab === tab ? '#fff' : T.muted,
                                 fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
                                 cursor: 'pointer', transition: '0.2s',
-                                boxShadow: activeTab === tab ? '0 8px 24px rgba(124,92,252,0.15)' : 'none'
+                                boxShadow: activeTab === tab ? '0 8px 24px rgba(124,92,252,0.15)' : 'none',
+                                whiteSpace: 'nowrap'
                             }}
                         >
                             {tab}
@@ -183,7 +217,7 @@ const MemberBookings = () => {
                     <SectionHeader icon={History} title="Active Schedules" subtitle="Upcoming sessions for the week" />
                     
                     {filteredBookings.length > 0 ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                        <div className="booking-grid">
                             {filteredBookings.map((b, idx) => (
                                 <PremiumCard key={b.id} index={idx}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>

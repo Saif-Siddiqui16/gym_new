@@ -159,28 +159,71 @@ const StaffDashboard = () => {
     if (loading && !dashData) return <Loader message="Staff terminal initializing..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; }
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 .fu { animation: fadeUp 0.4s ease both; }
+
+                .actions-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                }
+
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                    margin-bottom: 40px;
+                }
+
+                .main-content-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 32px;
+                }
+
+                @media (max-width: 1200px) {
+                    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+                    .main-content-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 20px;
+                        padding: 24px !important;
+                    }
+                    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+                    .header-portal-tag { width: 100%; text-align: center; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .actions-grid { grid-template-columns: 1fr; }
+                    .stats-grid { grid-template-columns: 1fr; }
+                    .section-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+                    .section-header button { width: 100%; }
+                }
             `}</style>
 
             {/* ──────── HEADER BANNER ──────── */}
-            <div style={{
+            <div className="header-banner fu" style={{
                 background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
                 borderRadius: 24, padding: '24px 32px',
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="fu">
+            }}>
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
                         width: 56, height: 56, borderRadius: 16,
                         background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                     }}>
                         <LayoutDashboard size={28} color="#fff" strokeWidth={2.5} />
                     </div>
@@ -189,10 +232,10 @@ const StaffDashboard = () => {
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: '4px 0 0', fontWeight: 600 }}>{dashData?.branchName} • {today}</p>
                     </div>
                 </div>
-                <div style={{
+                <div className="header-portal-tag" style={{
                     padding: '10px 20px', background: 'rgba(255,255,255,0.15)', borderRadius: 14,
                     color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em',
-                    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)'
+                    backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', position: 'relative', zIndex: 2
                 }}>
                     Staff Portal
                 </div>
@@ -201,7 +244,7 @@ const StaffDashboard = () => {
             {/* ──────── QUICK ACTIONS ──────── */}
             <div className="fu" style={{ marginBottom: 32, animationDelay: '0.1s' }}>
                 <SectionDivider title="Quick Access" sub="Operational Short-cuts" />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+                <div className="actions-grid">
                     {quickActions.map((action, i) => (
                         <button
                             key={i}
@@ -214,7 +257,7 @@ const StaffDashboard = () => {
                             onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(124,92,252,0.12)'; e.currentTarget.style.borderColor = T.accentMid; }}
                             onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 14px rgba(0,0,0,0.02)'; e.currentTarget.style.borderColor = T.border; }}
                         >
-                            <div style={{ width: 52, height: 52, borderRadius: 16, background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s' }}>
+                            <div style={{ width: 52, height: 52, borderRadius: 16, background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.3s', flexShrink: 0 }}>
                                 <action.icon size={24} strokeWidth={2.5} />
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{action.label}</span>
@@ -224,7 +267,7 @@ const StaffDashboard = () => {
             </div>
 
             {/* ──────── STATS GRID ──────── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 40 }}>
+            <div className="stats-grid">
                 <MetricCard title="Today's Check-ins" value={dashData?.todayCheckIns ?? 0} trend={`${dashData?.checkIns?.length ?? 0} active`} icon={CheckCircle} color={T.accent} bg={T.accentLight} index={1} />
                 <MetricCard title="Pending Invoices" value={dashData?.invoicesCount ?? 0} icon={Receipt} color={T.rose} bg={T.roseLight} index={2} />
                 <MetricCard title="Active Leads" value={dashData?.activeLeads ?? 0} icon={GitBranch} color={T.green} bg={T.greenLight} index={3} />
@@ -232,7 +275,7 @@ const StaffDashboard = () => {
             </div>
 
             {/* ──────── MAIN CONTENT ──────── */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }} className="fu">
+            <div className="main-content-grid fu">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
                     <TodayFollowUpsWidget />
                     

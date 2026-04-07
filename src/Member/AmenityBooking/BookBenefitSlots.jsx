@@ -149,7 +149,19 @@ const AmenityBooking = () => {
     const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
     return (
-        <div className="max-w-2xl mx-auto px-4 pb-32 space-y-5 animate-in fade-in duration-500">
+        <div className="max-w-2xl mx-auto px-4 pb-32 space-y-5 animate-in fade-in duration-500 amenity-booking-container">
+            <style>{`
+                @media (max-width: 480px) {
+                    .amenity-booking-container { padding-left: 16px !important; padding-right: 16px !important; }
+                    .date-picker-grid { gap: 4px !important; }
+                    .date-picker-btn { border-radius: 12px !important; padding: 8px 0 !important; }
+                    .date-picker-day { font-size: 8px !important; }
+                    .date-picker-num { font-size: 14px !important; }
+                    .amenity-card-header { flex-direction: column; align-items: flex-start !important; gap: 12px !important; }
+                    .slot-item { flex-direction: column; align-items: flex-start !important; gap: 16px !important; }
+                    .slot-item button { width: 100%; justify-content: center; }
+                }
+            `}</style>
 
             {/* Header */}
             <div className="flex items-center justify-between pt-6 pb-2">
@@ -194,7 +206,7 @@ const AmenityBooking = () => {
                 </div>
 
                 {/* Days Row */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-2 date-picker-grid">
                     {dates.map((date, idx) => {
                         const active = isSelected(date);
                         const today = isToday(date);
@@ -202,16 +214,16 @@ const AmenityBooking = () => {
                             <button
                                 key={idx}
                                 onClick={() => setSelectedDate(date)}
-                                className={`relative flex flex-col items-center py-2.5 rounded-2xl transition-all duration-200 ${
+                                className={`relative flex flex-col items-center py-2.5 rounded-2xl transition-all duration-200 date-picker-btn ${
                                     active
                                         ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-[1.04]'
                                         : 'hover:bg-slate-50 text-slate-600'
                                 }`}
                             >
-                                <span className={`text-[9px] font-black tracking-widest ${active ? 'text-white/70' : 'text-slate-400'}`}>
+                                <span className={`text-[9px] font-black tracking-widest date-picker-day ${active ? 'text-white/70' : 'text-slate-400'}`}>
                                     {dayNames[date.getDay()]}
                                 </span>
-                                <span className={`text-lg font-black leading-none mt-1 ${active ? 'text-white' : 'text-slate-800'}`}>
+                                <span className={`text-lg font-black leading-none mt-1 date-picker-num ${active ? 'text-white' : 'text-slate-800'}`}>
                                     {date.getDate()}
                                 </span>
                                 {today && !active && (
@@ -271,7 +283,7 @@ const AmenityBooking = () => {
                         {amenities.map((amenity) => (
                             <div key={amenity.id} className="bg-white rounded-[20px] border border-slate-100 overflow-hidden shadow-sm">
                                 {/* Amenity Header */}
-                                <div className="px-5 py-4 flex items-center justify-between border-b border-slate-50">
+                                <div className="px-5 py-4 flex items-center justify-between border-b border-slate-50 amenity-card-header">
                                     <div className="flex items-center gap-3">
                                         <div className="w-9 h-9 bg-gradient-to-br from-primary to-violet-600 text-white rounded-xl flex items-center justify-center shadow-sm">
                                             <Sparkles size={16} />
@@ -300,7 +312,7 @@ const AmenityBooking = () => {
                                 {/* Slots */}
                                 <div className="p-3">
                                     {amenity.isWalkIn ? (
-                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/70">
+                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/70 slot-item">
                                             <div>
                                                 <p className="text-xs font-bold text-slate-600">Available all day</p>
                                                 <p className="text-[10px] text-slate-400 mt-0.5">No specific time slot required</p>
@@ -322,7 +334,7 @@ const AmenityBooking = () => {
                                             {amenity.slots.map((slot) => (
                                                 <div
                                                     key={slot.id}
-                                                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl transition-all ${
+                                                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl transition-all slot-item ${
                                                         slot.isMyBooking
                                                             ? 'bg-emerald-50/70 border border-emerald-200'
                                                             : slot.isFull

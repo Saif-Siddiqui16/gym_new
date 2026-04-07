@@ -141,13 +141,41 @@ const MyAttendance = () => {
     if (loading) return <Loader message="Accessing attendance logs..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+                @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
                 .animate-fadeIn { animation: fadeUp 0.4s ease both; }
-                .animate-spin { animation: spin 1s linear infinite; }
+                .animate-spin { animation: spin 2s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+                .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+                .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+                @media (max-width: 1200px) {
+                    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+                    .main-grid { grid-template-columns: 1fr !important; }
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-container { padding: 20px 20px 80px !important; }
+                    .header-banner { flex-direction: column !important; align-items: flex-start !important; gap: 20px !important; padding: 24px !important; }
+                    .header-banner-badge { width: 100% !important; justify-content: center !important; }
+                    .hero-card { flex-direction: column !important; align-items: stretch !important; padding: 32px 24px !important; gap: 32px !important; text-align: center !important; }
+                    .hero-badge-container { margin: 0 auto 16px !important; }
+                    .hero-time-container { justify-content: center !important; flex-wrap: wrap !important; }
+                    .hero-action-btn { width: 100% !important; justify-content: center !important; height: 56px !important; }
+                    .stats-grid { gap: 16px !important; }
+                    .calendar-grid { gap: 8px !important; }
+                    .calendar-cell { border-radius: 12px !important; font-size: 12px !important; }
+                }
+
+                @media (max-width: 480px) {
+                    .stats-grid { grid-template-columns: 1fr !important; }
+                    .hero-title { font-size: 24px !important; }
+                    .banner-title { font-size: 20px !important; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
@@ -157,7 +185,7 @@ const MyAttendance = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -168,11 +196,11 @@ const MyAttendance = () => {
                         <CalendarIcon size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Attendance</h1>
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Attendance</h1>
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Track your gym visits and check-in history</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div className="header-banner-badge" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <CalendarIcon size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{monthName} {currentYear}</span>
                 </div>
@@ -181,23 +209,23 @@ const MyAttendance = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
                 {/* CHECK-IN HERO CARD */}
-                <div style={{ 
+                <div className="animate-fadeIn hero-card" style={{ 
                     background: checkInStatus.isCheckedIn ? '#E8FBF2' : '#F9F8FF', 
                     padding: 48, borderRadius: 40, border: `2px solid ${checkInStatus.isCheckedIn ? '#22C97A15' : T.border}`,
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     boxShadow: '0 4px 24px rgba(0,0,0,0.02)', position: 'relative', overflow: 'hidden'
-                }} className="animate-fadeIn">
+                }}>
                     <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, background: `linear-gradient(135deg, ${checkInStatus.isCheckedIn ? T.greenLight : T.accentLight} 0%, transparent 100%)`, opacity: 0.4, pointerEvents: 'none' }} />
                     
                     <div style={{ position: 'relative', zIndex: 2 }}>
-                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 10, background: checkInStatus.isCheckedIn ? T.green : T.accent, color: '#fff', marginBottom: 16 }}>
+                         <div className="hero-badge-container" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 10, background: checkInStatus.isCheckedIn ? T.green : T.accent, color: '#fff', marginBottom: 16, width: 'fit-content' }}>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', animation: checkInStatus.isCheckedIn ? 'pulse 2s infinite' : 'none' }} />
                             <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{checkInStatus.isCheckedIn ? 'Session Live' : 'Offline'}</span>
                         </div>
-                        <h2 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-1px' }}>
+                        <h2 className="hero-title" style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-1px' }}>
                             {checkInStatus.isCheckedIn ? "Great workout day!" : checkInStatus.isCheckedOut ? "Workout Completed!" : "Ready to Train?"}
                         </h2>
-                        <div style={{ display: 'flex', gap: 24 }}>
+                        <div className="hero-time-container" style={{ display: 'flex', gap: 24 }}>
                             {checkInStatus.checkInTime && (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.green }}><LogIn size={16} /></div>
@@ -215,17 +243,17 @@ const MyAttendance = () => {
 
                     <div style={{ position: 'relative', zIndex: 2 }}>
                         {!checkInStatus.isCheckedIn && !checkInStatus.isCheckedOut && (
-                            <button onClick={handleCheckIn} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.accent, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(124,92,252,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <button className="hero-action-btn" onClick={handleCheckIn} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.accent, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(124,92,252,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
                                 {actionLoading ? <RefreshCw className="animate-spin" size={20} /> : <LogIn size={20} />} Check In Now
                             </button>
                         )}
                         {checkInStatus.isCheckedIn && (
-                            <button onClick={handleCheckOut} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.rose, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(244,63,94,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <button className="hero-action-btn" onClick={handleCheckOut} disabled={actionLoading} style={{ height: 64, padding: '0 48px', background: T.rose, color: '#fff', borderRadius: 20, border: 'none', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 32px rgba(244,63,94,0.25)', display: 'flex', alignItems: 'center', gap: 12 }}>
                                 {actionLoading ? <RefreshCw className="animate-spin" size={20} /> : <LogOut size={20} />} End Session
                             </button>
                         )}
                         {checkInStatus.isCheckedOut && (
-                            <div style={{ height: 64, padding: '0 48px', background: T.green, color: '#fff', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontWeight: 900, textTransform: 'uppercase', border: 'none' }}>
+                            <div className="hero-action-btn" style={{ height: 64, padding: '0 48px', background: T.green, color: '#fff', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontWeight: 900, textTransform: 'uppercase', border: 'none' }}>
                                 <CheckCircle2 size={24} /> Done for Today
                             </div>
                         )}
@@ -233,7 +261,7 @@ const MyAttendance = () => {
                 </div>
 
                 {/* STATS ROW */}
-                <div style={{ display: 'flex', gap: 24 }}>
+                <div className="stats-grid">
                     <MetricCard title="Total Visits" value={attendanceData.stats.totalVisits || 0} icon={CheckCircle2} color={T.accent} bg={T.accentLight} subtitle="Overall" index={0} />
                     <MetricCard title="Days Active" value={attendanceData.stats.visitsThisMonth || 0} icon={CalendarIcon} color={T.green} bg={T.greenLight} subtitle="This Month" index={1} />
                     <MetricCard title="Avg Duration" value={attendanceData.stats.avgDuration || '0 m'} icon={Clock} color={T.amber} bg={T.amberLight} subtitle="Per Session" index={2} />
@@ -241,7 +269,7 @@ const MyAttendance = () => {
                 </div>
 
                 {/* CALENDAR & RECENT LOGS GRID */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 32 }}>
+                <div className="main-grid">
                     
                     {/* CALENDAR SECTION */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -254,15 +282,15 @@ const MyAttendance = () => {
                                 </div>
                             </div>
                             
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12 }}>
+                            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12 }}>
                                 {weekDays.map(day => (
-                                    <div key={day} style={{ textAlign: 'center', padding: '12px 0', fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{day}</div>
+                                     <div key={day} style={{ textAlign: 'center', padding: '12px 0', fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{day}</div>
                                 ))}
                                 {blanks.map(b => <div key={`b-${b}`} />)}
                                 {dates.map(date => {
                                     const visited = isVisited(date);
                                     return (
-                                        <div key={date} style={{ 
+                                        <div key={date} className="calendar-cell" style={{ 
                                             aspectRatio: '1', borderRadius: 20, 
                                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                             background: visited ? T.accent : '#F9F8FF',

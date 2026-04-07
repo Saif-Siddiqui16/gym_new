@@ -272,7 +272,7 @@ const MyMembership = ({ role }) => {
 
             {/* ── Date Picker ── */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                     <div className="relative flex-1">
                         <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
                         <input
@@ -285,7 +285,7 @@ const MyMembership = ({ role }) => {
                             className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer"
                         />
                     </div>
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
                         {[0, 1, 2].map(i => {
                             const d = new Date();
                             d.setDate(d.getDate() + i);
@@ -295,7 +295,7 @@ const MyMembership = ({ role }) => {
                                 <button
                                     key={i}
                                     onClick={() => setSelectedDate(d)}
-                                    className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                                    className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${
                                         active
                                             ? 'bg-primary text-white shadow-md shadow-primary/20'
                                             : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'

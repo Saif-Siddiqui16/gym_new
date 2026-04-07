@@ -183,22 +183,17 @@ const FeedbackSystem = ({ role }) => {
     );
 
     return (
-        <div style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                .feedback-row:hover { background: ${T.bg} !important; }
-                .feedback-row:hover td { color: ${T.text} !important; }
-            `}</style>
+        <div className="feedback-container" style={{ padding: 32, background: T.bg, minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {/* ... style tags ... */}
 
             {/* Header Section */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
+            <div className="header-section" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, animation: 'fadeIn 0.5s ease-out' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                     <div style={{ width: 60, height: 60, borderRadius: 20, background: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: T.shadow }}>
                         <MessageSquare size={28} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
+                        <h1 className="banner-title" style={{ fontSize: 32, fontWeight: 900, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
                             {role === 'MEMBER' ? 'My Feedback' : 'Member Feedback'}
                         </h1>
                         <p style={{ margin: '4px 0 0', color: T.muted, fontSize: 13, fontWeight: 500 }}>
@@ -207,12 +202,14 @@ const FeedbackSystem = ({ role }) => {
                     </div>
                 </div>
                 {role === 'MEMBER' && (
-                    <ActionButton onClick={() => setIsSubmitModalOpen(true)} icon={MessageSquare}>Submit Feedback</ActionButton>
+                    <div className="header-actions">
+                        <ActionButton onClick={() => setIsSubmitModalOpen(true)} icon={MessageSquare}>Submit Feedback</ActionButton>
+                    </div>
                 )}
             </div>
 
             {/* KPI Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
+            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32, animation: 'fadeIn 0.6s ease-out' }}>
                 <StatCard label="Total Submissions" value={stats.total} icon={MessageSquare} color={T.accent} />
                 <StatCard label="Average Customer Satisfaction" value={stats.avgRating} icon={Star} color={T.amber} subValue="/ 5.0" />
                 <StatCard label="Pending Moderation" value={stats.pending} icon={Clock} color={T.blue} />
@@ -221,7 +218,7 @@ const FeedbackSystem = ({ role }) => {
 
             {/* Filter & Table Area */}
             <div style={{ background: '#fff', borderRadius: 32, boxShadow: T.cardShadow, border: `1.5px solid #fff`, overflow: 'hidden', animation: 'fadeIn 0.7s ease-out' }}>
-                <div style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                <div className="filter-bar" style={{ padding: '24px 32px', borderBottom: `1.5px solid ${T.bg}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.accent }}>
                             <BarChart3 size={20} strokeWidth={2.5} />
@@ -230,17 +227,17 @@ const FeedbackSystem = ({ role }) => {
                     </div>
 
                     <div style={{ display: 'flex', gap: 16 }}>
-                        <div style={{ position: 'relative', width: 280 }}>
+                        <div className="search-container" style={{ position: 'relative', width: 280 }}>
                             <SearchIcon size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                             <input
                                 type="text"
-                                placeholder="Search comments or members..."
+                                placeholder="Search comments..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 style={{ width: '100%', height: 48, padding: '0 16px 0 48px', borderRadius: 14, border: `1.5px solid ${T.border}`, fontSize: 13, fontWeight: 600, color: T.text, outline: 'none', transition: '0.3s' }}
                             />
                         </div>
-                        <div style={{ position: 'relative', width: 180 }}>
+                        <div className="filter-container" style={{ position: 'relative', width: 180 }}>
                             <Filter size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: T.subtle }} />
                             <select
                                 value={statusFilter}
@@ -260,12 +257,12 @@ const FeedbackSystem = ({ role }) => {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: T.bg + '50' }}>
-                                {role !== 'MEMBER' && <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Member</th>}
-                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Rating</th>
-                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Experience / Feedback</th>
-                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Date</th>
-                                {role !== 'MEMBER' && <th style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Resolve Hub</th>}
+                                {role !== 'MEMBER' && <th className="mobile-table-header" style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Member</th>}
+                                <th className="mobile-table-header" style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Rating</th>
+                                <th className="mobile-table-header" style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Feedback</th>
+                                <th className="mobile-table-header hide-on-mobile" style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Status</th>
+                                <th className="mobile-table-header hide-on-mobile" style={{ padding: '16px 32px', textAlign: 'left', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Date</th>
+                                {role !== 'MEMBER' && <th className="mobile-table-header" style={{ padding: '16px 32px', textAlign: 'right', fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Resolve Hub</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -292,12 +289,12 @@ const FeedbackSystem = ({ role }) => {
                                     return (
                                         <tr key={item.id} className="feedback-row" style={{ borderBottom: `1.2px solid ${T.bg}`, transition: '0.2s' }}>
                                             {role !== 'MEMBER' && (
-                                                <td style={{ padding: '20px 32px' }}>
+                                                <td className="mobile-table-cell" style={{ padding: '20px 32px' }}>
                                                     <div style={{ fontSize: 14, fontWeight: 800, color: T.text }}>{item.member}</div>
                                                     <div style={{ fontSize: 11, fontWeight: 600, color: T.muted }}>Verified Client</div>
                                                 </td>
                                             )}
-                                            <td style={{ padding: '20px 32px' }}>
+                                            <td className="mobile-table-cell" style={{ padding: '20px 32px' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                                     <div style={{ display: 'flex', gap: 2 }}>
                                                         {[1, 2, 3, 4, 5].map((s) => (
@@ -319,19 +316,19 @@ const FeedbackSystem = ({ role }) => {
                                                     </div>
                                                 )}
                                             </td>
-                                            <td style={{ padding: '20px 32px' }}>
+                                            <td className="mobile-table-cell" style={{ padding: '20px 32px' }}>
                                                 <p style={{ margin: 0, fontSize: 14, color: T.muted, fontWeight: 500, lineHeight: 1.5, maxWidth: 400 }}>
                                                     {item.comment}
                                                 </p>
                                             </td>
-                                            <td style={{ padding: '20px 32px' }}>
+                                            <td className="mobile-table-cell hide-on-mobile" style={{ padding: '20px 32px' }}>
                                                 <span style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: 10, background: st.bg, color: st.color, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', border: `1.2px solid ${st.color}20` }}>
                                                     {item.status}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '20px 32px', fontSize: 13, fontWeight: 600, color: T.muted }}>{item.date}</td>
+                                            <td className="mobile-table-cell hide-on-mobile" style={{ padding: '20px 32px', fontSize: 13, fontWeight: 600, color: T.muted }}>{item.date}</td>
                                             {role !== 'MEMBER' && (
-                                                <td style={{ padding: '20px 32px', textAlign: 'right' }}>
+                                                <td className="mobile-table-cell" style={{ padding: '20px 32px', textAlign: 'right' }}>
                                                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                                                         {item.status === 'Pending' && (
                                                             <button 

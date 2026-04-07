@@ -111,14 +111,8 @@ const MemberNotifications = () => {
     if (loading && notifications.length === 0) return <Loader message="Fetching your alerts..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
-                .animate-spin { animation: spin 1s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            `}</style>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {/* ... style tags ... */}
 
             {/* HEADER BANNER */}
             <div style={{
@@ -127,7 +121,7 @@ const MemberNotifications = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -138,11 +132,11 @@ const MemberNotifications = () => {
                         <Bell size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Notifications</h1>
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Notifications</h1>
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Personalized alerts and real-time plan updates</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <Sparkles size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Live Sync</span>
                 </div>
@@ -159,20 +153,20 @@ const MemberNotifications = () => {
                             {notifications.map((notif, idx) => {
                                 const theme = getTheme(notif.type);
                                 return (
-                                    <PremiumCard key={notif.id} index={idx} style={{ padding: '24px 32px', background: '#fff', display: 'flex', alignItems: 'center', gap: 24, position: 'relative' }}>
+                                    <PremiumCard key={notif.id} index={idx} className="notification-item" style={{ padding: '24px 32px', background: '#fff', display: 'flex', alignItems: 'center', gap: 24, position: 'relative' }}>
                                         <div style={{ 
                                             width: 52, height: 52, borderRadius: 16, background: theme.bg, color: theme.color, 
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', shrink: 0
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                                         }}>
                                             <notif.icon size={24} strokeWidth={2.5} />
                                         </div>
-                                        <div style={{ flex: 1 }}>
+                                        <div style={{ flex: 1, width: '100%' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                 <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: '0 0 4px', letterSpacing: '-0.2px' }}>{notif.title}</h3>
                                                 <span style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{new Date(notif.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                                             </div>
                                             <p style={{ fontSize: 13, fontWeight: 700, color: T.muted, margin: '0 0 16px', lineHeight: 1.5 }}>{notif.description}</p>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                                            <div className="notification-actions" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                                                 <button 
                                                     onClick={() => handleMarkAsRead(notif.id)}
                                                     style={{ border: 'none', background: 'none', padding: 0, fontSize: 10, fontWeight: 900, color: T.accent, textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -189,7 +183,7 @@ const MemberNotifications = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: theme.color, position: 'absolute', left: 16, top: 24 }}></div>
+                                        <div className="notification-badge" style={{ width: 8, height: 8, borderRadius: '50%', background: theme.color, position: 'absolute', left: 16, top: 24 }}></div>
                                     </PremiumCard>
                                 );
                             })}

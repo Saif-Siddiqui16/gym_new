@@ -204,7 +204,7 @@ const SuperAdminDashboard = () => {
     ];
 
     return (
-        <div style={{
+        <div className="dashboard-container" style={{
             background: T.bg, minHeight: '100vh', padding: '28px 28px 48px',
             fontFamily: "'Plus Jakarta Sans', sans-serif"
         }}>
@@ -221,8 +221,18 @@ const SuperAdminDashboard = () => {
                 .fu3 { animation-delay: .15s; }
                 .fu4 { animation-delay: .2s; }
 
-                .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-                .grid-main { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; align-items: start; }
+                .grid-stats { 
+                    display: grid; 
+                    grid-template-columns: repeat(4, 1fr); 
+                    gap: 20px; 
+                    margin-bottom: 30px; 
+                }
+                .grid-main { 
+                    display: grid; 
+                    grid-template-columns: 1.8fr 1fr; 
+                    gap: 24px; 
+                    align-items: start; 
+                }
                 
                 .grid-row {
                     display: grid; 
@@ -241,18 +251,34 @@ const SuperAdminDashboard = () => {
                     border-bottom: 1px solid ${T.border};
                 }
 
-                @media (max-width: 1280px) {
+                @media (max-width: 1400px) {
                     .grid-stats { grid-template-columns: repeat(3, 1fr); }
-                    .grid-main { grid-template-columns: 1fr; }
                 }
-                @media (max-width: 768px) {
+
+                @media (max-width: 1200px) {
+                    .grid-main { grid-template-columns: 1fr; }
                     .grid-stats { grid-template-columns: repeat(2, 1fr); }
                 }
-                @media (max-width: 640px) {
+
+                @media (max-width: 768px) {
+                    .header-banner { 
+                        flex-direction: column; 
+                        align-items: flex-start !important; 
+                        gap: 20px; 
+                        padding: 20px !important; 
+                    }
+                    .header-banner-actions {
+                        width: 100%;
+                        justify-content: flex-end;
+                    }
                     .grid-stats { grid-template-columns: 1fr; }
-                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 16px 18px !important; }
-                    .hide-mobile { display: none; }
                     .grid-row, .grid-header { grid-template-columns: 1fr 1fr; }
+                    .hide-mobile { display: none; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .grid-row { padding: 12px 16px; }
                 }
             `}</style>
 

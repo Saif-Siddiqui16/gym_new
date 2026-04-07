@@ -70,14 +70,8 @@ const MemberAnnouncements = () => {
     if (loading && announcements.length === 0) return <Loader message="Broadcasting updates..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
-                .animate-spin { animation: spin 1s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            `}</style>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {/* ... style tags ... */}
 
             {/* HEADER BANNER */}
             <div style={{
@@ -86,7 +80,7 @@ const MemberAnnouncements = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -97,17 +91,17 @@ const MemberAnnouncements = () => {
                         <Megaphone size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Announcements</h1>
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>Announcements</h1>
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Stay updated with the latest news from your gym</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div className="header-banner-badge" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <BellRing size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Hub Update</span>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 32, maxWidth: 1000, margin: '0 auto' }}>
+            <div className="announcement-container" style={{ display: 'flex', flexDirection: 'column', gap: 32, maxWidth: 1000, margin: '0 auto' }}>
 
                 {/* ANNOUNCEMENTS LIST */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -119,10 +113,10 @@ const MemberAnnouncements = () => {
                                 const style = getPriorityStyle(item.priority);
                                 const Icon = style.icon;
                                 return (
-                                    <PremiumCard key={item.id} index={idx} style={{ padding: '32px 40px', background: '#fff', position: 'relative', overflow: 'hidden' }}>
+                                    <PremiumCard key={item.id} index={idx} className="premium-card" style={{ padding: '32px 40px', background: '#fff', position: 'relative', overflow: 'hidden' }}>
                                         <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: `${style.color}05`, blur: '40px' }} />
                                         
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                                        <div className="card-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                                 <div style={{ width: 44, height: 44, borderRadius: 12, background: style.bg, color: style.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                     <Icon size={22} strokeWidth={2.5} />
@@ -135,10 +129,10 @@ const MemberAnnouncements = () => {
                                             </div>
                                         </div>
 
-                                        <h3 style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-0.5px' }}>{item.title}</h3>
+                                        <h3 className="announcement-title" style={{ fontSize: 24, fontWeight: 900, color: T.text, margin: '0 0 12px', letterSpacing: '-0.5px' }}>{item.title}</h3>
                                         <p style={{ fontSize: 14, fontWeight: 600, color: T.muted, lineHeight: 1.6, margin: '0 0 28px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.content}</p>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
+                                        <div className="announcement-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24, borderTop: `1px solid ${T.bg}` }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: T.subtle }}>
                                                 <BellRing size={16} />
                                                 <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Public Broadcast</span>

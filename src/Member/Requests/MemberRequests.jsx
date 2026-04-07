@@ -95,14 +95,8 @@ const MemberRequests = () => {
     if (loading && requests.length === 0) return <Loader message="Connecting to Roar Support..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-                @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-                .animate-fadeIn { animation: fadeUp 0.4s ease both; }
-                .animate-spin { animation: spin 1s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            `}</style>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {/* ... style tags ... */}
 
             {/* HEADER BANNER */}
             <div style={{
@@ -111,7 +105,7 @@ const MemberRequests = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -122,11 +116,11 @@ const MemberRequests = () => {
                         <ClipboardList size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Requests</h1>
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Requests</h1>
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage membership states and service assistance</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div className="header-banner-badge" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <History size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Tracking System</span>
                 </div>
@@ -135,7 +129,7 @@ const MemberRequests = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
                 {/* QUICK ACTIONS GRID */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+                <div className="action-grid">
                     {actionCards.map((card, idx) => (
                         <PremiumCard key={card.type} index={idx} style={{ display: 'flex', flexDirection: 'column', gap: 24, background: '#fff' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -143,7 +137,7 @@ const MemberRequests = () => {
                                     <card.icon size={22} strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0, tracking: '-0.2px' }}>{card.title}</h3>
+                                    <h3 style={{ fontSize: 14, fontWeight: 900, color: T.text, margin: 0 }}>{card.title}</h3>
                                     <p style={{ fontSize: 9, fontWeight: 800, color: T.muted, textTransform: 'uppercase', margin: 0 }}>{card.sub}</p>
                                 </div>
                             </div>
@@ -171,7 +165,7 @@ const MemberRequests = () => {
                     {requests.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                             {requests.map((request, i) => (
-                                <div key={request.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, transition: '0.2s' }}>
+                                <div key={request.id} className="history-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, transition: '0.2s' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                         <div style={{ 
                                             width: 44, height: 44, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -185,7 +179,7 @@ const MemberRequests = () => {
                                             <p style={{ fontSize: 10, fontWeight: 800, color: T.muted, textTransform: 'uppercase', marginTop: 4 }}>Submitted: {new Date(request.date || request.createdAt).toLocaleDateString('en-GB')}</p>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                                    <div className="status-container" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                                          <div style={{ 
                                             padding: '6px 14px', borderRadius: 8, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em',
                                             background: (request.status === 'Approved' || request.status === 'Accepted') ? T.greenLight : (request.status === 'Rejected' ? T.roseLight : T.amberLight),

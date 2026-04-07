@@ -107,21 +107,69 @@ const TrainerDashboard = () => {
     );
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; }
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
                 .fu { animation: fadeUp 0.38s ease both; }
                 .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; } .fu4 { animation-delay: .2s; }
+
+                .metric-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }
+
+                .main-layout-grid {
+                    display: grid;
+                    grid-template-columns: 1.2fr 1fr;
+                    gap: 30px;
+                }
+
+                .directives-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 16px;
+                }
+
+                @media (max-width: 1300px) {
+                    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 1100px) {
+                    .main-layout-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                     .header-banner {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 20px;
+                        padding: 24px !important;
+                    }
+                    .header-banner-actions {
+                        width: 100%;
+                    }
+                    .directives-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .metric-grid { grid-template-columns: 1fr; }
+                    .directives-grid { grid-template-columns: 1fr; }
+                    .finance-summary { flex-direction: column; align-items: flex-start !important; gap: 20px; }
+                }
             `}</style>
 
             <HeaderBanner 
+                className="header-banner"
                 title={`Good Morning, Coach ${user?.name?.split(' ')[0] || 'Trainer'}!`} 
                 sub="Your personalized performance matrix and daily roster" 
                 icon={ShieldCheck}
                 actions={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="header-banner-actions" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ background: 'rgba(255,255,255,0.15)', padding: '10px 18px', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 10, backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)' }}>
                              <Activity size={16} color="#fff" />
                              <span style={{ fontSize: 11, fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '1px' }}>{data.stats.completionRate || 0}% Session Efficiency</span>
@@ -130,14 +178,14 @@ const TrainerDashboard = () => {
                 }
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 30 }}>
+            <div className="metric-grid">
                 <MetricCard title="General Clients" value={data.stats.activeGeneralClients} icon={Users} color={T.accent} bg={T.accentLight} subtitle="Portfolio" index={0} />
                 <MetricCard title="PT Clients" value={data.stats.ptClientsCount} icon={User} color={T.blue} bg={T.blueLight} subtitle="Personal" index={1} />
                 <MetricCard title="Sessions Today" value={data.stats.todaySessionsCount} icon={Clock} color={T.amber} bg={T.amberLight} subtitle={`${data.stats.completedToday} Done`} index={2} />
                 <MetricCard title="Completion" value={`${data.stats.completionRate}%`} icon={CheckCircle2} color={T.green} bg={T.greenLight} subtitle="Daily Goal" index={3} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 30 }} className="fu fu3">
+            <div className="main-layout-grid fu fu3">
                 {/* Left: Schedule and Directives */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
                     {/* Quick Directives */}
@@ -145,13 +193,13 @@ const TrainerDashboard = () => {
                         <h3 style={{ fontSize: 13, fontWeight: 900, color: T.text, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
                             <Zap size={16} color={T.accent} /> Quick Directives
                         </h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+                        <div className="directives-grid">
                             {[
                                 { label: 'Diet Matrix', path: '/diet-plans', icon: Utensils, color: T.accent, bg: T.accentLight },
                                 { label: 'Workouts', path: '/workout-plans', icon: Flame, color: T.amber, bg: T.amberLight },
                                 { label: 'Attendance', path: '/trainer/attendance', icon: UserCheck, color: T.green, bg: T.greenLight },
                                 { label: 'My Roster', path: '/trainer/members/assigned', icon: Users, color: T.blue, bg: T.blueLight },
-                            ].map((btn, i) => (
+                             ].map((btn, i) => (
                                 <button key={i} onClick={() => navigate(btn.path)} style={{
                                     background: btn.bg, border: 'none', borderRadius: 20, padding: '20px 10px', 
                                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, cursor: 'pointer', transition: '0.2s',
@@ -171,9 +219,9 @@ const TrainerDashboard = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                             {data.todaySessions.length > 0 ? data.todaySessions.map((session, i) => (
-                                <div key={i} style={{ padding: '20px 24px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div key={i} style={{ padding: '20px 24px', borderRadius: 20, background: T.bg, border: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 900 }}>{session.member_name?.charAt(0)}</div>
+                                        <div style={{ width: 44, height: 44, borderRadius: 14, background: T.accent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 900, flexShrink: 0 }}>{session.member_name?.charAt(0)}</div>
                                         <div>
                                             <div style={{ fontSize: 15, fontWeight: 800, color: T.text }}>{session.member_name}</div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, fontSize: 11, fontWeight: 700, color: T.subtle }}>
@@ -203,7 +251,7 @@ const TrainerDashboard = () => {
                         <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
                         <h4 style={{ fontSize: 11, fontWeight: 900, color: T.accent2, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: 24 }}>Monthly Earnings</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                            <div className="finance-summary" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                 <div>
                                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 800, marginBottom: 4, textTransform: 'uppercase' }}>Total Estimated</div>
                                     <div style={{ fontSize: 36, fontWeight: 900 }}>₹{(data.stats.salary || 0).toLocaleString()}</div>
@@ -230,7 +278,7 @@ const TrainerDashboard = () => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 700, color: T.muted, marginBottom: 20 }}>
                                     <Clock size={16} /> {data.upcomingClass.time}
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: T.muted }}><Users size={16} /> {data.upcomingClass.enrolled || 0} Registered</div>
                                     <button onClick={() => navigate(`/trainer/classes/${data.upcomingClass.id}`)} style={{ background: T.accent, color: '#fff', border: 'none', padding: '10px 18px', borderRadius: 12, fontSize: 11, fontWeight: 900, cursor: 'pointer' }}>JOIN BOUT</button>
                                 </div>

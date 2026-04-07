@@ -44,14 +44,14 @@ const T = {
    ───────────────────────────────────────────────────────────────────────────── */
 
 // Header Banner
-const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+const HeaderBanner = ({ title, sub, icon: Icon, actions, className }) => (
     <div style={{
         background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
         borderRadius: 20, padding: '20px 26px',
         boxShadow: '0 8px 32px rgba(124,92,252,0.28)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: 28, position: 'relative', overflow: 'hidden'
-    }} className="fu fu1">
+    }} className={`fu fu1 ${className}`}>
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, position: 'relative', zIndex: 2 }}>
             <div style={{
@@ -217,33 +217,108 @@ const BranchManagerDashboard = () => {
     );
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; }
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
                 .fu { animation: fadeUp 0.38s ease both; }
                 .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; } .fu4 { animation-delay: .2s; }
+
+                /* Responsive Grid Classes */
+                .metric-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }
+
+                .task-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 20px;
+                }
+
+                .chart-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 24px;
+                    margin-bottom: 32px;
+                }
+
+                .widgets-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 24px;
+                    margin-bottom: 32px;
+                }
+
+                .footer-grid {
+                    display: grid;
+                    grid-template-columns: 1.2fr 0.8fr;
+                    gap: 24px;
+                    align-items: start;
+                }
+
+                /* Media Queries */
+                @media (max-width: 1400px) {
+                    .metric-grid { grid-template-columns: repeat(3, 1fr); }
+                    .widgets-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 1100px) {
+                    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+                    .task-grid { grid-template-columns: repeat(3, 1fr); }
+                    .chart-grid { grid-template-columns: 1fr; }
+                    .widgets-grid { grid-template-columns: 1fr; }
+                    .footer-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner { 
+                        flex-direction: column; 
+                        align-items: flex-start !important; 
+                        gap: 20px; 
+                        padding: 24px !important; 
+                    }
+                    .header-banner-actions {
+                        width: 100%;
+                        justify-content: flex-start;
+                    }
+                    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+                    .task-grid { grid-template-columns: repeat(2, 1fr); }
+                    .hide-mobile { display: none; }
+                }
+
+                @media (max-width: 480px) {
+                    .metric-grid { grid-template-columns: 1fr; }
+                    .task-grid { grid-template-columns: 1fr; }
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .grid-row-header { display: none; }
+                }
             `}</style>
 
             <HeaderBanner 
+                className="header-banner"
                 title={welcomeTitle} 
                 sub="Real-time branch intelligence & operations" 
                 icon={ActivityIcon} 
                 actions={
-                    <button 
-                        onClick={loadData} 
-                        style={{ border: 'none', background: 'rgba(255,255,255,0.15)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}
-                        onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-                        onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                    >
-                        <RefreshCw size={15} />
-                    </button>
+                    <div className="header-banner-actions" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button 
+                            onClick={loadData} 
+                            style={{ border: 'none', background: 'rgba(255,255,255,0.15)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}
+                            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                        >
+                            <RefreshCw size={15} />
+                        </button>
+                    </div>
                 }
             />
 
             <SectionDivider title="Gym Health Section" sub="Real-time overview of your business" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 30 }}>
+            <div className="metric-grid">
                 {Array.from({ length: 8 }).map((_, i) => {
                     const titles = ['Total Members', 'Monthly Revenue', 'Store Sales', 'Today Check-ins', 'Net Profit (Store)', 'New Leads', 'Today\'s Classes', 'Pending Approvals'];
                     const trends = ['LIVE', 'THIS MONTH', 'MONTHLY', 'TODAY', 'MONTHLY', 'THIS MONTH', 'SCHEDULED', 'REVIEW PENDING'];
@@ -251,8 +326,6 @@ const BranchManagerDashboard = () => {
                     const colors = [T.accent, T.green, T.amber, T.blue, T.green, T.accent, T.amber, T.rose];
                     const bgs = [T.accentLight, T.greenLight, T.amberLight, T.blueLight, T.greenLight, T.accentLight, T.amberLight, T.roseLight];
                     
-                    // Priority: If API provides a stat at this index or with this title, use it.
-                    // Otherwise, use a default placeholder.
                     const s = stats[i] || {};
                     const title = s.title || titles[i];
                     const value = s.value || '0';
@@ -274,7 +347,7 @@ const BranchManagerDashboard = () => {
 
             <div style={{ background: T.surface, borderRadius: 24, padding: '24px 28px', border: `1px solid ${T.border}`, marginBottom: 32 }} className="fu fu2">
                 <SectionDivider title="OPERATIONAL TASK PERFORMANCE" sub="REAL-TIME TASK LIFECYCLE TRACKING" />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 20 }}>
+                <div className="task-grid">
                     {[
                         { label: 'PENDING', val: extraStats.taskStats.pending, color: T.blue },
                         { label: 'IN PROGRESS', val: extraStats.taskStats.inProgress, color: T.amber },
@@ -290,18 +363,18 @@ const BranchManagerDashboard = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
-                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+            <div className="chart-grid">
+                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', width: '100%', overflowX: 'auto' }}>
                     <SectionDivider title="Revenue Overview" sub="Monthly Tracking (Last 6 Months)" />
-                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10 }}>
+                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10, minWidth: 400 }}>
                         {(revenueOverview.length > 0 ? revenueOverview : [{month:'Nov',value:0},{month:'Dec',value:0},{month:'Jan',value:0},{month:'Feb',value:0},{month:'Mar',value:0},{month:'Apr',value:0}]).map((r, i) => (
                             <ChartBar key={i} label={r.month} value={r.value} max={Math.max(...revenueOverview.map(x => x.value), 100)} color={T.accent} isCurrency />
                         ))}
                     </div>
                 </div>
-                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                <div className="fu fu3" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', width: '100%', overflowX: 'auto' }}>
                     <SectionDivider title="Weekly Footfall" sub="Check-in Activity (Last 7 Days)" />
-                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10 }}>
+                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 14, marginTop: 20, paddingBottom: 10, minWidth: 400 }}>
                         {(weeklyAttendance.length > 0 ? weeklyAttendance : [{day:'Wed',count:0},{day:'Thu',count:0},{day:'Fri',count:0},{day:'Sat',count:0},{day:'Sun',count:0},{day:'Mon',count:2},{day:'Tue',count:0}]).map((a, i) => (
                             <ChartBar key={i} label={a.day} value={a.count} max={Math.max(...weeklyAttendance.map(x => x.count), 5)} color={T.green} />
                         ))}
@@ -309,7 +382,7 @@ const BranchManagerDashboard = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+            <div className="widgets-grid">
                 <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
                     <SectionDivider title="Live Occupancy" sub="Real-time Status" />
                     <div style={{ position: 'relative', width: 140, height: 140, margin: '24px 0' }}>
@@ -329,33 +402,33 @@ const BranchManagerDashboard = () => {
                     <TodayFollowUpsWidget />
                 </div>
 
-                <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                <div className="fu fu4" style={{ background: T.surface, borderRadius: 24, padding: 28, border: `1px solid ${T.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', width: '100%', overflowX: 'auto' }}>
                     <SectionDivider title="Check-ins by Hour" sub="Daily Traffic Flow" />
-                <div style={{ background: T.bg, borderRadius: 16, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 20, padding: 20 }}>
-                    {checkInsByHour.reduce((acc, h) => acc + h.count, 0) > 0 ? (
-                        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, width: '100%', height: '100%' }}>
-                            {checkInsByHour.map((h, i) => {
-                                const maxVal = Math.max(...checkInsByHour.map(x => x.count), 5);
-                                const height = (h.count / maxVal) * 100;
-                                return (
-                                    <div key={i} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', gap: 4 }}>
-                                        <div style={{ width: '60%', height: `${Math.max(height, 5)}%`, background: h.count > 0 ? T.accent : T.subtle + '30', borderRadius: '4px 4px 0 0', transition: 'height 0.8s ease' }}></div>
-                                        <span style={{ fontSize: 8, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{h.hour % 4 === 0 ? h.label : ''}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div style={{ textAlign: 'center' }}>
-                            <ActivityIcon size={32} color={T.subtle} style={{ marginBottom: 12, opacity: 0.3 }} />
-                            <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, fontStyle: 'italic', margin: 0 }}>Traffic flow will appear here as members check-in</p>
-                        </div>
-                    )}
-                </div>
+                    <div style={{ background: T.bg, borderRadius: 16, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 20, padding: 20, minWidth: 350 }}>
+                        {checkInsByHour.reduce((acc, h) => acc + h.count, 0) > 0 ? (
+                            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, width: '100%', height: '100%' }}>
+                                {checkInsByHour.map((h, i) => {
+                                    const maxVal = Math.max(...checkInsByHour.map(x => x.count), 5);
+                                    const height = (h.count / maxVal) * 100;
+                                    return (
+                                        <div key={i} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', gap: 4 }}>
+                                            <div style={{ width: '60%', height: `${Math.max(height, 5)}%`, background: h.count > 0 ? T.accent : T.subtle + '30', borderRadius: '4px 4px 0 0', transition: 'height 0.8s ease' }}></div>
+                                            <span style={{ fontSize: 8, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>{h.hour % 4 === 0 ? h.label : ''}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center' }}>
+                                <ActivityIcon size={32} color={T.subtle} style={{ marginBottom: 12, opacity: 0.3 }} />
+                                <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, fontStyle: 'italic', margin: 0 }}>Traffic flow will appear here as members check-in</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 24, alignItems: 'start' }}>
+            <div className="footer-grid">
                 <div className="fu fu4">
                     <SectionDivider title="Entrance HQ" sub="Recent Member Access Logs" />
                     <div style={{ background: T.surface, borderRadius: 20, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>

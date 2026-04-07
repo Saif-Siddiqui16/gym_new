@@ -86,17 +86,52 @@ const ManagerDashboard = () => {
     if (loading) return <Loader message="Accessing manager intelligence..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: S.ff }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                * { box-sizing: border-box; }
                 @keyframes fadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
                 .fu { animation: fadeUp 0.38s ease both }
                 .fu1 { animation-delay: .05s } .fu2 { animation-delay: .1s } .fu3 { animation-delay: .15s }
                 .card-h:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(124,92,252,0.12) !important; }
+
+                .revenue-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                }
+
+                .main-dashboard-grid {
+                    display: grid;
+                    grid-template-columns: 1.8fr 1fr;
+                    gap: 24px;
+                    align-items: start;
+                }
+
+                @media (max-width: 1200px) {
+                    .revenue-grid { grid-template-columns: repeat(2, 1fr); }
+                    .main-dashboard-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-header {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 20px;
+                        padding: 24px !important;
+                    }
+                    .dashboard-header-btn { width: 100%; justify-content: center; }
+                    .revenue-grid { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .task-grid-mobile { flex-direction: column; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
-            <div className="fu fu1" style={{
+            <div className="fu fu1 dashboard-header" style={{
                 background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
                 borderRadius: 22, padding: '24px 30px', boxShadow: '0 8px 32px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28
@@ -104,7 +139,8 @@ const ManagerDashboard = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                     <div style={{
                         width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0
                     }}>
                         <Sparkles size={28} color="white" />
                     </div>
@@ -113,7 +149,7 @@ const ManagerDashboard = () => {
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0, fontWeight: 500 }}>Daily branch performance and operations</p>
                     </div>
                 </div>
-                <button onClick={() => window.location.reload()} style={{
+                <button className="dashboard-header-btn" onClick={() => window.location.reload()} style={{
                     background: 'white', border: 'none', borderRadius: 12, padding: '10px 20px',
                     color: T.accent, fontWeight: 800, fontSize: 13, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
@@ -129,7 +165,7 @@ const ManagerDashboard = () => {
                     <h3 style={{ fontSize: 14, fontWeight: 800, color: T.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Revenue Protection Today</h3>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                <div className="revenue-grid">
                     <div className="card-h" style={{ ...S.card, cursor: 'pointer' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 15 }}>
                             <div style={{ ...S.iconBox, background: T.greenLight, color: T.green }}><IndianRupee size={20} /></div>
@@ -183,58 +219,56 @@ const ManagerDashboard = () => {
                 ))}
             </div>
 
-            {/* AIOT & FACILITY */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
-                <div className="card-h" style={S.card}><SmartAIoTSummary /></div>
-                <div className="card-h" style={S.card}><FacilityStatusOverview equipmentStats={data.equipmentStats} /></div>
-            </div>
-
-            {/* CLASSES & TASKS */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-                {/* CLASSES */}
-                <div className="card-h" style={S.card}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <Dumbbell size={20} color={T.accent} />
-                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Today's Classes</h3>
+            {/* AIOT & FACILITY & MORE */}
+            <div className="main-dashboard-grid fu fu3">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div className="card-h" style={S.card}><SmartAIoTSummary /></div>
+                    
+                    <div className="card-h" style={S.card}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <Dumbbell size={20} color={T.accent} />
+                                <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Today's Classes</h3>
+                            </div>
+                            <button onClick={() => navigate('/classes')} style={{ background: 'none', border: 'none', color: T.accent, fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                View Schedule <ArrowRight size={14} />
+                            </button>
                         </div>
-                        <button onClick={() => navigate('/classes')} style={{ background: 'none', border: 'none', color: T.accent, fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                            View Schedule <ArrowRight size={14} />
-                        </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {data.attendance.length > 0 ? data.attendance.map((cls, i) => (
-                           <div key={i} style={{ background: T.bg, padding: 16, borderRadius: 16 }}>
-                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                                   <span style={{ fontWeight: 800, fontSize: 14, color: T.text }}>{cls.name}</span>
-                                   <span style={{ fontSize: 12, color: T.muted }}>{cls.time}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {data.attendance.length > 0 ? data.attendance.map((cls, i) => (
+                               <div key={i} style={{ background: T.bg, padding: 16, borderRadius: 16 }}>
+                                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                       <span style={{ fontWeight: 800, fontSize: 14, color: T.text }}>{cls.name}</span>
+                                       <span style={{ fontSize: 12, color: T.muted }}>{cls.time}</span>
+                                   </div>
+                                   <div style={{ fontSize: 12, color: T.subtle }}>Members enrolled: {cls.count || 0}</div>
                                </div>
-                               <div style={{ height: 6, background: T.surface, borderRadius: 10, overflow: 'hidden' }}>
-                                   <div style={{ height: '100%', background: T.accent, width: `${(cls.attendees/cls.capacity)*100}%` }}></div>
-                               </div>
-                               <div style={{ marginTop: 6, fontSize: 11, fontWeight: 700, color: T.muted }}>{cls.attendees} / {cls.capacity} Attendees</div>
-                           </div>
-                        )) : <div style={{ textAlign: 'center', padding: 20, color: T.muted, fontSize: 13 }}>No classes scheduled today</div>}
+                            )) : (
+                                <div style={{ textAlign: 'center', padding: '20px 0', color: T.subtle, fontSize: 12, fontWeight: 700 }}>No classes today</div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* TASKS */}
-                <div className="card-h" style={S.card}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <Bell size={20} color={T.rose} />
-                            <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Tasks & Notices</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div className="card-h" style={S.card}><FacilityStatusOverview equipmentStats={data.equipmentStats} /></div>
+                    
+                    <div className="card-h" style={S.card}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.border}` }}>
+                             <Bell size={20} color={T.rose} />
+                             <h3 style={{ fontSize: 16, fontWeight: 900, color: T.text, margin: 0 }}>Recent Intelligence</h3>
                         </div>
-                        <span style={{ background: T.roseLight, color: T.rose, padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 800 }}>{data.tasksAndNotices.length} Pending</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {data.tasksAndNotices.length > 0 ? data.tasksAndNotices.map((task, i) => (
-                            <div key={i} style={{ background: T.bg, padding: 16, borderRadius: 16, borderLeft: `4px solid ${task.type === 'urgent' ? T.rose : T.accent}` }}>
-                                <div style={{ fontWeight: 800, fontSize: 14, color: T.text }}>{task.title}</div>
-                                <div style={{ fontSize: 12, color: T.muted, marginTop: 4 }}>{task.description}</div>
-                                <div style={{ marginTop: 8, fontSize: 11, fontWeight: 700, color: T.accent }}>Due: {task.dueDate}</div>
-                            </div>
-                        )) : <div style={{ textAlign: 'center', padding: 20, color: T.muted, fontSize: 13 }}>No pending tasks</div>}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {data.tasksAndNotices.slice(0, 3).map((task, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'start', gap: 12, padding: '12px', background: T.bg, borderRadius: 12 }}>
+                                    <Zap size={14} color={T.accent} style={{ marginTop: 2 }} />
+                                    <div>
+                                        <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{task.title}</div>
+                                        <div style={{ fontSize: 11, color: T.subtle, marginTop: 2 }}>{task.time || 'Review required'}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

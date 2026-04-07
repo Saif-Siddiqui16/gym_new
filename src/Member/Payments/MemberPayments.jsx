@@ -128,13 +128,35 @@ const MemberPayments = () => {
     if (loading) return <Loader message="Securely fetching your invoices..." />;
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 60px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 .animate-fadeIn { animation: fadeUp 0.4s ease both; }
                 .animate-spin { animation: spin 1s linear infinite; }
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+                .stats-grid { display: flex; gap: 24px; }
+                .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+                @media (max-width: 1200px) {
+                    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner { flex-direction: column; align-items: flex-start !important; gap: 20px; padding: 24px !important; }
+                    .header-banner-badge { width: 100%; justify-content: center; }
+                    .stats-grid { grid-template-columns: 1fr; }
+                    .modal-payment-actions { grid-template-columns: 1fr !important; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .banner-title { font-size: 20px !important; }
+                    .premium-card { padding: 20px !important; }
+                    .action-btns { flex-direction: column; width: 100%; }
+                    .action-btns button { width: 100%; justify-content: center; }
+                }
             `}</style>
 
             {/* HEADER BANNER */}
@@ -144,7 +166,7 @@ const MemberPayments = () => {
                 boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 marginBottom: 32, position: 'relative', overflow: 'hidden'
-            }} className="animate-fadeIn">
+            }} className="animate-fadeIn header-banner">
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
                     <div style={{
@@ -155,11 +177,11 @@ const MemberPayments = () => {
                         <Receipt size={28} color="#fff" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Invoices</h1>
+                        <h1 className="banner-title" style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.8px' }}>My Invoices</h1>
                         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.92)', margin: 0, fontWeight: 600 }}>Manage subscriptions, billing and transaction history</p>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>
+                <div className="header-banner-badge" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.12)', padding: '10px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.2)', color: '#fff', position: 'relative', zIndex: 2 }}>
                     <CreditCard size={18} strokeWidth={2.5} />
                     <span style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>Secure Billing Portal</span>
                 </div>
@@ -168,7 +190,7 @@ const MemberPayments = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
 
                 {/* STATS ROW */}
-                <div style={{ display: 'flex', gap: 24 }}>
+                <div className="stats-grid">
                     <MetricCard title="Pending Amount" value={`₹${pendingAmount.toLocaleString()}`} icon={IndianRupee} color={T.rose} bg={T.roseLight} subtitle="Awaiting Settlement" index={0} />
                     <MetricCard title="Open Invoices" value={pendingCount} icon={Clock} color={T.amber} bg={T.amberLight} subtitle="Action Required" index={1} />
                     <MetricCard title="Settled Bills" value={paidCount} icon={CheckCircle} color={T.green} bg={T.greenLight} subtitle="Payment History" index={2} />
@@ -176,15 +198,15 @@ const MemberPayments = () => {
                 </div>
 
                 {/* INVOICES SECTION */}
-                <PremiumCard index={4}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+                <PremiumCard index={4} className="premium-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }} className="header-action-row">
                         <SectionHeader icon={Receipt} title="Recent Billing" subtitle="Full transaction history" />
                         <div style={{ padding: '8px 16px', borderRadius: 12, background: T.bg, color: T.accent, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Logs: {invoices.length}</div>
                     </div>
 
                     {invoices.length > 0 ? (
-                        <div style={{ overflowX: 'auto' }}>
-                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <div className="table-container">
+                             <table style={{ minWidth: '800px', width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ textAlign: 'left', borderBottom: `2px solid ${T.bg}` }}>
                                         <th style={{ padding: '16px 24px', fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Service Details</th>
@@ -217,7 +239,7 @@ const MemberPayments = () => {
                                             </td>
                                             <td style={{ padding: '24px', fontSize: 18, fontWeight: 900, color: T.text, textAlign: 'right' }}>₹{Number(inv.amount).toLocaleString()}</td>
                                             <td style={{ padding: '24px', textAlign: 'right' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }} className="action-btns">
                                                     <button onClick={() => handleDownloadInvoice(inv)} style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${T.border}`, background: '#fff', color: T.subtle, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowDownToLine size={20} /></button>
                                                     {inv.status !== 'Paid' ? (
                                                         <button onClick={() => handleOpenPaymentGateway(inv)} style={{ padding: '0 24px', height: 44, background: T.accent, color: '#fff', borderRadius: 12, border: 'none', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 16px rgba(124,92,252,0.2)' }}>Pay Now</button>

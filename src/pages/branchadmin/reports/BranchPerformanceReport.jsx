@@ -37,14 +37,14 @@ const T = {
    SUB-COMPONENTS
    ───────────────────────────────────────────────────────────────────────────── */
 
-const HeaderBanner = ({ title, sub, icon: Icon, actions }) => (
+const HeaderBanner = ({ title, sub, icon: Icon, actions, className }) => (
     <div style={{
         background: 'linear-gradient(135deg, #7C5CFC 0%, #9B7BFF 55%, #C084FC 100%)',
         borderRadius: 24, padding: '24px 32px',
         boxShadow: '0 12px 40px rgba(124,92,252,0.22)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: 32, position: 'relative', overflow: 'hidden'
-    }} className="fu fu1">
+    }} className={`fu fu1 ${className}`}>
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 24, position: 'relative', zIndex: 2 }}>
             <div style={{
@@ -199,40 +199,95 @@ const BranchPerformanceReport = () => {
     );
 
     return (
-        <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="dashboard-container" style={{ background: T.bg, minHeight: '100vh', padding: '28px 28px 48px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; }
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 .fu { animation: fadeUp 0.4s ease both; }
                 .fu1 { animation-delay: .05s; } .fu2 { animation-delay: .1s; } .fu3 { animation-delay: .15s; } .fu4 { animation-delay: .2s; }
-                .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-                .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
-                .grid-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
-                .table-grid { display: grid; grid-template-columns: 120px 1fr 1fr 1fr 120px; align-items: center; padding: 14px 20px; border-bottom: 1px solid ${T.border}; }
-                .group-bar:hover .bar-tip { opacity: 1; transform: translateX(-50%) translateY(-2px); }
-                @media (max-width: 1280px) { .grid-4, .grid-row { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: 1fr; } }
-                @media (max-width: 640px) { .grid-4, .grid-row { grid-template-columns: 1fr; } .table-grid { grid-template-columns: 1fr; gap: 8px; } }
-            `}</style>
+                
+                .grid-4 { 
+                    display: grid; 
+                    grid-template-columns: repeat(4, 1fr); 
+                    gap: 20px; 
+                    margin-bottom: 24px; 
+                }
+                
+                .grid-3 { 
+                    display: grid; 
+                    grid-template-columns: 2.2fr 0.8fr; 
+                    gap: 24px; 
+                    margin-bottom: 24px; 
+                }
+                
+                .grid-row { 
+                    display: grid; 
+                    grid-template-columns: repeat(3, 1fr); 
+                    gap: 24px; 
+                    margin-bottom: 24px; 
+                }
 
-            {/* ── HEADER ── */}
+                @media (max-width: 1400px) {
+                    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+                    .grid-row { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 1100px) {
+                    .grid-3 { grid-template-columns: 1fr; }
+                    .grid-row { grid-template-columns: repeat(2, 1fr); }
+                }
+
+                @media (max-width: 768px) {
+                    .header-banner {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 24px;
+                        padding: 24px !important;
+                    }
+                    .header-banner-actions {
+                        width: 100%;
+                    }
+                    .header-banner-btn {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+                    .grid-row { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 480px) {
+                    .dashboard-container { padding: 16px 16px 40px !important; }
+                    .grid-4 { grid-template-columns: 1fr; }
+                    .earning-summary-grid { grid-template-columns: 1fr !important; }
+                    .order-header { flex-direction: column; align-items: flex-start !important; }
+                    .tab-container { width: 100%; overflow-x: auto; padding-bottom: 4px; }
+                }
+
+                .group-bar:hover .bar-tip { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+            `}</style>
+            
             <HeaderBanner 
+                className="header-banner"
                 title={pageTitle} 
                 sub={`Complete performance insights for ${activeBranch?.branchName || 'this branch'}`} 
                 icon={BarChart3} 
                 actions={
-                    <button 
-                        onClick={handleExport}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: 10, px: '20px', height: 42,
-                            background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 12,
-                            color: '#fff', fontSize: 11, fontWeight: 900, cursor: 'pointer', transition: '0.2s', padding: '0 20px'
-                        }}
-                        onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-                        onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                    >
-                        <Download size={16} /> EXPORT AS PDF
-                    </button>
+                    <div className="header-banner-actions" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button 
+                            className="header-banner-btn"
+                            onClick={handleExport}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 10, px: '20px', height: 42,
+                                background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 12,
+                                color: '#fff', fontSize: 11, fontWeight: 900, cursor: 'pointer', transition: '0.2s', padding: '0 20px'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                        >
+                            <Download size={16} /> EXPORT AS PDF
+                        </button>
+                    </div>
                 }
             />
 
@@ -248,12 +303,12 @@ const BranchPerformanceReport = () => {
             <div className="grid-3 fu fu3">
                 <div style={{ background: T.surface, padding: 30, borderRadius: 24, border: `1px solid ${T.border}` }}>
                     <SectionDivider title="Earning Reports" sub="Total Revenue & Store Profit (Last 12m)" />
-                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 12, paddingBottom: 10, marginTop: 40 }}>
+                    <div style={{ height: 220, display: 'flex', alignItems: 'end', gap: 12, paddingBottom: 10, marginTop: 40, width: '100%', overflowX: 'auto' }}>
                         {earningsData.months.map((m, i) => (
                             <ChartBar key={i} label={m} value={earningsData.revenue[i]} max={Math.max(...earningsData.revenue, 1)} color={T.accent} isCurrency={true} />
                         ))}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 30 }}>
+                    <div className="earning-summary-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 30 }}>
                         {[
                             { label: 'Earnings', val: `₹${(earningsData.totalIncome/1000).toFixed(1)}k`, color: T.accent, bg: T.accentLight },
                             { label: 'Profit', val: `₹${((earningsData.totalIncome - earningsData.totalExpenses)/1000).toFixed(1)}k`, color: T.green, bg: T.greenLight },
@@ -347,44 +402,46 @@ const BranchPerformanceReport = () => {
 
             {/* ── STORE ORDERS TABLE ── */}
             <div style={{ background: T.surface, borderRadius: 24, border: `1px solid ${T.border}`, overflow: 'hidden', marginBottom: 24 }} className="fu fu4">
-                <div style={{ padding: '24px 30px', borderBottom: `1px solid ${T.border}`, background: T.bg, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
+                <div className="order-header" style={{ padding: '24px 30px', borderBottom: `1px solid ${T.border}`, background: T.bg, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
                     <div>
                         <SectionDivider title="Recent Store Orders" sub="POS & store sales overview" />
                     </div>
-                    <div style={{ display: 'flex', gap: 8, background: '#fff', padding: 5, borderRadius: 14, border: `1px solid ${T.border}` }}>
+                    <div className="tab-container" style={{ display: 'flex', gap: 8, background: '#fff', padding: 5, borderRadius: 14, border: `1px solid ${T.border}`, flexShrink: 0 }}>
                         {['New', 'Processing', 'Completed'].map(t => (
                             <button 
                                 key={t} onClick={() => setActiveOrderTab(t)}
                                 style={{
                                     border: 'none', padding: '8px 16px', borderRadius: 10, fontSize: 10, fontWeight: 900, cursor: 'pointer',
                                     background: activeOrderTab === t ? T.accent : 'transparent',
-                                    color: activeOrderTab === t ? '#fff' : T.muted, transition: '0.2s'
+                                    color: activeOrderTab === t ? '#fff' : T.muted, transition: '0.2s', whiteSpace: 'nowrap'
                                 }}
                             >{t.toUpperCase()}</button>
                         ))}
                     </div>
                 </div>
-                <div style={{ minWidth: 800 }}>
-                    <div style={{ background: T.bg, padding: '12px 20px', borderBottom: `1px solid ${T.border}`, display: 'grid', gridTemplateColumns: '120px 1fr 1fr 1fr 120px' }}>
-                        {['Order ID', 'Date', 'Items', 'Total', 'Status'].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</span>)}
-                    </div>
-                    {recentOrders.filter(o => o.status === activeOrderTab).length > 0 ? recentOrders.filter(o => o.status === activeOrderTab).map((order, i) => (
-                        <div key={order.id} className="table-grid">
-                            <span style={{ fontSize: 12, fontWeight: 900, color: T.text }}>#ORD-{order.id}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{order.date}</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{order.itemsCount} Items</span>
-                            <span style={{ fontSize: 13, fontWeight: 900, color: T.text }}>₹{Number(order.total).toLocaleString()}</span>
-                            <div>
-                                <span style={{
-                                    padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 900, textTransform: 'uppercase',
-                                    background: order.status === 'Completed' ? T.greenLight : T.amberLight,
-                                    color: order.status === 'Completed' ? T.green : T.amber
-                                }}>{order.status}</span>
-                            </div>
+                <div style={{ width: '100%', overflowX: 'auto' }}>
+                    <div style={{ minWidth: 800 }}>
+                        <div style={{ background: T.bg, padding: '12px 20px', borderBottom: `1px solid ${T.border}`, display: 'grid', gridTemplateColumns: '120px 1fr 1fr 1fr 120px' }}>
+                            {['Order ID', 'Date', 'Items', 'Total', 'Status'].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 900, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</span>)}
                         </div>
-                    )) : (
-                        <div style={{ padding: 60, textAlign: 'center', color: T.subtle }}>No {activeOrderTab.toLowerCase()} orders found</div>
-                    )}
+                        {recentOrders.filter(o => o.status === activeOrderTab).length > 0 ? recentOrders.filter(o => o.status === activeOrderTab).map((order, i) => (
+                            <div key={order.id} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 1fr 120px', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${T.border}` }}>
+                                <span style={{ fontSize: 12, fontWeight: 900, color: T.text }}>#ORD-{order.id}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{order.date}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: T.muted }}>{order.itemsCount} Items</span>
+                                <span style={{ fontSize: 13, fontWeight: 900, color: T.text }}>₹{Number(order.total).toLocaleString()}</span>
+                                <div>
+                                    <span style={{
+                                        padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 900, textTransform: 'uppercase',
+                                        background: order.status === 'Completed' ? T.greenLight : T.amberLight,
+                                        color: order.status === 'Completed' ? T.green : T.amber
+                                    }}>{order.status}</span>
+                                </div>
+                            </div>
+                        )) : (
+                            <div style={{ padding: 60, textAlign: 'center', color: T.subtle }}>No {activeOrderTab.toLowerCase()} orders found</div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -393,7 +450,7 @@ const BranchPerformanceReport = () => {
                 {/* Membership Growth */}
                 <div style={{ background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}` }}>
                     <SectionDivider title="Membership Growth" sub="New members per month" />
-                    <div style={{ height: 160, display: 'flex', alignItems: 'end', gap: 6, paddingBottom: 10, marginTop: 30 }}>
+                    <div style={{ height: 160, display: 'flex', alignItems: 'end', gap: 6, paddingBottom: 10, marginTop: 30, width: '100%', overflowX: 'auto' }}>
                         {membershipGrowth.labels.map((l, i) => (
                             <ChartBar key={i} label={l} value={membershipGrowth.values[i]} max={Math.max(...membershipGrowth.values, 1)} color={T.blue} />
                         ))}
@@ -404,7 +461,7 @@ const BranchPerformanceReport = () => {
                 <div style={{ background: T.surface, padding: 24, borderRadius: 24, border: `1px solid ${T.border}` }}>
                     <SectionDivider title="Revenue by Plan" sub="Top performing membership plans" />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 24 }}>
-                        {revenueByPlan.map((p, i) => (
+                        {revenueByPlan.slice(0, 4).map((p, i) => (
                             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: T.greenLight, borderRadius: 16, border: `1px solid ${T.green}20` }}>
                                 <span style={{ fontSize: 12, fontWeight: 900, color: T.text }}>{p.name}</span>
                                 <span style={{ fontSize: 13, fontWeight: 900, color: T.green }}>₹{(p.value / 1000).toFixed(1)}k</span>
@@ -414,13 +471,13 @@ const BranchPerformanceReport = () => {
                 </div>
 
                 {/* System Efficiency / Summary */}
-                <div style={{ background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, padding: 24, borderRadius: 24, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`, padding: 24, borderRadius: 24, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 220 }}>
                     <div>
                         <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.3)', borderRadius: 2, marginBottom: 12 }} />
                         <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>Operations Matrix</h3>
                         <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: 4 }}>System intelligence report completed for {activeBranch?.branchName}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '12px 0' }}>
                         <Zap size={24} color="#fff" />
                         <div>
                             <div style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>98.4%</div>

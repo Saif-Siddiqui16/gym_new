@@ -201,9 +201,28 @@ const MemberWallet = () => {
     });
 
     return (
-        <div className=" bg-gray-50 min-h-screen font-sans">
+        <div className="bg-gray-50 min-h-screen font-sans dashboard-wallet-container" style={{ padding: '28px 28px 60px' }}>
+             <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+                
+                @media (max-width: 768px) {
+                    .dashboard-wallet-container { padding: 16px 16px 40px !important; }
+                    .header-wallet-row { flex-direction: column; align-items: flex-start !important; gap: 20px !important; }
+                    .header-wallet-row button { width: 100%; justify-content: center; }
+                    .stats-grid-row { display: grid; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+                    .balance-card-header h2 { font-size: 32px !important; }
+                    .transaction-tabs-row { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+                    .transaction-tabs-row::-webkit-scrollbar { display: none; }
+                }
+
+                @media (max-width: 480px) {
+                    .stats-grid-row { grid-template-columns: 1fr !important; }
+                    .redeem-card { flex-direction: column; align-items: flex-start !important; }
+                    .redeem-card button { width: 100%; justify-content: center; }
+                }
+            `}</style>
             <div className="max-w-full mx-auto space-y-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 header-wallet-row">
                     <div>
                         <h1 className="text-3xl font-black text-gray-900 tracking-tight">Benefit Wallet</h1>
                         <p className="text-gray-500 font-medium mt-1">Manage your credits, rewards, and transaction history.</p>
@@ -219,32 +238,32 @@ const MemberWallet = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Balance Card */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800  rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-800  rounded-[32px] md:rounded-[40px] text-white shadow-2xl relative overflow-hidden p-8 md:p-10">
                             <div className="relative z-10 space-y-8">
                                 <div className="flex justify-between items-center">
                                     <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                                        <Wallet size={24} className="text-violet-300" />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Balance</span>
-                                </div>
-                                <div>
-                                    <h2 className="text-5xl font-black tracking-tight flex items-baseline gap-1">
-                                        <span className="text-2xl text-violet-400 font-bold">₹</span> {walletBalance.toLocaleString()}
-                                    </h2>
-                                    <p className="text-slate-400 text-xs font-bold mt-2 flex items-center gap-1">
-                                        <Plus size={14} className="text-green-400" /> ₹{addedThisMonth.toLocaleString()} added this month
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-4 pt-4">
-                                    <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500">Loyalty Pts</p>
-                                        <p className="text-lg font-black text-violet-300">{loyaltyPts}</p>
-                                    </div>
-                                    <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500">Credits</p>
-                                        <p className="text-lg font-black text-violet-300">{classCredits}</p>
-                                    </div>
-                                </div>
+                                         <Wallet size={24} className="text-violet-300" />
+                                     </div>
+                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Balance</span>
+                                 </div>
+                                 <div className="balance-card-header">
+                                     <h2 className="text-5xl font-black tracking-tight flex items-baseline gap-1">
+                                         <span className="text-2xl text-violet-400 font-bold">₹</span> {walletBalance.toLocaleString()}
+                                     </h2>
+                                     <p className="text-slate-400 text-xs font-bold mt-2 flex items-center gap-1">
+                                         <Plus size={14} className="text-green-400" /> ₹{addedThisMonth.toLocaleString()} added this month
+                                     </p>
+                                 </div>
+                                 <div className="flex items-center gap-4 pt-4 stats-grid-row">
+                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
+                                         <p className="text-[10px] uppercase font-bold text-slate-500">Loyalty Pts</p>
+                                         <p className="text-lg font-black text-violet-300">{loyaltyPts}</p>
+                                     </div>
+                                     <div className="flex-1 p-3 bg-white/5 rounded-2xl border border-white/10 text-center">
+                                         <p className="text-[10px] uppercase font-bold text-slate-500">Credits</p>
+                                         <p className="text-lg font-black text-violet-300">{classCredits}</p>
+                                     </div>
+                                 </div>
                             </div>
                             {/* Abstract background blobs */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
