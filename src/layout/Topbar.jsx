@@ -463,7 +463,7 @@ const Topbar = ({ collapsed, setCollapsed, title = 'Dashboard', role }) => {
                                 ...(dropdownOpen ? { borderColor: T.accent, boxShadow: `0 0 0 3px ${T.accentLight}` } : {})
                             }}
                         >
-                            {user?.avatar && user.avatar.length > 1 ? (
+                            {user?.avatar && (user.avatar.includes('/') || user.avatar.includes('http')) ? (
                                 <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : user?.logo ? (
                                 <img src={user.logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -504,8 +504,12 @@ const Topbar = ({ collapsed, setCollapsed, title = 'Dashboard', role }) => {
                                     onMouseEnter={e => { e.currentTarget.style.background = T.accentLight; e.currentTarget.style.color = T.accent; }}
                                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = T.text; }}
                                 >
-                                    <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                        <UserCircle size={15} color={T.accent} />
+                                    <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                                         {user?.avatar && (user.avatar.includes('/') || user.avatar.includes('http')) ? (
+                                             <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                         ) : (
+                                             <UserCircle size={15} color={T.accent} />
+                                         )}
                                     </div>
                                     <span>My Profile</span>
                                 </button>

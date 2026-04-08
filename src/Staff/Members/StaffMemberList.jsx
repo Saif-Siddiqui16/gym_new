@@ -5,7 +5,7 @@ import {
     Clock, Camera, Loader, RefreshCw, Eye, MoreHorizontal,
     Building, Phone, Mail, Calendar, CreditCard,
     ChevronLeft, ChevronRight, ArrowUpCircle, Shield, LucideLayout, MapPin,
-    ArrowRight, Play, X, Loader2
+    ArrowRight, Play, X, Loader2, Save, Sparkles, ArrowRightLeft, History
 } from 'lucide-react';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -84,15 +84,82 @@ const StaffMemberList = () => {
     const [saving, setSaving] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [profileActiveTab, setProfileActiveTab] = useState('Overview');
+    const fileInputRef = React.useRef(null);
+
+    const [plans, setPlans] = useState([]);
+    const [trainers, setTrainers] = useState([]);
+    const [amenities, setAmenities] = useState([]);
+    
+    const [isVerifyingReferral, setIsVerifyingReferral] = useState(false);
+    const [referralVerified, setReferralVerified] = useState(false);
     
     const EMPTY_FORM = {
-        name: '', email: '', phone: '', gender: '', dob: '', source: 'Walk-in',
+        name: '', email: '', phone: '', gender: 'Male', dob: '', source: 'Walk-in',
         referralCode: '', idType: '', idNumber: '', address: '',
-        emergencyName: '', emergencyPhone: '', fitnessGoal: '', healthConditions: ''
+        emergencyName: '', emergencyPhone: '', fitnessGoal: '', healthConditions: '',
+        planId: '', trainerId: '', startDate: new Date().toISOString().split('T')[0],
+        benefits: [], avatar: null, duration: 1
     };
+
     const [newMemberData, setNewMemberData] = useState(EMPTY_FORM);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // Membership Transfer State
+    const [isTransferDrawerOpen, setIsTransferDrawerOpen] = useState(false);
+    const [transferTargetMember, setTransferTargetMember] = useState(null);
+    const [transferQuery, setTransferQuery] = useState('');
+    const [transferResults, setTransferResults] = useState([]);
+    const [isSearchingTarget, setIsSearchingTarget] = useState(false);
+    const [branches, setBranches] = useState([]);
+    const [transferToBranchId, setTransferToBranchId] = useState('');
+    const [transferNotes, setTransferNotes] = useState('');
+    const [isTransferring, setIsTransferring] = useState(false);
+
+
+    const handleBenefitToggle = (id) => {
+        setNewMemberData(prev => ({
+            ...prev,
+            benefits: prev.benefits.includes(id) 
+                ? prev.benefits.filter(b => b !== id)
+                : [...prev.benefits, id]
+        }));
+    };
+
+    const handleVerifyReferral = async () => {
+        if (!newMemberData.referralCode) {
+            toast.error("Please enter a referral code to verify");
+            return;
+        }
+        setIsVerifyingReferral(true);
+        try {
+            // Updated to use the correct API endpoint for referral verification
+            const res = await apiClient.get(`/referrals/verify/${newMemberData.referralCode}`);
+            if (res.data?.valid) {
+                setReferralVerified(true);
+                toast.success(`Code verified! Referrer: ${res.data.referrerName}`);
+            } else {
+                setReferralVerified(false);
+                toast.error("Invalid or inactive referral code");
+            }
+        } catch (error) {
+            setReferralVerified(false);
+            toast.error(error?.response?.data?.message || "Failed to verify referral code");
+        } finally {
+            setIsVerifyingReferral(false);
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewMemberData(prev => ({ ...prev, avatar: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const fetchMembers = useCallback(async () => {
         try {
@@ -115,8 +182,27 @@ const StaffMemberList = () => {
         }
     }, []);
 
+    const loadExtraData = async () => {
+        try {
+            const [plansRes, amenitiesRes, staffRes, gymsRes] = await Promise.all([
+                apiClient.get('/admin/plans'),
+                apiClient.get('/amenities'),
+                apiClient.get('/admin/staff'),
+                apiClient.get('/superadmin/gyms').catch(() => ({ data: [] }))
+            ]);
+            setPlans(plansRes.data);
+            setAmenities(amenitiesRes.data);
+            setTrainers(staffRes.data.filter(s => s.role === 'TRAINER'));
+            setBranches(gymsRes.data || []);
+        } catch (err) {
+            console.error('Failed to load extra data', err);
+        }
+    };
+
+
     useEffect(() => {
         fetchMembers();
+        loadExtraData();
     }, [fetchMembers]);
 
     const stats = {
@@ -157,6 +243,10 @@ const StaffMemberList = () => {
             toast.error('Name, email and phone are required');
             return;
         }
+        if (!newMemberData.planId) {
+            toast.error('Please select a membership plan');
+            return;
+        }
         try {
             setSaving(true);
             await apiClient.post('/staff/members', newMemberData);
@@ -170,6 +260,58 @@ const StaffMemberList = () => {
             setSaving(false);
         }
     };
+
+    const searchTargetMember = async (query) => {
+        if (!query || query.length < 2) {
+            setTransferResults([]);
+            return;
+        }
+        setIsSearchingTarget(true);
+        try {
+            const res = await apiClient.get(`/staff/members/search?search=${query}`);
+            // Filter out current member and those who already have active plans
+            setTransferResults(res.data.filter(m => m.id !== selectedMember.id));
+        } catch (err) {
+            console.error('Failed to search receiver', err);
+        } finally {
+            setIsSearchingTarget(false);
+        }
+    };
+
+    const handleTransferSubmit = async () => {
+        if (!transferTargetMember) {
+            toast.error('Please select a receiver member');
+            return;
+        }
+        if (!confirm(`Are you sure you want to transfer ${selectedMember.name}'s membership to ${transferTargetMember.name}? ${selectedMember.name} will lose access immediately.`)) {
+            return;
+        }
+
+        setIsTransferring(true);
+        try {
+            await apiClient.post('/staff/members/transfer', {
+                fromMemberId: selectedMember.id,
+                toMemberId: transferTargetMember.id,
+                toBranchId: transferToBranchId,
+                notes: transferNotes
+            });
+            toast.success('Membership transferred successfully!');
+            setIsTransferDrawerOpen(false);
+            setIsViewDrawerOpen(false);
+            fetchMembers();
+            // Reset state
+            setTransferTargetMember(null);
+            setTransferQuery('');
+            setTransferResults([]);
+            setTransferToBranchId('');
+            setTransferNotes('');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to transfer membership');
+        } finally {
+            setIsTransferring(false);
+        }
+    };
+
 
     const handleExport = () => {
         if (filtered.length === 0) return toast.error('No members to export');
@@ -208,6 +350,7 @@ const StaffMemberList = () => {
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
                 @keyframes spin { to { transform: rotate(360deg) } }
                 .fu { animation: fadeUp 0.4s ease both; }
+                .animate-spin { animation: spin 1s linear infinite; }
             `}</style>
 
             {/* HEADER BANNER */}
@@ -284,8 +427,8 @@ const StaffMemberList = () => {
                             <tr key={m.id} style={{ borderBottom: i < paginatedMembers.length - 1 ? `1px solid ${T.bg}` : 'none', transition: '0.2s' }}>
                                 <td style={{ padding: '20px 32px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900 }}>
-                                            {getInitials(m.name)}
+                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, overflow: 'hidden' }}>
+                                            {m.avatar ? <img src={m.avatar} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : getInitials(m.name)}
                                         </div>
                                         <div>
                                             <div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>{m.name}</div>
@@ -348,7 +491,7 @@ const StaffMemberList = () => {
                              
                              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 40, position: 'relative', zIndex: 2 }}>
                                 {selectedMember.avatar ? (
-                                    <img src={selectedMember.avatar} style={{ width: 88, height: 88, borderRadius: 24, objectCover: 'cover', border: '4px solid rgba(255,255,255,0.2)', boxShadow: '0 12px 30px rgba(0,0,0,0.15)' }} />
+                                    <img src={selectedMember.avatar} style={{ width: 88, height: 88, borderRadius: 24, objectFit: 'cover', border: '4px solid rgba(255,255,255,0.2)', boxShadow: '0 12px 30px rgba(0,0,0,0.15)' }} />
                                 ) : (
                                     <div style={{ width: 88, height: 88, borderRadius: 24, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 900, color: '#fff', border: '4px solid rgba(255,255,255,0.2)' }}>
                                         {getInitials(selectedMember.name)}
@@ -416,7 +559,28 @@ const StaffMemberList = () => {
                                         <div><div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Price</div><div style={{ fontSize: 16, fontWeight: 900 }}>₹{selectedMember.plan?.price || '0.00'}</div></div>
                                         <div><div style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sessions</div><div style={{ fontSize: 16, fontWeight: 900 }}>Unlimited</div></div>
                                     </div>
+                                    
+                                    {selectedMember.plan?.allowTransfer && selectedMember.status === 'Active' && (
+                                        <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                            <button 
+                                                onClick={() => {
+                                                    setTransferToBranchId(selectedMember.tenantId);
+                                                    setIsTransferDrawerOpen(true);
+                                                }}
+                                                style={{ 
+                                                    width: '100%', padding: '14px', borderRadius: 16, border: 'none', 
+                                                    background: '#fff', color: T.accent, fontSize: 12, fontWeight: 900, 
+                                                    textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                                                    boxShadow: '0 8px 15px rgba(0,0,0,0.2)'
+                                                }}
+                                            >
+                                                <ArrowRightLeft size={18} /> Transfer Membership
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
+
                             )}
 
                             {profileActiveTab === 'Benefits' && (
@@ -456,32 +620,336 @@ const StaffMemberList = () => {
             </RightDrawer>
 
             {/* ADD MEMBER DRAWER */}
-            <RightDrawer isOpen={isAddDrawerOpen} onClose={() => setIsAddDrawerOpen(false)} title="Register New Member" maxWidth="max-w-2xl">
-                <div style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 32 }}>
-                    <div style={{ padding: 40, background: '#F9F8FF', border: `2px dashed ${T.border}`, borderRadius: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                        <div style={{ width: 64, height: 64, borderRadius: 20, background: '#fff', color: T.subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${T.border}` }}><Camera size={32} /></div>
-                        <div style={{ fontSize: 10, fontWeight: 900, color: T.subtle, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Capture Member Avatar</div>
-                    </div>
-
-                    <div>
-                        <SectionDivider title="Mandatory Details" sub="Profile Basics" />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                            <div><label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: 8, marginLeft: 4 }}>Full Name</label><input style={INPUT_STYLE} value={newMemberData.name} onChange={e => setNewMemberData({...newMemberData, name: e.target.value})} placeholder="John Doe" /></div>
-                            <div><label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: 8, marginLeft: 4 }}>Phone</label><input style={INPUT_STYLE} value={newMemberData.phone} onChange={e => setNewMemberData({...newMemberData, phone: e.target.value})} placeholder="+91 00000 00000" /></div>
-                            <div style={{ gridColumn: 'span 2' }}><label style={{ fontSize: 10, fontWeight: 900, color: T.muted, textTransform: 'uppercase', display: 'block', marginBottom: 8, marginLeft: 4 }}>Email</label><input style={INPUT_STYLE} value={newMemberData.email} onChange={e => setNewMemberData({...newMemberData, email: e.target.value})} placeholder="john@example.com" /></div>
+            <RightDrawer isOpen={isAddDrawerOpen} onClose={() => setIsAddDrawerOpen(false)} title="Add New Member" maxWidth="max-w-2xl" hideHeader>
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#F9F8FF' }}>
+                    {/* CUSTOM HEADER */}
+                    <div style={{ padding: '32px 32px 24px', background: '#fff', borderBottom: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1A202C', margin: 0 }}>Add New Member</h2>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: '#A0AEC0', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Register a new member to the branch</p>
                         </div>
+                        <button onClick={() => setIsAddDrawerOpen(false)} style={{ background: 'none', border: 'none', color: '#A0AEC0', cursor: 'pointer' }}><X size={24} /></button>
                     </div>
 
-                    <div style={{ marginTop: 20, display: 'flex', gap: 16 }}>
-                        <button onClick={() => setIsAddDrawerOpen(false)} style={{ flex: 1, height: 52, borderRadius: 16, background: T.bg, border: 'none', color: T.muted, fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer' }}>Cancel</button>
-                        <button onClick={handleAddMember} disabled={saving} style={{ flex: 2, height: 52, borderRadius: 16, background: T.accent, border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 8px 25px rgba(124,92,252,0.2)' }}>
-                            {saving ? 'Processing...' : 'Register Member'}
-                        </button>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '40px 32px' }}>
+                        <form onSubmit={handleAddMember} style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
+                            
+                            {/* AVATAR CENTERED */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                                <div onClick={() => fileInputRef.current?.click()} style={{ 
+                                    width: 140, height: 140, borderRadius: '50%', background: '#EFEAFF', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                    position: 'relative', cursor: 'pointer', overflow: 'visible' 
+                                }}>
+                                    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+                                    {newMemberData.avatar ? (
+                                        <img src={newMemberData.avatar} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <span style={{ fontSize: 48, fontWeight: 900, color: '#7C5CFC' }}>{newMemberData.name ? getInitials(newMemberData.name) : 'N'}</span>
+                                    )}
+                                    <div style={{ 
+                                        position: 'absolute', bottom: 8, right: 8, width: 36, height: 36, 
+                                        borderRadius: '50%', background: '#7C5CFC', display: 'flex', 
+                                        alignItems: 'center', justifyContent: 'center', border: '3px solid #fff', color: '#fff' 
+                                    }}>
+                                        <Camera size={16} />
+                                    </div>
+                                </div>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: '#718096' }}>Click camera to upload photo</span>
+                            </div>
+
+                            {/* SECTION 1: BASIC INFORMATION */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#7C5CFC', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>1</div>
+                                    <h3 style={{ fontSize: 13, fontWeight: 900, color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Basic Information</h3>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Full Name <span style={{ color: '#E53E3E' }}>*</span></label>
+                                        <input required style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.name} onChange={e => setNewMemberData({...newMemberData, name: e.target.value})} placeholder="Enter full name" />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Email <span style={{ color: '#E53E3E' }}>*</span></label>
+                                        <input required style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.email} onChange={e => setNewMemberData({...newMemberData, email: e.target.value})} placeholder="Enter email address" />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Phone <span style={{ color: '#E53E3E' }}>*</span></label>
+                                        <input required style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.phone} onChange={e => setNewMemberData({...newMemberData, phone: e.target.value})} placeholder="+91 00000 00000" />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Gender</label>
+                                        <select style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.gender} onChange={e => setNewMemberData({...newMemberData, gender: e.target.value})}>
+                                            <option value="">Select gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Date of Birth</label>
+                                        <input type="date" style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.dob} onChange={e => setNewMemberData({...newMemberData, dob: e.target.value})} />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Source</label>
+                                        <select style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.source} onChange={e => setNewMemberData({...newMemberData, source: e.target.value})}>
+                                            <option value="Walk-in">Walk-in</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Referral">Referral</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SECTION 2: MEMBERSHIP PLAN */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#7C5CFC', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>2</div>
+                                    <h3 style={{ fontSize: 13, fontWeight: 900, color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Membership Plan</h3>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Assign Plan</label>
+                                        <select style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.planId} onChange={e => setNewMemberData({...newMemberData, planId: e.target.value})}>
+                                            <option value="">Select Plan</option>
+                                            {plans.map(p => <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>)}
+                                        </select>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Start Date</label>
+                                            <input type="date" style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                                value={newMemberData.startDate} onChange={e => setNewMemberData({...newMemberData, startDate: e.target.value})} />
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>Billing Cycles</label>
+                                            <select style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                                value={newMemberData.duration} onChange={e => setNewMemberData({...newMemberData, duration: parseInt(e.target.value)})}>
+                                                <option value="1">1 Cycle</option>
+                                                <option value="3">3 Cycles</option>
+                                                <option value="6">6 Cycles</option>
+                                                <option value="12">12 Cycles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SECTION 3: OTHER DETAILS */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#7C5CFC', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>3</div>
+                                    <h3 style={{ fontSize: 13, fontWeight: 900, color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Identification</h3>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>ID Type</label>
+                                        <input style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.idType} onChange={e => setNewMemberData({...newMemberData, idType: e.target.value})} placeholder="Aadhar/PAN etc" />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 800, color: '#4A5568', textTransform: 'uppercase' }}>ID Number</label>
+                                        <input style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', fontSize: 14, color: '#2D3748', outline: 'none' }}
+                                            value={newMemberData.idNumber} onChange={e => setNewMemberData({...newMemberData, idNumber: e.target.value})} placeholder="Enter ID number" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ACTIONS */}
+                            <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+                                <button type="button" onClick={() => setIsAddDrawerOpen(false)} style={{ flex: 1, padding: '16px', borderRadius: 16, border: '1px solid #E2E8F0', background: '#fff', color: '#718096', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer' }}>Cancel</button>
+                                <button type="submit" disabled={saving} style={{ flex: 2, padding: '16px', borderRadius: 16, border: 'none', background: '#7C5CFC', color: '#fff', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                    {saving ? 'Registering...' : 'Register Member'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </RightDrawer>
+
+            {/* MEMBERSHIP TRANSFER DRAWER */}
+            <RightDrawer isOpen={isTransferDrawerOpen} onClose={() => setIsTransferDrawerOpen(false)} title="Transfer Membership" maxWidth="max-w-md" hideHeader>
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#F9F8FF' }}>
+                    <div style={{ padding: '32px 32px 24px', background: '#fff', borderBottom: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1A202C', margin: 0 }}>Transfer Membership</h2>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: '#A0AEC0', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hand over active plan to another member</p>
+                        </div>
+                        <button onClick={() => setIsTransferDrawerOpen(false)} style={{ background: 'none', border: 'none', color: '#A0AEC0', cursor: 'pointer' }}><X size={24} /></button>
+                    </div>
+
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                            {/* CURRENT OWNER INFO */}
+                            <div style={{ padding: 20, background: T.accentLight, borderRadius: 20, border: `1px solid ${T.accent}30` }}>
+                                <div style={{ fontSize: 10, fontWeight: 900, color: T.accent, textTransform: 'uppercase', marginBottom: 12 }}>Current Owner</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900 }}>
+                                        {selectedMember?.name ? getInitials(selectedMember.name) : 'A'}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: 15, fontWeight: 900, color: T.text }}>{selectedMember?.name}</div>
+                                        <div style={{ fontSize: 10, fontWeight: 700, color: T.muted }}>PLAN: {selectedMember?.planName || 'Active Plan'} ({selectedMember?.daysLeft} days remaining)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SELECT RECEIVER */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                <SectionDivider title="Transfer To" sub="Search for receiver" />
+                                
+                                {!transferTargetMember ? (
+                                    <div style={{ position: 'relative' }}>
+                                        <Search size={18} color={T.subtle} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input 
+                                            style={{ ...INPUT_STYLE, paddingLeft: 44 }} 
+                                            placeholder="Member Name, ID or Phone..."
+                                            value={transferQuery}
+                                            onChange={(e) => {
+                                                setTransferQuery(e.target.value);
+                                                searchTargetMember(e.target.value);
+                                            }}
+                                        />
+                                        
+                                        {transferResults.length > 0 && (
+                                            <div style={{ 
+                                                position: 'absolute', top: '105%', left: 0, right: 0, 
+                                                background: '#fff', borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', 
+                                                border: `1px solid ${T.border}`, zIndex: 100, maxHeight: 240, overflowY: 'auto' 
+                                            }}>
+                                                {transferResults.map(m => (
+                                                    <div 
+                                                        key={m.id} 
+                                                        onClick={() => {
+                                                            setTransferTargetMember(m);
+                                                            setTransferQuery('');
+                                                            setTransferResults([]);
+                                                        }}
+                                                        style={{ 
+                                                            padding: '12px 16px', borderBottom: `1px solid ${T.border}`, 
+                                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12,
+                                                            transition: '0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => e.target.style.background = '#F9F8FF'}
+                                                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                                    >
+                                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>
+                                                            {getInitials(m.name)}
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 13, fontWeight: 800, color: T.text }}>{m.name}</div>
+                                                            <div style={{ fontSize: 9, fontWeight: 700, color: T.muted }}>{m.memberId} • {m.phone || 'No Phone'}</div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {isSearchingTarget && (
+                                             <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)' }}>
+                                                <Loader2 size={16} className="animate-spin text-accent" />
+                                             </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div style={{ 
+                                        padding: 20, background: '#fff', borderRadius: 24, border: `2px dashed ${T.accent}`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                            <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accentLight, color: T.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900 }}>
+                                                {getInitials(transferTargetMember.name)}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 15, fontWeight: 900, color: T.text }}>{transferTargetMember.name}</div>
+                                                <div style={{ fontSize: 10, fontWeight: 700, color: T.muted }}>Receiver (ID: {transferTargetMember.memberId})</div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={() => setTransferTargetMember(null)}
+                                            style={{ background: T.roseLight, color: T.rose, border: 'none', width: 32, height: 32, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* SELECT BRANCH */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <label style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Target Branch</label>
+                                <select 
+                                    style={{ ...INPUT_STYLE }}
+                                    value={transferToBranchId}
+                                    onChange={(e) => setTransferToBranchId(e.target.value)}
+                                >
+                                    {branches.map(b => (
+                                        <option key={b.id} value={b.id}>{b.name} {selectedMember?.tenantId === b.id ? '(Current)' : ''}</option>
+                                    ))}
+                                    {branches.length === 0 && <option value={selectedMember?.tenantId}>Current Branch</option>}
+                                </select>
+                            </div>
+
+                            {/* NOTES */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <label style={{ fontSize: 11, fontWeight: 800, color: T.muted, textTransform: 'uppercase' }}>Transfer Notes (Optional)</label>
+                                <textarea 
+                                    style={{ ...INPUT_STYLE, height: 100, padding: '16px 20px', resize: 'none' }}
+                                    placeholder="Reason for transfer or special instructions..."
+                                    value={transferNotes}
+                                    onChange={(e) => setTransferNotes(e.target.value)}
+                                />
+                            </div>
+
+                            {/* CONFIRMATION WARNING */}
+                            {transferTargetMember && (
+                                <div style={{ padding: '16px 20px', background: T.roseLight, borderRadius: 16, border: `1px solid ${T.rose}20`, display: 'flex', gap: 12 }}>
+                                    <Shield size={20} color={T.rose} />
+                                    <p style={{ fontSize: 12, color: T.rose, fontWeight: 700, margin: 0, lineHeight: 1.5 }}>
+                                        <b>Warning:</b> By confirming, {selectedMember.name}'s membership will be deactivated and transferred to {transferTargetMember.name}. This action cannot be reversed.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* FOOTER ACTIONS */}
+                            <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                                <button 
+                                    onClick={() => setIsTransferDrawerOpen(false)}
+                                    style={{ flex: 1, height: 52, borderRadius: 16, border: `2px solid ${T.border}`, background: 'transparent', color: T.muted, fontSize: 13, fontWeight: 900, cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={handleTransferSubmit}
+                                    disabled={isTransferring || !transferTargetMember}
+                                    style={{ 
+                                        flex: 2, height: 52, borderRadius: 16, border: 'none', background: T.accent, color: '#fff', 
+                                        fontSize: 13, fontWeight: 900, textTransform: 'uppercase', cursor: transferTargetMember ? 'pointer' : 'not-allowed',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                                        opacity: transferTargetMember ? 1 : 0.6
+                                    }}
+                                >
+                                    {isTransferring ? <Loader2 size={20} className="animate-spin" /> : <ArrowRightLeft size={18} />}
+                                    {isTransferring ? 'Processing...' : 'Confirm Transfer'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </RightDrawer>
         </div>
     );
 };
+
 
 export default StaffMemberList;

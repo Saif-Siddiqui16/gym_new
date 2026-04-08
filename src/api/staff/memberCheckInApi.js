@@ -12,14 +12,12 @@ export const getTodaysCheckIns = async () => {
 export const searchMember = async (query) => {
     try {
         if (!query) return null;
-        const response = await apiClient.get('/staff/members/search', { params: { search: query } });
-        const members = response.data;
-        // Search usually expects a single matching member or a precise list
-        return members.find(m =>
-            m.name.toLowerCase().includes(query.toLowerCase()) ||
-            m.memberId.toLowerCase().includes(query.toLowerCase()) ||
-            (m.phone && m.phone.includes(query))
-        ) || null;
+        // Use the unified search endpoint which includes Members + Trainers + Staff
+        const response = await apiClient.get('/staff/attendance/search-all', { params: { search: query } });
+        const results = response.data.data || [];
+        
+        // Find exact match or first result
+        return results[0] || null;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to search member';
     }
@@ -28,27 +26,27 @@ export const searchMember = async (query) => {
 export const getMemberSuggestions = async (query) => {
     try {
         if (!query || query.length < 2) return [];
-        const response = await apiClient.get('/staff/members/search', { params: { search: query } });
-        return response.data.slice(0, 5);
+        // Use the unified search endpoint
+        const response = await apiClient.get('/staff/attendance/search-all', { params: { search: query } });
+        return response.data.data || [];
     } catch (error) {
         throw error.response?.data?.message || 'Failed to fetch suggestions';
     }
 };
 
-export const checkInMember = async (id) => {
+export const checkInMember = async (payload) => {
     try {
-        // Backend mapping for check-in
-        const response = await apiClient.post('/staff/attendance/check-in', { memberId: id });
+        // payload is { memberId: id, type: 'Member' } OR { userId: id, type: 'Trainer' }
+        const response = await apiClient.post('/staff/attendance/check-in', payload);
         return { success: true, message: 'Check-in successful', data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data?.message || 'Check-in failed' };
     }
 };
 
-export const checkOutMember = async (id) => {
+export const checkOutMember = async (payload) => {
     try {
-        // Backend mapping for check-out
-        const response = await apiClient.post('/staff/attendance/check-out', { memberId: id });
+        const response = await apiClient.post('/staff/attendance/check-out', payload);
         return { success: true, message: 'Check-out successful', data: response.data };
     } catch (error) {
         return { success: false, message: error.response?.data?.message || 'Check-out failed' };

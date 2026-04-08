@@ -169,8 +169,12 @@ const Sidebar = ({ role, collapsed, setCollapsed }) => {
             {!collapsed && (
                 <div className="sidebar-footer">
                     <div className="role-card-premium">
-                        <div className="role-avatar-gradient">
-                            {role === ROLES.SUPER_ADMIN ? 'SU' : role === ROLES.BRANCH_ADMIN ? 'BA' : role.substring(0, 2).toUpperCase()}
+                        <div className="role-avatar-gradient overflow-hidden">
+                            {user?.avatar && user.avatar.length > 1 ? (
+                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                role === ROLES.SUPER_ADMIN ? 'SU' : role === ROLES.BRANCH_ADMIN ? 'BA' : role.substring(0, 2).toUpperCase()
+                            )}
                         </div>
                         <div className="role-info">
                             <span className="role-name">{role === ROLES.SUPER_ADMIN ? 'Super Admin' : role === ROLES.BRANCH_ADMIN ? 'Branch Admin' : role.charAt(0) + role.slice(1).toLowerCase()}</span>

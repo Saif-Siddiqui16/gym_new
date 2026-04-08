@@ -17,14 +17,14 @@ const MemberCheckOut = () => {
         try {
             const data = await getTodaysCheckIns();
             const insideOnly = data.history.filter(m => m.status === 'Inside');
-            // Adding mock duration since real duration requires time subtraction logic
             const formatted = insideOnly.map(m => ({
                 id: m.id,
                 name: m.name,
+                personType: m.personType,
                 time: m.in,
-                duration: 'Active',
-                memId: m.memId,
-                memberId: m.memberId
+                duration: m.duration,
+                code: m.code,
+                checkInPayload: m.checkInPayload
             }));
             setCheckedInMembers(formatted);
         } catch (error) {
@@ -34,17 +34,13 @@ const MemberCheckOut = () => {
         }
     };
 
-    const handleCheckOut = async (id, memberId) => {
-        // We pass the actual database member id to check out
-        const result = await checkOutMember(memberId);
-
-        if (result.success || true) {
-            if (result.success) {
-                toast.success(result.message);
-            } else {
-                toast.success("Check-out processed (Mock).");
-            }
+    const handleCheckOut = async (id, checkInPayload) => {
+        const result = await checkOutMember(checkInPayload);
+        if (result.success) {
+            toast.success(result.message);
             setCheckedInMembers(prev => prev.filter(m => m.id !== id));
+        } else {
+            toast.error(result.message);
         }
     };
 
@@ -52,8 +48,8 @@ const MemberCheckOut = () => {
         <div className="p-0 md:p-8 bg-gray-50 min-h-screen font-sans staffdashboard-membercheckout">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 animate-fade-in-down">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">Member Check-Out</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage members currently on the gym floor.</p>
+                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">Quick Check-Out</h1>
+                    <p className="text-sm text-gray-500 mt-1">Manage everyone currently on the gym floor.</p>
                 </div>
                 <div className="relative w-full md:w-72 group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors" size={18} />
@@ -72,9 +68,9 @@ const MemberCheckOut = () => {
                     <table className="saas-table saas-table-responsive">
                         <thead className="bg-gray-50/50">
                             <tr>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Member</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Name</th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Type</th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Check-In Time</th>
-                                <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Top-Up Duration</th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
@@ -82,7 +78,7 @@ const MemberCheckOut = () => {
                             {checkedInMembers
                                 .filter(row =>
                                     row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    row.memId.toLowerCase().includes(searchTerm.toLowerCase())
+                                    row.code.toLowerCase().includes(searchTerm.toLowerCase())
                                 )
                                 .map((row) => (
                                     <tr key={row.id} className="hover:bg-gray-50/80 transition-all duration-200 group">
@@ -93,24 +89,31 @@ const MemberCheckOut = () => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{row.name}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{row.memId}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{row.code}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4" data-label="Check-In Time">
-                                            <div className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
-                                                <Clock size={14} className="text-gray-400 group-hover:text-primary transition-colors" />
-                                                {row.time}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4" data-label="Duration">
-                                            <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-orange-50 text-orange-600 border border-orange-100 inline-block">
-                                                {row.duration} active
+                                        <td className="px-6 py-4" data-label="Type">
+                                            <span className={`text-[10px] font-black px-2.5 py-1 rounded-md border uppercase tracking-wider ${
+                                                row.personType === 'Member' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-orange-50 text-orange-600 border-orange-100'
+                                            }`}>
+                                                {row.personType}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4" data-label="Check-In Time">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                                                    <Clock size={14} className="text-gray-400 group-hover:text-primary transition-colors" />
+                                                    {row.time}
+                                                </div>
+                                                <span className="text-[10px] font-bold text-emerald-600 ml-1">
+                                                    Active for {row.duration}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-right" data-label="Actions">
                                             <button
-                                                onClick={() => handleCheckOut(row.id, row.memberId)}
+                                                onClick={() => handleCheckOut(row.id, row.checkInPayload)}
                                                 className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ml-auto shadow-md shadow-violet-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 group/btn"
                                             >
                                                 <LogOut size={14} />
@@ -122,11 +125,11 @@ const MemberCheckOut = () => {
                                 ))}
                             {checkedInMembers.filter(row =>
                                 row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                row.memId.toLowerCase().includes(searchTerm.toLowerCase())
+                                row.code.toLowerCase().includes(searchTerm.toLowerCase())
                             ).length === 0 && (
                                     <tr>
                                         <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
-                                            No members found matching your search.
+                                            No one found inside currently.
                                         </td>
                                     </tr>
                                 )}

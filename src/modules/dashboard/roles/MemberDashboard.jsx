@@ -254,9 +254,13 @@ const MemberDashboard = () => {
                         width: 64, height: 64, borderRadius: 20,
                         background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.3)',
-                        flexShrink: 0
+                        flexShrink: 0, overflow: 'hidden'
                     }}>
-                        <User size={32} color="#fff" strokeWidth={2.5} />
+                        {memberInfo.avatar ? (
+                            <img src={memberInfo.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <User size={32} color="#fff" strokeWidth={2.5} />
+                        )}
                     </div>
                     <div>
                         <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-1px' }}>

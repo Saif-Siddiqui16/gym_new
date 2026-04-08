@@ -90,7 +90,7 @@ const LockerManagement = () => {
     const stats = {
         total: lockers.length,
         available: lockers.filter(l => l.status === 'Available').length,
-        assigned: lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned').length,
+        assigned: lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned' || l.status === 'Reserved').length,
         maintenance: lockers.filter(l => l.status === 'Maintenance').length,
         occupancy: lockers.length > 0 ? `${Math.round((lockers.filter(l => l.status !== 'Available').length / lockers.length) * 100)}%` : '0%'
     };
@@ -231,7 +231,7 @@ const LockerManagement = () => {
                                             <Lock size={22} color={color} strokeWidth={2.5} />
                                         </div>
                                         <div style={{ fontSize: 16, fontWeight: 900, color: T.text, letterSpacing: '-0.5px' }}>{locker.number}</div>
-                                        <div style={{ fontSize: 9, fontWeight: 900, color: color, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{locker.status}</div>
+                                        <div style={{ fontSize: 8, fontWeight: 900, color: color, textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center', maxWidth: '80%' }}>{locker.status === 'Reserved' ? 'ASSIGNED BUT PAYMENT PENDING' : locker.status}</div>
                                     </div>
                                 );
                             })}
@@ -265,8 +265,8 @@ const LockerManagement = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned').length > 0 ? (
-                                        lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned').map((l, i) => (
+                                    {lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned' || l.status === 'Reserved').length > 0 ? (
+                                        lockers.filter(l => l.status === 'Occupied' || l.status === 'Assigned' || l.status === 'Reserved').map((l, i) => (
                                             <tr key={l.id} style={{ borderBottom: `1px solid ${T.bg}` }}>
                                                 <td style={{ padding: '20px 24px' }}><div style={{ fontSize: 14, fontWeight: 900, color: T.text }}>#{l.number}</div></td>
                                                 <td style={{ padding: '20px 24px' }}>

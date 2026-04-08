@@ -25,6 +25,7 @@ import RightDrawer from '../../../components/common/RightDrawer';
 import AddLockerDrawer from './AddLockerDrawer';
 import BulkCreateLockersDrawer from './BulkCreateLockersDrawer';
 import LockerDetailsDrawer from './LockerDetailsDrawer';
+import LockerFormDrawer from '../../../Staff/Lockers/LockerFormDrawer';
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS
@@ -66,7 +67,7 @@ const LockerManagement = () => {
     const [viewMode, setViewMode] = useState('grid');
 
     // Drawers
-    const [drawerType, setDrawerType] = useState(null); // 'add', 'bulk', 'details'
+    const [drawerType, setDrawerType] = useState(null); // 'add', 'bulk', 'details', 'assign'
     const [selectedLocker, setSelectedLocker] = useState(null);
 
     const loadData = async () => {
@@ -95,7 +96,11 @@ const LockerManagement = () => {
     }, [selectedBranch, searchTerm, statusFilter]);
 
     const openDrawer = (type, data = null) => {
-        setDrawerType(type);
+        if (type === 'details' && data?.status?.toLowerCase() === 'available') {
+            setDrawerType('assign');
+        } else {
+            setDrawerType(type);
+        }
         setSelectedLocker(data);
     };
 
@@ -266,6 +271,10 @@ const LockerManagement = () => {
                 <BulkCreateLockersDrawer onClose={closeDrawer} onSuccess={loadData} />
             </RightDrawer>
 
+            {drawerType === 'assign' && selectedLocker && (
+                <LockerFormDrawer isOpen={drawerType === 'assign'} selectedLocker={selectedLocker} onClose={closeDrawer} onSuccess={loadData} />
+            )}
+            
             {drawerType === 'details' && selectedLocker && (
                 <LockerDetailsDrawer isOpen={drawerType === 'details'} locker={selectedLocker} onClose={closeDrawer} onSuccess={loadData} />
             )}
@@ -337,6 +346,7 @@ const LockerCard = ({ locker, onClick }) => {
             <div style={{ position: 'absolute', top: 10, right: 10, width: 6, height: 6, borderRadius: 3, background: dotColor }} />
             <Lock size={20} color={textColor} strokeWidth={2.5} style={{ marginBottom: 6 }} />
             <span style={{ fontSize: 13, fontWeight: 900, color: textColor }}>{locker.number}</span>
+            <span style={{ fontSize: 7, fontWeight: 900, color: textColor, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2, textAlign: 'center', width: '90%' }}>{locker.status === 'Reserved' ? 'ASSIGNED BUT PAYMENT PENDING' : locker.status}</span>
         </div>
     );
 };
@@ -405,7 +415,7 @@ const StatusBadge = ({ status }) => {
     const { bg, text } = config[status] || { bg: T.bg, text: T.muted };
     return (
         <span style={{ padding: '6px 14px', borderRadius: 12, background: bg, color: text, fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {status}
+            {status === 'Reserved' ? 'ASSIGNED BUT PAYMENT PENDING' : status}
         </span>
     );
 };

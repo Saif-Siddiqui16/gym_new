@@ -13,7 +13,8 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
         lockerId: '',
         expiryDate: '',
         notes: '',
-        isPaid: false
+        isPaid: false,
+        price: '0'
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +34,8 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
             setFormData(prev => ({
                 ...prev,
                 lockerId: selectedLocker.id,
-                isPaid: selectedLocker.isPaid || false
+                isPaid: selectedLocker.isPaid || false,
+                price: selectedLocker.price || '500'
             }));
         }
     }, [isOpen, selectedLocker]);
@@ -48,8 +50,15 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
         }
 
         setIsSubmitting(true);
+        console.log('[LockerFormDrawer] Submitting Assignment:', {
+            lockerId: formData.lockerId,
+            memberId: selectedMember.id,
+            memberName: selectedMember.name,
+            isPaid: formData.isPaid,
+            price: formData.price
+        });
         try {
-            const result = await assignLocker(formData.lockerId, selectedMember.id, selectedMember.name, formData.isPaid, formData.notes);
+            const result = await assignLocker(formData.lockerId, selectedMember.id, selectedMember.name, formData.isPaid, formData.notes, formData.price);
             if (result.success) {
                 toast.success(result.message);
                 onSuccess();
@@ -119,34 +128,77 @@ const LockerFormDrawer = ({ isOpen, onClose, selectedLocker, onSuccess }) => {
                         <CustomDropdown
                             options={members.map(m => m.name)}
                             value={formData.memberName}
-                            onChange={(val) => setFormData({ ...formData, memberName: val })}
+                            onChange={(val) => {
+                                const member = members.find(m => m.name === val);
+                                const isIncluded = Boolean(member?.plan?.includeLocker);
+                                setFormData({ 
+                                    ...formData, 
+                                    memberName: val,
+                                    isPaid: isIncluded ? false : formData.isPaid
+                                });
+                                if (isIncluded) {
+                                    toast.success('Locker is included in this member\'s plan!');
+                                }
+                            }}
                             placeholder="Choose a member"
                         />
                     </div>
 
                     {/* Toggle Section */}
-                    <div className="p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-widest">Billing Mode</label>
-                                <p className="text-[10px] text-slate-500 font-medium italic">Should this locker be billed?</p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, isPaid: !formData.isPaid })}
-                                className={`w-14 h-8 rounded-full p-1 transition-all duration-300 ${formData.isPaid ? 'bg-primary' : 'bg-slate-300'}`}
-                            >
-                                <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${formData.isPaid ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </button>
-                        </div>
+                    {(() => {
+                        const member = members.find(m => m.name === formData.memberName);
+                        const isIncluded = Boolean(member?.plan?.includeLocker);
+                        
+                        return (
+                            <div className="p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <label className="text-xs font-black text-slate-700 uppercase tracking-widest">Billing Mode</label>
+                                        <p className="text-[10px] text-slate-500 font-medium italic">
+                                            {isIncluded ? 'Charges covered by membership' : 'Should this locker be billed?'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        disabled={isIncluded}
+                                        onClick={() => setFormData({ ...formData, isPaid: !formData.isPaid })}
+                                        className={`w-14 h-8 rounded-full p-1 transition-all duration-300 ${formData.isPaid ? 'bg-primary' : 'bg-slate-300'} ${isIncluded ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${formData.isPaid ? 'translate-x-6' : 'translate-x-0'}`} />
+                                    </button>
+                                </div>
 
-                        {formData.isPaid && (
-                            <div className="pt-3 border-t border-slate-200 flex items-center justify-between animate-in fade-in duration-300">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Monthly Rate</span>
-                                <span className="text-sm font-black text-slate-800">₹{selectedLocker?.price || 500}</span>
+                                {isIncluded ? (
+                                    <div className="pt-3 border-t border-slate-200 flex items-center gap-2 animate-in fade-in duration-300">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                                            <CheckCircle size={12} className="text-white" />
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest block">Already Included in Plan</span>
+                                            <span className="text-[10px] text-emerald-500 font-bold italic">No extra charges applicable</span>
+                                        </div>
+                                    </div>
+                                ) : formData.isPaid && (
+                                    <div className="pt-3 border-t border-slate-200 space-y-3 animate-in fade-in duration-300">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Monthly Rate</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-black text-slate-400">₹</span>
+                                                <input 
+                                                    type="number"
+                                                    value={formData.price}
+                                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                                    placeholder="Rate"
+                                                    className="w-24 px-3 py-1.5 bg-white border-2 border-primary/20 rounded-lg text-sm font-black text-slate-800 focus:border-primary outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-[9px] text-slate-400 font-medium italic">Enter the custom monthly rate for this locker assignment.</p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        );
+                    })()}
 
                     {/* Expiry Date */}
                     <div className="space-y-3">

@@ -39,7 +39,7 @@ const MemberCheckIn = () => {
 
     const handleSelectMember = async (member) => {
         setFoundMember(member);
-        setIsExpired(member.status === 'Expired');
+        setIsExpired(member.personType === 'Member' && member.status === 'Expired');
         setSearchQuery(member.name);
         setSuggestions([]);
         setShowSuggestions(false);
@@ -50,23 +50,24 @@ const MemberCheckIn = () => {
         const query = providedQuery || searchQuery;
         if (!query) return;
 
-        const member = await searchMember(query);
-        if (member) {
-            setFoundMember(member);
-            setIsExpired(member.status !== 'Active');
+        const result = await searchMember(query);
+        if (result) {
+            setFoundMember(result);
+            setIsExpired(result.personType === 'Member' && result.status !== 'Active');
             setSuggestions([]);
             setShowSuggestions(false);
         } else {
             setFoundMember(null);
-            toast.error('No member found with this code/name/phone');
+            toast.error('No one found with this code/name/phone');
         }
     };
 
     const handleCheckIn = async () => {
         if (foundMember) {
-            const result = await checkInMember(foundMember.id);
+            // checkInPayload contains { memberId: id, type: 'Member' } or { userId: id, type: 'Trainer' }
+            const result = await checkInMember(foundMember.checkInPayload);
             if (result.success) {
-                toast.success(`${foundMember.name} checked in successfully!`);
+                toast.success(`${foundMember.personType} ${foundMember.name} checked in successfully!`);
                 setFoundMember(null);
                 setSearchQuery('');
             } else {
@@ -89,13 +90,13 @@ const MemberCheckIn = () => {
                             <div>
                                 <div className="flex items-center gap-3">
                                     <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-primary to-fuchsia-600 bg-clip-text text-transparent">
-                                        Member Check-In
+                                        Quick Check-In
                                     </h1>
                                     <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-primary text-white text-[10px] font-black rounded-md shadow-sm animate-pulse">
                                         LIVE
                                     </span>
                                 </div>
-                                <p className="text-slate-600 text-sm mt-1">Search member to grant access</p>
+                                <p className="text-slate-600 text-sm mt-1">Search Member/Trainer/Staff to grant access</p>
                             </div>
                         </div>
                     </div>
@@ -116,7 +117,7 @@ const MemberCheckIn = () => {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Search by Name, ID, or Phone..."
+                                        placeholder="Search by Name, Code, or Phone..."
                                         className="w-full pl-11 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-800 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -140,23 +141,23 @@ const MemberCheckIn = () => {
                             {/* Suggestions Dropdown */}
                             {showSuggestions && suggestions.length > 0 && (
                                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200 ring-1 ring-black/5">
-                                    {suggestions.map((member) => (
+                                    {suggestions.map((m) => (
                                         <button
-                                            key={member.id}
-                                            onClick={() => handleSelectMember(member)}
+                                            key={m.id + m.personType}
+                                            onClick={() => handleSelectMember(m)}
                                             className="w-full px-4 py-3 text-left hover:bg-primary-light transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-violet-100 text-primary flex items-center justify-center font-bold text-sm shadow-inner group-hover:scale-110 transition-transform">
-                                                    {member.name.charAt(0)}
+                                                    {m.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-bold text-slate-800">{member.name}</p>
-                                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-wider">{member.id} • {member.phone}</p>
+                                                    <p className="text-sm font-bold text-slate-800">{m.name} <span className="text-[10px] text-primary ml-1">({m.personType})</span></p>
+                                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-wider">{m.code} • {m.phone}</p>
                                                 </div>
                                             </div>
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${member.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                                {member.status}
+                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide ${m.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                                {m.status}
                                             </span>
                                         </button>
                                     ))}
@@ -186,9 +187,12 @@ const MemberCheckIn = () => {
                                 <div>
                                     <h2 className="text-3xl font-black text-slate-900 leading-tight mb-2">{foundMember.name}</h2>
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest border border-orange-100">
+                                            {foundMember.personType}
+                                        </span>
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">
                                             <User size={14} />
-                                            {foundMember.id}
+                                            {foundMember.code}
                                         </span>
                                         <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wide border ${isExpired
                                             ? 'bg-red-50 text-red-600 border-red-100'
@@ -200,20 +204,24 @@ const MemberCheckIn = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 pt-2">
-                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Expiration</div>
-                                        <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                            <Calendar size={14} className="text-primary" />
-                                            {foundMember.expiryDate ? new Date(foundMember.expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'No expiry'}
-                                        </div>
-                                    </div>
-                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Plan</div>
-                                        <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                            <CreditCard size={14} className="text-primary" />
-                                            {foundMember.plan?.name || 'No Plan'}
-                                        </div>
-                                    </div>
+                                    {foundMember.personType === 'Member' && (
+                                        <>
+                                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Expiration</div>
+                                                <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                    <Calendar size={14} className="text-primary" />
+                                                    {foundMember.expiryDate ? new Date(foundMember.expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'No expiry'}
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Plan</div>
+                                                <div className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                    <CreditCard size={14} className="text-primary" />
+                                                    {foundMember.planName || 'No Plan'}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                     {foundMember.phone && (
                                         <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 col-span-2">
                                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone</div>
@@ -233,10 +241,10 @@ const MemberCheckIn = () => {
                                     <AlertCircle size={24} strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-red-800 text-sm mb-1">Membership Not Active</h4>
+                                    <h4 className="font-bold text-red-800 text-sm mb-1">Access Restricted</h4>
                                     <p className="text-xs text-red-600 font-medium leading-relaxed">
-                                        This member's status is <strong>{foundMember.status}</strong>.
-                                        {foundMember.expiryDate && ` Expired on ${new Date(foundMember.expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}.`} Please request renewal before granting entry.
+                                        This {foundMember.personType}'s status is <strong>{foundMember.status}</strong>.
+                                        Please ensure status is Active before granting entry.
                                     </p>
                                 </div>
                             </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, User, Calendar, FileText, CheckCircle, LogOut, ChevronRight, Hash } from 'lucide-react';
 import { getLockers, assignLocker } from '../../api/staff/lockerApi';
+import { getMembers } from '../../api/staff/memberApi';
 import CustomDropdown from '../../components/common/CustomDropdown';
 import { toast } from 'react-hot-toast';
 
@@ -10,37 +11,69 @@ const AssignLocker = () => {
     const { state } = useLocation();
     const [formData, setFormData] = useState({
         memberName: state?.memberName || '',
+        memberId: state?.memberId || '',
         lockerId: '',
         expiryDate: '',
         notes: ''
     });
 
     const [availableLockers, setAvailableLockers] = useState([]);
-    const members = ['Rahul Sharma', 'Vikram Malhotra', 'Sneha Gupta', 'Amit Verma', 'Alice Johnson'];
+    const [allMembers, setAllMembers] = useState([]);
+    const [isLockerIncluded, setIsLockerIncluded] = useState(false);
 
     useEffect(() => {
-        const fetchLockers = async () => {
-            const allLockers = await getLockers();
-            const available = allLockers.filter(l => l.status.toLowerCase() === 'available');
-            setAvailableLockers(available);
+        const fetchData = async () => {
+            try {
+                const [lockers, membersList] = await Promise.all([
+                    getLockers(),
+                    getMembers()
+                ]);
+                
+                const available = lockers.filter(l => l.status.toLowerCase() === 'available');
+                setAvailableLockers(available);
+                setAllMembers(membersList);
+
+                // If member passed from state, check their plan
+                if (state?.memberId) {
+                    const member = membersList.find(m => m.id === state.memberId);
+                    if (member?.plan?.includeLocker) {
+                        setIsLockerIncluded(true);
+                    }
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                toast.error('Failed to fetch data');
+            }
         };
-        fetchLockers();
-    }, []);
+        fetchData();
+    }, [state]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        if (name === 'memberId') {
+            const member = allMembers.find(m => String(m.id) === String(value));
+            setFormData(prev => ({ ...prev, memberName: member?.name || '' }));
+            setIsLockerIncluded(member?.plan?.includeLocker || false);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await assignLocker(formData.lockerId, "mock-mem-id", formData.memberName);
+        if (!formData.memberId || !formData.lockerId) {
+            toast.error('Please select both a member and a locker');
+            return;
+        }
+
+        const result = await assignLocker(formData.lockerId, formData.memberId, formData.memberName);
 
         if (result.success) {
             toast.success(result.message);
-            setFormData({ memberName: '', lockerId: '', expiryDate: '', notes: '' });
+            setFormData({ memberName: '', memberId: '', lockerId: '', expiryDate: '', notes: '' });
+            setIsLockerIncluded(false);
             const allLockers = await getLockers();
-            setAvailableLockers(allLockers.filter(l => l.status === 'Available'));
+            setAvailableLockers(allLockers.filter(l => l.status.toLowerCase() === 'available'));
         } else {
             toast.error(result.message);
         }
@@ -92,12 +125,18 @@ const AssignLocker = () => {
                                 Member Name
                             </label>
                             <CustomDropdown
-                                options={members}
-                                value={formData.memberName}
-                                onChange={(val) => handleChange({ target: { name: 'memberName', value: val } })}
+                                options={allMembers.map(m => ({ value: m.id, label: `${m.name} (${m.memberId})` }))}
+                                value={formData.memberId}
+                                onChange={(val) => handleChange({ target: { name: 'memberId', value: val } })}
                                 placeholder="Select Member"
                                 className="w-full"
                             />
+                            {isLockerIncluded && (
+                                <div className="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-100 animate-fadeIn">
+                                    <CheckCircle size={16} />
+                                    Locker already included in this member's plan
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
